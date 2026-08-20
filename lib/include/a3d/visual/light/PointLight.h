@@ -20,7 +20,7 @@ namespace a3d {
     class PointLight : public Light {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         PointLight();
         explicit PointLight(const std::string& name);
@@ -33,13 +33,13 @@ namespace a3d {
         PointLight(PointLight&&) noexcept                   = default;
         PointLight&        operator=(PointLight&&) noexcept = default;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const Attenuation& attenuation() const;
         void               attenuation(const Attenuation& attenuation);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Attenuation _attenuation;
     };

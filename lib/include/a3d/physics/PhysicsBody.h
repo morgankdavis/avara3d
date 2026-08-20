@@ -26,7 +26,7 @@ namespace a3d {
     class PhysicsBody {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Type : uint8_t {
             Static,
@@ -39,13 +39,13 @@ namespace a3d {
             // VolumeCentroid
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::unique_ptr<PhysicsBody> StaticBody();
         static std::unique_ptr<PhysicsBody> DynamicBody();
         static std::unique_ptr<PhysicsBody> KinematicBody();
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit PhysicsBody(Type type);
         PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
@@ -58,7 +58,7 @@ namespace a3d {
 
         ~PhysicsBody();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         Type                                 type() const;
         void                                 type(Type type);
@@ -147,7 +147,7 @@ namespace a3d {
         bool                    autocalculatesMomentOfInertia() const;
         void                    autocalculatesMomentOfInertia(bool autocalculate);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void                    attachedToNode(const std::shared_ptr<Node>& node);
         void                    detachedFromNode(const std::shared_ptr<Node>& node);
@@ -174,14 +174,14 @@ namespace a3d {
         PhysicsBodyProxy*       proxy() const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                              checkAutocreateShape(const std::shared_ptr<Node>& node);
         void                              checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
         void                              checkAddToWorld();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::shared_ptr<PhysicsShape>     _shape;
         std::unique_ptr<PhysicsBodyProxy> _proxy;

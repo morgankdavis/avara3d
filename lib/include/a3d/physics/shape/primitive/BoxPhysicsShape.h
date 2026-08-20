@@ -16,11 +16,11 @@ namespace a3d {
     class BoxPhysicsShape : public PhysicsShape {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         BoxPhysicsShape(float width, float height, float length);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float width() const;
         void  width(float width);
@@ -31,13 +31,13 @@ namespace a3d {
         float length() const;
         void  length(float length);
 
-        /// PhysicsShape Public Member Functions ///
+        // [PhysicsShape Public Member Functions]
 
         Type  type() const override;
         void  type(Type type) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float _width;
         float _height;

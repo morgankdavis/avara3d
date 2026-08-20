@@ -17,12 +17,12 @@ namespace a3d {
 
     class LogSink {
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
     public:
         virtual ~LogSink() = 0;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
         virtual void write(const std::string& output, Log::Level level) = 0;
         virtual void flush();

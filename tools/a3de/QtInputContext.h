@@ -18,11 +18,11 @@ namespace a3d::qt {
     class QtInputContext : public DesktopInputContext {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         QtInputContext();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void keyPressed(int qtKey, int modifiers);
         void keyReleased(int qtKey, int modifiers);
@@ -31,18 +31,18 @@ namespace a3d::qt {
         void mouseButtonReleased(int qtButton);
         void mouseWheelScrolled(int x, int y);
 
-        /// InputContext Internal Member Functions ///
+        // [InputContext Internal Member Functions]
 
         void attachedToScene(Scene& scene) override;
         void visualWorldAttachedToScene(Scene& scene) override;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void        viewport(QtViewport* viewport);
         QtViewport* viewport() const;
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         QtViewport* _viewport;
     };

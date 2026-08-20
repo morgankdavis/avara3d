@@ -11,7 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 Timer::Timer(bool start):
     _start {},

@@ -36,7 +36,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
     return make_unique<PhysicsBody>(Type::Static);
@@ -50,11 +50,11 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
 }
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PhysicsBody::PhysicsBody(Type type):
     _shape {},
@@ -86,7 +86,7 @@ PhysicsBody::~PhysicsBody() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 PhysicsBody::Type PhysicsBody::type() const {
     return _proxy->type();
@@ -463,7 +463,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
     _proxy->autocalculatesMomentOfInertia(autocalculate);
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
     log::t()("node: {:p}", static_cast<void*>(node.get()));
@@ -600,7 +600,7 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
     return _proxy.get();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
@@ -669,7 +669,7 @@ void PhysicsBody::checkAddToWorld() {
     }
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
 

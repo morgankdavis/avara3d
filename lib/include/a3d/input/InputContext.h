@@ -20,7 +20,7 @@ namespace a3d {
     class InputContext {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct UpdateInfo {
 
@@ -38,7 +38,7 @@ namespace a3d {
 
         using DidUpdateCallback = std::function<void(InputContext& inputContext, const UpdateInfo& info)>;
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         InputContext();
 
@@ -50,19 +50,19 @@ namespace a3d {
 
         virtual ~InputContext();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         DidUpdateCallback didUpdateCallback() const;
         void              didUpdateCallback(DidUpdateCallback callback);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual void      update(const UpdateInfo& info)           = 0;
         virtual void      attachedToScene(Scene& scene)            = 0;
         virtual void      visualWorldAttachedToScene(Scene& scene) = 0;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         DidUpdateCallback _didUpdateCallback;
     };

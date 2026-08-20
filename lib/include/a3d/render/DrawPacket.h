@@ -22,7 +22,7 @@ namespace a3d {
     class MeshElement;
     class Node;
 
-    /// Internal Types ///
+    // [Internal Types]
 
     struct BackgroundPass {
         PipelineId                pipelineId  = INVALID_PIPELINE_ID;

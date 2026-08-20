@@ -18,7 +18,7 @@ namespace a3d {
     class Profiler {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Tag {
             Frame,
@@ -29,7 +29,7 @@ namespace a3d {
             Application
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Profiler() = default;
 
@@ -39,7 +39,7 @@ namespace a3d {
         Profiler(Profiler&&)            = delete;
         Profiler& operator=(Profiler&&) = delete;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         void      add(Tag tag, std::chrono::nanoseconds ns) noexcept;
         void      add(const std::string& key, std::chrono::nanoseconds ns) noexcept; // ! untested
@@ -54,7 +54,7 @@ namespace a3d {
         void                     reset();
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::map<Tag, std::chrono::nanoseconds>         _taggedSamples;
         std::map<std::string, std::chrono::nanoseconds> _keyedSamples;

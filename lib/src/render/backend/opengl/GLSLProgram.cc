@@ -22,12 +22,12 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static optional<string> ShaderSourceAt(const string& name, ShaderType type);
 static optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 GLSLProgram::GLSLProgram(const string& name):
     _name {name},
@@ -75,7 +75,7 @@ GLSLProgram::~GLSLProgram() {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 bool GLSLProgram::compile() {
     if (!compile(_vertexShaderSource, ShaderType::Vertex)) {
@@ -319,7 +319,7 @@ bool GLSLProgram::isLinked() const {
     return _isLinked;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) {
 
@@ -443,7 +443,7 @@ void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 optional<string> ShaderSourceAt(const string& name, ShaderType type) {
 

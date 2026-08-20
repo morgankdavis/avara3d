@@ -13,7 +13,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void Profiler::add(Tag tag, chrono::nanoseconds ns) noexcept {
     if (_taggedSamples.contains(tag)) {

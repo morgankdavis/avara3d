@@ -23,7 +23,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Image::Image(const filesystem::path& path, bool flipVertical, bool flipHorizontal):
     _buffer {},
@@ -114,7 +114,7 @@ Image::~Image() {
     log::d()("Destroying Image {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned Image::width() const {
     return _width;
@@ -161,7 +161,7 @@ bool Image::writePNG(const filesystem::path& path) const {
            != 0;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizontal) {
 

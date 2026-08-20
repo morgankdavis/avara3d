@@ -27,7 +27,7 @@ namespace a3d {
     class Material {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         using Property = std::variant<std::monostate, std::shared_ptr<Texture>, Color>;
 
@@ -57,13 +57,13 @@ namespace a3d {
             PremultipliedAlpha
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::shared_ptr<Material> DefaultMaterial();
         static std::shared_ptr<Material> DiffuseMaterial(Property property);
         static std::shared_ptr<Material> EmissionMaterial(Property property);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Material();
         Material(const Property& ambient, const Property& diffuse, const Property& specular);
@@ -80,7 +80,7 @@ namespace a3d {
 
         ~Material();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>& name() const;
         void                              name(const std::string& name);
@@ -128,7 +128,7 @@ namespace a3d {
         bool                              depthWriteEnabled() const;
         void                              depthWriteEnabled(bool enabled);
 
-        /// Internal Types ///
+        // [Internal Types]
 
         using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
 
@@ -137,12 +137,12 @@ namespace a3d {
             All  = UINT_MAX
         };
 
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static std::shared_ptr<Material> MissingTextureMaterial();
         static Property                  MissingTextureProperty();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         PropertyList                     properties() const;
 
@@ -152,7 +152,7 @@ namespace a3d {
         void                             dirtyMask(DirtyMask mask);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         MaterialId                 _id;
         std::optional<std::string> _name;

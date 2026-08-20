@@ -16,7 +16,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 FileLogSink::FileLogSink(const filesystem::path& relPath, int maxFiles, int maxFilesize):
     _filepath {relPath},
@@ -46,7 +46,7 @@ FileLogSink::~FileLogSink() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const filesystem::path& FileLogSink::filepath() const {
     return _filepath;
@@ -60,7 +60,7 @@ int FileLogSink::maxFilesize() const {
     return _maxFilesize;
 }
 
-/// Public LogSink Member Functions ///
+// [Public LogSink Member Functions]
 
 void FileLogSink::write(const string& output, Log::Level level) {
 
@@ -76,7 +76,7 @@ void FileLogSink::flush() {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void FileLogSink::openStream() {
 

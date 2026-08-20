@@ -19,7 +19,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 const BuildInfo& BuildInfo::Info() {
 
@@ -55,7 +55,7 @@ string BuildInfo::OriginString(Origin origin) {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned BuildInfo::number() const {
     return _number;
@@ -77,7 +77,7 @@ const std::tm& BuildInfo::time() const {
     return _time;
 }
 
-/// Private Lifecycle Functions ///
+// [Private Lifecycle Functions]
 
 BuildInfo::BuildInfo() {
 

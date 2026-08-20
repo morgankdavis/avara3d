@@ -19,7 +19,7 @@ namespace a3d {
     class Image {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit Image(const std::filesystem::path& path,
                        bool                         flipVertical   = true,
@@ -40,7 +40,7 @@ namespace a3d {
 
         ~Image();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         unsigned               width() const;
         unsigned               height() const;
@@ -50,13 +50,13 @@ namespace a3d {
         bool                   writePNG(const std::filesystem::path& path) const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                    loadBuffer(const Buffer& buffer, bool flipVertical, bool flipHorizontal);
         void                    flipVertical(); // "flip"
         void                    flipHorizontal(); // "mirror"
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         unsigned                _width;
         unsigned                _height;

@@ -39,7 +39,7 @@ namespace a3d {
     class Renderer {
 
     public:
-        /// Internal Types ///
+        // [Internal Types]
 
         struct Capabilities {
             bool wireframeRendering {false};
@@ -76,7 +76,7 @@ namespace a3d {
             Profiler*            profiler = nullptr;
         };
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         Renderer();
 
@@ -88,7 +88,7 @@ namespace a3d {
 
         virtual ~Renderer() = 0;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual bool                   initialize(const RenderContext& context) = 0;
         virtual bool                   isInitialized() const                    = 0;
@@ -125,7 +125,7 @@ namespace a3d {
         virtual std::unique_ptr<Image> snapshot(const RenderContext& context) const = 0;
 
     protected:
-        /// Protected Member Functions ///
+        // [Protected Member Functions]
 
         virtual void resolvePacket(DrawPacket& packet, const FrameParams& frame)    = 0;
         virtual void drawPacket(const DrawPacket& packet, const FrameParams& frame) = 0;

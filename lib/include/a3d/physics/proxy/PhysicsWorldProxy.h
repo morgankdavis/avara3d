@@ -31,7 +31,7 @@ namespace a3d {
     class PhysicsWorldProxy {
 
     public:
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class ContactEventType : uint8_t {
             Begin,
@@ -46,7 +46,7 @@ namespace a3d {
 
         using ContactEvents = std::vector<ContactEvent>;
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit PhysicsWorldProxy(PhysicsWorld& world);
 
@@ -58,7 +58,7 @@ namespace a3d {
 
         virtual ~PhysicsWorldProxy();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual void                          add(PhysicsBody& body)    = 0;
         virtual void                          remove(PhysicsBody& body) = 0;

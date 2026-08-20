@@ -29,13 +29,13 @@ static_assert(__cplusplus >= 202002L, "C++20 is required for std::source_locatio
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static string TimestampString();
 static string HeaderString(const string& logName, Log::Level level, const Log::SourceInfo& sourceInfo);
 static string HeaderString(const string& logName, Log::Level level);
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 Log& Log::AppLog() {
     if (_appLog) {
@@ -54,7 +54,7 @@ Log& Log::MainLog() {
     return main;
 }
 
-/// Public Types ///
+// [Public Types]
 
 Log::Entry::Entry(Log& logger, Log::Level level, SourceInfo source):
     _logger(&logger),
@@ -73,7 +73,7 @@ void Log::Entry::raw(string_view msg) const {
     _logger->write(_level, _source, msg);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Log::Log():
     _name("unnamed"),
@@ -97,7 +97,7 @@ Log::Log(const string& name, vector<unique_ptr<LogSink>> sinks, Log::Level level
 
 Log::~Log() = default;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const string& Log::name() const {
     return _name;
@@ -173,7 +173,7 @@ void Log::flush() {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 Log::Entry Log::trace(std::source_location where) {
     return Entry {*this, Log::Level::Trace, MakeSourceInfo(where)};
@@ -231,7 +231,7 @@ void Log::write(Log::Level level, string_view msg) {
     dispatch(level, out);
 }
 
-/// Private Static Member Functions ///
+// [Private Static Member Functions]
 
 string_view Log::Basename(string_view p) {
     const size_t slash = p.find_last_of("/\\");
@@ -271,14 +271,14 @@ Log::SourceInfo Log::MakeSourceInfo(const std::source_location& where) {
     return SourceInfo {file, static_cast<unsigned>(where.line()), func};
 }
 
-/// Private Lifecycle ///
+// [Private Lifecycle]
 
 Log::Log(const string& name):
     _name(name),
     _level(DEFAULT_LEVEL),
     _flushLevel(DEFAULT_FLUSH_LEVEL) {}
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Log::log(Log::Level level, const string& msg) {
     if (!enabled(level)) {
@@ -319,7 +319,7 @@ bool Log::enabled(Log::Level level) const {
            >= static_cast<std::underlying_type_t<Log::Level>>(_level);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 static string TimestampString() {
     constexpr size_t BUF_SIZE = 256;
@@ -348,7 +348,7 @@ static string HeaderString(const string& logName, Log::Level level, const Log::S
                        sourceInfo.filename, sourceInfo.line, sourceInfo.function);
 }
 
-/// Private Static Member Variables ///
+// [Private Static Member Variables]
 
 unique_ptr<Log> Log::_appLog {};
 

@@ -16,11 +16,11 @@ namespace a3d {
     class ConePhysicsShape : public PhysicsShape {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         ConePhysicsShape(float radius, float height);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float radius() const;
         void  radius(float radius);
@@ -28,13 +28,13 @@ namespace a3d {
         float height() const;
         void  height(float height);
 
-        /// PhysicsShape Public Member Functions ///
+        // [PhysicsShape Public Member Functions]
 
         Type  type() const override;
         void  type(Type type) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float _radius;
         float _height;

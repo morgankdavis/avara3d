@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PerspectiveCamera::PerspectiveCamera():
     Camera {},
@@ -44,7 +44,7 @@ PerspectiveCamera::~PerspectiveCamera() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float PerspectiveCamera::zNear() const {
     return _zNear;
@@ -70,7 +70,7 @@ void PerspectiveCamera::yFov(float yFov) {
     _yFov = yFov;
 }
 
-/// Camera Internal Member Functions ///
+// [Camera Internal Member Functions]
 
 mat4 PerspectiveCamera::projection(const uvec2& viewportSize) const {
 

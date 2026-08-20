@@ -28,7 +28,7 @@ namespace a3d {
     class PhysicsWorld;
     class Scene;
 
-    /// Internal Types ///
+    // [Internal Types]
 
     enum class RenderStyle : uint8_t {
         Normal,

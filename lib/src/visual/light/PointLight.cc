@@ -14,7 +14,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PointLight::PointLight():
     Light() {}
@@ -45,7 +45,7 @@ PointLight::PointLight(const string& name, const Color& color):
 //	}
 //}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const Attenuation& PointLight::attenuation() const {
     return _attenuation;

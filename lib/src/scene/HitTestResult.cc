@@ -11,7 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 shared_ptr<Node> HitTestResult::node() const {
     return _node.lock();
@@ -45,7 +45,7 @@ const math::mat4& HitTestResult::modelTransform() const {
     return _modelTransform;
 }
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 HitTestResult::HitTestResult(weak_ptr<Node>     node,
                              shared_ptr<Mesh>   mesh,

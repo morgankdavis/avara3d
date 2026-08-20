@@ -12,13 +12,13 @@
 
 using namespace a3d;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
     _radius {radius},
     _height {height} {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float ConePhysicsShape::radius() const {
     return _radius;
@@ -36,7 +36,7 @@ void ConePhysicsShape::height(float height) {
     _height = height;
 }
 
-/// PhysicsShape Public Member Functions ///
+// [PhysicsShape Public Member Functions]
 
 PhysicsShape::Type ConePhysicsShape::type() const {
     return PhysicsShape::Type::Primitive;

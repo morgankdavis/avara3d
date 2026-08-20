@@ -23,7 +23,7 @@ namespace a3d {
     class DebugLinesBuilder {
 
     public:
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static void AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color);
         static void AppendOBBFromLocalAABB(std::vector<Line>& out,

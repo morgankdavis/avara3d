@@ -31,7 +31,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::filesystem;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
     // Timer		 timer {true};
@@ -41,7 +41,7 @@ unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions op
     return scene;
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Scene::Scene():
     _name {},
@@ -112,7 +112,7 @@ Scene::~Scene() {
     //	if (_inputContext) _inputContext->detachedFromScene(*this);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Scene::name() const {
     return _name;
@@ -265,7 +265,7 @@ void Scene::didStepCallback(DidStepCallback callback) {
     _didStepCallback = callback;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Scene::pollEvents(Profiler& profiler) {
 

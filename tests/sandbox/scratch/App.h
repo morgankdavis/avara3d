@@ -27,13 +27,13 @@ namespace test::scratch {
     class App : public a3d::Application {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         App(int argc, char* argv[]);
         ~App() override;
 
     protected:
-        /// Application Protected Member Functions ///
+        // [Application Protected Member Functions]
 
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
@@ -47,7 +47,7 @@ namespace test::scratch {
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<a3d::Window>  _window;
         a3d::ext::FlyCameraController _cameraController;

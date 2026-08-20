@@ -22,7 +22,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 

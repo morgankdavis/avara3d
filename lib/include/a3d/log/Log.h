@@ -26,7 +26,7 @@ namespace a3d {
     class Log {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Level : uint8_t {
             Trace = 0,
@@ -38,7 +38,7 @@ namespace a3d {
             Off   = 6
         };
 
-        /// Internal Types ///
+        // [Internal Types]
 
         struct SourceInfo {
             std::string_view filename;
@@ -97,13 +97,13 @@ namespace a3d {
             SourceInfo _source;
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static Log& AppLog();
         static void AppLog(std::unique_ptr<Log> log);
         static Log& MainLog();
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Log();
         Log(const std::string&       name,
@@ -124,7 +124,7 @@ namespace a3d {
 
         ~Log();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::string&                           name() const;
 
@@ -147,7 +147,7 @@ namespace a3d {
 
         void  flush();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         Entry trace(std::source_location where = std::source_location::current());
         Entry debug(std::source_location where = std::source_location::current());
@@ -160,33 +160,33 @@ namespace a3d {
         void  write(Level level, std::string_view msg);
 
     private:
-        /// Private Static Member Functions ///
+        // [Private Static Member Functions]
 
         static std::string_view Basename(std::string_view p);
         static std::string_view ShortFunction(std::string_view s, int keepScopes = 2);
         static SourceInfo       MakeSourceInfo(const std::source_location& where);
 
-        /// Private Lifecycle ///
+        // [Private Lifecycle]
 
         Log(const std::string& name);
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                                  log(Level level, const std::string& msg);
         void                                  dispatch(Level level, std::string& output);
 
         bool                                  enabled(Level lvl) const;
 
-        /// Private Constants ///
+        // [Private Constants]
 
         static constexpr Level                DEFAULT_LEVEL       = Level::Debug;
         static constexpr Level                DEFAULT_FLUSH_LEVEL = Level::Warn;
 
-        /// Private Static Member Variables ///
+        // [Private Static Member Variables]
 
         static std::unique_ptr<Log>           _appLog;
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::string                           _name;
         std::vector<std::unique_ptr<LogSink>> _sinks;

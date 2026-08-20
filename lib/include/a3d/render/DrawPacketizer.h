@@ -17,7 +17,7 @@ namespace a3d {
     class DrawPacketizer {
 
     public:
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static DrawPacket Packetize(GatherOutput& gatherOutput);
     };

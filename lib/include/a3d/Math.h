@@ -33,7 +33,7 @@ namespace a3d::math {
     struct f32mat4;
     struct f32quat;
 
-    /// Types ///
+    // [Types]
 
     using f32 = float;
     using u8  = std::uint8_t;
@@ -58,7 +58,7 @@ namespace a3d::math {
 
     using quat = f32quat;
 
-    /// Constants ///
+    // [Constants]
 
     // floating-point limits
 
@@ -93,7 +93,7 @@ namespace a3d::math {
     inline constexpr f32 SQRT_2          = 1.41421356237309504880f;
     inline constexpr f32 ONE_OVER_SQRT_2 = 0.70710678118654752440f;
 
-    /// 32-bit Float Vector ///
+    // [32-bit Float Vector]
 
     struct f32vec2 {
         union {
@@ -278,7 +278,7 @@ namespace a3d::math {
     f32vec3     make_vec3(const f32* ptr);
     f32vec4     make_vec4(const f32* ptr);
 
-    /// Signed 32-bit Integer Vector ///
+    // [Signed 32-bit Integer Vector]
 
     struct i32vec2 {
         i32 x, y;
@@ -397,7 +397,7 @@ namespace a3d::math {
     i32vec3     make_vec3(const i32* ptr);
     i32vec4     make_vec4(const i32* ptr);
 
-    /// Unsigned 32-bit Integer Vector ///
+    // [Unsigned 32-bit Integer Vector]
 
     struct u32vec2 {
         u32 x, y;
@@ -512,7 +512,7 @@ namespace a3d::math {
     u32vec3     make_vec3(const u32* ptr);
     u32vec4     make_vec4(const u32* ptr);
 
-    /// Unsigned 8-bit Integer Vector ///
+    // [Unsigned 8-bit Integer Vector]
 
     struct u8vec2 {
         u8 x, y;
@@ -644,7 +644,7 @@ namespace a3d::math {
     std::string to_string(const u8vec3& v);
     std::string to_string(const u8vec4& v);
 
-    /// 32-bit Float Matrix ///
+    // [32-bit Float Matrix]
 
     struct f32mat2 {
         f32vec2 c0, c1;
@@ -738,7 +738,7 @@ namespace a3d::math {
     f32mat3     make_mat3(const f32* ptr);
     f32mat4     make_mat4(const f32* ptr);
 
-    /// 32-bit Float Quaternion ///
+    // [32-bit Float Quaternion]
 
     struct f32quat {
         f32 w, x, y, z;
@@ -786,17 +786,17 @@ namespace a3d::math {
 
     f32quat     make_quat(const f32* ptr);
 
-    /// Projection & Camera ///
+    // [Projection & Camera]
 
     f32mat4     perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far); // rh
     f32mat4     ortho(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far); // rh
     f32mat4     look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up); // rh
 
-    /// Matrix Decomposition ///
+    // [Matrix Decomposition]
 
     bool        decompose(const f32mat4& m, f32vec3& scale, f32quat& rotation, f32vec3& translation);
 
-    /// Random / Probability ///
+    // [Random / Probability]
 
     f32         uniform_01(); // [0, 1)
     f32         uniform_01(std::mt19937* gen); // [0, 1)
@@ -834,7 +834,7 @@ namespace a3d::math {
     bool        bernoulli(f32 p);
     bool        bernoulli(std::mt19937* gen, f32 p);
 
-    /// Easing ///
+    // [Easing]
 
     f32         saturate(f32 t);
 
@@ -919,7 +919,7 @@ namespace a3d::math {
     f32quat     slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
     f32quat     slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 
-    /// Color ///
+    // [Color]
 
     f32         srgb_to_linear(f32 c);
     f32         linear_to_srgb(f32 c);
@@ -945,12 +945,12 @@ namespace a3d::math {
     f32vec3     rgb_to_hsl(const f32vec3& rgb_linear);
     f32vec3     hsl_to_rgb(const f32vec3& hsl); // returns linear rgb
 
-    /// Scalar Angles ///
+    // [Scalar Angles]
 
     f32         radians(f32 degrees);
     f32         degrees(f32 radians);
 
-    /// Scalar Trig ///
+    // [Scalar Trig]
 
     f32         sin(f32 n);
     f32         cos(f32 n);
@@ -966,17 +966,17 @@ namespace a3d::math {
     f32         acosh(f32 n);
     f32         atanh(f32 n);
 
-    /// Scalar Comparison ///
+    // [Scalar Comparison]
 
     bool        equal(f32 a, f32 b, f32 eps = F32_COMPARE_EPSILON);
 
-    /// Scalar Rounding ///
+    // [Scalar Rounding]
 
     f32         ceil(f32 n);
     f32         floor(f32 n);
     f32         round(f32 n);
 
-    /// Scalar Exponentials & Logarithms ///
+    // [Scalar Exponentials & Logarithms]
 
     f32         exp(f32 n);
     f32         exp2(f32 n);
@@ -985,13 +985,13 @@ namespace a3d::math {
     f32         log2(f32 n);
     f32         log10(f32 n);
 
-    /// Scalar Magnitude ///
+    // [Scalar Magnitude]
 
     f32         abs(f32 n);
     f32         sqrt(f32 n);
     f32         cbrt(f32 n);
 
-    /// Scalar Range / Ordering ///
+    // [Scalar Range / Ordering]
 
     template<class T>
     constexpr T min(T a, T b) {
@@ -1010,20 +1010,20 @@ namespace a3d::math {
 
     f32  clamp_01(f32 t);
 
-    /// Scalar Remainder / Wrap ///
+    // [Scalar Remainder / Wrap]
 
     f32  fmod(f32 x, f32 y);
     f32  mod(f32 x, f32 y); // positive modulo
     f32  wrap(f32 x, f32 lo, f32 hi);
 
-    /// Bitwise / Classification ///
+    // [Bitwise / Classification]
 
     bool is_nan(f32 n);
     bool is_infinite(f32 n);
     bool is_finite(f32 n);
     bool sign_bit(f32 n);
 
-    /// Swap Utilities ///
+    // [Swap Utilities]
 
     void swap(f32& a, f32& b);
 

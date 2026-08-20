@@ -23,7 +23,7 @@
 using namespace a3d::ui;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 static constexpr float PANEL_FONT_SIZE {15.0f};
 static constexpr float SHADOW_OFFSET {1.0f};
@@ -36,7 +36,7 @@ static constexpr float SLIDER_GRAB_WIDTH {8.0f};
 static constexpr int PANEL_STYLE_VAR_COUNT {7};
 static constexpr int PANEL_STYLE_COLOR_COUNT {6};
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static float SnapPixel(float value);
 static void  DrawShadowedText(const ImVec2&      position,
@@ -46,7 +46,7 @@ static void  DrawShadowedText(const ImVec2&      position,
 
 static void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Panel::Panel(string_view id, const Options& options):
     _windowName {},
@@ -125,7 +125,7 @@ Panel::~Panel() {
     ImGui::PopFont();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void Panel::section(string_view text, SectionConfig config, Padding padding) {
 
@@ -669,7 +669,7 @@ bool Panel::hovered() const {
     return _hovered;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 float Panel::beginItem() const {
 
@@ -760,7 +760,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
     return pressed;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 float SnapPixel(float value) {
 

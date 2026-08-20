@@ -18,7 +18,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 shared_ptr<AmbientLight> Light::Ambient() {
     return make_unique<a3d::AmbientLight>();
@@ -52,7 +52,7 @@ shared_ptr<SpotLight> Light::Spot(const Color& color) {
     return make_unique<a3d::SpotLight>(color);
 }
 
-/// protected Lifecycle Functions ///
+// [protected Lifecycle Functions]
 
 Light::Light():
     _name {nullopt},
@@ -87,7 +87,7 @@ Light::~Light() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Light::name() const {
     return _name;

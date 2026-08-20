@@ -41,7 +41,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 static const std::string STATS_TITLE_FONT {"Neuropol Nova Xp.ttf"};
 static const float       STATS_TITLE_FONT_SIZE {21.0};
@@ -53,7 +53,7 @@ static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGING_DURATION {250};
 // how often to recompute the frame stats
 static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGE_UPDATE_INTERVAL {100};
 
-/// Private Types ///
+// [Private Types]
 
 struct ImguiStatsTextLayout {
     float xLeft;
@@ -61,7 +61,7 @@ struct ImguiStatsTextLayout {
     float gap; // min gap between label and value
 };
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static void DrawOverlay(const RenderContext&     context,
                         const Scene&             scene,
@@ -173,7 +173,7 @@ static void ImguiDrawPlot(float        x,
 
 static string FormatMemorySize(uint64_t bytes);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 StatsOverlay::StatsOverlay():
     _titleImFont {nullptr},
@@ -181,7 +181,7 @@ StatsOverlay::StatsOverlay():
 
 StatsOverlay::~StatsOverlay() = default;
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void StatsOverlay::initialize(ImguiContext& context) {
 
@@ -212,7 +212,7 @@ void StatsOverlay::draw(const RenderContext&     context,
                 *_bodyImFont);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 void DrawOverlay(const RenderContext&     context,
                  const Scene&             scene,

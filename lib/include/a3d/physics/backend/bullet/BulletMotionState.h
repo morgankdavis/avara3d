@@ -20,16 +20,16 @@ namespace a3d {
     class BulletMotionState : public btMotionState {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit BulletMotionState(PhysicsBody& body);
 
-        /// btMotionState Members ///
+        // [btMotionState Members]
 
         void         getWorldTransform(btTransform& transform) const override;
         void         setWorldTransform(const btTransform& transform) override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         btTransform  centerOfMassWorldTransform(const math::mat4& modelWorldTransform) const;
         math::mat4   modelWorldTransform(const btTransform& centerOfMassWorldTransform) const;
@@ -37,7 +37,7 @@ namespace a3d {
         PhysicsBody* body() const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
 //		btTransform 		_visualWorldTransform;
         PhysicsBody* _body;

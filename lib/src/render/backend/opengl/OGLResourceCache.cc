@@ -30,7 +30,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
 static GLenum      GLFilterModeForFilterMode(Sampler::FilterMode mode);
@@ -47,7 +47,7 @@ static GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
 static uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
 static uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 OGLResourceCache::OGLResourceCache(OGLMemoryTracker& memoryTracker):
     _memoryTracker {memoryTracker} {}
@@ -95,7 +95,7 @@ OGLResourceCache::~OGLResourceCache() {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc, gl::uint_t program) {
 
@@ -339,7 +339,7 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
     return it->second;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 

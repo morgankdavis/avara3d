@@ -15,7 +15,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 SpotLight::SpotLight():
     Light() {
@@ -51,7 +51,7 @@ SpotLight::SpotLight(const string& name, const Color& color):
 //	}
 //}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float SpotLight::innerAngle() const {
     return math::acos(_innerAngleCos);
@@ -85,7 +85,7 @@ void SpotLight::attenuation(const Attenuation& attenuation) {
     _attenuation = attenuation;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 float SpotLight::innerAngleCos() const {
     return _innerAngleCos;
@@ -95,7 +95,7 @@ float SpotLight::outerAngleCos() const {
     return _outerAngleCos;
 }
 
-/// Private Lifecycle Functions ///
+// [Private Lifecycle Functions]
 
 //SpotLight::SpotLight():
 //		_innerAngle{10.0},

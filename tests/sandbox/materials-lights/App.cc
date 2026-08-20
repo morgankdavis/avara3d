@@ -15,12 +15,12 @@ using namespace a3d::math;
 using namespace test::matlights;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 
-/// Private Constants ///
+// [Private Constants]
 
 const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
@@ -34,7 +34,7 @@ const bool                        ORTHO_CAMERA {false};
 const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
 const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
@@ -43,7 +43,7 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Application Protected Member Functions ///
+// [Application Protected Member Functions]
 
 std::unique_ptr<Scene> App::init() {
     try {
@@ -273,7 +273,7 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
     }
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
 

@@ -30,11 +30,11 @@ namespace a3d {
     class Application {
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static int Run(std::unique_ptr<Application> application);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 
@@ -47,11 +47,11 @@ namespace a3d {
         virtual ~Application();
 
     protected:
-        /// Protected Types ///
+        // [Protected Types]
 
         using SceneCommand = std::function<void(Scene&)>;
 
-        /// Protected Member Functions ///
+        // [Protected Member Functions]
 
         virtual std::unique_ptr<Scene>  init() = 0;
         virtual SimulationConfig        simulationConfig() const;
@@ -98,7 +98,7 @@ namespace a3d {
                                    const PhysicsContact& contact);
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void initLog(Log::Level level);
         void prepare();
@@ -117,7 +117,7 @@ namespace a3d {
         void dispatchContactDidContinue(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
         void dispatchContactDidEnd(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::vector<std::string>  _args;
         std::unique_ptr<Scene>    _scene;
@@ -127,7 +127,7 @@ namespace a3d {
         bool                      _didShutdown;
         Timer                     _startupTimer;
 
-        /// Test Access ///
+        // [Test Access]
 
         //friend class testing::ApplicationTestAccess;
     };

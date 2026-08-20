@@ -36,7 +36,7 @@ namespace a3d {
     class MeshElement {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         MeshElement(VertexLayout               layout,
                     std::span<const std::byte> vertexBytes,
@@ -48,7 +48,7 @@ namespace a3d {
                     uint32_t                   indexCount);
         virtual ~MeshElement();
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class DirtyMask : uint32_t {
             None       = 0,
@@ -58,7 +58,7 @@ namespace a3d {
             All = UINT_MAX
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         PrimitiveTopology          topology() const;
 
@@ -93,15 +93,15 @@ namespace a3d {
         void                       dirtyMask(DirtyMask mask);
 
     protected:
-        /// Protected Member Functions ///
+        // [Protected Member Functions]
 
         void genLocalAABB();
 
-        /// Protected Lifecycle ///
+        // [Protected Lifecycle]
 
         MeshElement();
 
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         PrimitiveTopology      _topology;
         VertexLayout           _vertexLayout;

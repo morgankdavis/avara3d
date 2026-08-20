@@ -32,7 +32,7 @@ namespace a3d {
     class OGLRenderer : public Renderer {
 
     public:
-        /// Internal Types ///
+        // [Internal Types]
 
         struct GLStateCache {
             PipelineId      pipelineId = INVALID_PIPELINE_ID;
@@ -48,12 +48,12 @@ namespace a3d {
             gl::sizei_t vertexCount = 0;
         };
 
-        /// Internal Static Members ///
+        // [Internal Static Members]
 
         using GLGetProcAddress = void* (*) (const char* name);
         static bool                    InitGL(GLGetProcAddress getProcAddress);
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         OGLRenderer();
 
@@ -65,7 +65,7 @@ namespace a3d {
 
         ~OGLRenderer() override;
 
-        /// Renderer Internal Member Functions ///
+        // [Renderer Internal Member Functions]
 
         bool                          initialize(const RenderContext& context) override;
         bool                          isInitialized() const override;
@@ -102,7 +102,7 @@ namespace a3d {
         std::unique_ptr<Image>        snapshot(const RenderContext& context) const override;
 
     protected:
-        /// Renderer Protected Member Functions ///
+        // [Renderer Protected Member Functions]
 
         void drawBackground(const BackgroundPass& backgroundPass,
                             const math::mat4&     view,
@@ -121,20 +121,20 @@ namespace a3d {
         void drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         struct Capabilities {
             bool polygonMode {false};
             bool drawTimer {false};
         };
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         GLSLProgram& programForShaderKind(ShaderKind kind) const;
         void         drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
         void         syncImguiMemoryStats();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         bool         _isInitialized;
         OGLRenderer::Capabilities    _glCapabilities;

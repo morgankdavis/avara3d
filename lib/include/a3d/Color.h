@@ -19,7 +19,7 @@ namespace a3d {
     class Color {
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static Color Black();
         static Color DarkGray();
@@ -43,7 +43,7 @@ namespace a3d {
 
         static Color Random();
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Color();
         explicit Color(const math::vec3& rgb);
@@ -56,7 +56,7 @@ namespace a3d {
 
         // TODO: operator*, operator[]
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float        r() const;
         float        g() const;
@@ -75,7 +75,7 @@ namespace a3d {
         math::u8vec4 u8rgba() const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         math::vec4 _rgba;
     };

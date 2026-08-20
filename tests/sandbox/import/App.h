@@ -26,13 +26,13 @@ namespace test::import {
     class App : public a3d::Application {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         App(int argc, char* argv[]);
         ~App() override;
 
     protected:
-        /// Application Protected Member Functions ///
+        // [Application Protected Member Functions]
 
         std::unique_ptr<a3d::Scene> init() override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
@@ -43,7 +43,7 @@ namespace test::import {
                             const a3d::InputContext::UpdateInfo& info) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<a3d::Window> _window;
     };

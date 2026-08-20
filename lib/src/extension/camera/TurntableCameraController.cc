@@ -19,13 +19,13 @@ using namespace a3d::ext;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static bool IsFinite(const vec3& value);
 static void ValidateConfig(const TurntableCameraController::Config& config);
 static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 TurntableCameraController::TurntableCameraController():
     TurntableCameraController(Config {}) {}
@@ -46,7 +46,7 @@ TurntableCameraController::TurntableCameraController(const Config& config):
     resolveTarget();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const TurntableCameraController::Config& TurntableCameraController::config() const {
     return _config;
@@ -397,7 +397,7 @@ void TurntableCameraController::apply(Node& pov) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 vec3 TurntableCameraController::resolveTarget() {
 
@@ -465,7 +465,7 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
     }
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 bool IsFinite(const vec3& value) {
     return math::is_finite(value.x) && math::is_finite(value.y) && math::is_finite(value.z);

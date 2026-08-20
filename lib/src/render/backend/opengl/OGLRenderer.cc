@@ -64,7 +64,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-///  Private Constants ///
+// [ Private Constants]
 
 static constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
 static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
@@ -80,7 +80,7 @@ static constexpr gl::uint_t IMGUI_VERTEX_BUFFER_ALLOCATION_ID {1};
 static constexpr gl::uint_t IMGUI_INDEX_BUFFER_ALLOCATION_ID {2};
 static constexpr gl::uint_t IMGUI_TEXTURE_ALLOCATION_ID {3};
 
-/// Private Types ///
+// [Private Types]
 
 enum class MaterialContentsType : unsigned {
     None = 0,
@@ -241,7 +241,7 @@ struct FBORestore {
     }
 };
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static void LogGLInfo();
 
@@ -272,7 +272,7 @@ static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
 static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
-/// Private Static Members ///
+// [Private Static Members]
 
 bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
     static bool initialized = false;
@@ -306,7 +306,7 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
     return true;
 }
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 OGLRenderer::OGLRenderer():
     Renderer {},
@@ -351,7 +351,7 @@ OGLRenderer::~OGLRenderer() {
     _memoryTracker.clearSource(OGLMemoryTracker::Source::ImGui);
 }
 
-/// Renderer Internal Member Functions ///
+// [Renderer Internal Member Functions]
 
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
@@ -623,7 +623,7 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
     return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-/// Renderer Protected Member Functions ///
+// [Renderer Protected Member Functions]
 
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
                                  const math::mat4&     view,
@@ -997,7 +997,7 @@ void OGLRenderer::drawLines(const LinesPass&     pass,
     drawDebugLines(pass.model, view, proj);
 }
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
     // "resolve / prepare / compile / bake"
@@ -1101,7 +1101,7 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
     drawLines(packet.linesPass, frame.context, frame.view, frame.proj);
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
     switch (kind) {
@@ -1155,7 +1155,7 @@ void OGLRenderer::syncImguiMemoryStats() {
         OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 void LogGLInfo() {
     const GLubyte* vendor = glGetString(GL_VENDOR);

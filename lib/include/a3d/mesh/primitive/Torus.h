@@ -21,7 +21,7 @@ namespace a3d {
     class Torus : public MeshElement {
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
                                           float                     majorRadius,
@@ -29,14 +29,14 @@ namespace a3d {
                                           unsigned                  segments = DEFAULT_SEGMENTS,
                                           std::shared_ptr<Material> material = nullptr);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Torus(float    minorRadius,
               float    majorRadius,
               unsigned slices   = DEFAULT_SLICES,
               unsigned segments = DEFAULT_SEGMENTS);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float    minorRadius() const;
         float    majorRadius() const;
@@ -44,12 +44,12 @@ namespace a3d {
         unsigned segments() const;
 
     private:
-        /// Private Constants ///
+        // [Private Constants]
 
         static constexpr unsigned DEFAULT_SLICES   = 16;
         static constexpr unsigned DEFAULT_SEGMENTS = 32;
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float                     _minorRadius;
         float                     _majorRadius;

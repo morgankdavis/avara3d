@@ -23,7 +23,7 @@ namespace a3d {
     class FileLogSink : public LogSink {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit FileLogSink(const std::filesystem::path& relPath,
                              int                          maxFiles    = DEFAULT_MAX_FILES,
@@ -37,31 +37,31 @@ namespace a3d {
 
         ~FileLogSink() override;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::filesystem::path& filepath() const;
 
         int                          maxFiles() const;
         int                          maxFilesize() const;
 
-        /// Public LogSink Member Functions ///
+        // [Public LogSink Member Functions]
 
         void                         write(const std::string& output, Log::Level level) override;
         void                         flush() override;
 
     private:
-        /// Private Constants ///
+        // [Private Constants]
 
         static constexpr unsigned      DEFAULT_MAX_FILES    = 5;
         static constexpr unsigned      DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                           openStream();
         void                           checkRotate();
         void                           rotate();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::filesystem::path          _filepath;
         int                            _maxFiles;

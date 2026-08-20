@@ -18,7 +18,7 @@ namespace a3d {
     class Buffer {
 
     public:
-        ///  Public Lifecycle Functions ///
+        // [ Public Lifecycle Functions]
 
         explicit Buffer(const std::filesystem::path& path);
         explicit Buffer(const std::vector<std::byte>& buf);
@@ -33,7 +33,7 @@ namespace a3d {
 
         ~Buffer();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         std::byte*  data() const;
         std::size_t size() const;
@@ -42,7 +42,7 @@ namespace a3d {
         std::byte   operator[](std::size_t idx) const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<std::byte[]> _data;
         std::size_t                  _size;

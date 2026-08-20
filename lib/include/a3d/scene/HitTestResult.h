@@ -30,7 +30,7 @@ namespace a3d {
     class HitTestResult {
 
     public:
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         std::shared_ptr<Node>   node() const;
 
@@ -45,7 +45,7 @@ namespace a3d {
 
         const math::mat4&       modelTransform() const;
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         HitTestResult(std::weak_ptr<Node>     node,
                       std::shared_ptr<Mesh>   mesh,
@@ -58,7 +58,7 @@ namespace a3d {
                       const math::mat4&       modelTransform);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::weak_ptr<Node>     _node;
 

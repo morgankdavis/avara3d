@@ -25,7 +25,7 @@ namespace a3d {
     class GLSLProgram {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit GLSLProgram(const std::string& name);
 
@@ -37,7 +37,7 @@ namespace a3d {
 
         ~GLSLProgram();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         bool               compile();
         bool               link();
@@ -75,7 +75,7 @@ namespace a3d {
         bool               isLinked() const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         std::optional<std::string> shaderSource(const std::string& name, ShaderType type);
         void                       prepare();
@@ -84,7 +84,7 @@ namespace a3d {
         void                       glID(unsigned glID);
         void                       isLinked(bool isLinked);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::string                _name;
         unsigned                   _glID;

@@ -19,7 +19,7 @@ namespace a3d {
     class DesktopInputContext : public InputContext {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Key : int {
             Unknown      = 0,
@@ -158,7 +158,7 @@ namespace a3d {
             Eight = 7
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         DesktopInputContext();
         virtual ~DesktopInputContext() = 0;
@@ -166,7 +166,7 @@ namespace a3d {
         DesktopInputContext(const DesktopInputContext& other)                       = delete;
         DesktopInputContext&            operator=(const DesktopInputContext& other) = delete;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         bool                            keyDown(Key key);
         bool                            mouseButtonDown(MouseButton button);
@@ -197,17 +197,17 @@ namespace a3d {
         // scroll displacement observed during the current input update
         const math::vec2&               mouseScrollWheelDelta() const;
 
-        /// InputContext Internal Member Functions ///
+        // [InputContext Internal Member Functions]
 
         void                            update(const UpdateInfo& info) override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual void                    rebaseMouseMotion();
         void                            releaseAllInputs();
 
     protected:
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         std::unordered_set<Key>         _keysDown;
         std::unordered_set<MouseButton> _mouseButtonsDown;

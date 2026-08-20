@@ -18,7 +18,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 StdOutLogSink::StdOutLogSink() {
     // on Windows, output often just kinda stops unless you manually flush it...
@@ -34,7 +34,7 @@ StdOutLogSink::~StdOutLogSink() {
     flush();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void StdOutLogSink::flush() {
 
@@ -43,7 +43,7 @@ void StdOutLogSink::flush() {
     cerr.flush();
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void StdOutLogSink::write(const string& output, Log::Level level) {
 

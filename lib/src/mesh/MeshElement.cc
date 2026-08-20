@@ -77,7 +77,7 @@ MeshElement::~MeshElement() {
     log::d()("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 PrimitiveTopology MeshElement::topology() const {
     return _topology;
@@ -338,7 +338,7 @@ void MeshElement::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 void MeshElement::genLocalAABB() {
     if (_vertexCount == 0) {
@@ -358,7 +358,7 @@ void MeshElement::genLocalAABB() {
     }
 }
 
-/// Protected Lifecycle ///
+// [Protected Lifecycle]
 
 MeshElement::MeshElement():
     _topology {PrimitiveTopology::Triangles},

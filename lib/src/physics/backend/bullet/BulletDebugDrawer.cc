@@ -16,12 +16,12 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 static constexpr float CONTACT_POINT_RADIUS = 0.04f;
 static constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 BulletDebugDrawer::BulletDebugDrawer():
     _debugMode {btIDebugDraw::DBG_NoDebug},
@@ -29,7 +29,7 @@ BulletDebugDrawer::BulletDebugDrawer():
 
 BulletDebugDrawer::~BulletDebugDrawer() {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void BulletDebugDrawer::drawFrame(const btTransform& transform, const btVector3& size, btScalar tipMargin) {
 
@@ -82,7 +82,7 @@ vector<Line> BulletDebugDrawer::lines() {
 //
 //}
 
-/// btIDebugDraw Members ///
+// [btIDebugDraw Members]
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 

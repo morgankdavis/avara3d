@@ -19,7 +19,7 @@ namespace a3d {
     class PacketSorter {
 
     public:
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static uint64_t MakeBatchKey(const DrawItem& item);
         static void     SortPacket(DrawPacket& packet);

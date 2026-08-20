@@ -16,22 +16,22 @@ namespace a3d {
     class SpherePhysicsShape : public PhysicsShape {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit SpherePhysicsShape(float radius);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float radius() const;
         void  radius(float radius);
 
-        /// PhysicsShape Public Member Functions ///
+        // [PhysicsShape Public Member Functions]
 
         Type  type() const override;
         void  type(Type type) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float _radius;
     };

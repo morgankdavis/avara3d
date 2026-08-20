@@ -18,7 +18,7 @@ namespace a3d {
 
     class Line {
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
     public:
         Line(const math::vec3& fromLocation, const math::vec3& toLocation);
@@ -32,7 +32,7 @@ namespace a3d {
              const Color&      fromColor,
              const Color&      toColor);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         const math::vec3& fromLocation() const;
         void              fromLocation(const math::vec3& location);
@@ -47,7 +47,7 @@ namespace a3d {
         void              toColor(const Color& color);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         math::vec3 _fromLocation;
         math::vec3 _toLocation;

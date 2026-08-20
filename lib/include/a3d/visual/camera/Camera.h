@@ -20,25 +20,25 @@ namespace a3d {
     class Camera {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Camera();
         explicit Camera(const std::string& name);
 
         virtual ~Camera() = 0;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>& name() const;
         void                              name(const std::string& name);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         // virtual math::mat4                projection() const = 0;
         virtual math::mat4                projection(const math::uvec2& viewportSize) const = 0;
 
     protected:
-        /// Protected Lifecycle Functions ///
+        // [Protected Lifecycle Functions]
 
         Camera(const Camera&)            = default;
         Camera& operator=(const Camera&) = default;
@@ -46,7 +46,7 @@ namespace a3d {
         Camera(Camera&&) noexcept                               = default;
         Camera&                    operator=(Camera&&) noexcept = default;
 
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         std::optional<std::string> _name;
     };

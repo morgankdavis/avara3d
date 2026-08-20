@@ -24,7 +24,7 @@ namespace a3d {
     class OGLMemoryTracker;
     class Texture;
 
-    /// Internal Types ///
+    // [Internal Types]
 
     struct OGLPipeline {
         PipelineDesc desc    = {};
@@ -56,7 +56,7 @@ namespace a3d {
     class OGLResourceCache {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit OGLResourceCache(OGLMemoryTracker& memoryTracker);
 
@@ -68,7 +68,7 @@ namespace a3d {
 
         ~OGLResourceCache();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         PipelineId            ensurePipeline(const PipelineDesc& desc, gl::uint_t program);
         const OGLPipeline&    pipeline(PipelineId pipelineId) const;
@@ -77,7 +77,7 @@ namespace a3d {
         const OGLTexture&     ensureTexture(Texture& texture);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         OGLMemoryTracker&                                              _memoryTracker;
         std::unordered_map<PipelineDesc, PipelineId, PipelineDescHash> _pipelineMap;

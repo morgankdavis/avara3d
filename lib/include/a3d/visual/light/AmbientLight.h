@@ -19,7 +19,7 @@ namespace a3d {
     class AmbientLight : public Light {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         AmbientLight();
         explicit AmbientLight(const std::string& name);

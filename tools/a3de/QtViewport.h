@@ -28,28 +28,28 @@ namespace a3d::qt {
         void renderFrame();
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::unique_ptr<QtInputContext> InputContext();
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit QtViewport(RenderingApi renderingApi,
                             Antialiasing antialiasingMode,
                             QWidget*     parent = nullptr);
         ~QtViewport() = default;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         bool cursorCaptured() const;
         void cursorCaptured(bool captured);
 
-        /// RenderContext Public Member Functions ///
+        // [RenderContext Public Member Functions]
 
         bool vSyncEnabled() const override;
         void vSyncEnabled(bool enabled) override;
 
-        /// RenderContext Internal Member Functions ///
+        // [RenderContext Internal Member Functions]
 
         void beginFrame(const Scene& scene) override;
         void endFrame(const Scene& scene) override;
@@ -61,30 +61,30 @@ namespace a3d::qt {
 
         unsigned defaultFramebuffer() const override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void inputContext(QtInputContext* inputContext);
 
     protected:
-        /// QWidget Protected Member Functions ///
+        // [QWidget Protected Member Functions]
 
         bool event(QEvent* e) override;
         void keyPressEvent(QKeyEvent* e) override;
         void keyReleaseEvent(QKeyEvent* e) override;
         void mouseMoveEvent(QMouseEvent* e) override;
 
-        /// QOpenGLWidget Protected Member Functions ///
+        // [QOpenGLWidget Protected Member Functions]
 
         void initializeGL() override;
         void resizeGL(int w, int h) override;
         void paintGL() override;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void centerCursor();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         bool                   _cursorCaptured;
         std::optional<QPointF> _lastCursorPosition;

@@ -25,7 +25,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 const Color            MESH_OBB_COLOR {vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
 const Color            MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
@@ -34,7 +34,7 @@ const Color            HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
 const vec4             HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
 static constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 // "gather / collect / cull"
 GatherOutput RenderGatherer::Gather(const Scene&               scene,

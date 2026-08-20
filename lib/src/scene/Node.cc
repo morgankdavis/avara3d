@@ -25,7 +25,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pulic Static Members ///
+// [Pulic Static Members]
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
     return make_unique<Node>(name);
@@ -43,7 +43,7 @@ shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
     return make_unique<Node>(camera);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Node::Node():
     _name {},
@@ -100,7 +100,7 @@ Node::~Node() {
     // if (_physicsBody) _physicsBody->detachedFromNode(*this);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<std::string>& Node::name() const {
     return _name;
@@ -491,7 +491,7 @@ weak_ptr<Node> Node::parent() const {
     return _parent;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Node::attachedToParent(Node& parent) {
     log::t()("parent: {:p}", static_cast<void*>(&parent));
@@ -760,7 +760,7 @@ void Node::_debugPrintRec(Node& node, unsigned level) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Node::getAABBRec(AABB& aabb) {
 

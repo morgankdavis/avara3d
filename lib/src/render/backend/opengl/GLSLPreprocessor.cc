@@ -21,12 +21,12 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Constants ///
+// [Private Static Non-Member Constants]
 
 static constexpr string_view HeaderDirective = "#header";
 static constexpr string_view IncludeDirective = "#include";
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static size_t           SkipUtf8Bom(const string& source);
 static string           PlatformShaderHeader();
@@ -38,7 +38,7 @@ static string           ExpandIncludes(const string&                            
                                        vector<string>&                          includeStack);
 static string           IncludeCycleMessage(const vector<string>& includeStack, const string& includeName);
 
-/// Internal Static Functions ///
+// [Internal Static Functions]
 
 string GLSLPreprocessor::Process(const string&          source,
                                  const string&          sourceName,
@@ -68,7 +68,7 @@ string GLSLPreprocessor::Process(const string&          source,
     return output;
 }
 
-/// Private Non-Member Functions ///
+// [Private Non-Member Functions]
 
 optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
 

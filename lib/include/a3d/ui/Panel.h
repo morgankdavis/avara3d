@@ -29,7 +29,7 @@ namespace a3d::ui {
     class Panel {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct Options {
             float          width {260.0f};
@@ -60,7 +60,7 @@ namespace a3d::ui {
             }
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit Panel(std::string_view id, const Options& options = Options::Default());
 
@@ -72,7 +72,7 @@ namespace a3d::ui {
 
         ~Panel();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         void section(std::string_view text,
                      SectionConfig    config  = SectionConfig::Default(),
@@ -128,13 +128,13 @@ namespace a3d::ui {
         bool hovered() const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         float       beginItem() const;
         void        endItem();
         bool        drawButton(std::string_view label, bool selected, Padding padding);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::string _windowName;
         unsigned    _rowItemsRemaining;

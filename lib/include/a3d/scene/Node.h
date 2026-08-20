@@ -35,7 +35,7 @@ namespace a3d {
     class Node : public std::enable_shared_from_this<Node> {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         // TODO: probably move these
         enum class DebugOptions : uint32_t {
@@ -44,14 +44,14 @@ namespace a3d {
             ShowHighlightTint = 1 << 1
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::shared_ptr<Node> NamedNode(const std::string& name);
         static std::shared_ptr<Node> MeshNode(const std::shared_ptr<Mesh>& geometry);
         static std::shared_ptr<Node> LightNode(const std::shared_ptr<Light>& light);
         static std::shared_ptr<Node> CameraNode(const std::shared_ptr<Camera>& camera);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Node();
         explicit Node(const std::string& name);
@@ -67,7 +67,7 @@ namespace a3d {
 
         ~Node();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>&  name() const;
         void                               name(const std::string& name);
@@ -143,7 +143,7 @@ namespace a3d {
 
         std::weak_ptr<Node>                parent() const;
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class DirtyMask : uint32_t {
             None           = 0,
@@ -151,7 +151,7 @@ namespace a3d {
             All            = UINT_MAX
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void          attachedToParent(Node& parent);
         void          detachedFromParent(Node& parent);
@@ -188,7 +188,7 @@ namespace a3d {
         void          _debugPrintRec(Node& node, unsigned level);
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                               getAABBRec(AABB& aabb);
 
@@ -201,7 +201,7 @@ namespace a3d {
         DirtyMask                          dirtyMask() const;
         void                               dirtyMask(DirtyMask mask);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::optional<std::string>         _name;
         std::shared_ptr<Light>             _light;

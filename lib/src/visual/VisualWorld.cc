@@ -43,7 +43,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Types ///
+// [Private Types]
 
 struct HitTestCandidate {
     float         t;
@@ -55,7 +55,7 @@ struct AABBIntersection {
     vec3  normal {};
 };
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 // tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
 // earliest intersection as a normalized segment parameter t in [0, 1] and the local-space entry-face normal,
@@ -83,7 +83,7 @@ static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node
 
 static bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
@@ -109,7 +109,7 @@ VisualWorld::~VisualWorld() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 VisualWorld::Capabilities VisualWorld::capabilities() const {
 
@@ -550,7 +550,7 @@ Scene* VisualWorld::scene() const {
     return _scene;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void VisualWorld::attachedToScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
@@ -665,7 +665,7 @@ shared_ptr<Material> VisualWorld::backgroundMaterial() {
     return _backgroundMaterial;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void VisualWorld::firstDraw() {
 
@@ -729,7 +729,7 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     return cameraNode;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
 

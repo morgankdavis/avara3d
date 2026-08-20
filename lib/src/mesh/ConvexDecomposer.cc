@@ -26,17 +26,17 @@ using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 ConvexDecomposer::ConvexDecomposer(MeshElement& element, Options& options):
     _sourceElement {&element},
     _options {options} {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
@@ -177,7 +177,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
     return out;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
 

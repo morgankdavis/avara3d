@@ -34,7 +34,7 @@ namespace a3d {
     class Mesh {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class ImportOptions : uint16_t {
             None            = 0,
@@ -42,13 +42,13 @@ namespace a3d {
             ImportAll       = UINT16_MAX
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         // imports the first mesh in the specified file, with no node transforms applied.
         static std::shared_ptr<Mesh> FromFile(const std::filesystem::path& path,
                                               ImportOptions options = ImportOptions::ImportMaterials);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Mesh(const std::string&               name,
              std::unique_ptr<MeshElement>     element,
@@ -67,7 +67,7 @@ namespace a3d {
         Mesh(Mesh&&)                                                       = delete;
         Mesh&                                            operator=(Mesh&&) = delete;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         std::optional<std::string>                       name() const;
         void                                             name(const std::string& name);
@@ -82,7 +82,7 @@ namespace a3d {
         void removeMaterial(int index);
         void replaceMaterial(int index, const std::shared_ptr<Material>& replacement);
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class DirtyMask : uint32_t {
             None = 0,
@@ -90,7 +90,7 @@ namespace a3d {
             All = UINT_MAX
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         MeshId      id() const noexcept;
 
@@ -105,21 +105,21 @@ namespace a3d {
         void        dirtyMask(DirtyMask mask);
 
     protected:
-        /// Protected Member Functions ///
+        // [Protected Member Functions]
 
         void                                      genLocalAABB();
 
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         std::vector<std::unique_ptr<MeshElement>> _elements;
         std::vector<std::shared_ptr<Material>>    _materials;
 
     private:
-        /// Private Lifecycle Functions ///
+        // [Private Lifecycle Functions]
 
         Mesh();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         MeshId                     _id;
         std::optional<std::string> _name;

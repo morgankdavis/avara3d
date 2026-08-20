@@ -22,7 +22,7 @@ namespace a3d::ext {
     class FlyCameraController {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct Controls {
 
@@ -43,12 +43,12 @@ namespace a3d::ext {
             Controls controls;
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         FlyCameraController();
         explicit FlyCameraController(const Config& config);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const Config& config() const;
         void          config(const Config& config);
@@ -56,7 +56,7 @@ namespace a3d::ext {
         bool          update(Node& pov, DesktopInputContext& input, double deltaTime);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Config _config;
     };

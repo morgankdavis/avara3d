@@ -38,17 +38,17 @@ namespace test::rigidbody {
     class App : public a3d::Application {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         App(int argc, char* argv[]);
         ~App() override;
 
-        /// Internal Types ///
+        // [Internal Types]
 
         using DuckFruitDef = std::tuple<std::shared_ptr<a3d::Mesh>, std::shared_ptr<a3d::PhysicsShape>, float>;
 
     protected:
-        /// Application Protected Member Functions ///
+        // [Application Protected Member Functions]
 
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
@@ -62,7 +62,7 @@ namespace test::rigidbody {
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<a3d::Window>             _window;
         a3d::ext::FlyCameraController            _cameraController;

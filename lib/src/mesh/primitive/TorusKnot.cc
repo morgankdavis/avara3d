@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> TorusKnot::Mesh(unsigned                   p,
                                  unsigned                   q,
@@ -31,7 +31,7 @@ shared_ptr<Mesh> TorusKnot::Mesh(unsigned                   p,
     return make_shared<a3d::Mesh>("TorusKnot", make_unique<TorusKnot>(p, q, slices, segments), material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 TorusKnot::TorusKnot(unsigned p, unsigned q, unsigned slices, unsigned segments):
     MeshElement {},
@@ -65,7 +65,7 @@ TorusKnot::TorusKnot(unsigned p, unsigned q, unsigned slices, unsigned segments)
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned TorusKnot::p() const {
     return _p;

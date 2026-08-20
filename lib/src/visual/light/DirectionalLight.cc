@@ -15,7 +15,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 DirectionalLight::DirectionalLight():
     Light() {}
@@ -46,7 +46,7 @@ DirectionalLight::DirectionalLight(const string& name, const Color& color):
 //	}
 //}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 //const vec3& DirectionalLight::direction() const {
 //	return _direction;

@@ -29,7 +29,7 @@ namespace a3d {
     class ImguiContext {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         ImguiContext();
 
@@ -41,7 +41,7 @@ namespace a3d {
 
         ~ImguiContext();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         /**
          * Creates the Dear ImGui context and initializes its OpenGL renderer
@@ -99,13 +99,13 @@ namespace a3d {
         bool    isStarted() const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                               makeCurrent() const;
         void                               updateDisplayMetrics(const RenderContext& context);
         void                               rebuildDeviceObjects();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         ImGuiContext*                      _context;
         std::vector<std::unique_ptr<Font>> _fontSources;

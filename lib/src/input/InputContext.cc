@@ -12,14 +12,14 @@
 
 using namespace a3d;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 InputContext::InputContext():
     _didUpdateCallback {} {}
 
 InputContext::~InputContext() {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 InputContext::DidUpdateCallback InputContext::didUpdateCallback() const {
     return _didUpdateCallback;

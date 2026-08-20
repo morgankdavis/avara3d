@@ -26,11 +26,11 @@ namespace a3d {
     class Texture {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         using Contents = std::variant<std::monostate, std::shared_ptr<Image>, std::shared_ptr<CubeImage>>;
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Texture();
         explicit Texture(const Contents&                 contents,
@@ -45,7 +45,7 @@ namespace a3d {
 
         ~Texture();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         std::shared_ptr<Sampler> sampler() const;
         void                     sampler(const std::shared_ptr<Sampler>& sampler);
@@ -57,7 +57,7 @@ namespace a3d {
         unsigned                 mappingChannel() const;
         void                     mappingChannel(unsigned channel);
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class DirtyMask : uint32_t {
             None     = 0,
@@ -66,7 +66,7 @@ namespace a3d {
             All      = UINT_MAX
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         TextureId id() const noexcept;
 
@@ -74,7 +74,7 @@ namespace a3d {
         void      dirtyMask(DirtyMask mask);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         TextureId                _id;
         std::shared_ptr<Sampler> _sampler;

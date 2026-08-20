@@ -20,7 +20,7 @@ namespace a3d {
     class Font {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Type : uint8_t {
             Unknown,
@@ -28,7 +28,7 @@ namespace a3d {
             TTF,
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit Font(const std::filesystem::path& path);
         explicit Font(std::unique_ptr<Buffer> buffer);
@@ -41,14 +41,14 @@ namespace a3d {
 
         ~Font();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>& name() const;
         Type                              type() const;
         const Buffer*                     buffer() const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::optional<std::string> _name;
         Type                       _type;

@@ -20,20 +20,20 @@ namespace a3d {
 
     class Point {
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
     public:
         explicit Point(const math::vec3& location);
         Point(const math::vec3& location, const Color& color);
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
         const math::vec3& location() const;
         void              location(const math::vec3& point);
         const Color&      color() const;
         void              color(const Color& color);
 
-/// Private Member Variables ///
+// [Private Member Variables]
 
     private:
         math::vec3 _location;

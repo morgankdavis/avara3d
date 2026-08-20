@@ -16,16 +16,16 @@ namespace a3d {
     class InfinitePlanePhysicsShape : public PhysicsShape {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         InfinitePlanePhysicsShape();
 
-        /// PhysicsShape Public Member Functions ///
+        // [PhysicsShape Public Member Functions]
 
         Type type() const override;
         void type(Type type) override;
 
-        /// PhysicsShape Internal Member Functions ///
+        // [PhysicsShape Internal Member Functions]
 
         bool supportsBodyType(PhysicsBody::Type type) const override;
     };

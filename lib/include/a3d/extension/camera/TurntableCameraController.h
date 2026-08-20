@@ -27,7 +27,7 @@ namespace a3d::ext {
     class TurntableCameraController {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct NodeTarget {
 
@@ -83,12 +83,12 @@ namespace a3d::ext {
             std::optional<PointerClick> panButtonClick;
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         TurntableCameraController();
         explicit TurntableCameraController(const Config& config);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const Config& config() const;
         void          config(const Config& config);
@@ -104,7 +104,7 @@ namespace a3d::ext {
         void          apply(Node& pov);
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         enum class DragMode {
             Orbit,
@@ -112,12 +112,12 @@ namespace a3d::ext {
             Dolly
         };
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         math::vec3 resolveTarget();
         void       translateTarget(const math::vec3& worldTranslation);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Config     _config;
         View       _view;

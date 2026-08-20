@@ -34,12 +34,12 @@ namespace a3d {
     class GlTFImporter {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit GlTFImporter(const std::filesystem::path& path,
                               Scene::ImportOptions         options = Scene::ImportOptions::ImportAll);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         std::unique_ptr<Scene>       scene();
         std::shared_ptr<Mesh>        firstMesh();
@@ -48,7 +48,7 @@ namespace a3d {
         Scene::ImportOptions         options() const;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         bool                         parse();
         void                         visitGlTFNode(fastgltf::Asset& asset, fastgltf::Node& node, Node* parent);
@@ -65,7 +65,7 @@ namespace a3d {
         std::shared_ptr<Light>   lightFromGlTFNode(fastgltf::Asset& asset, fastgltf::Node& node);
         std::shared_ptr<Camera>  cameraFromGlTFNode(fastgltf::Asset& asset, fastgltf::Node& node);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         bool                     _parsed;
         fastgltf::Asset          _asset;

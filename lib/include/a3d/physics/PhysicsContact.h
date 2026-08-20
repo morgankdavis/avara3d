@@ -29,7 +29,7 @@ namespace a3d {
     class PhysicsContact {
 
     public:
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         std::weak_ptr<Node> nodeA() const;
         std::weak_ptr<Node> nodeB() const;
@@ -39,7 +39,7 @@ namespace a3d {
         float               penetrationDistance() const;
         float               sweepTestFraction() const;
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         PhysicsContact(std::weak_ptr<Node> nodeA,
                        std::weak_ptr<Node> nodeB,
@@ -50,7 +50,7 @@ namespace a3d {
                        float               sweepTestFraction);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::weak_ptr<Node> _nodeA;
         std::weak_ptr<Node> _nodeB;

@@ -14,11 +14,11 @@
 
 using namespace a3d;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 InfinitePlanePhysicsShape::InfinitePlanePhysicsShape() = default;
 
-/// PhysicsShape Public Member Functions ///
+// [PhysicsShape Public Member Functions]
 
 PhysicsShape::Type InfinitePlanePhysicsShape::type() const {
     return PhysicsShape::Type::Primitive;
@@ -28,7 +28,7 @@ void InfinitePlanePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for InfinitePlanePhysicsShape.");
 }
 
-/// PhysicsShape Internal Member Functions ///
+// [PhysicsShape Internal Member Functions]
 
 bool InfinitePlanePhysicsShape::supportsBodyType(PhysicsBody::Type type) const {
     return type == PhysicsBody::Type::Static;

@@ -13,7 +13,7 @@
 
 namespace a3d {
 
-    /// Internal Types ///
+    // [Internal Types]
 
     using VertexLayoutKey = uint32_t;
 

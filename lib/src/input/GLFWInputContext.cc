@@ -23,11 +23,11 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 GLFWInputContext::GLFWInputContext():
     DesktopInputContext {},
@@ -42,7 +42,7 @@ GLFWInputContext::~GLFWInputContext() {
     window(nullptr);
 }
 
-/// InputContext Internal Member Functions ///
+// [InputContext Internal Member Functions]
 
 void GLFWInputContext::attachedToScene(Scene& scene) {
 
@@ -58,14 +58,14 @@ void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
     }
 }
 
-/// DesktopInputContext Internal Member Functions ///
+// [DesktopInputContext Internal Member Functions]
 
 void GLFWInputContext::rebaseMouseMotion() {
     DesktopInputContext::rebaseMouseMotion();
     _hasMousePosition = false;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
 
@@ -148,7 +148,7 @@ void GLFWInputContext::detachedFromWindow(Window& window) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void GLFWInputContext::window(Window* window) {
 
@@ -184,7 +184,7 @@ void GLFWInputContext::initMouseInput() {
 #endif
 }
 
-/// Private Static Functions ///
+// [Private Static Functions]
 
 GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
 

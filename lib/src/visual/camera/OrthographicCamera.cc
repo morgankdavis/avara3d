@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 OrthographicCamera::OrthographicCamera():
     Camera {},
@@ -38,7 +38,7 @@ OrthographicCamera::~OrthographicCamera() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const AABB& OrthographicCamera::extent() const {
     return _extent;
@@ -48,7 +48,7 @@ void OrthographicCamera::extent(const AABB& e) {
     _extent = e;
 }
 
-/// Camera Internal Member Functions ///
+// [Camera Internal Member Functions]
 
 mat4 OrthographicCamera::projection(const uvec2&) const {
 

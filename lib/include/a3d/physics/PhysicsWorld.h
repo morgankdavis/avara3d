@@ -31,7 +31,7 @@ namespace a3d {
     class PhysicsWorld {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct RayTestOptions {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
@@ -55,7 +55,7 @@ namespace a3d {
         using DidEndContactCallback =
             std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         PhysicsWorld();
 
@@ -67,7 +67,7 @@ namespace a3d {
 
         ~PhysicsWorld();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const math::vec3&             gravity() const;
         void                          gravity(const math::vec3& gravity);
@@ -101,7 +101,7 @@ namespace a3d {
         DidEndContactCallback         didEndContactCallback() const;
         void                          didEndContactCallback(DidEndContactCallback function);
 
-        /// Internal Types ///
+        // [Internal Types]
 
         struct Inventory {
             unsigned staticBodies {0};
@@ -114,7 +114,7 @@ namespace a3d {
             unsigned activeContacts {0};
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void               attachedToScene(Scene& scene);
         void               detachedFromScene(Scene& scene);
@@ -131,7 +131,7 @@ namespace a3d {
         PhysicsWorldProxy* proxy() const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         math::vec3                         _gravity;
         std::unique_ptr<PhysicsWorldProxy> _proxy;

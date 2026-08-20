@@ -27,7 +27,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PhysicsWorld::PhysicsWorld():
     _gravity {0, -9.807, 0},
@@ -43,7 +43,7 @@ PhysicsWorld::~PhysicsWorld() {
     log::d()("Destroying PhysicsWorld {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const vec3& PhysicsWorld::gravity() const {
     return _gravity;
@@ -121,7 +121,7 @@ void PhysicsWorld::didEndContactCallback(PhysicsWorld::DidEndContactCallback fun
     _didEndContactCallback = function;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void PhysicsWorld::attachedToScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));

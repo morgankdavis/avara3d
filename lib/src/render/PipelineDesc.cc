@@ -10,7 +10,7 @@
 
 using namespace a3d;
 
-/// Internal Functions ///
+// [Internal Functions]
 
 size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 

@@ -23,12 +23,12 @@ namespace a3d {
     class BulletBodyProxy : public PhysicsBodyProxy {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
         ~BulletBodyProxy() override;
 
-        /// PhysicsBodyModelProxy Internal Member Functions ///
+        // [PhysicsBodyModelProxy Internal Member Functions]
 
         PhysicsBody::Type  type() const override;
         void               type(PhysicsBody::Type type) override;
@@ -119,12 +119,12 @@ namespace a3d {
 
         void               clearForces() override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         btRigidBody*       btBody();
 
     private:
-        ///  Private Member Functions ///
+        // [ Private Member Functions]
 
         void                               calculateCenterOfMass();
         void                               rebuildCenterOfMassOffsetShape();
@@ -132,7 +132,7 @@ namespace a3d {
         void                               syncCcdSettings();
         void                               syncRollingFrictionAnisotropy();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<BulletMotionState> _motionState;
         std::unique_ptr<btCompoundShape>   _centerOfMassOffsetShape;

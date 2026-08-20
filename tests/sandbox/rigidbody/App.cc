@@ -25,7 +25,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace test::rigidbody;
 
-/// Private Constants ///
+// [Private Constants]
 
 const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
@@ -43,7 +43,7 @@ const float TIMESTEP {1.0 / 120.0};
 const chrono::milliseconds DUCK_FRUIT_SPAWN_INTERVAL {100};
 const chrono::milliseconds SLURM_SHOT_INTERVAL {50};
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
@@ -63,7 +63,7 @@ void                     SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node>         ChainmailLink(float minorRadius, float majorRadius);
 void                     SpawnChainMail(Scene& scene);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
@@ -76,7 +76,7 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Application Protected Member Functions ///
+// [Application Protected Member Functions]
 
 unique_ptr<Scene> App::init() {
     try {
@@ -642,7 +642,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 // small complex physics shapes fall through the floor easily even with aggressive CCD
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit) {

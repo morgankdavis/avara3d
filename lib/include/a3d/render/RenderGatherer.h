@@ -23,7 +23,7 @@ namespace a3d {
     class RenderGatherer {
 
     public:
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static GatherOutput Gather(const Scene&               scene,
                                    const math::mat4&          view,

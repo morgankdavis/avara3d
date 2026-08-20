@@ -19,7 +19,7 @@ namespace a3d {
     class PipelineDescBuilder {
 
     public:
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static PipelineDesc MakeBackgroundDesc();
         static PipelineDesc MakeGroundDesc();

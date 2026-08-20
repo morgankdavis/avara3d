@@ -29,7 +29,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 #ifdef A3D_WEB
 static void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
@@ -39,7 +39,7 @@ static EM_BOOL EmscriptenVisibilityChangeCallback(int,
                                                   void*                                  userData);
 #endif
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 int Application::Run(unique_ptr<Application> application) {
 
@@ -84,7 +84,7 @@ int Application::Run(unique_ptr<Application> application) {
 #endif
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Application::Application(int argc, char* argv[], Log::Level logLevel):
     _args(argv + 1, argv + argc),
@@ -99,7 +99,7 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
 
 Application::~Application() = default;
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 SimulationConfig Application::simulationConfig() const {
     return {};
@@ -200,7 +200,7 @@ void Application::contactDidEnd(Runner&               runner,
                                 PhysicsWorld&         physicsWorld,
                                 const PhysicsContact& contact) {}
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Application::initLog(Log::Level level) {
 
@@ -354,7 +354,7 @@ void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const Physic
     contactDidEnd(*_runner, *_scene, physicsWorld, contact);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 #ifdef A3D_WEB
 

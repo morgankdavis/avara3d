@@ -18,7 +18,7 @@ namespace a3d {
     class BuildInfo {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct Version { // semver.org
             int major;
@@ -39,14 +39,14 @@ namespace a3d {
             AdHoc
         };
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static const BuildInfo& Info();
         static std::string      VersionString(const Version& version);
         static std::string      TypeString(Type type);
         static std::string      OriginString(Origin origin);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         unsigned                number() const;
         const Version&          version() const;
@@ -55,7 +55,7 @@ namespace a3d {
         const std::tm&          time() const;
 
     private:
-        /// Private Lifecycle Functions ///
+        // [Private Lifecycle Functions]
 
         BuildInfo();
 
@@ -65,7 +65,7 @@ namespace a3d {
         BuildInfo(BuildInfo&&)            = delete;
         BuildInfo& operator=(BuildInfo&&) = delete;
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         unsigned   _number;
         Version    _version;

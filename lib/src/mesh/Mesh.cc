@@ -22,7 +22,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
     auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
@@ -31,7 +31,7 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions opti
     return mesh;
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Mesh::Mesh(const string& name, unique_ptr<MeshElement> element, const shared_ptr<Material>& material):
     Mesh {std::move(element), material} {
@@ -82,7 +82,7 @@ Mesh::~Mesh() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 optional<string> Mesh::name() const {
     return _name;
@@ -135,7 +135,7 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
     insertMaterial(replacement, index);
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 MeshId Mesh::id() const noexcept {
     return _id;
@@ -225,7 +225,7 @@ void Mesh::genLocalAABB() {
     _localAABB = aabb;
 }
 
-/// Private Lifecycle Functions ///
+// [Private Lifecycle Functions]
 
 Mesh::Mesh():
     _id {IdGenerator<MeshId>::next()},

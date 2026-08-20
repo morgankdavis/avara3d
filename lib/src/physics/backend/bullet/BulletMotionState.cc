@@ -17,13 +17,13 @@
 using namespace a3d;
 using namespace a3d::math;
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
     btMotionState {},
     _body {&body} {}
 
-/// btMotionState Members ///
+// [btMotionState Members]
 
 void BulletMotionState::getWorldTransform(btTransform& transform) const {
 
@@ -45,7 +45,7 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 btTransform BulletMotionState::centerOfMassWorldTransform(const mat4& modelWorldTransform) const {
 

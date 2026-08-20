@@ -26,11 +26,11 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 static const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 ImguiContext::ImguiContext():
     _context {nullptr},
@@ -45,7 +45,7 @@ ImguiContext::~ImguiContext() {
     shutdown();
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void ImguiContext::startup(const RenderContext& context) {
 
@@ -246,7 +246,7 @@ bool ImguiContext::isStarted() const {
     return _started;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void ImguiContext::makeCurrent() const {
 

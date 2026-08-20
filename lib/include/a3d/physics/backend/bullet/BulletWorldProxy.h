@@ -42,12 +42,12 @@ namespace a3d {
     class BulletWorldProxy : public PhysicsWorldProxy {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit BulletWorldProxy(PhysicsWorld& world);
         ~BulletWorldProxy() override;
 
-        /// PhysicsWorldModelProxy Internal Member Functions ///
+        // [PhysicsWorldModelProxy Internal Member Functions]
 
         void                          add(PhysicsBody& body) override;
         void                          remove(PhysicsBody& body) override;
@@ -75,12 +75,12 @@ namespace a3d {
 
         void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         btDiscreteDynamicsWorld* btWorld();
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         struct InventoryState {
             unsigned                                          staticBodies {0};
@@ -100,7 +100,7 @@ namespace a3d {
 
         using BodyPairContacts = std::vector<BodyPairContact>;
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                              extractCurrentContacts();
         void                              buildContactEvents();
@@ -109,7 +109,7 @@ namespace a3d {
                                                               const btCollisionObject* objectB,
                                                               const btManifoldPoint&   point) const;
 
-        ///  Private Member Variables ///
+        // [ Private Member Variables]
 
         // scheduler
         btITaskScheduler*                 _btScheduler;

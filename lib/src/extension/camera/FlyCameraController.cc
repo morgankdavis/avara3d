@@ -16,7 +16,7 @@ using namespace a3d::ext;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 FlyCameraController::FlyCameraController():
     FlyCameraController(Config {}) {}
@@ -24,7 +24,7 @@ FlyCameraController::FlyCameraController():
 FlyCameraController::FlyCameraController(const Config& config):
     _config {config} {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const FlyCameraController::Config& FlyCameraController::config() const {
     return _config;

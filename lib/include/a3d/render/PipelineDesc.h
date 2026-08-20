@@ -17,7 +17,7 @@
 
 namespace a3d {
 
-    /// Internal Types ///
+    // [Internal Types]
 
     using PipelineId                                = uint32_t;
     static constexpr PipelineId INVALID_PIPELINE_ID = 0xFFFFFFFFu;
@@ -68,7 +68,7 @@ namespace a3d {
         bool                    operator==(const PipelineDesc&) const = default;
     };
 
-    /// Internal Functions ///
+    // [Internal Functions]
 
     struct PipelineDescHash { // for unordered_map
         size_t operator()(const PipelineDesc& desc) const noexcept;

@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 Color Color::Black() {
     return Color(vec4 {0.0f, 0.0f, 0.0f, 1.0f});
@@ -96,7 +96,7 @@ Color Color::Random() {
     return Color(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
 }
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static bool ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
 static bool ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
@@ -107,7 +107,7 @@ static const char* SkipWs(const char* s);
 static bool        ParseHexByte(const char* s, u8& out);
 static uint8_t     FloatToU8(float x);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Color::Color():
     _rgba {1.0, 1.0, 1.0, 1.0} {}
@@ -146,7 +146,7 @@ Color::Color(const string& hexString) {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Color::r() const {
     return _rgba.r;
@@ -196,7 +196,7 @@ u8vec4 Color::u8rgba() const {
     return u8vec4 {u8r(), u8g(), u8b(), u8a()};
 }
 
-/// Private Static Non-Members ///
+// [Private Static Non-Members]
 
 bool ParseHexRgb(const char* s, u8vec3& rgb) {
     s = SkipWs(s);

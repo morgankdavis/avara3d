@@ -18,7 +18,7 @@ namespace a3d {
     class OGLMemoryTracker {
 
     public:
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class ObjectNamespace : std::uint8_t {
             Buffer,
@@ -48,7 +48,7 @@ namespace a3d {
             friend bool     operator==(const AllocationKey&, const AllocationKey&) = default;
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void              setAllocation(AllocationKey key,
                                         Source        source,
@@ -62,7 +62,7 @@ namespace a3d {
         RenderMemoryStats stats() const;
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         struct AllocationKeyHash {
             std::size_t operator()(const AllocationKey& key) const noexcept;
@@ -75,11 +75,11 @@ namespace a3d {
             std::string   label {};
         };
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         std::uint64_t                                               currentTotalBytes() const;
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unordered_map<AllocationKey, Entry, AllocationKeyHash> _allocations;
         std::uint64_t                                               _peakTotalBytes {0};

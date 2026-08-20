@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 weak_ptr<Node> PhysicsContact::nodeA() const {
     return _nodeA;
@@ -44,7 +44,7 @@ float PhysicsContact::sweepTestFraction() const {
     return _sweepTestFraction;
 }
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 PhysicsContact::PhysicsContact(weak_ptr<Node> nodeA,
                                weak_ptr<Node> nodeB,

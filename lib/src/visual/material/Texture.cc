@@ -16,7 +16,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Texture::Texture():
     _id {IdGenerator<TextureId>::next()},
@@ -76,7 +76,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 
 Texture::~Texture() {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 shared_ptr<Sampler> Texture::sampler() const {
     return _sampler;
@@ -104,7 +104,7 @@ void Texture::mappingChannel(unsigned channel) {
     _mappingChannel = channel;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 TextureId Texture::id() const noexcept {
     return _id;

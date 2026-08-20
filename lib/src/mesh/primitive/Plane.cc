@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Plane::Mesh(float                      width,
                              float                      height,
@@ -32,7 +32,7 @@ shared_ptr<Mesh> Plane::Mesh(float                      width,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Plane::Plane(float width, float height, unsigned widthSegements, unsigned heightSegments):
     MeshElement {},
@@ -66,7 +66,7 @@ Plane::Plane(float width, float height, unsigned widthSegements, unsigned height
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Plane::width() const {
     return _width;

@@ -17,14 +17,14 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static uint32_t PtrHash32(const void* p);
 static uint16_t PtrHash16(const void* p);
 static uint32_t FoldHash32(size_t h);
 static void     SortItems(vector<DrawItem>& items);
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 uint64_t PacketSorter::MakeBatchKey(const DrawItem& item) {
 
@@ -50,7 +50,7 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
     SortItems(packet.wireframePassItems);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 //uint32_t PtrHash32(const void* p) {
 //	uintptr_t v = (uintptr_t)p >> 4; // drop alignment bits

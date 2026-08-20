@@ -20,7 +20,7 @@ namespace a3d {
     class ScopeTimer {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         ScopeTimer(Profiler& profiler, Profiler::Tag tag);
 
@@ -33,7 +33,7 @@ namespace a3d {
         ~ScopeTimer();
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Profiler*                                          _profiler;
         Profiler::Tag                                      _tag;

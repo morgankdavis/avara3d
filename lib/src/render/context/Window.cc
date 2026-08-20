@@ -34,13 +34,13 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 #if defined(A3D_WEB)
 static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 #endif
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static bool InitGLFW();
 #ifdef A3D_WEB
@@ -55,13 +55,13 @@ static void GLFWErrorCallback(int error, const char* description);
 static bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 static bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 unique_ptr<DesktopInputContext> Window::InputContext() {
     return std::make_unique<GLFWInputContext>();
 }
 
-/// Public Lifescycle ///
+// [Public Lifescycle]
 
 Window::Window(RenderingApi  renderingAPI,
                const string& title,
@@ -200,7 +200,7 @@ Window::~Window() {
     glfwTerminate();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void Window::open() {
     log::i();
@@ -393,7 +393,7 @@ bool Window::highDPIEnabled() const {
     return _highDPIEnabled;
 }
 
-/// RenderContext Public Member Functions ///
+// [RenderContext Public Member Functions]
 
 bool Window::vSyncEnabled() const {
     return _vSyncEnabled;
@@ -415,7 +415,7 @@ void Window::vSyncEnabled(bool enabled) {
 #endif
 }
 
-/// RenderContext Internal Member Functions ///
+// [RenderContext Internal Member Functions]
 
 void Window::pollEvents() {
     glfwPollEvents();
@@ -460,7 +460,7 @@ unsigned Window::defaultFramebuffer() const {
     return 0;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Window::inputContext(DesktopInputContext* inputContext) {
 
@@ -480,7 +480,7 @@ GLFWwindow* Window::glfwWindow() const {
     return _glfwWindow.get();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Window::registerGLFWCallbacks() {
 
@@ -500,13 +500,13 @@ void Window::unregisterGLFWCallbacks() {
     glfwSetWindowFocusCallback(_glfwWindow.get(), nullptr);
 }
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 void Window::Destroy(GLFWwindow* window) {
     glfwDestroyWindow(window);
 }
 
-/// Private Static member Functions ///
+// [Private Static member Functions]
 
 void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
 
@@ -652,7 +652,7 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
     return WindowFromGLFWwindow(glfwWindow)->_inputContext;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 bool InitGLFW() {
 

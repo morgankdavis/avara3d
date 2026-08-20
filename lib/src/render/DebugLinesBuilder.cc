@@ -16,11 +16,11 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Non-Member Prototypes ///
+// [Internal Static Non-Member Prototypes]
 
 static void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color);
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 void DebugLinesBuilder::AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color) {
 
@@ -70,7 +70,7 @@ void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, co
     out.emplace_back(origin, zEnd, Color {vec3 {0.3f, 0.3f, 1.0f}});
 }
 
-/// Internal Static Non-Member Functions ///
+// [Internal Static Non-Member Functions]
 
 void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color) {
     // indices:

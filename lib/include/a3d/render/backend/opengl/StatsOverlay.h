@@ -30,7 +30,7 @@ namespace a3d {
     class StatsOverlay {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         StatsOverlay();
 
@@ -42,7 +42,7 @@ namespace a3d {
 
         ~StatsOverlay();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void initialize(ImguiContext& context);
 
@@ -54,7 +54,7 @@ namespace a3d {
                   bool                     gpuTimingAvailable);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         ImFont* _titleImFont;
         ImFont* _bodyImFont;

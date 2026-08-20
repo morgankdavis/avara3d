@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 Line::Line(const vec3& fromLocation, const vec3& toLocation):
     Line {fromLocation, toLocation, Color {1.0f}} {}
@@ -34,7 +34,7 @@ Line::Line(const vec3& fromLocation, const vec3& toLocation, const Color& fromCo
     _fromColor {fromColor},
     _toColor {toColor} {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 const vec3& Line::fromLocation() const {
     return _fromLocation;

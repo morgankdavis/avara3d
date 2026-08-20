@@ -58,7 +58,7 @@ using namespace std;
     #endif
 #endif
 
-/// Private Constants ///
+// [Private Constants]
 
 // ! btCollisionDispatcherMt is known to be buggy. leave it off.
 static constexpr bool A3D_USE_MT_DISPATCHER = false;
@@ -71,13 +71,13 @@ static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
 static constexpr float PHYSICS_DEBUG_FRAME_MARGIN = 0.1f;
 static constexpr float PHYSICS_DEBUG_FRAME_TIP_MARGIN = 0.1f;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
 static string                       BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes);
 static int                          PickNumBTThreads(btITaskScheduler* scheduler);
 
-/// Internal Types ///
+// [Internal Types]
 
 struct RawContactResult {
     btManifoldPoint          point;
@@ -107,7 +107,7 @@ struct ContactTestResultCallback : btCollisionWorld::ContactResultCallback {
     vector<RawContactResult> results;
 };
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     PhysicsWorldProxy {world},
@@ -241,7 +241,7 @@ BulletWorldProxy::~BulletWorldProxy() {
     }
 }
 
-/// PhysicsWorldModelProxy Internal Member Functions ///
+// [PhysicsWorldModelProxy Internal Member Functions]
 
 void BulletWorldProxy::add(PhysicsBody& body) {
     std::scoped_lock lock(_btMutex);
@@ -792,13 +792,13 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
     out.insert(out.end(), _debugLines.begin(), _debugLines.end());
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() {
     return _btWorld.get();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 // walks already-computed persistent manifolds -- does not rerun collision detection.
 // work is linear in the manifold/contact-point count plus O(M log M) to coalesce manifolds by
@@ -998,7 +998,7 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
     };
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
 

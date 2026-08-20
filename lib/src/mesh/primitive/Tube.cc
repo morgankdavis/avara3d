@@ -21,7 +21,7 @@ using namespace generator;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Tube::Mesh(float                      innerRadius,
                             float                      outerRadius,
@@ -36,7 +36,7 @@ shared_ptr<Mesh> Tube::Mesh(float                      innerRadius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Tube::Tube(float    innerRadius,
            float    outerRadius,
@@ -84,7 +84,7 @@ Tube::Tube(float    innerRadius,
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Tube::innerRadius() const {
     return _innerRadius;

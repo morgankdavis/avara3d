@@ -21,7 +21,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
     _type {type},
@@ -58,7 +58,7 @@ PhysicsShape::~PhysicsShape() {
     log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 PhysicsShape::Source PhysicsShape::source() const {
     return _source;
@@ -77,7 +77,7 @@ void PhysicsShape::type(Type type) {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 bool PhysicsShape::supportsBodyType(PhysicsBody::Type) const {
     return true;
@@ -133,7 +133,7 @@ PhysicsShapeProxy* PhysicsShape::proxy() const {
     return _proxy.get();
 }
 
-/// Protected Lifecycle ///
+// [Protected Lifecycle]
 
 PhysicsShape::PhysicsShape():
     _type {Type::Primitive},

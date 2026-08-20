@@ -18,11 +18,11 @@ namespace a3d {
     class GLSLPreprocessor {
 
     public:
-        /// Internal Types ///
+        // [Internal Types]
 
         using IncludeResolver = std::function<std::optional<std::string>(const std::string&)>;
 
-        /// Internal Static Functions ///
+        // [Internal Static Functions]
 
         static std::string Process(const std::string&     source,
                                    const std::string&     sourceName,

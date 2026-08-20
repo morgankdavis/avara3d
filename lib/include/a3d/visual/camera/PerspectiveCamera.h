@@ -17,7 +17,7 @@ namespace a3d {
     class PerspectiveCamera : public Camera {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         PerspectiveCamera();
         PerspectiveCamera(float zNear, float zFar, float yFov);
@@ -31,7 +31,7 @@ namespace a3d {
 
         ~PerspectiveCamera() override;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float                       zNear() const;
         void                        zNear(float zNear);
@@ -42,17 +42,17 @@ namespace a3d {
         float                       yFov() const;
         void                        yFov(float fov);
 
-        /// Camera Internal Member Functions ///
+        // [Camera Internal Member Functions]
 
         math::mat4                  projection(const math::uvec2& framebufferSize) const override;
 
     protected:
-        /// Camera Protected Member Functions ///
+        // [Camera Protected Member Functions]
 
 //		void 			constructProjectionMatrix() override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float                _zNear;
         float                _zFar;

@@ -20,14 +20,14 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Sphere::Mesh(float radius, unsigned segments, const shared_ptr<Material> material) {
 
     return make_shared<a3d::Mesh>("Sphere", make_unique<Sphere>(radius, segments), material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Sphere::Sphere(float radius, unsigned segments):
     MeshElement {},
@@ -59,7 +59,7 @@ Sphere::Sphere(float radius, unsigned segments):
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Sphere::radius() const {
     return _radius;

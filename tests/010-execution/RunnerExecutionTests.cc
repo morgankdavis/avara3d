@@ -356,7 +356,7 @@ namespace {
             return scene;
         }
 
-        /// InputContext Callbacks ///
+        // [InputContext Callbacks]
 
         void inputDidUpdate(a3d::Runner& callbackRunner,
                             a3d::Scene&,
@@ -368,7 +368,7 @@ namespace {
             }
         }
 
-        /// Runner Callbacks ///
+        // [Runner Callbacks]
 
         void hostUpdate(a3d::Runner& runner, a3d::Scene&, const a3d::Runner::UpdateInfo& info) override {
 
@@ -377,7 +377,7 @@ namespace {
             }
         }
 
-        /// Scene Callbacks ///
+        // [Scene Callbacks]
 
         void sceneWillStep(a3d::Runner&, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override {
 
@@ -393,7 +393,7 @@ namespace {
             }
         }
 
-        /// VisualWorld Callbacks ///
+        // [VisualWorld Callbacks]
 
         void frameDidBegin(a3d::Runner&,
                            a3d::Scene&,
@@ -444,7 +444,7 @@ namespace {
             return scene;
         }
 
-        /// Runner Callbacks ///
+        // [Runner Callbacks]
 
         void hostUpdate(a3d::Runner& callbackRunner, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
 
@@ -507,7 +507,7 @@ namespace {
             return config;
         }
 
-        /// Runner Callbacks ///
+        // [Runner Callbacks]
 
         void hostUpdate(a3d::Runner& callbackRunner, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
 
@@ -519,7 +519,7 @@ namespace {
             }
         }
 
-        /// Scene Callbacks ///
+        // [Scene Callbacks]
 
         void sceneWillStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationWillCount;
@@ -581,7 +581,7 @@ namespace {
             return config;
         }
 
-        /// InputContext Callbacks ///
+        // [InputContext Callbacks]
 
         void inputDidUpdate(a3d::Runner& callbackRunner,
                             a3d::Scene&,
@@ -596,13 +596,13 @@ namespace {
             }
         }
 
-        /// Runner Callbacks ///
+        // [Runner Callbacks]
 
         void hostUpdate(a3d::Runner&, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
             ++_result.hostUpdateCount;
         }
 
-        /// Scene Callbacks ///
+        // [Scene Callbacks]
 
         void sceneWillStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationWillCount;
@@ -612,7 +612,7 @@ namespace {
             ++_result.simulationDidCount;
         }
 
-        /// VisualWorld Callbacks ///
+        // [VisualWorld Callbacks]
 
         void frameDidBegin(a3d::Runner&,
                            a3d::Scene&,

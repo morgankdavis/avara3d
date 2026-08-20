@@ -27,13 +27,13 @@ namespace test::matlights {
     class App : public a3d::Application {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         App(int argc, char* argv[]);
         ~App() override;
 
     protected:
-        /// Application Protected Member Functions ///
+        // [Application Protected Member Functions]
 
         std::unique_ptr<a3d::Scene> init() override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
@@ -51,7 +51,7 @@ namespace test::matlights {
                            const a3d::VisualWorld::RenderInfo& info) override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<a3d::Window>  _window;
         a3d::ext::FlyCameraController _cameraController;

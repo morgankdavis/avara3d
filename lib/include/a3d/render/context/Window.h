@@ -29,11 +29,11 @@ namespace a3d {
     class Window : public RenderContext {
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::unique_ptr<DesktopInputContext> InputContext();
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Window(RenderingApi       renderingAPI,
                const std::string& title,
@@ -50,7 +50,7 @@ namespace a3d {
 
         ~Window() override;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         void        open();
         void        close();
@@ -79,12 +79,12 @@ namespace a3d {
 
         bool        highDPIEnabled() const;
 
-        /// RenderContext Public Member Functions ///
+        // [RenderContext Public Member Functions]
 
         bool        vSyncEnabled() const override;
         void        vSyncEnabled(bool enabled) override;
 
-        /// RenderContext Internal Member Functions ///
+        // [RenderContext Internal Member Functions]
 
         void        pollEvents() override;
 
@@ -98,17 +98,17 @@ namespace a3d {
 
         unsigned    defaultFramebuffer() const override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void        inputContext(DesktopInputContext* inputContext);
         GLFWwindow* glfwWindow() const; // remove?
 
-        /// Internal Static Member Functions ///
+        // [Internal Static Member Functions]
 
         static void Destroy(GLFWwindow* window);
 
     private:
-        /// Private Static Member Functions ///
+        // [Private Static Member Functions]
 
         static void    GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
         static void    GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
@@ -118,12 +118,12 @@ namespace a3d {
         static Window* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
         static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                        registerGLFWCallbacks();
         void                        unregisterGLFWCallbacks();
 
-        /// Private Types ///
+        // [Private Types]
 
         struct DestroyGLFWWindow {
             void operator()(GLFWwindow* window) {
@@ -131,7 +131,7 @@ namespace a3d {
             }
         };
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<GLFWwindow, DestroyGLFWWindow> _glfwWindow;
         bool                                           _vSyncEnabled;

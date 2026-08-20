@@ -49,7 +49,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
 static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
@@ -64,7 +64,7 @@ static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
                                              const fastgltf::Accessor& idxAccessor,
                                              vector<uint32_t>&         out);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 GlTFImporter::GlTFImporter(const filesystem::path& path, Scene::ImportOptions options):
     _parsed {false},
@@ -86,7 +86,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path, Scene::ImportOptions op
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
@@ -173,7 +173,7 @@ Scene::ImportOptions GlTFImporter::options() const {
     return _options;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 bool GlTFImporter::parse() {
 
@@ -779,7 +779,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
     return nullptr;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
 

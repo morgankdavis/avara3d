@@ -25,7 +25,7 @@ namespace a3d {
     class Light {
 
     public:
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::shared_ptr<AmbientLight>     Ambient();
         static std::shared_ptr<AmbientLight>     Ambient(const Color& color);
@@ -40,7 +40,7 @@ namespace a3d {
         static std::shared_ptr<SpotLight>        Spot(const Color& color);
 
     protected:
-        /// Protected Lifecycle Functions ///
+        // [Protected Lifecycle Functions]
 
         Light();
         explicit Light(const std::string& name);
@@ -56,7 +56,7 @@ namespace a3d {
         virtual ~Light() = 0;
 
     public:
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>& name() const;
         void                              name(const std::string& name);
@@ -65,7 +65,7 @@ namespace a3d {
         void                              color(const Color& color);
 
     protected:
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         std::optional<std::string> _name;
         Color                      _color;

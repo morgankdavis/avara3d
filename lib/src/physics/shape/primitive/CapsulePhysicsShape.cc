@@ -14,7 +14,7 @@
 
 using namespace a3d;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
     PhysicsShape {},
@@ -24,7 +24,7 @@ CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
     //checkCreateProxy();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float CapsulePhysicsShape::radius() const {
     return _radius;
@@ -48,7 +48,7 @@ void CapsulePhysicsShape::height(float height) {
 //	checkCreateProxy();
 }
 
-/// PhysicsShape Public Member Functions ///
+// [PhysicsShape Public Member Functions]
 
 PhysicsShape::Type CapsulePhysicsShape::type() const {
     return PhysicsShape::Type::Primitive;

@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Torus::Mesh(float                      minorRadius,
                              float                      majorRadius,
@@ -32,7 +32,7 @@ shared_ptr<Mesh> Torus::Mesh(float                      minorRadius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Torus::Torus(float minorRadius, float majorRadius, unsigned slices, unsigned segments):
     MeshElement {},
@@ -72,7 +72,7 @@ Torus::Torus(float minorRadius, float majorRadius, unsigned slices, unsigned seg
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Torus::minorRadius() const {
     return _minorRadius;

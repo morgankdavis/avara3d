@@ -27,7 +27,7 @@ namespace a3d {
     class PhysicsShape {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Type : uint8_t {
             Primitive, // TODO: change this
@@ -40,7 +40,7 @@ namespace a3d {
 
         // TODO: static MeshShape(), NodeShape()
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         PhysicsShape(Type type, const std::shared_ptr<Mesh>& mesh);
         PhysicsShape(Type type, const std::shared_ptr<Node>& node);
@@ -53,14 +53,14 @@ namespace a3d {
 
         virtual ~PhysicsShape();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         virtual Type                            type() const;
         virtual void                            type(Type type);
 
         Source                                  source() const;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual bool                            supportsBodyType(PhysicsBody::Type type) const;
 
@@ -79,17 +79,17 @@ namespace a3d {
         PhysicsShapeProxy*                      proxy() const;
 
     protected:
-        /// Protected Lifecycle ///
+        // [Protected Lifecycle]
 
         PhysicsShape();
 
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         Type                               _type;
         std::unique_ptr<PhysicsShapeProxy> _proxy;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Source                           _source;
         std::unordered_set<PhysicsBody*> _bodies;

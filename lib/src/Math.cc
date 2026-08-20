@@ -17,7 +17,7 @@
 
 namespace a3d::math {
 
-    /// Private Utility Prototypes ///
+    // [Private Utility Prototypes]
 
     static std::mt19937& default_random_gen();
     static std::mt19937& pick_random_gen(std::mt19937* gen);
@@ -30,7 +30,7 @@ namespace a3d::math {
     f32quat              operator+(const f32quat& a, const f32quat& b);
     f32quat&             operator+=(f32quat& a, const f32quat& b);
 
-    /// Types ///
+    // [Types]
 
     f32vec2::f32vec2():
         x {0},
@@ -610,7 +610,7 @@ namespace a3d::math {
         return (&w)[i];
     }
 
-    /// 32-bit Float Vector ///
+    // [32-bit Float Vector]
 
     f32vec2 operator-(const f32vec2& v) {
         return {-v.x, -v.y};
@@ -1020,7 +1020,7 @@ namespace a3d::math {
         return f32vec4 {ptr[0], ptr[1], ptr[2], ptr[3]};
     }
 
-    /// Signed 32-bit Integer Vector ///
+    // [Signed 32-bit Integer Vector]
 
     i32vec2 operator-(const i32vec2& v) {
         return {-v.x, -v.y};
@@ -1317,7 +1317,7 @@ namespace a3d::math {
         return i32vec4 {ptr[0], ptr[1], ptr[2], ptr[3]};
     }
 
-    /// Unsigned 32-bit Integer Vector ///
+    // [Unsigned 32-bit Integer Vector]
 
     u32vec2 operator+(const u32vec2& a, const u32vec2& b) {
         return u32vec2 {a.x + b.x, a.y + b.y};
@@ -1602,7 +1602,7 @@ namespace a3d::math {
         return u32vec4 {ptr[0], ptr[1], ptr[2], ptr[3]};
     }
 
-    /// Unsigned 8-bit Integer Vector ///
+    // [Unsigned 8-bit Integer Vector]
 
     u8vec2 operator+(const u8vec2& a, const u8vec2& b) {
         return u8vec2 {static_cast<u8>(a.x + b.x), static_cast<u8>(a.y + b.y)};
@@ -1879,7 +1879,7 @@ namespace a3d::math {
         return ss.str();
     }
 
-    /// 32-bit Float Matrix ///
+    // [32-bit Float Matrix]
 
     f32mat2 operator-(const f32mat2& m) {
         // result.ci = -m.ci
@@ -2323,7 +2323,7 @@ namespace a3d::math {
         return m;
     }
 
-    /// 32-bit Float Quaternion ///
+    // [32-bit Float Quaternion]
 
     // f32quat operator-(const f32quat& q) {
     // 	return { -q.w, -q.x, -q.y, -q.z };
@@ -2616,7 +2616,7 @@ namespace a3d::math {
         return f32quat {ptr[0], ptr[1], ptr[2], ptr[3]};
     }
 
-    /// Projection & Camera ///
+    // [Projection & Camera]
 
     f32mat4 perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far) {
         A3D_ASSERT(math::abs(aspect) > std::numeric_limits<f32>::epsilon() && "aspect must be non-zero");
@@ -2662,7 +2662,7 @@ namespace a3d::math {
         return result;
     }
 
-    /// Matrix Decomposition ///
+    // [Matrix Decomposition]
 
     // decomposes an affine 4x4 matrix into TRS components (translation * rotation * scale).
     //
@@ -2773,7 +2773,7 @@ namespace a3d::math {
         return true;
     }
 
-    /// Random / Probability ///
+    // [Random / Probability]
 
     f32 uniform_01() {
         return uniform_01(nullptr);
@@ -2941,7 +2941,7 @@ namespace a3d::math {
         return dis(pick_random_gen(gen));
     }
 
-    /// Easing ///
+    // [Easing]
 
     f32 saturate(f32 t) {
         return clamp_01(t);
@@ -3480,7 +3480,7 @@ namespace a3d::math {
         return slerp(a, b, clamp_01(t), shortest_path);
     }
 
-    /// Color & Color Spaces ///
+    // [Color & Color Spaces]
 
     f32 srgb_to_linear(f32 c) {
         // IEC 61966-2-1:
@@ -3707,7 +3707,7 @@ namespace a3d::math {
         return f32vec3 {r, g, b};
     }
 
-    /// Scalar Angles ///
+    // [Scalar Angles]
 
     f32 radians(f32 degrees) {
         return degrees * static_cast<f32>(0.01745329251994329576923690768489);
@@ -3717,7 +3717,7 @@ namespace a3d::math {
         return radians * static_cast<f32>(57.295779513082320876798154814105);
     }
 
-    /// Scalar Trig ///
+    // [Scalar Trig]
 
     f32 sin(f32 n) {
         return std::sin(n);
@@ -3771,13 +3771,13 @@ namespace a3d::math {
         return std::atanh(n);
     }
 
-    /// Scalar Comparison ///
+    // [Scalar Comparison]
 
     bool equal(f32 a, f32 b, f32 eps) {
         return math::abs(a - b) <= eps;
     }
 
-    /// Scalar Rounding ///
+    // [Scalar Rounding]
 
     f32 ceil(f32 n) {
         return std::ceil(n);
@@ -3791,7 +3791,7 @@ namespace a3d::math {
         return std::round(n);
     }
 
-    /// Scalar Exponentials & Logarithms ///
+    // [Scalar Exponentials & Logarithms]
 
     f32 exp(f32 n) {
         return std::exp(n);
@@ -3817,7 +3817,7 @@ namespace a3d::math {
         return std::log10(n);
     }
 
-    /// Scalar Magnitude ///
+    // [Scalar Magnitude]
 
     f32 abs(f32 n) {
         return std::abs(n);
@@ -3831,13 +3831,13 @@ namespace a3d::math {
         return std::cbrt(n);
     }
 
-    /// Scalar Range / Ordering ///
+    // [Scalar Range / Ordering]
 
     f32 clamp_01(f32 t) {
         return std::clamp(t, f32(0), f32(1));
     }
 
-    /// Scalar Remainder / Wrap ///
+    // [Scalar Remainder / Wrap]
 
     f32 fmod(f32 x, f32 y) {
         return std::fmod(x, y);
@@ -3859,7 +3859,7 @@ namespace a3d::math {
         return lo + mod(x - lo, w);
     }
 
-    /// Bitwise / Classification ///
+    // [Bitwise / Classification]
 
     bool is_nan(f32 n) {
         return std::isnan(n);
@@ -3877,13 +3877,13 @@ namespace a3d::math {
         return std::signbit(n);
     }
 
-    /// Swap Utilities ///
+    // [Swap Utilities]
 
     void swap(f32& a, f32& b) {
         std::swap(a, b);
     }
 
-    /// Private Utilities ///
+    // [Private Utilities]
 
     std::mt19937& default_random_gen() {
         thread_local std::mt19937 gen([] {

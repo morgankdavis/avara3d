@@ -11,7 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
                                     chrono::nanoseconds&     frame,
@@ -57,12 +57,12 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
     }
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 FrameStatsHistory::FrameStatsHistory(chrono::milliseconds historyTime):
     _historyTime(historyTime) {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void FrameStatsHistory::add(FrameStats stats) {
 

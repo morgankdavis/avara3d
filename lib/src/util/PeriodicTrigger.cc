@@ -14,7 +14,7 @@
 using namespace a3d::util;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 PeriodicTrigger::PeriodicTrigger(chrono::duration<double> interval, bool deferFirstFire):
     _interval {interval.count()},
@@ -27,7 +27,7 @@ PeriodicTrigger::PeriodicTrigger(chrono::duration<double> interval, bool deferFi
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void PeriodicTrigger::reset() noexcept {
 
@@ -35,7 +35,7 @@ void PeriodicTrigger::reset() noexcept {
     _lastTime.reset();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 size_t PeriodicTrigger::dueCount(double time) {
 

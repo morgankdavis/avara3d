@@ -36,7 +36,7 @@ namespace a3d {
     class Scene {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class ImportOptions : uint16_t {
             None            = 0,
@@ -88,12 +88,12 @@ namespace a3d {
         using WillStepCallback = std::function<void(Scene& scene, const StepInfo& info)>;
         using DidStepCallback  = std::function<void(Scene& scene, const StepInfo& info)>;
 
-        /// Public Static Member Functions ///
+        // [Public Static Member Functions]
 
         static std::unique_ptr<Scene> FromFile(const std::filesystem::path& path,
                                                ImportOptions                options = ImportOptions::ImportAll);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Scene();
         explicit Scene(const std::string& name);
@@ -113,7 +113,7 @@ namespace a3d {
 
         ~Scene();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const std::optional<std::string>& name() const;
         void                              name(const std::string& name);
@@ -142,14 +142,14 @@ namespace a3d {
         DidStepCallback                   didStepCallback() const;
         void                              didStepCallback(DidStepCallback callback);
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void                              pollEvents(Profiler& profiler);
         void                              updateInput(const InputContext::UpdateInfo& info, Profiler& profiler);
         void                              stepSimulation(const StepInfo& info, Profiler& profiler);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::optional<std::string>    _name;
         std::shared_ptr<Node>         _rootNode;

@@ -23,12 +23,12 @@
 using namespace a3d;
 using namespace std;
 
-///  Private Constants ///
+// [ Private Constants]
 
 // duration of sample history to keep
 static constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Runner::Runner(Scene& scene, SimulationConfig config):
     _scene(scene),
@@ -57,7 +57,7 @@ Runner::~Runner() {
     stop();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void Runner::start() {
     start(Clock::now());
@@ -233,7 +233,7 @@ void Runner::simulationClockSuspended(bool suspended) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Runner::start(TimePoint now) {
 

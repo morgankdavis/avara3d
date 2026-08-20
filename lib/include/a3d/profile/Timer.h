@@ -16,11 +16,11 @@ namespace a3d {
     class Timer {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
         ///
         explicit Timer(bool start = false);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         void                     start();
         std::chrono::nanoseconds stop();
@@ -29,7 +29,7 @@ namespace a3d {
         std::int64_t             durationMilliseconds() const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::chrono::time_point<std::chrono::steady_clock> _start;
         std::chrono::time_point<std::chrono::steady_clock> _stop;

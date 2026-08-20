@@ -14,11 +14,11 @@
 using namespace a3d;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 PipelineDesc PipelineDescBuilder::MakeBackgroundDesc() {
     PipelineDesc desc {};
@@ -101,7 +101,7 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     return desc;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc {};

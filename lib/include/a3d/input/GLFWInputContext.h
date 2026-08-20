@@ -23,7 +23,7 @@ namespace a3d {
     class GLFWInputContext : public DesktopInputContext {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         GLFWInputContext();
         ~GLFWInputContext() override;
@@ -31,16 +31,16 @@ namespace a3d {
         GLFWInputContext(const InputContext& other)            = delete;
         GLFWInputContext& operator=(const InputContext& other) = delete;
 
-        /// InputContext Internal Member Functions ///
+        // [InputContext Internal Member Functions]
 
         void              attachedToScene(Scene& scene) override;
         void              visualWorldAttachedToScene(Scene& scene) override;
 
-        /// DesktopInputContext Internal Member Functions ///
+        // [DesktopInputContext Internal Member Functions]
 
         void              rebaseMouseMotion() override;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void              glfwCursorPositionEvent(double xPos, double yPos);
         void              glfwMouseButtonEvent(int button, int action, int mods);
@@ -50,14 +50,14 @@ namespace a3d {
         void              detachedFromWindow(Window& window);
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void    window(Window* window);
         Window* window() const;
 
         void    initMouseInput();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Window* _window;
         bool    _hasMousePosition;

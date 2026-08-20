@@ -11,7 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void OGLMemoryTracker::setAllocation(AllocationKey key,
                                      Source        source,
@@ -92,7 +92,7 @@ RenderMemoryStats OGLMemoryTracker::stats() const {
     return result;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 uint64_t OGLMemoryTracker::currentTotalBytes() const {
 

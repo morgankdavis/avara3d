@@ -20,7 +20,7 @@ namespace a3d {
     class OGLDrawTimer {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit OGLDrawTimer(unsigned bufferedFrames);
 
@@ -32,14 +32,14 @@ namespace a3d {
 
         ~OGLDrawTimer();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         bool                     initialize();
         void                     begin();
         std::chrono::nanoseconds end();
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         enum class Mode {
             Disabled,
@@ -48,12 +48,12 @@ namespace a3d {
             WebDisjointTimerQueryExt
         };
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         bool                     resolveQuery(size_t index);
         void                     resolveIssuedQueries(size_t skipIndex);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         Mode                     _mode;
         gl::enum_t               _queryTarget;

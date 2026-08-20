@@ -21,7 +21,7 @@ using namespace a3d::math;
 using namespace test::inputcam;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
@@ -31,14 +31,14 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL) {}
 
 App::~App() = default;
 
-/// Application Protected Member Functions ///
+// [Application Protected Member Functions]
 
 std::unique_ptr<Scene> App::init() {
     try {

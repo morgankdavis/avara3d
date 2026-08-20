@@ -16,7 +16,7 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Camera::Camera():
     _name {} {}
@@ -34,7 +34,7 @@ Camera::~Camera() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Camera::name() const {
     return _name;

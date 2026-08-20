@@ -21,7 +21,7 @@ namespace a3d {
     class Wedge : public MeshElement {
 
     public:
-        /// Pubic Static Members ///
+        // [Pubic Static Members]
 
         // slanted side faces +Y.
         // pointy end faces -X, thick end faces +X.
@@ -33,7 +33,7 @@ namespace a3d {
                                           unsigned                  riseSegments  = DEFAULT_RISE_SEGMENTS,
                                           std::shared_ptr<Material> material      = nullptr);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         // z, x, y?
         Wedge(float    length,
@@ -43,7 +43,7 @@ namespace a3d {
               unsigned widthSegments  = DEFAULT_WIDTH_SEGMENTS,
               unsigned heightSegments = DEFAULT_RISE_SEGMENTS);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float    length() const;
         float    width() const;
@@ -53,14 +53,14 @@ namespace a3d {
         unsigned riseSegments() const;
 
     private:
-        ///  Private Constants ///
+        // [ Private Constants]
 
         // this is kind of jacked up.
         static constexpr int DEFAULT_RUN_SEGMENTS   = 1; // thin end (-X) toward the thick/tall end (+X)
         static constexpr int DEFAULT_WIDTH_SEGMENTS = 1; // across the wedge from one side to the other along Z
         static constexpr int DEFAULT_RISE_SEGMENTS  = 1; // upward along the tall vertical face in +Y
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float                _length;
         float                _width;

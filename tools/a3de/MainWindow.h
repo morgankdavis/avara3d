@@ -54,7 +54,7 @@ namespace a3de {
         void updateA3D();
         void initLog(a3d::Log::Level level);
 
-        /// Runner Callbacks ///
+        // [Runner Callbacks]
 
         void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info);
 

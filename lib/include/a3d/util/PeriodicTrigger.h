@@ -19,11 +19,11 @@ namespace a3d::util {
     class PeriodicTrigger {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         template<typename Function>
         std::size_t update(double time, Function&& function) {
@@ -40,11 +40,11 @@ namespace a3d::util {
         void reset() noexcept;
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         std::size_t           dueCount(double time);
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         double                _interval;
         bool                  _deferFirstFire;

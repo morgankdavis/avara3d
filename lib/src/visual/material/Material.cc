@@ -18,7 +18,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+// [Public Static Member Functions]
 
 shared_ptr<Material> Material::DefaultMaterial() {
     static shared_ptr<Material> material = nullptr;
@@ -42,7 +42,7 @@ shared_ptr<Material> Material::EmissionMaterial(Property property) {
     return make_shared<Material>(monostate {}, monostate {}, monostate {}, property);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Material::Material():
     _id {IdGenerator<MaterialId>::next()},
@@ -159,7 +159,7 @@ Material::~Material() {
     log::d()("Destroying Material {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Material::name() const {
     return _name;
@@ -296,7 +296,7 @@ void Material::depthWriteEnabled(bool enabled) {
     _depthWriteEnabled = enabled;
 }
 
-/// Internal Static Member Functions ///
+// [Internal Static Member Functions]
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
     static shared_ptr<Material> material = nullptr;
@@ -312,7 +312,7 @@ Material::Property Material::MissingTextureProperty() {
     return {Color::Magenta()};
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 Material::PropertyList Material::properties() const {
     return PropertyList {{&_ambient, PropertyType::Ambient},

@@ -42,7 +42,7 @@ namespace a3d {
     class VisualWorld {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         using Plane   = surface::Plane;
         using Sphere  = surface::Sphere;
@@ -80,7 +80,7 @@ namespace a3d {
 
         using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         VisualWorld() = delete;
         explicit VisualWorld(RenderContext& context);
@@ -93,7 +93,7 @@ namespace a3d {
 
         virtual ~VisualWorld();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         Capabilities                     capabilities() const;
 
@@ -131,7 +131,7 @@ namespace a3d {
 
         Scene*                           scene() const;
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         void                             attachedToScene(Scene& scene);
         void                             detachedFromScene(Scene& scene);
@@ -147,12 +147,12 @@ namespace a3d {
         std::shared_ptr<Material>        backgroundMaterial();
 
     private:
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         void                      firstDraw();
         std::shared_ptr<Node>     defaultPOV();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::optional<Background> _background;
         std::shared_ptr<Material> _backgroundMaterial;

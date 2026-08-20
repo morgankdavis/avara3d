@@ -12,7 +12,7 @@
 
 using namespace a3d;
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
     _body {},
@@ -26,7 +26,7 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 
 PhysicsBodyProxy::~PhysicsBodyProxy() {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 bool PhysicsBodyProxy::autocalculatesCenterOfMass() const {
     return _autocalculatesCenterOfMass;

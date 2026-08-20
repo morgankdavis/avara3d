@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Wedge::Mesh(float                      length,
                              float                      width,
@@ -36,7 +36,7 @@ shared_ptr<Mesh> Wedge::Mesh(float                      length,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Wedge::Wedge(float    length,
              float    width,
@@ -290,7 +290,7 @@ Wedge::Wedge(float    length,
 //	endBuild(true);
 //}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Wedge::length() const {
     return _length;

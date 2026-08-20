@@ -19,7 +19,7 @@ namespace a3d {
     class PhysicsBodyProxy {
 
     public:
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
 
@@ -31,7 +31,7 @@ namespace a3d {
 
         virtual ~PhysicsBodyProxy();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual PhysicsBody::Type  type() const                 = 0;
         virtual void               type(PhysicsBody::Type type) = 0;
@@ -131,7 +131,7 @@ namespace a3d {
         void         detachedFromBody(PhysicsBody& body);
 
     protected:
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         PhysicsBody*                         _body;
         PhysicsShapeProxy*                   _shapeProxy;

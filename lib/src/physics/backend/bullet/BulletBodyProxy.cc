@@ -29,7 +29,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
 static void SetMassPropsPreservingType(btRigidBody&      body,
@@ -39,7 +39,7 @@ static void SetMassPropsPreservingType(btRigidBody&      body,
 static void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
 static void ActivateDynamicBody(btRigidBody& body);
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
     PhysicsBodyProxy {body, type},
@@ -97,7 +97,7 @@ BulletBodyProxy::~BulletBodyProxy() {
 #endif
 }
 
-/// PhysicsBodyModelProxy Internal Member Functions ///
+// [PhysicsBodyModelProxy Internal Member Functions]
 
 PhysicsBody::Type BulletBodyProxy::type() const {
 
@@ -599,13 +599,13 @@ void BulletBodyProxy::clearForces() {
     _btBody->clearForces();
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 btRigidBody* BulletBodyProxy::btBody() {
     return _btBody.get();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void BulletBodyProxy::calculateCenterOfMass() {
 
@@ -733,7 +733,7 @@ void BulletBodyProxy::syncRollingFrictionAnisotropy() {
     _btBody->setAnisotropicFriction(direction, btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
     flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);

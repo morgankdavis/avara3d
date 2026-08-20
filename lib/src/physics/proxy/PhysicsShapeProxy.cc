@@ -10,7 +10,7 @@
 
 using namespace a3d;
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape& shape) {}
 

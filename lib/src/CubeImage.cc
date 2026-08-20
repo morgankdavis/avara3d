@@ -17,7 +17,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
     _faces {},
@@ -54,7 +54,7 @@ CubeImage& CubeImage::operator=(CubeImage&&) noexcept = default;
 
 CubeImage::~CubeImage() = default;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned CubeImage::width() const {
     return _width;

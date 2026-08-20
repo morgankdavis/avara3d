@@ -21,7 +21,7 @@ namespace a3d {
     class DirectionalLight : public Light {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         DirectionalLight();
         explicit DirectionalLight(const std::string& name);

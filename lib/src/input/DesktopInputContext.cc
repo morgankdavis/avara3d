@@ -19,7 +19,7 @@ using namespace a3d::math;
 using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 DesktopInputContext::DesktopInputContext():
     _keysDown {},
@@ -40,7 +40,7 @@ DesktopInputContext::~DesktopInputContext() {
     log::d()("Destroying InputContext {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 bool DesktopInputContext::keyDown(Key key) {
     return _keysDown.count(key);
@@ -121,7 +121,7 @@ const vec2& DesktopInputContext::mouseScrollWheelDelta() const {
     return _mouseScrollWheelDelta;
 }
 
-/// InputContext Internal Member Functions ///
+// [InputContext Internal Member Functions]
 
 void DesktopInputContext::update(const InputContext::UpdateInfo&) {
 
@@ -129,7 +129,7 @@ void DesktopInputContext::update(const InputContext::UpdateInfo&) {
     _mouseScrollWheelDelta = exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void DesktopInputContext::rebaseMouseMotion() {
     _mousePositionDelta = {0.0f, 0.0f};

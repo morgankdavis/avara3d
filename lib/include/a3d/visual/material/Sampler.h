@@ -22,7 +22,7 @@ namespace a3d {
     class Sampler {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         // TODO: don't use GL constants
         enum class FilterMode : uint16_t {
@@ -41,7 +41,7 @@ namespace a3d {
             ClampToEdge    = 0x812F
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         Sampler();
 
@@ -53,7 +53,7 @@ namespace a3d {
 
         ~Sampler();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         FilterMode minificationFilter() const;
         void       minificationFilter(FilterMode mode);
@@ -73,7 +73,7 @@ namespace a3d {
         WrapMode   wrapR() const;
         void       wrapR(WrapMode mode);
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class DirtyMask : uint32_t {
             None                = 0,
@@ -86,7 +86,7 @@ namespace a3d {
             All                 = UINT_MAX
         };
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         SamplerId id() const noexcept;
 
@@ -94,7 +94,7 @@ namespace a3d {
         void      dirtyMask(DirtyMask mask);
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         SamplerId  _id;
         FilterMode _minificationFilter;

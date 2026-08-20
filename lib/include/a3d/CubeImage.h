@@ -20,7 +20,7 @@ namespace a3d {
     class CubeImage {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Face : uint8_t {
             X_Pos,
@@ -31,7 +31,7 @@ namespace a3d {
             Z_Neg
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         explicit CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
 
@@ -43,7 +43,7 @@ namespace a3d {
 
         ~CubeImage();
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         unsigned width() const;
         unsigned height() const;
@@ -52,7 +52,7 @@ namespace a3d {
         Image*   face(Face face) const;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::array<std::unique_ptr<Image>, 6> _faces;
 

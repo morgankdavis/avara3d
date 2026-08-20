@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Capsule::Mesh(float                      radius,
                                float                      height,
@@ -33,7 +33,7 @@ shared_ptr<Mesh> Capsule::Mesh(float                      radius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Capsule::Capsule(float radius, float height, unsigned slices, unsigned segments, unsigned rings):
     MeshElement {},
@@ -76,7 +76,7 @@ Capsule::Capsule(float radius, float height, unsigned slices, unsigned segments,
     burnTransform(xRotation, true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Capsule::radius() const {
     return _radius;

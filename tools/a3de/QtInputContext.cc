@@ -22,15 +22,15 @@ using QtInput = qt::QtInputContext;
 using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 QtInput::QtInputContext() {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void QtInput::keyPressed(int qtKey, int modifiers) {
 
@@ -94,7 +94,7 @@ void QtInput::mouseWheelScrolled(int x, int y) {
     _pendingMouseScrollWheelDelta.y += static_cast<float>(y);
 }
 
-/// InputContext Internal Member Functions ///
+// [InputContext Internal Member Functions]
 
 void QtInput::attachedToScene(Scene& scene) {
 
@@ -110,7 +110,7 @@ void QtInput::visualWorldAttachedToScene(Scene& scene) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void QtInput::viewport(QtViewport* viewport) {
     _viewport = viewport;
@@ -121,7 +121,7 @@ qt::QtViewport* QtInput::viewport() const {
     return _viewport;
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
 

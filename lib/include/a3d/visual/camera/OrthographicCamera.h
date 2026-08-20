@@ -18,7 +18,7 @@ namespace a3d {
     class OrthographicCamera : public Camera {
 
     public:
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         OrthographicCamera();
         explicit OrthographicCamera(const AABB& extent);
@@ -32,17 +32,17 @@ namespace a3d {
 
         ~OrthographicCamera() override;
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         const AABB& extent() const;
         void        extent(const AABB& e);
 
-        /// Camera Internal Member Functions ///
+        // [Camera Internal Member Functions]
 
         math::mat4  projection(const math::uvec2& viewportSize) const override;
 
     private:
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         AABB _extent;
     };

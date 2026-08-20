@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> RoundedBox::Mesh(float                      radius,
                                   float                      length,
@@ -38,7 +38,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float                      radius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 RoundedBox::RoundedBox(float    radius,
                        float    length,
@@ -92,7 +92,7 @@ RoundedBox::RoundedBox(float    radius,
     burnTransform(xRotation, true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float RoundedBox::radius() const {
     return _radius;

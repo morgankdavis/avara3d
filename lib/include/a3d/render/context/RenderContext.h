@@ -27,7 +27,7 @@ namespace a3d {
     class RenderContext {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         enum class Antialiasing : uint8_t {
             None    = 0,
@@ -37,7 +37,7 @@ namespace a3d {
             Msaa16X = 16
         };
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         virtual bool           vSyncEnabled() const       = 0;
         virtual void           vSyncEnabled(bool enabled) = 0;
@@ -50,7 +50,7 @@ namespace a3d {
 
         Renderer*              renderer() const;
 
-        /// Internal Types ///
+        // [Internal Types]
 
         enum class RenderingApi : uint8_t {
             OpenGL,
@@ -58,7 +58,7 @@ namespace a3d {
             Vulkan
         };
 
-        /// Internal Lifecycle Functions ///
+        // [Internal Lifecycle Functions]
 
         explicit RenderContext(RenderingApi renderingApi);
 
@@ -70,7 +70,7 @@ namespace a3d {
 
         virtual ~RenderContext();
 
-        /// Internal Member Functions ///
+        // [Internal Member Functions]
 
         virtual void        pollEvents();
 
@@ -89,7 +89,7 @@ namespace a3d {
         virtual unsigned    defaultFramebuffer() const = 0;
 
     protected:
-        /// Protected Member Variables ///
+        // [Protected Member Variables]
 
         Antialiasing               _antialiasing;
         VisualWorld*               _visualWorld;

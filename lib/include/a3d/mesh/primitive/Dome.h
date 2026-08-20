@@ -21,7 +21,7 @@ namespace a3d {
     class Dome : public MeshElement {
 
     public:
-        /// Pubic Static Members ///
+        // [Pubic Static Members]
 
         // NOTE: this is NOT centered.
         static std::shared_ptr<Mesh> Mesh(float                     radius,
@@ -33,7 +33,7 @@ namespace a3d {
                                           unsigned                  segments = DEFAULT_SEGMENTS,
                                           std::shared_ptr<Material> material = nullptr);
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         // z, x, y?
         Dome(float    radius,
@@ -44,7 +44,7 @@ namespace a3d {
              unsigned slices   = DEFAULT_SLICES,
              unsigned segments = DEFAULT_SEGMENTS);
 
-        /// Public Member Functions ///
+        // [Public Member Functions]
 
         float    radius() const;
         float    azimuthStart() const;
@@ -55,12 +55,12 @@ namespace a3d {
         unsigned segments() const;
 
     private:
-        ///  Private Constants ///
+        // [ Private Constants]
 
         static constexpr int DEFAULT_SLICES   = 32; // around circumference (azimuth / longitude)
         static constexpr int DEFAULT_SEGMENTS = 8; // bottom-to-top (elevation / latitude)
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         float                _radius;
         float                _azimuthStart;

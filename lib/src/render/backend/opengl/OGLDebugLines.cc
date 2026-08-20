@@ -13,12 +13,12 @@
 
 using namespace a3d;
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 OGLDebugLines::OGLDebugLines(OGLMemoryTracker& memoryTracker):
     memoryTracker {memoryTracker} {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void OGLDebugLines::ensureBuffers() {
     if (vao && vbo) {

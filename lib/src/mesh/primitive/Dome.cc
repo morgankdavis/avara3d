@@ -20,7 +20,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Dome::Mesh(float                      radius,
                             float                      azimuthStart,
@@ -37,7 +37,7 @@ shared_ptr<Mesh> Dome::Mesh(float                      radius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Dome::Dome(float    radius,
            float    azimuthStart,
@@ -96,7 +96,7 @@ Dome::Dome(float    radius,
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Dome::radius() const {
     return _radius;

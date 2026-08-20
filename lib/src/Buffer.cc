@@ -20,7 +20,7 @@
 using namespace a3d;
 using namespace std;
 
-///  Public Lifecycle Functions ///
+// [ Public Lifecycle Functions]
 
 Buffer::Buffer(const std::filesystem::path& path):
     _data {},
@@ -106,7 +106,7 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
     return *this;
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 byte* Buffer::data() const {
     return _data.get();
