@@ -50,7 +50,6 @@ namespace a3d {
         FileLogSink(FileLogSink&&)            = delete;
         FileLogSink& operator=(FileLogSink&&) = delete;
 
-        /** @brief Flushes and closes the active log file. */
         ~FileLogSink() override;
 
         // [Public Member Functions]

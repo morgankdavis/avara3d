@@ -30,7 +30,6 @@ namespace a3d {
         StdOutLogSink(StdOutLogSink&&)            = delete;
         StdOutLogSink& operator=(StdOutLogSink&&) = delete;
 
-        /** @brief Flushes the standard streams before destruction. */
         ~StdOutLogSink() override;
 
     // [Public Member Functions]

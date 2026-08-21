@@ -21,8 +21,14 @@ namespace a3d {
     public:
         // [Public Types]
 
-        /** @brief Semantic version components for an A3D build. */
-        struct Version { // semver.org
+        /**
+         * @brief Major, minor, and patch components of an A3D version.
+         *
+         * A3D version numbers follow Semantic Versioning (SemVer).
+         *
+         * @see https://semver.org/
+         */
+        struct Version {
             int major; ///< Major version component.
             int minor; ///< Minor version component.
             int patch; ///< Patch version component.

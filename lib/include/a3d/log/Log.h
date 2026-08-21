@@ -182,13 +182,12 @@ namespace a3d {
         /** @brief Emits @p msg at Fatal severity when enabled. */
         void                                         fatal(const std::string& msg);
 
-        /** @brief Emits a message at @p level with the supplied source-location metadata when enabled. */
-        void  log(Level level, const SourceInfo& sourceInfo, const std::string& msg);
-
         /** @brief Flushes every owned sink. */
         void  flush();
 
         // [Internal Member Functions]
+
+        void  log(Level level, const SourceInfo& sourceInfo, const std::string& msg);
 
         Entry trace(std::source_location where = std::source_location::current());
         Entry debug(std::source_location where = std::source_location::current());

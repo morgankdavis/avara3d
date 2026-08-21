@@ -21,7 +21,6 @@ namespace a3d {
 // [Public Lifecycle Functions]
 
     public:
-        /** @brief Destroys the log sink. */
         virtual ~LogSink() = 0;
 
 // [Public Member Functions]
