@@ -9,8 +9,6 @@
 #ifndef AVARA3D_UTIL_SNAPSHOT_H
 #define AVARA3D_UTIL_SNAPSHOT_H
 
-#include "a3d/Math.h"
-
 namespace a3d {
 
     class RenderContext;
@@ -19,6 +17,9 @@ namespace a3d {
 
 namespace a3d::util::snapshot {
 
+    // [Public Functions]
+
+    /** @brief Saves a timestamped PNG snapshot of @p context beside the current executable. */
     void SaveSnapshot(RenderContext& context);
 
 }

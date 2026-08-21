@@ -10,6 +10,8 @@
 
 #include <stdexcept>
 
+#include "a3d/mesh/AABB.h"
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
