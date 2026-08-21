@@ -23,7 +23,18 @@ namespace a3d {
         Color color {};                       ///< Fog color.
         float startDistance {0.0f};            ///< Distance where fog begins, in scene units; must be non-negative.
         float endDistance {1000.0f};           ///< Distance where fog reaches full strength, in scene units; must be greater than startDistance.
-        float transitionExponent {1.0f};       ///< Exponent controlling the fog transition curve; must be non-negative.
+        /**
+         * @brief Exponent applied to the normalized fog-distance transition.
+         *
+         * For positive values, the fog amount is
+         * pow(clamp((d - startDistance) / (endDistance - startDistance), 0, 1),
+         *     transitionExponent),
+         * where d is the distance from the camera in scene units.
+         *
+         * A value of 1 produces a linear transition; larger values delay the transition
+         * toward endDistance. A value of 0 applies a constant fog amount given by color alpha.
+         */
+        float transitionExponent {1.0f};
     };
 
 }

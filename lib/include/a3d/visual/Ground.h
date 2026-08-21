@@ -39,9 +39,10 @@ namespace a3d {
                 // [Public Member Variables]
 
                 Color color {};                 ///< Grid-line color.
-                float spacing {1.0f};            ///< Distance between grid lines in scene units; must be greater than zero.
-                float lineWidthPixels {1.0f};    ///< Grid-line width in pixels; must be greater than zero.
-                float reliefStrength {0.0f};     ///< Strength of procedural grid relief; zero disables relief.
+                float spacing {
+                    1.0f}; ///< Distance between grid lines in scene units; must be greater than zero.
+                float lineWidthPixels {1.0f}; ///< Grid-line width in pixels; must be greater than zero.
+                float reliefStrength {0.0f}; ///< Strength of procedural grid relief; zero disables relief.
             };
 
             /** @brief Configures a procedural grid with optional minor and major line components. */
@@ -49,11 +50,13 @@ namespace a3d {
 
                 // [Public Member Variables]
 
-                Color                        color {};                   ///< Base ground color between grid lines.
-                std::optional<GridComponent> minor {};                   ///< Optional minor grid lines.
-                std::optional<GridComponent> major {};                   ///< Optional major grid lines.
-                float                        specularIntensity {0.15f};   ///< Specular intensity; must be non-negative.
-                float                        specularExponent {32.0f};    ///< Specular exponent; must be greater than zero.
+                Color                        color {}; ///< Base ground color between grid lines.
+                std::optional<GridComponent> minor {}; ///< Optional minor grid lines.
+                std::optional<GridComponent> major {}; ///< Optional major grid lines.
+                float                        specularIntensity {
+                    0.15f}; ///< Phong specular intensity coefficient; zero disables specular highlights.
+                float specularExponent {
+                    32.0f}; ///< Phong specular exponent; higher values produce narrower highlights.
             };
 
             /** @brief Supported procedural ground content. */
@@ -72,10 +75,12 @@ namespace a3d {
 
             // [Public Member Variables]
 
-            Color      color {Color::Black()};   ///< Color approached beyond the fade range.
-            math::vec2 center {0.0f, 0.0f};      ///< Center of the radial fade on the ground surface.
-            float      startDistance {10.0f};    ///< Distance from the center where fading begins; must be non-negative.
-            float      endDistance {100.0f};     ///< Distance where fading completes; must be greater than startDistance.
+            Color      color {Color::Black()}; ///< Color approached beyond the fade range.
+            math::vec2 center {0.0f, 0.0f}; ///< Center of the radial fade on the ground surface.
+            float      startDistance {
+                10.0f}; ///< Distance from the center where fading begins; must be non-negative.
+            float endDistance {
+                100.0f}; ///< Distance where fading completes; must be greater than startDistance.
         };
 
         /** @brief Configures haze concentrated around the ground horizon. */
@@ -83,15 +88,16 @@ namespace a3d {
 
             // [Public Member Variables]
 
-            Color color {};               ///< Horizon-haze color.
-            float angularWidth {3.0f};     ///< Angular width in degrees; must be greater than zero and at most 90.
+            Color color {}; ///< Horizon-haze color.
+            float angularWidth {
+                math::radians(3.0f)}; ///< Angular extent from the horizon, in radians; must be in (0, pi/2].
         };
 
         // [Public Member Variables]
 
         Fill                       fill {Procedural {}}; ///< Ground fill to render.
-        std::optional<RadialFade>  radialFade {};       ///< Optional radial fade applied to the ground.
-        std::optional<HorizonHaze> horizonHaze {};      ///< Optional haze applied around the ground horizon.
+        std::optional<RadialFade>  radialFade {}; ///< Optional radial fade applied to the ground.
+        std::optional<HorizonHaze> horizonHaze {}; ///< Optional haze applied around the ground horizon.
     };
 
 }

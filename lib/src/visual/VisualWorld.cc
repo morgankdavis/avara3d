@@ -300,10 +300,11 @@ void VisualWorld::ground(const optional<Ground>& ground) {
 
             const auto& haze = *ground->horizonHaze;
 
-            if (!math::is_finite(haze.angularWidth) || haze.angularWidth <= 0.0f || haze.angularWidth > 90.0f) {
+            if (!math::is_finite(haze.angularWidth) || haze.angularWidth <= 0.0f
+                || haze.angularWidth > math::PI_OVER_2) {
 
                 throw invalid_argument(
-                    "Ground horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
+                    "Ground horizon haze angular width must be finite, greater than zero, and at most pi/2 radians.");
             }
         }
     }
