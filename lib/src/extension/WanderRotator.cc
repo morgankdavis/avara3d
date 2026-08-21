@@ -26,7 +26,7 @@ void WanderRotator::update(Node& node, float deltaTime) {
     // exponential smoothing toward the target angular velocity. this form is
     // independent of update frequency for a constant target.
 
-    const float alpha = 1.0f - exp(-smoothing * deltaTime);
+    const float alpha = 1.0f - math::exp(-smoothing * deltaTime);
     _angularVelocity = _angularVelocity + (_targetAngularVelocity - _angularVelocity) * alpha;
 
     // integrate angular velocity into the node orientation.
