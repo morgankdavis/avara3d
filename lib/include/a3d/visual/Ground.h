@@ -54,9 +54,9 @@ namespace a3d {
                 std::optional<GridComponent> minor {}; ///< Optional minor grid lines.
                 std::optional<GridComponent> major {}; ///< Optional major grid lines.
                 float                        specularIntensity {
-                    0.15f}; ///< Phong specular intensity coefficient; zero disables specular highlights.
+                    0.15f}; ///< Phong specular intensity coefficient; must be non-negative; zero disables specular highlights.
                 float specularExponent {
-                    32.0f}; ///< Phong specular exponent; higher values produce narrower highlights.
+                    32.0f}; ///< Phong specular exponent; must be greater than zero; higher values produce narrower highlights.
             };
 
             /** @brief Supported procedural ground content. */
