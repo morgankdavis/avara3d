@@ -15,8 +15,6 @@
 
 namespace a3d {
 
-    // [Public Types]
-
     /** @brief Configures atmospheric effects around a VisualWorld reference Surface. */
     struct Atmosphere {
 

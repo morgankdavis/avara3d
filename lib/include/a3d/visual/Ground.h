@@ -21,8 +21,6 @@ namespace a3d {
 
     class Material;
 
-    // [Public Types]
-
     /** @brief Configures ground rendering over a VisualWorld reference Surface. */
     struct Ground {
 

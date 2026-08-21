@@ -13,8 +13,6 @@
 
 namespace a3d {
 
-    // [Public Types]
-
     /** @brief Axis-aligned bounding box defined by minimum and maximum corners. */
     struct AABB {
 
