@@ -30,11 +30,11 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexFormats.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Chrono.h"
 #include "a3d/util/Enum.h"
+#include "a3d/util/Timer.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 #include "a3d/visual/light/DirectionalLight.h"
@@ -93,7 +93,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
     if (!_scene) {
         if (parse()) {
 
-            Timer timer {true};
+            util::Timer timer {true};
 
             auto a3dScene = make_unique<a3d::Scene>();
 
@@ -146,7 +146,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
     if (parse()) {
 
-        Timer timer {true};
+        util::Timer timer {true};
 
         auto& meshes = _asset.meshes;
         if (!meshes.empty()) {
@@ -181,7 +181,7 @@ bool GlTFImporter::parse() {
 
     if (!_parsed) {
 
-        Timer timer {true};
+        util::Timer timer {true};
 
         log::i()("Parsing glTF: '{}'...", _path.string());
 

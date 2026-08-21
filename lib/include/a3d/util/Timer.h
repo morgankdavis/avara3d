@@ -11,7 +11,7 @@
 
 #include <chrono>
 
-namespace a3d {
+namespace a3d::util {
 
     /** @brief Manually controlled steady-clock timer that stores its most recently measured duration. */
     class Timer {

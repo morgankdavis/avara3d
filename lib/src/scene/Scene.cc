@@ -19,11 +19,11 @@
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/profile/Profiler.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/util/Chrono.h"
+#include "a3d/util/Timer.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;

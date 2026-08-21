@@ -6,9 +6,9 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/profile/Timer.h"
+#include "a3d/util/Timer.h"
 
-using namespace a3d;
+using namespace a3d::util;
 using namespace std;
 
 // [Public Member Functions]

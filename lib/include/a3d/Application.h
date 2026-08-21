@@ -18,8 +18,8 @@
 #include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/PhysicsContact.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/Timer.h"
 #include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
 
@@ -277,7 +277,7 @@ namespace a3d {
         std::vector<SceneCommand> _scenePreStepQueue;
         std::vector<SceneCommand> _scenePostStepQueue;
         bool                      _didShutdown;
-        Timer                     _startupTimer;
+        util::Timer               _startupTimer;
 
         // [Test Access]
 
