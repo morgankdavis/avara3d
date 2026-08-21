@@ -29,6 +29,7 @@
 #include "a3d/extension/WanderRotator.h"
 #include "a3d/extension/camera/FlyCameraController.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
