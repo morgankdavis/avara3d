@@ -76,20 +76,6 @@ namespace a3d::util::flow {
 
     // [Public Functions]
 
-    //------------------------------------------------------------------------------
-    // guard / edge_guard
-    //------------------------------------------------------------------------------
-    // Returns:
-    //   true  -> condition passed, nothing happened
-    //   false -> condition failed, callback ran (every time for guard; latched for edge_guard)
-
-//	template<class Cond, class FailFn>
-//	[[nodiscard]] bool guard(Cond&& cond, FailFn&& on_fail_every_time) {
-//		const bool ok = static_cast<bool>(std::forward<Cond>(cond)); // supports shared_ptr, etc.
-//		if (!ok) std::invoke(std::forward<FailFn>(on_fail_every_time));
-//		return ok;
-//	}
-
     /**
      * @brief Returns whether @p cond is true and invokes @p on_fail_once only when it first becomes false.
      *
@@ -117,10 +103,6 @@ namespace a3d::util::flow {
         }
         return false;
     }
-
-    //------------------------------------------------------------------------------
-    // once / once_else
-    //------------------------------------------------------------------------------
 
     /** @brief Invokes @p fn only on the first call for @p loc, caching any non-void result. */
     template<class Fn>
@@ -202,10 +184,6 @@ namespace a3d::util::flow {
             return std::invoke(std::forward<ElseFn>(else_fn)); // by value (T)
         }
     }
-
-    //------------------------------------------------------------------------------
-    // on / on_else
-    //------------------------------------------------------------------------------
 
     /**
      * @brief Invokes @p fn only on the requested invocation at @p loc.
@@ -297,10 +275,6 @@ namespace a3d::util::flow {
                         : std::invoke(std::forward<ElseFn>(else_fn));
         }
     }
-
-    //------------------------------------------------------------------------------
-    // after / after_else
-    //------------------------------------------------------------------------------
 
     /**
      * @brief Invokes @p fn on every call after @p invocations earlier calls at @p loc.
