@@ -50,16 +50,12 @@ namespace a3d {
          * windows use the primary monitor's current video mode. High-DPI and antialiasing
          * requests are applied when supported by the platform.
          *
-         * Only RenderingApi::OpenGL is currently supported.
-         *
-         * @throws std::runtime_error if the requested rendering API or window/context initialization fails.
+         * @throws std::runtime_error if the window/context initialization fails.
          */
-        Window(RenderingApi       renderingAPI,
-               const std::string& title,
-               const math::uvec2& size,
+        Window(const math::uvec2& size,
                bool               fullScreen,
-               bool               enableHighDPI    = true,
-               Antialiasing       antialiasingMode = Antialiasing::None);
+               bool               enableHighDPI = true,
+               Antialiasing       antialiasing  = Antialiasing::None);
 
         Window(const Window& other)            = delete;
         Window& operator=(const Window& other) = delete;

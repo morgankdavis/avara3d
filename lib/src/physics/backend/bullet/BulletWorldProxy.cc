@@ -714,11 +714,6 @@ PhysicsWorld::Inventory BulletWorldProxy::inventory() const {
     };
 }
 
-void BulletWorldProxy::updateCollisionPairs() {
-    std::scoped_lock lock(_btMutex);
-    _btWorld->getCollisionWorld()->computeOverlappingPairs();
-}
-
 void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions debugOptions) {
 
     static constexpr float DEBUG_LINE_UPDATE_RATE = 30.0f;

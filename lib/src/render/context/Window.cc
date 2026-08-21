@@ -63,13 +63,8 @@ unique_ptr<DesktopInputContext> Window::InputContext() {
 
 // [Public Lifescycle]
 
-Window::Window(RenderingApi  renderingAPI,
-               const string& title,
-               const uvec2&  size,
-               bool          fullScreen,
-               bool          enableHighDPI,
-               Antialiasing  antialiasingMode):
-    RenderContext {renderingAPI},
+Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialiasing antialiasing):
+    RenderContext {},
     _glfwWindow {},
     _vSyncEnabled {false},
     _cursorCaptured {false},
@@ -80,7 +75,7 @@ Window::Window(RenderingApi  renderingAPI,
     _inputContext {} {
     log::d();
 
-    _antialiasing = antialiasingMode; // see above (?)
+    _antialiasing = antialiasing; // see above (?)
 
     if (InitGLFW()) {
 #if defined(A3D_GL_WEB)
@@ -100,7 +95,7 @@ Window::Window(RenderingApi  renderingAPI,
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // needed for macOS
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
+        glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasing));
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     #if defined(A3D_LINUX)
@@ -109,9 +104,15 @@ Window::Window(RenderingApi  renderingAPI,
         glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
         glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
 
+        string title;
+
         auto execName = util::fs::ExecutableName();
         if (execName != nullopt) {
+            title = *execName;
             glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
+        }
+        else {
+            title = "avara3d";
         }
     #endif
     #if defined(A3D_MACOS)
@@ -169,8 +170,8 @@ Window::Window(RenderingApi  renderingAPI,
         }
 
 #ifdef A3D_WEB
-    InstallWebContextMenuHandler();
-    InstallWebGLContextLostHandler();
+        InstallWebContextMenuHandler();
+        InstallWebGLContextLostHandler();
 #endif
     }
 

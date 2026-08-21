@@ -71,8 +71,6 @@ namespace a3d {
 
         PhysicsWorld::Inventory       inventory() const override;
 
-        void                          updateCollisionPairs() override;
-
         void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
         // [Internal Member Functions]

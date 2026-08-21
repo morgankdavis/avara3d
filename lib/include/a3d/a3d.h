@@ -57,7 +57,6 @@
 #include "a3d/physics/shape/primitive/InfinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
-#include "a3d/render/Renderer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/context/Window.h"
 #include "a3d/scene/HitTestResult.h"

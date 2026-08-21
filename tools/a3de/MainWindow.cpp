@@ -28,7 +28,7 @@ const bool                        CAPTURE_CURSOR {false};
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
-    _viewport(new qt::QtViewport(RenderContext::RenderingApi::OpenGL, ANTIALIASING, this)),
+    _viewport(new qt::QtViewport(ANTIALIASING, this)),
     _scene {},
     _runner {} {
 

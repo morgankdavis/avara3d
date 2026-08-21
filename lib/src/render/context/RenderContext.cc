@@ -47,32 +47,12 @@ VisualWorld* RenderContext::visualWorld() const {
     return _visualWorld;
 }
 
-Renderer* RenderContext::renderer() const {
-    return _renderer.get();
-}
-
 // [Internal Lifescycle]
 
-RenderContext::RenderContext(RenderingApi renderingApi):
-    //		_vSyncEnabled{false},
+RenderContext::RenderContext():
     _antialiasing {Antialiasing::None},
-    _visualWorld {} /*_renderer{}*/ {
-
-    switch (renderingApi) {
-        case RenderingApi::OpenGL: {
-            _renderer = make_unique<OGLRenderer>();
-            break;
-        }
-        case RenderingApi::OpenGLES: {
-            throw std::runtime_error("Unsupported rendering API: OpenGLES");
-            break;
-        }
-        case RenderingApi::Vulkan: {
-            throw std::runtime_error("Unsupported rendering API: Vulkan");
-            break;
-        }
-    }
-}
+    _visualWorld {},
+    _renderer {make_unique<OGLRenderer>()} {}
 
 RenderContext::~RenderContext() {
     log::d()("Destroying RenderContext {:p}", static_cast<void*>(this));
@@ -100,4 +80,8 @@ void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
     log::t()("world: {:p}", static_cast<void*>(world));
 
     _visualWorld = nullptr;
+}
+
+Renderer* RenderContext::renderer() const {
+    return _renderer.get();
 }

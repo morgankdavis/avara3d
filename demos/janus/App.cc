@@ -103,11 +103,7 @@ App::~App() = default;
 std::unique_ptr<Scene> App::init() {
     try {
         // create and configure the window
-
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, false, true, ANTIALIASING);
-
-        // create and configure the visual world
+        _window = make_unique<Window>(WINDOW_SIZE, false, true, ANTIALIASING);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
 

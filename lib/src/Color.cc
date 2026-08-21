@@ -113,10 +113,10 @@ Color::Color():
     _rgba {1.0, 1.0, 1.0, 1.0} {}
 
 Color::Color(const vec3& rgb):
-    _rgba {vec4(rgb, 1.0)} {}
+    _rgba {vec4 {math::clamp_01(rgb), 1.0f}} {}
 
 Color::Color(const vec4& rgba):
-    _rgba {rgba} {}
+    _rgba {math::clamp_01(rgba)} {}
 
 Color::Color(const u8vec3& irgb):
     _rgba {(float) irgb.r / 255.0f, (float) irgb.g / 255.0f, (float) irgb.b / 255.0f, 1.0} {}
@@ -126,7 +126,7 @@ Color::Color(const u8vec4& irgba):
            (float) irgba.a / 255.0f} {}
 
 Color::Color(float white):
-    _rgba {white, white, white, 1.0} {}
+    _rgba {math::clamp_01(white), math::clamp_01(white), math::clamp_01(white), 1.0f} {}
 
 Color::Color(uint32_t color):
     _rgba {(float) ((color & 0xFF000000) >> 24) / 255.0f, (float) ((color & 0x00FF0000) >> 16) / 255.0f,

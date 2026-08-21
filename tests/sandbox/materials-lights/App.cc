@@ -47,8 +47,7 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
+        _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 
@@ -64,8 +63,8 @@ std::unique_ptr<Scene> App::init() {
             make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula1_blue.png")))});
 
         auto scene = util::fs::SceneAt("cat_island/cat_island.gltf", Scene::ImportOptions::ImportMeshes
-                                                                       | Scene::ImportOptions::ImportMaterials
-                                                                       | Scene::ImportOptions::ImportCameras);
+                                                                         | Scene::ImportOptions::ImportMaterials
+                                                                         | Scene::ImportOptions::ImportCameras);
 
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(std::move(Window::InputContext()));

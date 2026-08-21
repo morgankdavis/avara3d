@@ -34,10 +34,8 @@ using namespace std::filesystem;
 // [Public Static Member Functions]
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
-    // Timer		 timer {true};
     GlTFImporter importer {path, options};
     auto         scene = importer.scene();
-    // log::i()("Loaded Scene '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
     return scene;
 }
 

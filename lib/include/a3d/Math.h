@@ -921,17 +921,17 @@ namespace a3d::math {
 
     // [Color]
 
-    f32         srgb_to_linear(f32 c);
-    f32         linear_to_srgb(f32 c);
+    f32         srgb_to_linear(f32 v);
+    f32         linear_to_srgb(f32 v);
 
-    f32vec3     srgb_to_linear(const f32vec3& c);
-    f32vec3     linear_to_srgb(const f32vec3& c);
+    f32vec3     srgb_to_linear(const f32vec3& v);
+    f32vec3     linear_to_srgb(const f32vec3& v);
 
-    f32vec4     srgb_to_linear(const f32vec4& c); // alpha unchanged
-    f32vec4     linear_to_srgb(const f32vec4& c); // alpha unchanged
+    f32vec4     srgb_to_linear(const f32vec4& v); // alpha unchanged
+    f32vec4     linear_to_srgb(const f32vec4& v); // alpha unchanged
 
-    f32vec3     saturate(const f32vec3& c);
-    f32vec4     saturate(const f32vec4& c);
+    f32vec3     saturate(const f32vec3& v);
+    f32vec4     saturate(const f32vec4& v);
 
     f32         luminance_rec709(const f32vec3& rgb); // dot(rgb, {0.2126,0.7152,0.0722})
     f32         luminance_rec709(const f32vec4& rgba);
@@ -1008,24 +1008,27 @@ namespace a3d::math {
         return (v < lo) ? lo : (hi < v) ? hi : v;
     }
 
-    f32  clamp_01(f32 t);
+    f32     clamp_01(f32 t);
+    f32vec2 clamp_01(const f32vec2& v);
+    f32vec3 clamp_01(const f32vec3& v);
+    f32vec4 clamp_01(const f32vec4& v);
 
     // [Scalar Remainder / Wrap]
 
-    f32  fmod(f32 x, f32 y);
-    f32  mod(f32 x, f32 y); // positive modulo
-    f32  wrap(f32 x, f32 lo, f32 hi);
+    f32     fmod(f32 x, f32 y);
+    f32     mod(f32 x, f32 y); // positive modulo
+    f32     wrap(f32 x, f32 lo, f32 hi);
 
     // [Bitwise / Classification]
 
-    bool is_nan(f32 n);
-    bool is_infinite(f32 n);
-    bool is_finite(f32 n);
-    bool sign_bit(f32 n);
+    bool    is_nan(f32 n);
+    bool    is_infinite(f32 n);
+    bool    is_finite(f32 n);
+    bool    sign_bit(f32 n);
 
     // [Swap Utilities]
 
-    void swap(f32& a, f32& b);
+    void    swap(f32& a, f32& b);
 
     template<class T2, std::size_t N>
     void swap(T2 (&a)[N], T2 (&b)[N]) {

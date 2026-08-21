@@ -39,8 +39,7 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
+        _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 
@@ -264,12 +263,10 @@ void App::inputDidUpdate(Runner&                         runner,
     }
     if (input.keyPressed(Key::P)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBounds)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
-                                                     DebugOptions::ShowPhysicsBounds));
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowPhysicsBounds));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(),
-                                                  DebugOptions::ShowPhysicsBounds));
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowPhysicsBounds));
         }
     }
     if (input.keyPressed(Key::G)) {

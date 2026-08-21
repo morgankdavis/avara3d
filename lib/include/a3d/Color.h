@@ -17,11 +17,12 @@
 namespace a3d {
 
     /**
-     * @brief Represents an RGBA color.
+     * @brief Represents a normalized RGBA color.
      *
-     * Color is stored internally as floating-point components. Floating-point inputs are
-     * stored as supplied and are not clamped. The 8-bit accessors clamp finite components
-     * to [0, 1], scale them to [0, 255], and round to the nearest integer.
+     * Components are stored as floating-point values in the range [0, 1].
+     * Finite floating-point inputs outside this range are clamped. Eight-bit
+     * accessors scale the stored components to [0, 255] and round to the
+     * nearest integer.
      */
     class Color {
 

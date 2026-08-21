@@ -39,9 +39,9 @@ static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
 
 /// Public Lifecycle Functions ///
 
-Viewport::QtViewport(RenderingApi renderingApi, Antialiasing antialiasingMode, QWidget* parent):
-    RenderContext(renderingApi),
-    QOpenGLWidget(parent),
+Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
+    RenderContext(),
+    QOpenGLWidget{parent},
     _cursorCaptured {false},
     _lastCursorPosition {},
     _lastCapturedCursorPosition {},

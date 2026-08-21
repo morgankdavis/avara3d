@@ -89,10 +89,6 @@ vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape& shape,
     throw runtime_error("Not implemented.");
 }
 
-void PhysicsWorld::updateCollisionPairs() {
-    _proxy->updateCollisionPairs();
-}
-
 Scene* PhysicsWorld::scene() const {
     return _scene;
 }

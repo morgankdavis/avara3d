@@ -157,9 +157,6 @@ namespace a3d {
                                                       const math::mat4&   fromMat,
                                                       const math::mat4&   toMat) const;
 
-        /** @brief Forces collision-overlap pairs to be recomputed from the current physics state. */
-        void                          updateCollisionPairs();
-
         /** @brief Returns the Scene containing this PhysicsWorld, or nullptr when it is not installed in a Scene. */
         Scene*                        scene() const;
 

@@ -28,8 +28,13 @@ void Timer::start() {
 }
 
 chrono::nanoseconds Timer::stop() {
-    _stop = chrono::steady_clock::now();
-    _duration = chrono::duration_cast<chrono::nanoseconds>(_stop - _start);
+
+    if (!_start) {
+        throw logic_error("Timer has not been started.");
+    }
+
+    _duration = chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now() - *_start);
+
     return _duration;
 }
 

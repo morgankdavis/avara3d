@@ -3482,52 +3482,52 @@ namespace a3d::math {
 
     // [Color & Color Spaces]
 
-    f32 srgb_to_linear(f32 c) {
+    f32 srgb_to_linear(f32 v) {
         // IEC 61966-2-1:
         // linear = c/12.92              		| c <= 0.04045
         // linear = ((c+0.055)/1.055)^2.4  		| otherwise
-        c = clamp_01(c);
-        if (c <= f32(0.04045)) {
-            return c / f32(12.92);
+        v = clamp_01(v);
+        if (v <= f32(0.04045)) {
+            return v / f32(12.92);
         }
-        return math::pow((c + f32(0.055)) / f32(1.055), f32(2.4));
+        return math::pow((v + f32(0.055)) / f32(1.055), f32(2.4));
     }
 
-    f32 linear_to_srgb(f32 c) {
+    f32 linear_to_srgb(f32 v) {
         // IEC 61966-2-1:
         // srgb = 12.92 * c               		| c <= 0.0031308
         // srgb = 1.055*c^(1/2.4) - 0.055 		| otherwise
-        c = clamp_01(c);
-        if (c <= f32(0.0031308)) {
-            return c * f32(12.92);
+        v = clamp_01(v);
+        if (v <= f32(0.0031308)) {
+            return v * f32(12.92);
         }
-        return f32(1.055) * math::pow(c, f32(1) / f32(2.4)) - f32(0.055);
+        return f32(1.055) * math::pow(v, f32(1) / f32(2.4)) - f32(0.055);
     }
 
-    f32vec3 srgb_to_linear(const f32vec3& c) {
-        return f32vec3 {srgb_to_linear(c.r), srgb_to_linear(c.g), srgb_to_linear(c.b)};
+    f32vec3 srgb_to_linear(const f32vec3& v) {
+        return f32vec3 {srgb_to_linear(v.r), srgb_to_linear(v.g), srgb_to_linear(v.b)};
     }
 
-    f32vec3 linear_to_srgb(const f32vec3& c) {
-        return f32vec3 {linear_to_srgb(c.r), linear_to_srgb(c.g), linear_to_srgb(c.b)};
+    f32vec3 linear_to_srgb(const f32vec3& v) {
+        return f32vec3 {linear_to_srgb(v.r), linear_to_srgb(v.g), linear_to_srgb(v.b)};
     }
 
-    f32vec4 srgb_to_linear(const f32vec4& c) {
+    f32vec4 srgb_to_linear(const f32vec4& v) {
         // alpha unchanged
-        return f32vec4 {srgb_to_linear(c.r), srgb_to_linear(c.g), srgb_to_linear(c.b), c.a};
+        return f32vec4 {srgb_to_linear(v.r), srgb_to_linear(v.g), srgb_to_linear(v.b), v.a};
     }
 
-    f32vec4 linear_to_srgb(const f32vec4& c) {
+    f32vec4 linear_to_srgb(const f32vec4& v) {
         // alpha unchanged
-        return f32vec4 {linear_to_srgb(c.r), linear_to_srgb(c.g), linear_to_srgb(c.b), c.a};
+        return f32vec4 {linear_to_srgb(v.r), linear_to_srgb(v.g), linear_to_srgb(v.b), v.a};
     }
 
-    f32vec3 saturate(const f32vec3& c) {
-        return f32vec3 {clamp_01(c.r), clamp_01(c.g), clamp_01(c.b)};
+    f32vec3 saturate(const f32vec3& v) {
+        return clamp_01(v);
     }
 
-    f32vec4 saturate(const f32vec4& c) {
-        return f32vec4 {clamp_01(c.r), clamp_01(c.g), clamp_01(c.b), clamp_01(c.a)};
+    f32vec4 saturate(const f32vec4& v) {
+        return clamp_01(v);
     }
 
     f32 luminance_rec709(const f32vec3& rgb_linear) {
@@ -3835,6 +3835,30 @@ namespace a3d::math {
 
     f32 clamp_01(f32 t) {
         return std::clamp(t, f32(0), f32(1));
+    }
+
+    f32vec2 clamp_01(const f32vec2& v) {
+        return {
+            clamp_01(v.x),
+            clamp_01(v.y),
+        };
+    }
+
+    f32vec3 clamp_01(const f32vec3& v) {
+        return {
+            clamp_01(v.x),
+            clamp_01(v.y),
+            clamp_01(v.z),
+        };
+    }
+
+    f32vec4 clamp_01(const f32vec4& v) {
+        return {
+            clamp_01(v.x),
+            clamp_01(v.y),
+            clamp_01(v.z),
+            clamp_01(v.w),
+        };
     }
 
     // [Scalar Remainder / Wrap]

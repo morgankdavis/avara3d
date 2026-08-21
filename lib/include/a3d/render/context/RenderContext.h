@@ -48,7 +48,7 @@ namespace a3d {
         // [Public Member Functions]
 
         /** @brief Returns whether presentation synchronization is enabled for this context. */
-        virtual bool           vSyncEnabled() const       = 0;
+        virtual bool           vSyncEnabled() const = 0;
 
         /** @brief Enables or disables presentation synchronization when supported by the concrete context. */
         virtual void           vSyncEnabled(bool enabled) = 0;
@@ -66,20 +66,9 @@ namespace a3d {
         /** @brief Returns the attached VisualWorld, or nullptr if none is attached. */
         VisualWorld*           visualWorld() const;
 
-        /** @brief Returns the non-owning renderer used by this context, or nullptr if unavailable. */
-        Renderer*              renderer() const;
-
-        // [Internal Types]
-
-        enum class RenderingApi : uint8_t {
-            OpenGL,
-            OpenGLES,
-            Vulkan
-        };
-
         // [Internal Lifecycle Functions]
 
-        explicit RenderContext(RenderingApi renderingApi);
+        RenderContext();
 
         RenderContext(const RenderContext&)            = delete;
         RenderContext& operator=(const RenderContext&) = delete;
@@ -107,12 +96,14 @@ namespace a3d {
 
         virtual unsigned    defaultFramebuffer() const = 0;
 
+        Renderer*           renderer() const;
+
     protected:
         // [Protected Member Variables]
 
-        Antialiasing               _antialiasing;
-        VisualWorld*               _visualWorld;
-        std::unique_ptr<Renderer>  _renderer;
+        Antialiasing              _antialiasing;
+        VisualWorld*              _visualWorld;
+        std::unique_ptr<Renderer> _renderer;
     };
 
 }

@@ -82,8 +82,6 @@ namespace a3d {
 
         virtual PhysicsWorld::Inventory       inventory() const = 0;
 
-        virtual void                          updateCollisionPairs() = 0;
-
         virtual void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
     };
 

@@ -91,7 +91,6 @@ namespace a3d::ui {
         Panel(Panel&&)            = delete;
         Panel& operator=(Panel&&) = delete;
 
-        /** @brief Ends the immediate-mode panel begun by the constructor. */
         ~Panel();
 
         // [Public Member Functions]
