@@ -186,7 +186,7 @@ namespace a3d {
         /**
          * @brief Sets the uniform texture-coordinate scale.
          *
-         * @throws std::invalid_argument if @p scale is not greater than zero.
+         * @throws std::invalid_argument if @p scale is less than or equal to zero.
          */
         void                              uvScale(float scale);
 

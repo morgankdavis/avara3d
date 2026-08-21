@@ -114,7 +114,7 @@ namespace a3d {
          * @brief Sets the mass of a dynamic body.
          *
          * @throws std::logic_error if the body is not dynamic.
-         * @throws std::invalid_argument if @p mass is not greater than zero.
+         * @throws std::invalid_argument if @p mass is less than or equal to zero.
          */
         void                                 mass(float mass);
 

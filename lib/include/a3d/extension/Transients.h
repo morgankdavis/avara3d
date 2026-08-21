@@ -121,7 +121,7 @@ namespace a3d::ext {
              * @param seconds Seconds of simulation time between sweeps.
              * @return the configured sweep policy.
              *
-             * @throws std::invalid_argument if seconds is not positive.
+             * @throws std::invalid_argument if seconds is less than or equal to zero.
              */
             static SweepPolicy EveryInterval(double seconds);
         };
@@ -229,8 +229,6 @@ namespace a3d::ext {
          * simulation time rather than wall-clock time.
          *
          * @param info Information for the completed simulation step.
-         *
-         * @throws std::invalid_argument if info contains invalid simulation times.
          */
         void update(const Scene::StepInfo& info);
 
@@ -241,8 +239,6 @@ namespace a3d::ext {
          * cadence from this sweep.
          *
          * @param info Information for the completed simulation step.
-         *
-         * @throws std::invalid_argument if info contains invalid simulation times.
          */
         void sweep(const Scene::StepInfo& info);
 
@@ -273,7 +269,6 @@ namespace a3d::ext {
 
         static void        validatePolicy(const Policy& policy);
         static void        validateSweepPolicy(const SweepPolicy& policy);
-        static void        validateStepInfo(const Scene::StepInfo& info);
         static void        detachNodes(const std::vector<std::shared_ptr<Node>>& nodes);
 
         // [Private Member Functions]

@@ -247,7 +247,7 @@ void VisualWorld::ground(const optional<Ground>& ground) {
             auto validateGridComponent = [](const Ground::Procedural::GridComponent& component,
                                             const char*                              name) {
                 if (component.spacing <= 0.0f) {
-                    throw invalid_argument(format("Ground {} grid spacing must begreater than zero.", name));
+                    throw invalid_argument(format("Ground {} grid spacing must be greater than zero.", name));
                 }
 
                 if (component.lineWidthPixels <= 0.0f) {
@@ -314,10 +314,7 @@ void VisualWorld::surface(const optional<Surface>& surface) {
 
     if (surface) {
 
-        if (const auto* plane = get_if<Plane>(&*surface)) {
-
-        }
-        else if (const auto* sphere = get_if<Sphere>(&*surface)) {
+        if (const auto* sphere = get_if<Sphere>(&*surface)) {
 
             if (sphere->radius <= 0.0f) {
                 throw invalid_argument("VisualWorld::Sphere radius must be greater than zero.");

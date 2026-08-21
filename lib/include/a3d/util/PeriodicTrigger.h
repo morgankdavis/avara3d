@@ -34,7 +34,7 @@ namespace a3d::util {
          * By default, the first update fires immediately. When @p deferFirstFire is
          * true, the first firing is scheduled one interval after the first update time.
          *
-         * @throws std::invalid_argument if @p interval is not positive.
+         * @throws std::invalid_argument if @p interval is less than or equal to zero.
          */
         explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
 

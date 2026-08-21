@@ -286,7 +286,10 @@ bool ParseHexByte(const char* s, u8& out) {
     return true;
 }
 
-static uint8_t FloatToU8(float x) {
+uint8_t FloatToU8(float x) {
+    if (!math::is_finite(x)) {
+        return 0;
+    }
     x = math::clamp(x, 0.0f, 1.0f);
     return static_cast<uint8_t>(math::round(x * 255.0f));
 }

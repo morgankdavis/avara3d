@@ -109,7 +109,7 @@ namespace a3d::ui {
         /**
          * @brief Inserts vertical space of @p height logical UI units.
          *
-         * @throws std::invalid_argument if @p height is non-negative.
+         * @throws std::invalid_argument if @p height is negative.
          */
         void spacer(float height);
 
