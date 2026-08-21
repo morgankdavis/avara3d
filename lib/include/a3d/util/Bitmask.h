@@ -13,9 +13,13 @@
 
 namespace a3d::util::bitmask {
 
+    // [Internal Types]
+
     // unsigned underlying type used for bitwise ops.
     template<typename E>
     using U = std::make_unsigned_t<std::underlying_type_t<E>>;
+
+    // [Internal Functions]
 
     // converts enum to its underlying integer type (unsigned for bitwise ops).
     template<typename E>
@@ -38,35 +42,45 @@ namespace a3d::util::bitmask {
         return (v & b) == b;
     }
 
+    // [Public Functions]
+
+    /** @brief Returns whether any bits in @p bits are set in @p value. */
     template<typename E>
     constexpr bool contains(E value, E bits) noexcept {
         return any(value, bits);
     }
 
+    /** @brief Returns whether all bits in @p bits are set in @p value. */
     template<typename E>
     constexpr bool contains_all(E value, E bits) noexcept {
         return all(value, bits);
     }
 
+    /** @brief Returns @p value with all bits in @p bits set. */
     template<typename E>
     constexpr E add(E value, E bits) noexcept {
         return static_cast<E>(to_uint(value) | to_uint(bits));
     }
 
+    /** @brief Returns @p value with all bits in @p bits cleared. */
     template<typename E>
     constexpr E remove(E value, E bits) noexcept {
         return static_cast<E>(to_uint(value) & ~to_uint(bits));
     }
 
+    /** @brief Sets all bits in @p bits in @p value. */
     template<typename E>
     constexpr void add_inplace(E& value, E bits) noexcept {
         value = add(value, bits);
     }
 
+    /** @brief Clears all bits in @p bits from @p value. */
     template<typename E>
     constexpr void remove_inplace(E& value, E bits) noexcept {
         value = remove(value, bits);
     }
+
+    // [Internal Bitmask Operator Support]
 
     template<typename E>
     struct enable_ops : std::false_type {};
@@ -81,36 +95,45 @@ namespace a3d::util::bitmask {
 
 namespace a3d {
 
+    // [Public Non-Member Functions]
+
+    /** @brief Returns the bitwise OR of two enabled mask-enum values. */
     template<util::bitmask::MaskEnum E>
     constexpr E operator|(E a, E b) noexcept {
         return static_cast<E>(util::bitmask::to_uint(a) | util::bitmask::to_uint(b));
     }
 
+    /** @brief Returns the bitwise AND of two enabled mask-enum values. */
     template<util::bitmask::MaskEnum E>
     constexpr E operator&(E a, E b) noexcept {
         return static_cast<E>(util::bitmask::to_uint(a) & util::bitmask::to_uint(b));
     }
 
+    /** @brief Returns the bitwise XOR of two enabled mask-enum values. */
     template<util::bitmask::MaskEnum E>
     constexpr E operator^(E a, E b) noexcept {
         return static_cast<E>(util::bitmask::to_uint(a) ^ util::bitmask::to_uint(b));
     }
 
+    /** @brief Returns the bitwise complement of an enabled mask-enum value. */
     template<util::bitmask::MaskEnum E>
     constexpr E operator~(E a) noexcept {
         return static_cast<E>(~util::bitmask::to_uint(a));
     }
 
+    /** @brief Applies bitwise OR to @p a and @p b and stores the result in @p a. */
     template<util::bitmask::MaskEnum E>
     constexpr E& operator|=(E& a, E b) noexcept {
         return a = (a | b);
     }
 
+    /** @brief Applies bitwise AND to @p a and @p b and stores the result in @p a. */
     template<util::bitmask::MaskEnum E>
     constexpr E& operator&=(E& a, E b) noexcept {
         return a = (a & b);
     }
 
+    /** @brief Applies bitwise XOR to @p a and @p b and stores the result in @p a. */
     template<util::bitmask::MaskEnum E>
     constexpr E& operator^=(E& a, E b) noexcept {
         return a = (a ^ b);
