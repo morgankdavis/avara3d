@@ -120,42 +120,43 @@ std::unique_ptr<Scene> App::init() {
         // groundMaterial->specularExponent(16.0f);
         // groundMaterial->uvScale(5.0f);
 
-        visualWorld
-            ->ground(Ground {.fill = Ground::Procedural {.content =
-                                                             Ground::Procedural::Grid { //.color = Color{0.15f},
-                                                                 .color = Color::DarkGray(),
-                                                                 .minor = Ground::Procedural::
-                                                                     GridComponent {.color =
-                                                                                        Color(vec4 {0.5f, 0.5f,
-                                                                                                    0.5f,
-                                                                                                    0.25f}),
-                                                                                    .spacing = 1.0f,
-                                                                                    .lineWidthPixels = 1.0f,
-                                                                                    .reliefStrength = -0.125f},
-                                                                 .major =
-                                                                     Ground::Procedural::GridComponent {
-                                                                         .color = Color(
-                                                                             vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
-                                                                         .spacing =
-                                                                             10.0f,
-                                                                         .lineWidthPixels =
-                                                                             1.0f,
-                                                                         .reliefStrength = -0.125f},
-                                                                 .specularIntensity = 0.05f,
-                                                                 .specularExponent = 8.0f}},
-                             .radialFade = Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
-                                                               .center = {0.0f, 0.0f},
-                                                               .startDistance = 10.0f,
-                                                               .endDistance = 100.0f},
-                             .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                                                                 .angularWidth = math::radians(4.0f)}});
+        auto minor = Ground::Procedural::GridComponent {.color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                                                        .spacing = 1.0f,
+                                                        .lineWidthPixels = 1.0f,
+                                                        .reliefStrength = -0.125f};
 
-        visualWorld->atmosphere(Atmosphere {
-            .scaleHeight = 1.00f,
-            .haze = Atmosphere::Haze {.color = Color(vec4 {0.12f, 0.12f, 0.13f, 0.35}), .density = .35},
-            .limbGlow =
-                Atmosphere::LimbGlow {.color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}), .intensity = 0.25f},
-        });
+        auto major = Ground::Procedural::GridComponent {.color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                                                        .spacing = 10.0f,
+                                                        .lineWidthPixels = 1.0f,
+                                                        .reliefStrength = -0.125f};
+
+        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(), //.color = Color{0.15f},
+                                              .minor = minor,
+                                              .major = major,
+                                              .specularIntensity = 0.05f,
+                                              .specularExponent = 8.0f};
+
+        auto radialFade = Ground::RadialFade {.color = Color(vec4 {0.01f, 0.01f, 0.01f, 1.0f}),
+                                              .center = {0.0f, 0.0f},
+                                              .startDistance = 10.0f,
+                                              .endDistance = 100.0f};
+
+        auto horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.3f}),
+                                                .angularWidth = math::radians(4.0f)};
+
+        visualWorld->ground(Ground {.fill = Ground::Procedural {.content = grid},
+                                    .radialFade = radialFade,
+                                    .horizonHaze = horizonHaze});
+
+        auto atmosphhericHaze =
+            Atmosphere::Haze {.color = Color(vec4 {0.10f, 0.11f, 0.12f, 0.3}), .density = .35};
+
+        auto limbGlow =
+            Atmosphere::LimbGlow {.color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}), .intensity = 0.25f};
+
+        visualWorld->atmosphere(Atmosphere {.scaleHeight = 1.00f,
+                                            .haze = atmosphhericHaze,
+                                            .limbGlow = limbGlow});
 
         // visualWorld->fog(Fog {
         //     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.25f}),
