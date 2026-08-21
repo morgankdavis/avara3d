@@ -17,7 +17,6 @@ using namespace std;
 
 Timer::Timer(bool start):
     _start {},
-    _stop {},
     _duration {} {
 
     if (start) {

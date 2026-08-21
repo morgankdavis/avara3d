@@ -48,7 +48,6 @@ namespace a3d::util {
         // [Private Member Variables]
 
         std::optional<std::chrono::steady_clock::time_point> _start;
-        std::chrono::time_point<std::chrono::steady_clock>   _stop;
         std::chrono::nanoseconds                             _duration;
     };
 
