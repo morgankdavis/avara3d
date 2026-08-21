@@ -74,6 +74,8 @@ namespace a3d::util::flow::detail {
 
 namespace a3d::util::flow {
 
+    // [Public Functions]
+
     //------------------------------------------------------------------------------
     // guard / edge_guard
     //------------------------------------------------------------------------------
@@ -88,6 +90,11 @@ namespace a3d::util::flow {
 //		return ok;
 //	}
 
+    /**
+     * @brief Returns whether @p cond is true and invokes @p on_fail_once only when it first becomes false.
+     *
+     * The failure latch resets after the condition becomes true. State is retained per @p loc.
+     */
     template<class Cond, class FailFn>
     [[nodiscard]] bool edge_guard(Cond&&               cond,
                                   FailFn&&             on_fail_once,
@@ -115,6 +122,7 @@ namespace a3d::util::flow {
     // once / once_else
     //------------------------------------------------------------------------------
 
+    /** @brief Invokes @p fn only on the first call for @p loc, caching any non-void result. */
     template<class Fn>
     decltype(auto) once(Fn&& fn, std::source_location loc = std::source_location::current()) {
         using R = std::invoke_result_t<Fn&>;
@@ -147,6 +155,7 @@ namespace a3d::util::flow {
         }
     }
 
+    /** @brief Invokes @p then_fn on the first call for @p loc and @p else_fn on subsequent calls. */
     template<class ThenFn, class ElseFn>
     decltype(auto) once_else(ThenFn&&             then_fn,
                              ElseFn&&             else_fn,
@@ -198,6 +207,12 @@ namespace a3d::util::flow {
     // on / on_else
     //------------------------------------------------------------------------------
 
+    /**
+     * @brief Invokes @p fn only on the requested invocation at @p loc.
+     *
+     * The first call fixes the target; values below 1 are treated as 1. Non-void callbacks return their result
+     * in std::optional only when invoked.
+     */
     template<class Fn>
     decltype(auto) on(long long            invocation,
                       Fn&&                 fn,
@@ -232,6 +247,11 @@ namespace a3d::util::flow {
         }
     }
 
+    /**
+     * @brief Invokes @p then_fn on the requested invocation at @p loc and @p else_fn on every other call.
+     *
+     * The first call fixes the target; values below 1 are treated as 1.
+     */
     template<class ThenFn, class ElseFn>
     decltype(auto) on_else(long long            invocation,
                            ThenFn&&             then_fn,
@@ -282,6 +302,12 @@ namespace a3d::util::flow {
     // after / after_else
     //------------------------------------------------------------------------------
 
+    /**
+     * @brief Invokes @p fn on every call after @p invocations earlier calls at @p loc.
+     *
+     * The first call fixes the threshold; negative values are treated as zero. Non-void callbacks return an empty
+     * std::optional until invocation begins.
+     */
     template<class Fn>
     decltype(auto) after(long long            invocations,
                          Fn&&                 fn,
@@ -315,6 +341,11 @@ namespace a3d::util::flow {
         }
     }
 
+    /**
+     * @brief Invokes @p else_fn for the first @p invocations calls at @p loc, then @p then_fn thereafter.
+     *
+     * The first call fixes the threshold; negative values are treated as zero.
+     */
     template<class ThenFn, class ElseFn>
     decltype(auto) after_else(long long            invocations,
                               ThenFn&&             then_fn,

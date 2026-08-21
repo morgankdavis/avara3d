@@ -135,6 +135,13 @@ namespace a3d::util::enums {
 
     }
 
+    // [Public Functions]
+
+    /**
+     * @brief Returns the unqualified enumerator name for @p value, or an empty view if unavailable.
+     *
+     * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
+     */
     template<typename E>
     constexpr std::string_view enum_name(E value) noexcept {
 
@@ -154,6 +161,11 @@ namespace a3d::util::enums {
         return names[static_cast<std::size_t>(raw - static_cast<U>(min))];
     }
 
+    /**
+     * @brief Returns the enumerator whose unqualified name matches @p name, or std::nullopt if unavailable.
+     *
+     * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
+     */
     template<typename E>
     constexpr std::optional<E> enum_cast(std::string_view name) noexcept {
 
@@ -171,6 +183,7 @@ namespace a3d::util::enums {
         return {};
     }
 
+    /** @brief Returns the underlying integer value of @p value. */
     template<typename E>
     constexpr std::underlying_type_t<E> to_underlying(E value) noexcept {
 
