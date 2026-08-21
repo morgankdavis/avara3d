@@ -25,4 +25,4 @@ namespace a3d::util::chrono {
 
 }
 
-#endif //AVARA3D_UTIL_CHRONO_H
+#endif // AVARA3D_UTIL_CHRONO_H

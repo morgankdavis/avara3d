@@ -141,4 +141,4 @@ namespace a3d {
     }
 }
 
-#endif //AVARA3D_VISUAL_MATERIAL_SAMPLER_H
+#endif // AVARA3D_VISUAL_MATERIAL_SAMPLER_H

@@ -309,4 +309,4 @@ namespace a3d::ext {
 
 }
 
-#endif //AVARA3D_EXTENSION_TRANSIENTS_H
+#endif // AVARA3D_EXTENSION_TRANSIENTS_H

@@ -70,4 +70,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_VISUAL_GROUND_H
+#endif // AVARA3D_VISUAL_GROUND_H

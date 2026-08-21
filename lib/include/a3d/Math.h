@@ -1039,4 +1039,4 @@ namespace a3d::math {
 
 }
 
-#endif //AVARA3D_MATH_H
+#endif // AVARA3D_MATH_H

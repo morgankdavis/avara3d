@@ -49,4 +49,4 @@ namespace a3d::qt {
 
 }
 
-#endif //AVARA3D_QTINPUTCONTEXT_H
+#endif // AVARA3D_QTINPUTCONTEXT_H

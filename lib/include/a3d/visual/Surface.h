@@ -30,4 +30,4 @@ namespace a3d::surface {
 
 }
 
-#endif //AVARA3D_VISUAL_SURFACE_H
+#endif // AVARA3D_VISUAL_SURFACE_H

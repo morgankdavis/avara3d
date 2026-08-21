@@ -34,4 +34,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_LOG_SINK_LOGSINK_H
+#endif // AVARA3D_LOG_SINK_LOGSINK_H

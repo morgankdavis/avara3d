@@ -34,4 +34,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RENDER_RENDERGATHERER_H
+#endif // AVARA3D_RENDER_RENDERGATHERER_H

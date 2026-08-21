@@ -368,4 +368,4 @@ namespace a3d {
     }
 }
 
-#endif /* AVARA3D_SCENE_NODE_H */
+#endif // AVARA3D_SCENE_NODE_H

@@ -27,4 +27,4 @@
     #error "No OpenGL target selected."
 #endif
 
-#endif //AVARA3D_RENDER_BACKEND_OPENGL_GL_H
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_GL_H

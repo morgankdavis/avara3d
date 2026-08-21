@@ -63,4 +63,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RENDER_GATHEROUTPUT_H
+#endif // AVARA3D_RENDER_GATHEROUTPUT_H

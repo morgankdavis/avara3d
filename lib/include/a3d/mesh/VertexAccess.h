@@ -52,4 +52,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_MESH_VERTEXACCESS_H
+#endif // AVARA3D_MESH_VERTEXACCESS_H

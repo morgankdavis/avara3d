@@ -27,4 +27,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RENDER_PACKETSORTER_H
+#endif // AVARA3D_RENDER_PACKETSORTER_H

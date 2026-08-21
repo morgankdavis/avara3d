@@ -32,4 +32,4 @@ namespace a3d::util::string {
     std::string              Timestamp();
 }
 
-#endif //AVARA3D_UTIL_STRING_H
+#endif // AVARA3D_UTIL_STRING_H

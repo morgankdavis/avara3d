@@ -74,4 +74,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RENDER_DRAWPACKET_H
+#endif // AVARA3D_RENDER_DRAWPACKET_H

@@ -76,4 +76,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_BUFFER_H */
+#endif // AVARA3D_BUFFER_H

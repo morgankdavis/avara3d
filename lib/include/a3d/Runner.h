@@ -284,4 +284,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RUNNER_H
+#endif // AVARA3D_RUNNER_H

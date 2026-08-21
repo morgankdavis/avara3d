@@ -114,4 +114,4 @@ namespace a3d {
     }
 }
 
-#endif //AVARA3D_VISUAL_MATERIAL_TEXTURE_H
+#endif // AVARA3D_VISUAL_MATERIAL_TEXTURE_H

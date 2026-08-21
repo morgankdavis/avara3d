@@ -31,4 +31,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_MESH_VERTEXLAYOUT_H
+#endif // AVARA3D_MESH_VERTEXLAYOUT_H

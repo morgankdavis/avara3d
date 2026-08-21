@@ -107,4 +107,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_BUILDINFO_H
+#endif // AVARA3D_BUILDINFO_H

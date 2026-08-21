@@ -80,4 +80,4 @@ namespace a3d::detail {
 
 #endif
 
-#endif //AVARA3D_ASSERT_H
+#endif // AVARA3D_ASSERT_H

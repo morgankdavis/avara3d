@@ -53,4 +53,4 @@ namespace a3d::util {
 
 }
 
-#endif //AVARA3D_UTIL_TIMER_H
+#endif // AVARA3D_UTIL_TIMER_H

@@ -84,4 +84,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_CUBEIMAGE_H */
+#endif // AVARA3D_CUBEIMAGE_H

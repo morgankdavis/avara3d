@@ -297,4 +297,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_VISUAL_VISUALWORLD_H
+#endif // AVARA3D_VISUAL_VISUALWORLD_H

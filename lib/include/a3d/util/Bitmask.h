@@ -118,4 +118,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_UTIL_BITMASK_H
+#endif // AVARA3D_UTIL_BITMASK_H

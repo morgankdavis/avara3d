@@ -180,4 +180,4 @@ namespace a3d::util::enums {
 
 }
 
-#endif //AVARA3D_UTIL_ENUM_H
+#endif // AVARA3D_UTIL_ENUM_H

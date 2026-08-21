@@ -220,4 +220,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_PHYSICS_PHYSICSWORLD_H */
+#endif // AVARA3D_PHYSICS_PHYSICSWORLD_H

@@ -147,4 +147,4 @@ namespace a3d {
     }
 }
 
-#endif /* AVARA3D_MESH_MESHELEMENT_H */
+#endif // AVARA3D_MESH_MESHELEMENT_H

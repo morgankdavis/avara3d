@@ -25,4 +25,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_IDGENERATOR_H
+#endif // AVARA3D_IDGENERATOR_H

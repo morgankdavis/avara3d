@@ -92,4 +92,4 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-#endif /* AVARA3D_A3D_H */
+#endif // AVARA3D_A3D_H

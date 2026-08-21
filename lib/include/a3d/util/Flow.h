@@ -358,4 +358,4 @@ namespace a3d::util::flow {
     }
 } // namespace a3d::util::flow
 
-#endif //AVARA3D_UTIL_FLOW_H
+#endif // AVARA3D_UTIL_FLOW_H

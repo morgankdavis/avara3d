@@ -62,4 +62,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_VISUAL_LIGHT_POINTLIGHT_H */
+#endif // AVARA3D_VISUAL_LIGHT_POINTLIGHT_H

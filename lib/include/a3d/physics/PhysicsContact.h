@@ -76,4 +76,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_PHYSICS_PHYSICSCONTACT_H */
+#endif // AVARA3D_PHYSICS_PHYSICSCONTACT_H

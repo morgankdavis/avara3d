@@ -24,4 +24,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_VISUAL_BACKGROUND_H
+#endif // AVARA3D_VISUAL_BACKGROUND_H

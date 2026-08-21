@@ -32,4 +32,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_MESH_INDEXTYPES_H
+#endif // AVARA3D_MESH_INDEXTYPES_H

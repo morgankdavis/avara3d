@@ -120,4 +120,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_IMAGE_H */
+#endif // AVARA3D_IMAGE_H

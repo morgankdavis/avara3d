@@ -23,4 +23,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_VISUAL_FOG_H
+#endif // AVARA3D_VISUAL_FOG_H

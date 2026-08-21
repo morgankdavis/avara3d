@@ -42,4 +42,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_PROFILE_SCOPETIMER_H
+#endif // AVARA3D_PROFILE_SCOPETIMER_H

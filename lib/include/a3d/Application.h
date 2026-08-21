@@ -286,4 +286,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_APPLICATION_H
+#endif // AVARA3D_APPLICATION_H

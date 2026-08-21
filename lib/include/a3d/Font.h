@@ -80,4 +80,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_FONT_H */
+#endif // AVARA3D_FONT_H

@@ -82,4 +82,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_MESH_PRIMITIVE_CONE_H */
+#endif // AVARA3D_MESH_PRIMITIVE_CONE_H

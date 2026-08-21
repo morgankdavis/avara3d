@@ -54,4 +54,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_SIMULATIONCONFIG_H
+#endif // AVARA3D_SIMULATIONCONFIG_H

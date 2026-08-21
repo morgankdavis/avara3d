@@ -65,4 +65,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_INPUT_GLFWINPUTCONTEXT_H */
+#endif // AVARA3D_INPUT_GLFWINPUTCONTEXT_H

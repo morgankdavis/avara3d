@@ -66,4 +66,4 @@ namespace a3d::util::fs {
 
 }
 
-#endif //AVARA3D_UTIL_FILESYSTEM_H
+#endif // AVARA3D_UTIL_FILESYSTEM_H

@@ -64,4 +64,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_VISUAL_CAMERA_CAMERA_H */
+#endif // AVARA3D_VISUAL_CAMERA_CAMERA_H

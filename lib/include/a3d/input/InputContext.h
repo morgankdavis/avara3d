@@ -82,4 +82,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_INPUT_INPUTCONTEXT_H */
+#endif // AVARA3D_INPUT_INPUTCONTEXT_H

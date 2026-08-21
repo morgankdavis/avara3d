@@ -27,4 +27,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_MESH_VERTEXFORMATS_H
+#endif // AVARA3D_MESH_VERTEXFORMATS_H

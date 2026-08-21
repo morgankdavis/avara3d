@@ -100,4 +100,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_PROFILE_FRAMESTATS_H
+#endif // AVARA3D_PROFILE_FRAMESTATS_H

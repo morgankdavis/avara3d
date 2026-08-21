@@ -211,4 +211,4 @@ namespace a3d {
     }
 }
 
-#endif /* AVARA3D_MESH_MESH_H */
+#endif // AVARA3D_MESH_MESH_H

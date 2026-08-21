@@ -76,4 +76,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_RENDER_PIPELINEDESC_H
+#endif // AVARA3D_RENDER_PIPELINEDESC_H

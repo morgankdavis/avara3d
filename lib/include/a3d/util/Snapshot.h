@@ -23,4 +23,4 @@ namespace a3d::util::snapshot {
 
 }
 
-#endif //AVARA3D_UTIL_SNAPSHOT_H
+#endif // AVARA3D_UTIL_SNAPSHOT_H

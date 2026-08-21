@@ -18,4 +18,4 @@ namespace a3d::util::geom {
 
 }
 
-#endif //AVARA3D_UTIL_GEOMETRY_H
+#endif // AVARA3D_UTIL_GEOMETRY_H

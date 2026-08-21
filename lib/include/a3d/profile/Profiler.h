@@ -62,4 +62,4 @@ namespace a3d {
 
 }
 
-#endif //AVARA3D_PROFILING_PROFILER_H
+#endif // AVARA3D_PROFILE_PROFILER_H

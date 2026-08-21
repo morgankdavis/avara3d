@@ -39,4 +39,4 @@ namespace a3d::ext {
 
 }
 
-#endif //AVARA3D_EXTENSIONS_ALFIMPORTER_H
+#endif // AVARA3D_EXTENSIONS_ALFIMPORTER_H

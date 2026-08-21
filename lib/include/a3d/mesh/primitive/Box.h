@@ -93,4 +93,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_MESH_PRIMITIVE_BOX_H */
+#endif // AVARA3D_MESH_PRIMITIVE_BOX_H

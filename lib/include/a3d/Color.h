@@ -167,4 +167,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_COLOR_H */
+#endif // AVARA3D_COLOR_H

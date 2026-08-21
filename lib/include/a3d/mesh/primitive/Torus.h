@@ -73,4 +73,4 @@ namespace a3d {
 
 }
 
-#endif /* AVARA3D_MESH_PRIMITIVE_TORUS_H */
+#endif // AVARA3D_MESH_PRIMITIVE_TORUS_H
