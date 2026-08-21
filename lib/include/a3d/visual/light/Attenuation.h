@@ -11,8 +11,6 @@
 
 namespace a3d {
 
-    // [Public Types]
-
     /**
      * @brief Distance-attenuation coefficients for point and spot lights.
      *

@@ -92,7 +92,7 @@ App::App(int argc, char* argv[]):
     _pokiness {Pokiness::Soft},
     _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
-    _orbWanders {},
+    _orbWanderers {},
     _pickIgnores {},
     _pendingReset {false} {}
 
@@ -288,7 +288,7 @@ std::unique_ptr<Scene> App::init() {
 
             auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
 
-            _orbWanders.reserve(ORB_COUNT);
+            _orbWanderers.reserve(ORB_COUNT);
 
             for (size_t i = 0; i < ORB_COUNT; ++i) {
                 auto light = make_shared<PointLight>(Color::White());
@@ -309,10 +309,10 @@ std::unique_ptr<Scene> App::init() {
 
                 orbGroup->addChild(orb);
 
-                ext::Wander::Config config {.halfExtents = ORB_WANDER_EXTENTS,
-                                            .segmentDuration = math::uniform_linear(5.0f, 7.0f),
-                                            .seed = 1000u + static_cast<uint32_t>(i)};
-                _orbWanders.push_back(ext::Wander(orb, config));
+                ext::Wanderer::Config config {.halfExtents = ORB_WANDER_EXTENTS,
+                                              .segmentDuration = math::uniform_linear(5.0f, 7.0f),
+                                              .seed = 1000u + static_cast<uint32_t>(i)};
+                _orbWanderers.push_back(ext::Wanderer(orb, config));
             }
         }
 
@@ -389,7 +389,7 @@ void App::inputDidUpdate(Runner&       runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    for (auto& wander : _orbWanders) {
+    for (auto& wander : _orbWanderers) {
         wander.update(info.deltaTime);
     }
 }
@@ -731,64 +731,147 @@ bool App::drawPanel() {
 
     auto debugOptions = scene.debugOptions();
 
-    bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-    if (panel.toggle("stats", stats)) {
-        debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
-                             : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
-        scene.debugOptions(debugOptions);
-    }
+    // {
+    //     bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
+    //     if (panel.toggle("stats", stats)) {
+    //         debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
+    //                              : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
+    //         scene.debugOptions(debugOptions);
+    //     }
+    //
+    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
+    //     if (panel.toggle("default lighting", defaultLighting)) {
+    //         visualWorld.defaultLightingEnabled(defaultLighting);
+    //     }
+    //
+    //     bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshBounds);
+    //     if (panel.toggle("mesh bounds", meshBounds)) {
+    //         scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds)
+    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
+    //     }
+    //
+    //     bool meshFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshFrames);
+    //     if (panel.toggle("mesh frames", meshFrames)) {
+    //         scene.debugOptions(meshFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshFrames)
+    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshFrames));
+    //     }
+    //
+    //     if (visualWorld.capabilities().wireframeRendering) {
+    //         bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
+    //         if (panel.toggle("mesh wireframes", meshWireframes)) {
+    //             scene.debugOptions(meshWireframes
+    //                                    ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes)
+    //                                    : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
+    //         }
+    //     }
+    //     else {
+    //         panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+    //     }
+    //
+    //     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBounds);
+    //     if (panel.toggle("physics bounds", physBounds)) {
+    //         scene.debugOptions(physBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds)
+    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
+    //     }
+    //
+    //     bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);
+    //     if (panel.toggle("physics frames", physFrames)) {
+    //         scene.debugOptions(physFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsFrames)
+    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsFrames));
+    //     }
+    //
+    //     bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
+    //     if (panel.toggle("physics wireframes", physWireframes)) {
+    //         scene.debugOptions(physWireframes
+    //                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
+    //                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
+    //     }
+    // }
 
-    bool defaultLighting = visualWorld.defaultLightingEnabled();
-    if (panel.toggle("default lighting", defaultLighting)) {
-        visualWorld.defaultLightingEnabled(defaultLighting);
-    }
+    // {
+    //     struct DebugToggle {
+    //         const char*  title;
+    //         DebugOptions option;
+    //         bool         available {true};
+    //     };
+    //
+    //     const std::array debugToggles {
+    //         DebugToggle {"stats", DebugOptions::ShowStatsOverlay},
+    //         DebugToggle {"mesh bounds", DebugOptions::ShowMeshBounds},
+    //         DebugToggle {"mesh frames", DebugOptions::ShowMeshFrames},
+    //         DebugToggle {"mesh wireframes", DebugOptions::ShowMeshWireframes,
+    //                      visualWorld.capabilities().wireframeRendering},
+    //         DebugToggle {"physics bounds", DebugOptions::ShowPhysicsBounds},
+    //         DebugToggle {"physics frames", DebugOptions::ShowPhysicsFrames},
+    //         DebugToggle {"physics wireframes", DebugOptions::ShowPhysicsWireframes},
+    //     };
+    //
+    //     bool debugOptionsChanged = false;
+    //
+    //     for (const auto& toggle : debugToggles) {
+    //
+    //         if (!toggle.available) {
+    //             panel.value(toggle.title, "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+    //             continue;
+    //         }
+    //
+    //         bool enabled = util::bitmask::contains(debugOptions, toggle.option);
+    //         if (panel.toggle(toggle.title, enabled)) {
+    //             if (enabled) {
+    //                 util::bitmask::add_inplace(debugOptions, toggle.option);
+    //             }
+    //             else {
+    //                 util::bitmask::remove_inplace(debugOptions, toggle.option);
+    //             }
+    //             debugOptionsChanged = true;
+    //         }
+    //     }
+    //
+    //     if (debugOptionsChanged) {
+    //         scene.debugOptions(debugOptions);
+    //     }
+    //
+    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
+    //     if (panel.toggle("default lighting", defaultLighting)) {
+    //         visualWorld.defaultLightingEnabled(defaultLighting);
+    //     }
+    // }
 
-    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshBounds);
-    if (panel.toggle("mesh bounds", meshBounds)) {
-        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
-    }
+    {
+        auto debugToggle = [&](const char* title, DebugOptions option) {
+            bool enabled = util::bitmask::contains(debugOptions, option);
+            if (panel.toggle(title, enabled)) {
+                if (enabled) {
+                    util::bitmask::add_inplace(debugOptions, option);
+                }
+                else {
+                    util::bitmask::remove_inplace(debugOptions, option);
+                }
+                scene.debugOptions(debugOptions);
+            }
+        };
 
-    bool meshFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshFrames);
-    if (panel.toggle("mesh frames", meshFrames)) {
-        scene.debugOptions(meshFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshFrames)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshFrames));
-    }
+        debugToggle("stats", DebugOptions::ShowStatsOverlay);
 
-    if (visualWorld.capabilities().wireframeRendering) {
-        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
-        if (panel.toggle("mesh wireframes", meshWireframes)) {
-            scene.debugOptions(meshWireframes
-                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes)
-                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
+        bool defaultLighting = visualWorld.defaultLightingEnabled();
+        if (panel.toggle("default lighting", defaultLighting)) {
+            visualWorld.defaultLightingEnabled(defaultLighting);
         }
-    }
-    else {
-        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    }
 
-    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBounds);
-    if (panel.toggle("physics bounds", physBounds)) {
-        scene.debugOptions(physBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
-    }
+        debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
+        debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
 
-    bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);
-    if (panel.toggle("physics frames", physFrames)) {
-        scene.debugOptions(physFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsFrames)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsFrames));
-    }
+        if (visualWorld.capabilities().wireframeRendering) {
+            debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
+        }
+        else {
+            panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+        }
 
-    bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
-    if (panel.toggle("physics wireframes", physWireframes)) {
-        scene.debugOptions(physWireframes
-                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
-                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
+        debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
+        debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
+        debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
     }
-
-    // COM
-    // normals
-    // contact points
 
     return panel.hovered();
 }

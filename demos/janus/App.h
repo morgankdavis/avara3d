@@ -18,7 +18,7 @@
 #include "a3d/Application.h"
 #include "a3d/Math.h"
 #include "a3d/extension/Transients.h"
-#include "a3d/extension/Wander.h"
+#include "a3d/extension/Wanderer.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
 namespace a3d {
@@ -133,7 +133,7 @@ namespace demo::janus {
         Pokiness                            _pokiness;
         a3d::ext::Transients                _transients;
         double                              _backgroundRotationTime;
-        std::vector<a3d::ext::Wander>       _orbWanders;
+        std::vector<a3d::ext::Wanderer>     _orbWanderers;
         std::vector<PickIgnore>             _pickIgnores;
         bool                                _pendingReset;
     };

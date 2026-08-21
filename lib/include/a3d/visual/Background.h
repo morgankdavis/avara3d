@@ -14,8 +14,6 @@
 
 namespace a3d {
 
-    // [Public Types]
-
     /** @brief Configures a solid-color or cubemap background for a VisualWorld. */
     struct Background {
 

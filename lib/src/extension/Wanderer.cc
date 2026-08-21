@@ -1,12 +1,12 @@
 //
-//  Wander.cc
+//  Wanderer.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 8/12/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/extension/Wander.h"
+#include "a3d/extension/Wanderer.h"
 
 #include <stdexcept>
 
@@ -17,45 +17,54 @@ using namespace a3d::math;
 using namespace a3d::ext;
 using namespace std;
 
-Wander::Wander(const shared_ptr<Node>& node):
-    Wander(node, Config {}) {}
+// [Private Static Non-Member Prototypes]
 
-Wander::Wander(const shared_ptr<Node>& node, const Config& config):
+static void ValidateConfig(const Wanderer::Config& config);
+static vec3 EvaluateSpline(const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, float t);
+
+// [Public Lifecycle Functions]
+
+Wanderer::Wanderer(const shared_ptr<Node>& node):
+    Wanderer(node, Config {}) {}
+
+Wanderer::Wanderer(const shared_ptr<Node>& node, const Config& config):
     _node {node},
     _config {config},
     _random {config.seed} {
 
     if (!node) {
-        throw invalid_argument("Wander requires a node");
+        throw invalid_argument("Wanderer requires a node");
     }
 
-    validateConfig(config);
+    ValidateConfig(config);
 
     _center = node->position();
 
     initializePath();
 }
 
-const Wander::Config& Wander::config() const {
+// [Public Member Functions]
+
+const Wanderer::Config& Wanderer::config() const {
 
     return _config;
 }
 
-void Wander::config(const Config& config) {
+void Wanderer::config(const Config& config) {
 
-    validateConfig(config);
+    ValidateConfig(config);
 
     _config = config;
 
     reset();
 }
 
-const vec3& Wander::center() const {
+const vec3& Wanderer::center() const {
 
     return _center;
 }
 
-void Wander::update(double deltaTime) {
+void Wanderer::update(double deltaTime) {
 
     if (deltaTime <= 0.0) {
         return;
@@ -73,10 +82,10 @@ void Wander::update(double deltaTime) {
         advancePath();
     }
 
-    node->position(evaluate(static_cast<float>(_phase)));
+    node->position(EvaluateSpline(_p0, _p1, _p2, _p3, static_cast<float>(_phase)));
 }
 
-void Wander::reset() {
+void Wanderer::reset() {
 
     _random.seed(_config.seed);
     _phase = 0.0;
@@ -88,7 +97,7 @@ void Wander::reset() {
     initializePath();
 }
 
-void Wander::recenter() {
+void Wanderer::recenter() {
 
     auto node = _node.lock();
     if (!node) {
@@ -100,18 +109,9 @@ void Wander::recenter() {
     reset();
 }
 
-void Wander::validateConfig(const Config& config) const {
+// [Private Member Functions]
 
-    if (config.halfExtents.x < 0.0f || config.halfExtents.y < 0.0f || config.halfExtents.z < 0.0f) {
-        throw invalid_argument("Wander half extents must be non-negative");
-    }
-
-    if (config.segmentDuration <= 0.0) {
-        throw invalid_argument("Wander segment duration must be greater than zero");
-    }
-}
-
-void Wander::initializePath() {
+void Wanderer::initializePath() {
 
     //
     // We want the spline to begin exactly at _center while already having
@@ -133,7 +133,7 @@ void Wander::initializePath() {
     _p3 = randomPoint();
 }
 
-void Wander::advancePath() {
+void Wanderer::advancePath() {
 
     _p0 = _p1;
     _p1 = _p2;
@@ -141,12 +141,12 @@ void Wander::advancePath() {
     _p3 = randomPoint();
 }
 
-vec3 Wander::randomPoint() {
+vec3 Wanderer::randomPoint() {
 
     return _center + randomOffset(1.0f);
 }
 
-vec3 Wander::randomOffset(float scale) {
+vec3 Wanderer::randomOffset(float scale) {
 
     const auto randomComponent = [this](float extent) {
         uniform_real_distribution<float> distribution {-extent, extent};
@@ -159,14 +159,27 @@ vec3 Wander::randomOffset(float scale) {
     return {randomComponent(extent.x), randomComponent(extent.y), randomComponent(extent.z)};
 }
 
-vec3 Wander::evaluate(float t) const {
+// [Private Static Non-Member Implementations]
+
+static void ValidateConfig(const Wanderer::Config& config) {
+
+    if (config.halfExtents.x < 0.0f || config.halfExtents.y < 0.0f || config.halfExtents.z < 0.0f) {
+        throw invalid_argument("Wanderer half extents must be non-negative");
+    }
+
+    if (config.segmentDuration <= 0.0) {
+        throw invalid_argument("Wanderer segment duration must be greater than zero");
+    }
+}
+
+static vec3 EvaluateSpline(const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, float t) {
 
     //
     // Uniform cubic B-spline.
     //
     // All basis weights are non-negative and sum to one, so the resulting
     // position remains inside the convex hull of the control points. Since
-    // every control point is inside our configured box, the node can never
+    // every control point is inside the configured box, the node can never
     // wander outside it.
     //
 
@@ -178,5 +191,5 @@ vec3 Wander::evaluate(float t) const {
     const float b2 = (1.0f + 3.0f * t + 3.0f * t2 - 3.0f * t3) / 6.0f;
     const float b3 = t3 / 6.0f;
 
-    return _p0 * b0 + _p1 * b1 + _p2 * b2 + _p3 * b3;
+    return p0 * b0 + p1 * b1 + p2 * b2 + p3 * b3;
 }
