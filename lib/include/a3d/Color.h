@@ -20,7 +20,7 @@ namespace a3d {
      * @brief Represents a normalized RGBA color.
      *
      * Components are stored as floating-point values in the range [0, 1].
-     * Finite floating-point inputs outside this range are clamped. Eight-bit
+     * Floating-point inputs outside this range are clamped. Eight-bit
      * accessors scale the stored components to [0, 255] and round to the
      * nearest integer.
      */

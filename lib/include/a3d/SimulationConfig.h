@@ -29,7 +29,7 @@ namespace a3d {
         /**
          * @brief Initial duration, in seconds, of each simulation step.
          *
-         * The value must be finite and positive. It is used by both automatic
+         * The value must be positive. It is used by both automatic
          * catch-up steps and explicitly requested paused steps.
          */
         double        timeStep {1.0 / 60.0};
@@ -46,7 +46,7 @@ namespace a3d {
         /**
          * @brief Initial multiplier applied to elapsed host time for automatic simulation stepping.
          *
-         * The value must be finite and positive. A value of 1.0 advances simulation
+         * The value must be positive. A value of 1.0 advances simulation
          * at the host-time rate. Requested paused steps ignore this scale.
          */
         double        timeScale {1.0};

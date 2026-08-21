@@ -227,7 +227,6 @@ namespace a3d {
          * With elementBoundsOnly enabled, MeshElement bounds are tested instead of
          * triangles and returned hits do not contain a face index.
          *
-         * @throws std::invalid_argument if @p point is not finite.
          * @throws std::runtime_error if the Scene, point of view, or viewport cannot
          * produce a valid hit-test ray.
          */

@@ -64,12 +64,12 @@ Panel::Panel(string_view id, const Options& options):
         throw invalid_argument("Panel id cannot be empty.");
     }
 
-    if (!a3d::math::is_finite(options.width) || options.width <= 0.0f) {
-        throw invalid_argument("Panel width must be finite and greater than zero.");
+    if (options.width <= 0.0f) {
+        throw invalid_argument("Panel width must be greater than zero.");
     }
 
-    if (!a3d::math::is_finite(options.margin) || options.margin < 0.0f) {
-        throw invalid_argument("Panel margin must be finite and non-negative.");
+    if (options.margin < 0.0f) {
+        throw invalid_argument("Panel margin must be non-negative.");
     }
 
     _windowName = "##a3d_panel_";
@@ -241,8 +241,8 @@ void Panel::value(string_view label, string_view value, Padding padding) {
 
 void Panel::spacer(float height) {
 
-    if (!a3d::math::is_finite(height) || height < 0.0f) {
-        throw invalid_argument("Panel spacer height must be finite and non-negative.");
+    if (height < 0.0f) {
+        throw invalid_argument("Panel spacer height must be non-negative.");
     }
 
     const float width = beginItem();
@@ -305,8 +305,8 @@ bool Panel::slider(string_view label,
         throw invalid_argument("Panel slider label cannot be empty.");
     }
 
-    if (!a3d::math::is_finite(minimum) || !a3d::math::is_finite(maximum) || minimum >= maximum) {
-        throw invalid_argument("Panel slider range must be finite and increasing.");
+    if (minimum >= maximum) {
+        throw invalid_argument("Panel slider range must be increasing.");
     }
 
     const float width = beginItem();

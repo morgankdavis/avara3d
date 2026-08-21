@@ -21,7 +21,6 @@ using namespace std;
 
 // [Private Static Non-Member Prototypes]
 
-static bool IsFinite(const vec3& value);
 static void ValidateConfig(const TurntableCameraController::Config& config);
 static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
 
@@ -68,18 +67,6 @@ const TurntableCameraController::View& TurntableCameraController::view() const {
 
 void TurntableCameraController::view(const View& view) {
 
-    if (!math::is_finite(view.yaw)) {
-        throw invalid_argument("TurntableCameraController view yaw must be finite.");
-    }
-
-    if (!math::is_finite(view.pitch)) {
-        throw invalid_argument("TurntableCameraController view pitch must be finite.");
-    }
-
-    if (!math::is_finite(view.distance)) {
-        throw invalid_argument("TurntableCameraController view distance must be finite.");
-    }
-
     View nextView = view;
 
     nextView.pitch = math::clamp(nextView.pitch, _config.minPitch, _config.maxPitch);
@@ -88,20 +75,11 @@ void TurntableCameraController::view(const View& view) {
     vec3 nextResolvedTarget {0.0f};
 
     if (const auto* worldPosition = std::get_if<vec3>(&nextView.target)) {
-
-        if (!IsFinite(*worldPosition)) {
-            throw invalid_argument("TurntableCameraController world target must be finite.");
-        }
-
         nextResolvedTarget = *worldPosition;
     }
     else {
 
         const auto& nodeTarget = std::get<NodeTarget>(nextView.target);
-
-        if (!IsFinite(nodeTarget.localPosition)) {
-            throw invalid_argument("TurntableCameraController local target position must be finite.");
-        }
 
         if (!TryResolveNodeTarget(nodeTarget, nextResolvedTarget)) {
             throw invalid_argument("TurntableCameraController view has an expired target Node.");
@@ -113,10 +91,6 @@ void TurntableCameraController::view(const View& view) {
 }
 
 void TurntableCameraController::target(const vec3& worldPosition) {
-
-    if (!IsFinite(worldPosition)) {
-        throw invalid_argument("TurntableCameraController world target must be finite.");
-    }
 
     _view.target = worldPosition;
     _resolvedTarget = worldPosition;
@@ -130,10 +104,6 @@ void TurntableCameraController::target(const shared_ptr<Node>& node, const vec3&
 
     if (!node) {
         throw invalid_argument("TurntableCameraController target Node must not be null.");
-    }
-
-    if (!IsFinite(localPosition)) {
-        throw invalid_argument("TurntableCameraController local target position must be finite.");
     }
 
     NodeTarget nodeTarget {
@@ -155,13 +125,13 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                                                                           float                vFov,
                                                                           float                viewportHeight) {
 
-    if (!math::is_finite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
+    if (vFov <= 0.0f || vFov >= math::PI) {
         throw invalid_argument(
-            "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
+            "TurntableCameraController vertical field of view must be between 0 and 180 degrees.");
     }
 
-    if (!math::is_finite(viewportHeight) || viewportHeight <= 0.0f) {
-        throw invalid_argument("TurntableCameraController viewport height must be positive and finite.");
+    if (viewportHeight <= 0.0f) {
+        throw invalid_argument("TurntableCameraController viewport height must be positive.");
     }
 
     UpdateResult result {};
@@ -421,10 +391,6 @@ vec3 TurntableCameraController::resolveTarget() {
 
 void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
 
-    if (!IsFinite(worldTranslation)) {
-        throw runtime_error("TurntableCameraController target translation must be finite.");
-    }
-
     // refresh the cached world position first. this matters when the target
     // is attached to a Node that may have moved since the previous frame
     resolveTarget();
@@ -447,10 +413,6 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
 
         const vec3 localTranslation {localTranslation4};
 
-        if (!IsFinite(localTranslation)) {
-            throw runtime_error("TurntableCameraController resolved local target translation is not finite.");
-        }
-
         nodeTarget.localPosition += localTranslation;
 
         resolveTarget();
@@ -467,15 +429,7 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
 
 // [Private Static Non-Member Functions]
 
-bool IsFinite(const vec3& value) {
-    return math::is_finite(value.x) && math::is_finite(value.y) && math::is_finite(value.z);
-}
-
 void ValidateConfig(const TurntableCameraController::Config& config) {
-
-    if (!math::is_finite(config.minPitch) || !math::is_finite(config.maxPitch)) {
-        throw invalid_argument("TurntableCameraController pitch limits must be finite.");
-    }
 
     const float pole = math::radians(90.0f);
 
@@ -488,12 +442,8 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
         throw invalid_argument("TurntableCameraController minimum pitch must be less than maximum pitch.");
     }
 
-    if (!math::is_finite(config.minDistance) || config.minDistance <= 0.0f) {
-        throw invalid_argument("TurntableCameraController minimum distance must be positive and finite.");
-    }
-
-    if (!math::is_finite(config.maxDistance)) {
-        throw invalid_argument("TurntableCameraController maximum distance must be finite.");
+    if (config.minDistance <= 0.0f) {
+        throw invalid_argument("TurntableCameraController minimum distance must be positive.");
     }
 
     if (config.maxDistance < config.minDistance) {
@@ -501,22 +451,22 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
             "TurntableCameraController maximum distance must not be less than minimum distance.");
     }
 
-    if (!math::is_finite(config.orbitSensitivity) || config.orbitSensitivity < 0.0f) {
-        throw invalid_argument("TurntableCameraController orbit sensitivity must be finite and non-negative.");
+    if (config.orbitSensitivity < 0.0f) {
+        throw invalid_argument("TurntableCameraController orbit sensitivity must be non-negative.");
     }
 
-    if (!math::is_finite(config.dollySensitivity) || config.dollySensitivity < 0.0f) {
-        throw invalid_argument("TurntableCameraController dolly sensitivity must be finite and non-negative.");
+    if (config.dollySensitivity < 0.0f) {
+        throw invalid_argument("TurntableCameraController dolly sensitivity must be non-negative.");
     }
 
-    if (!math::is_finite(config.scrollDollySensitivity) || config.scrollDollySensitivity < 0.0f) {
+    if (config.scrollDollySensitivity < 0.0f) {
 
         throw invalid_argument(
-            "TurntableCameraController scroll dolly sensitivity must be finite and non-negative.");
+            "TurntableCameraController scroll dolly sensitivity must be non-negative.");
     }
 
-    if (!math::is_finite(config.dragThreshold) || config.dragThreshold < 0.0f) {
-        throw invalid_argument("TurntableCameraController drag threshold must be finite and non-negative.");
+    if (config.dragThreshold < 0.0f) {
+        throw invalid_argument("TurntableCameraController drag threshold must be non-negative.");
     }
 }
 
@@ -531,10 +481,6 @@ bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, v
     const vec4 world = node->worldTransform() * vec4 {target.localPosition, 1.0f};
 
     const vec3 resolved {world};
-
-    if (!IsFinite(resolved)) {
-        throw runtime_error("TurntableCameraController resolved target position is not finite.");
-    }
 
     worldPosition = resolved;
 

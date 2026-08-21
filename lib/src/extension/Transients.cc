@@ -37,8 +37,8 @@ Transients::SweepPolicy Transients::SweepPolicy::EveryNUpdates(uint64_t updates)
 
 Transients::SweepPolicy Transients::SweepPolicy::EveryInterval(double seconds) {
 
-    if (!isfinite(seconds) || seconds <= 0.0) {
-        throw invalid_argument("TransientNodeRegistry sweep time interval must be finite and positive.");
+    if (seconds <= 0.0) {
+        throw invalid_argument("TransientNodeRegistry sweep time interval must be positive.");
     }
 
     return {.mode = Mode::EveryInterval, .updateInterval = 1, .timeInterval = seconds};
@@ -204,18 +204,13 @@ void Transients::removeAll() {
 
 void Transients::validatePolicy(const Policy& policy) {
 
-    if (policy.maxAge && (!isfinite(*policy.maxAge) || *policy.maxAge < 0.0)) {
-        throw invalid_argument("TransientNodeRegistry maximum age must be finite and non-negative.");
+    if (policy.maxAge && (*policy.maxAge < 0.0)) {
+        throw invalid_argument("TransientNodeRegistry maximum age must be non-negative.");
     }
 
     if (policy.distanceLimit) {
-        if (!isFinite(policy.distanceLimit->center)) {
-            throw invalid_argument("TransientNodeRegistry distance-limit center must be finite.");
-        }
-
-        if (!math::is_finite(policy.distanceLimit->radius) || policy.distanceLimit->radius < 0.0f) {
-            throw invalid_argument(
-                "TransientNodeRegistry distance-limit radius must be finite and non-negative.");
+        if (policy.distanceLimit->radius < 0.0f) {
+            throw invalid_argument("TransientNodeRegistry distance-limit radius must be non-negative.");
         }
     }
 }
@@ -234,27 +229,14 @@ void Transients::validateSweepPolicy(const SweepPolicy& policy) {
             break;
 
         case SweepPolicy::Mode::EveryInterval:
-            if (!isfinite(policy.timeInterval) || policy.timeInterval <= 0.0) {
-                throw invalid_argument(
-                    "TransientNodeRegistry sweep time interval must be finite and positive.");
+            if (policy.timeInterval <= 0.0) {
+                throw invalid_argument("TransientNodeRegistry sweep time interval must be positive.");
             }
             break;
 
         default:
             throw invalid_argument("TransientNodeRegistry sweep policy has an invalid mode.");
     }
-}
-
-void Transients::validateStepInfo(const Scene::StepInfo& info) {
-
-    if (!isfinite(info.startTime) || !isfinite(info.endTime) || !isfinite(info.deltaTime)
-        || info.startTime < 0.0 || info.endTime < info.startTime || info.deltaTime < 0.0) {
-        throw invalid_argument("TransientNodeRegistry requires finite, non-negative simulation times.");
-    }
-}
-
-bool Transients::isFinite(const math::vec3& value) {
-    return math::is_finite(value.x) && math::is_finite(value.y) && math::is_finite(value.z);
 }
 
 void Transients::detachNodes(const vector<shared_ptr<Node>>& nodes) {
@@ -269,8 +251,6 @@ void Transients::detachNodes(const vector<shared_ptr<Node>>& nodes) {
 // [Private Member Functions]
 
 void Transients::observeStepInfo(const Scene::StepInfo& info) {
-
-    validateStepInfo(info);
 
     const bool newTimeline = !_simulationTime || info.endTime < *_simulationTime;
     if (newTimeline) {
@@ -339,9 +319,9 @@ bool Transients::shouldRemove(const Entry& entry, const Node& node, double simul
 }
 
 bool Transients::policyRemoves(const Policy& policy,
-                                          const Entry&  entry,
-                                          const Node&   node,
-                                          double        simulationTime) const {
+                               const Entry&  entry,
+                               const Node&   node,
+                               double        simulationTime) const {
 
     if (policy.maxAge) {
         const double age = simulationTime >= entry.creationTime ? simulationTime - entry.creationTime : 0.0;
@@ -351,11 +331,7 @@ bool Transients::policyRemoves(const Policy& policy,
     }
 
     if (policy.distanceLimit) {
-        const auto position = node.worldPosition();
-        if (!isFinite(position)) {
-            return true;
-        }
-
+        const auto   position = node.worldPosition();
         const double x = static_cast<double>(position.x) - policy.distanceLimit->center.x;
         const double y = static_cast<double>(position.y) - policy.distanceLimit->center.y;
         const double z = static_cast<double>(position.z) - policy.distanceLimit->center.z;

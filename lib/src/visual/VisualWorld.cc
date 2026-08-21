@@ -175,14 +175,14 @@ const optional<Fog>& VisualWorld::fog() const {
 void VisualWorld::fog(const optional<Fog>& fog) {
 
     if (fog) {
-        if (!math::is_finite(fog->startDistance) || fog->startDistance < 0.0f) {
-            throw invalid_argument("Fog start distance must be finite and non-negative.");
+        if (fog->startDistance < 0.0f) {
+            throw invalid_argument("Fog start distance must be non-negative.");
         }
-        if (!math::is_finite(fog->endDistance) || fog->endDistance <= fog->startDistance) {
-            throw invalid_argument("Fog end distance must be finite and greater than fog start distance.");
+        if (fog->endDistance <= fog->startDistance) {
+            throw invalid_argument("Fog end distance must be greater than fog start distance.");
         }
-        if (!math::is_finite(fog->transitionExponent) || fog->transitionExponent < 0.0f) {
-            throw invalid_argument("Fog transition exponent must be finite and non-negative.");
+        if (fog->transitionExponent < 0.0f) {
+            throw invalid_argument("Fog transition exponent must be non-negative.");
         }
     }
     _fog = fog;
@@ -200,15 +200,15 @@ void VisualWorld::atmosphere(const optional<Atmosphere>& atmosphere) {
             throw logic_error("Atmosphere requires a VisualWorld surface.");
         }
 
-        if (!math::is_finite(atmosphere->scaleHeight) || atmosphere->scaleHeight <= 0.0f) {
-            throw invalid_argument("Atmosphere scale height must be finite and greater than zero.");
+        if (atmosphere->scaleHeight <= 0.0f) {
+            throw invalid_argument("Atmosphere scale height must be greater than zero.");
         }
 
         if (atmosphere->haze) {
 
-            if (!math::is_finite(atmosphere->haze->density) || atmosphere->haze->density < 0.0f) {
+            if (atmosphere->haze->density < 0.0f) {
 
-                throw invalid_argument("Atmosphere haze density must be finite and non-negative.");
+                throw invalid_argument("Atmosphere haze density must be non-negative.");
             }
         }
 
@@ -218,9 +218,9 @@ void VisualWorld::atmosphere(const optional<Atmosphere>& atmosphere) {
                 throw logic_error("Atmosphere limb glow requires a spherical VisualWorld surface.");
             }
 
-            if (!math::is_finite(atmosphere->limbGlow->intensity) || atmosphere->limbGlow->intensity < 0.0f) {
+            if (atmosphere->limbGlow->intensity < 0.0f) {
 
-                throw invalid_argument("Atmosphere limb glow intensity must be finite and non-negative.");
+                throw invalid_argument("Atmosphere limb glow intensity must be non-negative.");
             }
         }
     }
@@ -246,18 +246,13 @@ void VisualWorld::ground(const optional<Ground>& ground) {
 
             auto validateGridComponent = [](const Ground::Procedural::GridComponent& component,
                                             const char*                              name) {
-                if (!math::is_finite(component.spacing) || component.spacing <= 0.0f) {
-                    throw invalid_argument(
-                        format("Ground {} grid spacing must be finite and greater than zero.", name));
+                if (component.spacing <= 0.0f) {
+                    throw invalid_argument(format("Ground {} grid spacing must begreater than zero.", name));
                 }
 
-                if (!math::is_finite(component.lineWidthPixels) || component.lineWidthPixels <= 0.0f) {
-                    throw invalid_argument(
-                        format("Ground {} grid line width must be finite and greater than zero.", name));
-                }
-
-                if (!math::is_finite(component.reliefStrength)) {
-                    throw invalid_argument(format("Ground {} grid relief strength must be finite.", name));
+                if (component.lineWidthPixels <= 0.0f) {
+                    throw invalid_argument(format("Ground {} grid line width must be greater than zero.",
+                                                  name));
                 }
             };
 
@@ -269,12 +264,12 @@ void VisualWorld::ground(const optional<Ground>& ground) {
                 validateGridComponent(*grid.major, "major");
             }
 
-            if (!math::is_finite(grid.specularIntensity) || grid.specularIntensity < 0.0f) {
-                throw invalid_argument("Ground specular intensity must be finite and non-negative.");
+            if (grid.specularIntensity < 0.0f) {
+                throw invalid_argument("Ground specular intensity must be non-negative.");
             }
 
-            if (!math::is_finite(grid.specularExponent) || grid.specularExponent <= 0.0f) {
-                throw invalid_argument("Ground specular exponent must be finite and greater than zero.");
+            if (grid.specularExponent <= 0.0f) {
+                throw invalid_argument("Ground specular exponent must be greater than zero.");
             }
         }
 
@@ -282,17 +277,12 @@ void VisualWorld::ground(const optional<Ground>& ground) {
 
             const auto& fade = *ground->radialFade;
 
-            if (!math::is_finite(fade.center.x) || !math::is_finite(fade.center.y)) {
-                throw invalid_argument("Ground radial fade center must be finite.");
+            if (fade.startDistance < 0.0f) {
+                throw invalid_argument("Ground radial fade start distance must be non-negative.");
             }
 
-            if (!math::is_finite(fade.startDistance) || fade.startDistance < 0.0f) {
-                throw invalid_argument("Ground radial fade start distance must be finite and non-negative.");
-            }
-
-            if (!math::is_finite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
-                throw invalid_argument(
-                    "Ground radial fade end distance must be finite and greater than start distance.");
+            if (fade.endDistance <= fade.startDistance) {
+                throw invalid_argument("Ground radial fade end distance must be greater than start distance.");
             }
         }
 
@@ -300,11 +290,10 @@ void VisualWorld::ground(const optional<Ground>& ground) {
 
             const auto& haze = *ground->horizonHaze;
 
-            if (!math::is_finite(haze.angularWidth) || haze.angularWidth <= 0.0f
-                || haze.angularWidth > math::PI_OVER_2) {
+            if (haze.angularWidth <= 0.0f || haze.angularWidth > math::PI_OVER_2) {
 
                 throw invalid_argument(
-                    "Ground horizon haze angular width must be finite, greater than zero, and at most pi/2 radians.");
+                    "Ground horizon haze angular width must be greater than zero, and at most pi/2 radians.");
             }
         }
     }
@@ -327,20 +316,11 @@ void VisualWorld::surface(const optional<Surface>& surface) {
 
         if (const auto* plane = get_if<Plane>(&*surface)) {
 
-            if (!math::is_finite(plane->height)) {
-                throw invalid_argument("VisualWorld::Plane height must be finite.");
-            }
         }
         else if (const auto* sphere = get_if<Sphere>(&*surface)) {
 
-            if (!math::is_finite(sphere->center.x) || !math::is_finite(sphere->center.y)
-                || !math::is_finite(sphere->center.z)) {
-
-                throw invalid_argument("VisualWorld::Sphere center must be finite.");
-            }
-
-            if (!math::is_finite(sphere->radius) || sphere->radius <= 0.0f) {
-                throw invalid_argument("VisualWorld::Sphere radius must be finite and greater than zero.");
+            if (sphere->radius <= 0.0f) {
+                throw invalid_argument("VisualWorld::Sphere radius must be greater than zero.");
             }
         }
 
@@ -428,10 +408,6 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
 }
 
 vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptions& options) const {
-
-    if (!math::is_finite(point.x) || !math::is_finite(point.y)) {
-        throw invalid_argument("Hit-test point must be finite.");
-    }
 
     if (!_scene) {
         throw runtime_error("VisualWorld has no Scene.");

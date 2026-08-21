@@ -190,7 +190,7 @@ namespace a3d {
          *
          * Existing accumulated simulation time is preserved in seconds.
          *
-         * @throws std::invalid_argument if @p value is non-finite or not positive.
+         * @throws std::invalid_argument if @p value is not positive.
          */
         void           timeStep(double value);
 
@@ -212,7 +212,7 @@ namespace a3d {
          *
          * Requested steps are not affected by this value.
          *
-         * @throws std::invalid_argument if @p value is non-finite or not positive.
+         * @throws std::invalid_argument if @p value is not positive.
          */
         void           timeScale(double value);
 

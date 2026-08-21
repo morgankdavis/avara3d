@@ -109,7 +109,7 @@ namespace a3d::ui {
         /**
          * @brief Inserts vertical space of @p height logical UI units.
          *
-         * @throws std::invalid_argument if @p height is not finite and non-negative.
+         * @throws std::invalid_argument if @p height is non-negative.
          */
         void spacer(float height);
 
@@ -141,7 +141,7 @@ namespace a3d::ui {
         /**
          * @brief Draws a floating-point slider and reports whether @p value changed.
          *
-         * @throws std::invalid_argument if @p label is empty or the range is not finite and increasing.
+         * @throws std::invalid_argument if @p label is empty or the range is not increasing.
          */
         bool slider(std::string_view label,
                     float&           value,

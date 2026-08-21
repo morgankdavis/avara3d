@@ -152,8 +152,8 @@ void PhysicsBody::mass(float mass) {
         throw logic_error("Mass may only be changed on dynamic PhysicsBody objects.");
     }
 
-    if (!math::is_finite(mass) || mass <= 0.0f) {
-        throw invalid_argument("PhysicsBody mass must be positive and finite.");
+    if (mass <= 0.0f) {
+        throw invalid_argument("PhysicsBody mass must be positive.");
     }
 
     _proxy->mass(mass);
@@ -175,12 +175,6 @@ void PhysicsBody::centerOfMass(const vec3& centerOfMass) {
 
     if (type() != Type::Dynamic) {
         throw logic_error("Center of mass may only be changed on dynamic PhysicsBody objects.");
-    }
-
-    if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
-        || !math::is_finite(centerOfMass.z)) {
-
-        throw invalid_argument("PhysicsBody center of mass must be finite.");
     }
 
     if (_world) {

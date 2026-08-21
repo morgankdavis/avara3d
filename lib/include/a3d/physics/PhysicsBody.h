@@ -114,7 +114,7 @@ namespace a3d {
          * @brief Sets the mass of a dynamic body.
          *
          * @throws std::logic_error if the body is not dynamic.
-         * @throws std::invalid_argument if @p mass is not finite and greater than zero.
+         * @throws std::invalid_argument if @p mass is not greater than zero.
          */
         void                                 mass(float mass);
 
@@ -131,7 +131,6 @@ namespace a3d {
          * @brief Sets a dynamic body's local center-of-mass offset and disables automatic calculation.
          *
          * @throws std::logic_error if the body is not dynamic.
-         * @throws std::invalid_argument if any component of @p offset is not finite.
          */
         void                                 centerOfMass(const math::vec3& offset);
 

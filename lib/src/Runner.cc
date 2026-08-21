@@ -157,7 +157,7 @@ double Runner::timeStep() const {
 
 void Runner::timeStep(double value) {
 
-    if (!isfinite(value) || value <= 0.0) {
+    if (value <= 0.0) {
         throw invalid_argument("Runner time step must be positive.");
     }
 
@@ -183,7 +183,7 @@ double Runner::timeScale() const {
 
 void Runner::timeScale(double value) {
 
-    if (!isfinite(value) || value <= 0.0) {
+    if (value <= 0.0) {
         throw invalid_argument("Runner time scale must be positive.");
     }
 
@@ -241,11 +241,11 @@ void Runner::start(TimePoint now) {
         throw logic_error("Runner::start() requires an idle Runner.");
     }
 
-    if (!isfinite(_config.timeScale) || _config.timeScale <= 0.0) {
-        throw invalid_argument("Runner requires a positive initial time scale.");
+    if (_config.timeScale <= 0.0) {
+        throw invalid_argument("Runner requires a positive time scale.");
     }
 
-    if (!isfinite(_config.timeStep) || _config.timeStep <= 0.0) {
+    if (_config.timeStep <= 0.0) {
         throw invalid_argument("Runner requires a positive fixed simulation delta.");
     }
 

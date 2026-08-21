@@ -22,8 +22,8 @@ PeriodicTrigger::PeriodicTrigger(chrono::duration<double> interval, bool deferFi
     _nextFireTime {},
     _lastTime {} {
 
-    if (!isfinite(_interval) || _interval <= 0.0) {
-        throw invalid_argument("PeriodicTrigger interval must be positive and finite.");
+    if (_interval <= 0.0) {
+        throw invalid_argument("PeriodicTrigger interval must be positive.");
     }
 }
 
@@ -38,10 +38,6 @@ void PeriodicTrigger::reset() noexcept {
 // [Private Member Functions]
 
 size_t PeriodicTrigger::dueCount(double time) {
-
-    if (!isfinite(time)) {
-        throw invalid_argument("PeriodicTrigger time must be finite.");
-    }
 
     if (_lastTime && time < *_lastTime) {
         reset();

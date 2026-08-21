@@ -34,7 +34,7 @@ namespace a3d::util {
          * By default, the first update fires immediately. When @p deferFirstFire is
          * true, the first firing is scheduled one interval after the first update time.
          *
-         * @throws std::invalid_argument if @p interval is not positive and finite.
+         * @throws std::invalid_argument if @p interval is not positive.
          */
         explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
 
@@ -46,8 +46,6 @@ namespace a3d::util {
          * @param time Current caller-defined time in seconds.
          * @param function Callable invoked for every due interval.
          * @return Number of callback invocations due at this update.
-         *
-         * @throws std::invalid_argument if @p time is not finite.
          */
         template<typename Function>
         std::size_t update(double time, Function&& function) {

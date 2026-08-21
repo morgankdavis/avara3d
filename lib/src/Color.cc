@@ -256,33 +256,6 @@ bool ParseHexRgba(const char* s, u8vec4& rgba) {
     return true;
 }
 
-//u32 ParseHexRgb(const char* s) {
-//	s = SkipWs(s);
-//	if (!s) return 0;
-//	if (*s == '#') ++s;
-//
-//	u8 r=0,g=0,b=0;
-//	if (!ParseHexByte(s + 0, r)) return 0;
-//	if (!ParseHexByte(s + 2, g)) return 0;
-//	if (!ParseHexByte(s + 4, b)) return 0;
-//
-//	return (u32(r) << 16) | (u32(g) << 8) | (u32(b) << 0); // 0xRRGGBB
-//}
-//
-//u32 ParseHexRgba(const char* s) {
-//	s = SkipWs(s);
-//	if (!s) return 0;
-//	if (*s == '#') ++s;
-//
-//	u8 r=0,g=0,b=0,a=0;
-//	if (!ParseHexByte(s + 0, r)) return 0;
-//	if (!ParseHexByte(s + 2, g)) return 0;
-//	if (!ParseHexByte(s + 4, b)) return 0;
-//	if (!ParseHexByte(s + 6, a)) return 0;
-//
-//	return (u32(r) << 24) | (u32(g) << 16) | (u32(b) << 8) | (u32(a) << 0); // 0xRRGGBBAA
-//}
-
 int HexNibble(char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
@@ -314,9 +287,6 @@ bool ParseHexByte(const char* s, u8& out) {
 }
 
 static uint8_t FloatToU8(float x) {
-    if (!math::is_finite(x)) {
-        return 0;
-    }
     x = math::clamp(x, 0.0f, 1.0f);
     return static_cast<uint8_t>(math::round(x * 255.0f));
 }

@@ -387,15 +387,14 @@ void BulletWorldProxy::gravity(const vec3& gravity) {
 
 const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
 
-    if (!std::isfinite(deltaTime) || deltaTime <= 0.0
-        || deltaTime > static_cast<double>(std::numeric_limits<btScalar>::max())) {
-        throw invalid_argument("BulletWorldProxy::step() requires a representable positive time step.");
+    if (deltaTime <= 0.0) {
+        throw invalid_argument("BulletWorldProxy::step() requires a positive time step.");
     }
 
     const auto btDeltaTime = static_cast<btScalar>(deltaTime);
 
-    if (!std::isfinite(btDeltaTime) || btDeltaTime <= btScalar(0) || btFuzzyZero(btDeltaTime)) {
-        throw invalid_argument("BulletWorldProxy::step() requires a representable positive time step.");
+    if (btDeltaTime <= btScalar(0) || btFuzzyZero(btDeltaTime)) {
+        throw invalid_argument("BulletWorldProxy::step() requires a positive time step.");
     }
 
     _contactEvents.clear();

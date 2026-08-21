@@ -22,22 +22,14 @@ mat4 a3d::util::geom::fit_inside(const AABB& source, const vec3& targetSize) {
         throw invalid_argument("Source bounds must be valid.");
     }
 
-    if (!math::is_finite(source.min.x) || !math::is_finite(source.min.y) || !math::is_finite(source.min.z)
-        || !math::is_finite(source.max.x) || !math::is_finite(source.max.y) || !math::is_finite(source.max.z)) {
-
-        throw invalid_argument("Source bounds must be finite.");
-    }
-
-    if (!math::is_finite(targetSize.x) || !math::is_finite(targetSize.y) || !math::is_finite(targetSize.z)
-        || targetSize.x <= 0.0f || targetSize.y <= 0.0f || targetSize.z <= 0.0f) {
-
-        throw invalid_argument("Target size must be finite and greater than zero.");
+    if (targetSize.x <= 0.0f || targetSize.y <= 0.0f || targetSize.z <= 0.0f) {
+        throw invalid_argument("Target size must be greater than zero.");
     }
 
     const vec3 sourceSize = source.max - source.min;
 
     if (sourceSize.x == 0.0f && sourceSize.y == 0.0f && sourceSize.z == 0.0f) {
-        throw invalid_argument("Source bounds must have non-zero size.");
+        throw invalid_argument("Source bounds must be non-zero.");
     }
 
     const vec3 scaleFactors {

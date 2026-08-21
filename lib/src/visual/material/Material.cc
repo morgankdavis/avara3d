@@ -249,8 +249,8 @@ float Material::uvScale() const {
 
 void Material::uvScale(float scale) {
 
-    if (!math::is_finite(scale) || scale <= 0.0f) {
-        throw invalid_argument("Material UV scale must be finite and greater than zero.");
+    if (scale <= 0.0f) {
+        throw invalid_argument("Material UV scale must be greater than zero.");
     }
 
     _uvScale = scale;

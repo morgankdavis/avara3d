@@ -635,13 +635,6 @@ void BulletBodyProxy::calculateCenterOfMass() {
 
             const vec3 centerOfMass = A3DVec3FromBTVector3((aabbMin + aabbMax) * btScalar(0.5));
 
-            if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
-                || !math::is_finite(centerOfMass.z)) {
-
-                log::w()("Could not automatically calculate PhysicsBody center of mass.");
-                return;
-            }
-
             _centerOfMass = centerOfMass;
             break;
         }

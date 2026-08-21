@@ -132,14 +132,11 @@ namespace a3d::ext {
          * A NodeTarget must contain a live Node at the time the View is assigned.
          *
          * @throws std::invalid_argument if the View or its target is invalid.
-         * @throws std::runtime_error if a Node target resolves to a non-finite world position.
          */
         void          view(const View& view);
 
         /**
          * @brief Sets a fixed world-space orbit target.
-         *
-         * @throws std::invalid_argument if @p worldPosition is not finite.
          */
         void          target(const math::vec3& worldPosition);
 
@@ -149,7 +146,6 @@ namespace a3d::ext {
          * The Node is retained weakly.
          *
          * @throws std::invalid_argument if @p node is null.
-         * @throws std::runtime_error if the Node target resolves to a non-finite world position.
          */
         void          target(const std::shared_ptr<Node>& node);
 
@@ -158,8 +154,7 @@ namespace a3d::ext {
          *
          * The Node is retained weakly and the target follows changes to its world transform.
          *
-         * @throws std::invalid_argument if @p node is null or @p localPosition is not finite.
-         * @throws std::runtime_error if the Node target resolves to a non-finite world position.
+         * @throws std::invalid_argument if @p node is null.
          */
         void          target(const std::shared_ptr<Node>& node, const math::vec3& localPosition);
 
@@ -177,7 +172,6 @@ namespace a3d::ext {
          * @return Input-processing results for this update.
          *
          * @throws std::invalid_argument if @p vFov or @p viewportHeight is invalid.
-         * @throws std::runtime_error if target transformation produces non-finite coordinates.
          */
         UpdateResult  update(DesktopInputContext& input, float vFov, float viewportHeight);
 
@@ -186,8 +180,6 @@ namespace a3d::ext {
          *
          * The resulting world transform is converted into parent coordinates when the POV
          * has a parent. Node-relative targets are resolved again each time apply() is called.
-         *
-         * @throws std::runtime_error if a Node target resolves to a non-finite world position.
          */
         void          apply(Node& pov);
 
