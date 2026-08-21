@@ -10,10 +10,6 @@
 
 using namespace a3d;
 
-bool AABB::valid() const {
-    return min.x <= max.x && min.y <= max.y && min.z <= max.z;
-}
-
 AABB AABB::Zero() {
     return {{0, 0, 0}, {0, 0, 0}};
 }
@@ -44,6 +40,10 @@ void AABB::Expand(AABB& a, const math::vec3& p) {
 
 math::vec3 AABB::Center(const AABB& a) {
     return (a.min + a.max) * 0.5f;
+}
+
+bool AABB::valid() const {
+    return min.x <= max.x && min.y <= max.y && min.z <= max.z;
 }
 
 AABB& AABB::operator|=(const AABB& b) {

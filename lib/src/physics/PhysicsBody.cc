@@ -27,7 +27,7 @@
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
-#include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/FinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
 #include "a3d/util/Enum.h"
@@ -695,7 +695,7 @@ static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<M
 
     if (auto plane = dynamic_cast<Plane*>(element)) {
         log::d()("Creating PlanePhysicsShape based on Plane MeshElement.");
-        return make_shared<PlanePhysicsShape>(plane->width(), plane->height());
+        return make_shared<FinitePlanePhysicsShape>(plane->width(), plane->height());
     }
 
     if (auto sphere = dynamic_cast<Sphere*>(element)) {

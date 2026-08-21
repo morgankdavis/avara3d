@@ -1,26 +1,26 @@
 //
-//  PlanePhysicsShape.h
+//  FinitePlanePhysicsShape.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H
-#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H
+#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_FINITEPLANEPHYSICSSHAPE_H
+#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_FINITEPLANEPHYSICSSHAPE_H
 
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
 
     /** @brief Finite rectangular collision plane centered at the local origin in the XY plane. */
-    class PlanePhysicsShape : public PhysicsShape {
+    class FinitePlanePhysicsShape : public PhysicsShape {
 
     public:
         // [Public Lifecycle Functions]
 
         /** @brief Creates a finite collision plane with full width along X and full height along Y. */
-        PlanePhysicsShape(float width, float height);
+        FinitePlanePhysicsShape(float width, float height);
 
         // [Public Member Functions]
 
@@ -51,4 +51,4 @@ namespace a3d {
 
 }
 
-#endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H
+#endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_FINITEPLANEPHYSICSSHAPE_H

@@ -98,10 +98,8 @@ Color Color::Random() {
 
 // [Private Static Non-Member Prototypes]
 
-static bool ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
-static bool ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
-//static u32 ParseHexRgb(const char* s);   // "RRGGBB" or "#RRGGBB"
-//static u32 ParseHexRgba(const char* s);  // "RRGGBBAA" or "#RRGGBBAA"
+static bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
+static bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
 static int         HexNibble(char c);
 static const char* SkipWs(const char* s);
 static bool        ParseHexByte(const char* s, u8& out);

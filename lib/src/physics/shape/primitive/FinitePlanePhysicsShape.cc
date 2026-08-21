@@ -6,7 +6,7 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/FinitePlanePhysicsShape.h"
 
 #include <stdexcept>
 
@@ -14,26 +14,26 @@ using namespace a3d;
 
 // [Public Lifecycle Functions]
 
-PlanePhysicsShape::PlanePhysicsShape(float width, float height):
+FinitePlanePhysicsShape::FinitePlanePhysicsShape(float width, float height):
     _width {width},
     _height {height} {}
 
 // [Public Member Functions]
 
-float PlanePhysicsShape::width() const {
+float FinitePlanePhysicsShape::width() const {
     return _width;
 }
 
-float PlanePhysicsShape::height() const {
+float FinitePlanePhysicsShape::height() const {
     return _height;
 }
 
 // [PhysicsShape Public Member Functions]
 
-PhysicsShape::Type PlanePhysicsShape::type() const {
+PhysicsShape::Type FinitePlanePhysicsShape::type() const {
     return PhysicsShape::Type::Primitive;
 }
 
-void PlanePhysicsShape::type(PhysicsShape::Type type) {
+void FinitePlanePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for PlanePhysicsShape.");
 }
