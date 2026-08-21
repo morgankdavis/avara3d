@@ -21,51 +21,77 @@ namespace a3d {
 
     class Material;
 
+    // [Public Types]
+
+    /** @brief Configures ground rendering over a VisualWorld reference Surface. */
     struct Ground {
 
+        // [Public Types]
+
+        /** @brief Configures a procedurally rendered ground fill. */
         struct Procedural {
 
+            // [Public Types]
+
+            /** @brief Configures one set of procedural grid lines. */
             struct GridComponent {
 
-                Color color {};
-                float spacing {1.0f};
-                float lineWidthPixels {1.0f};
-                float reliefStrength {0.0f};
+                // [Public Member Variables]
+
+                Color color {};                 ///< Grid-line color.
+                float spacing {1.0f};            ///< Distance between grid lines in scene units; must be greater than zero.
+                float lineWidthPixels {1.0f};    ///< Grid-line width in pixels; must be greater than zero.
+                float reliefStrength {0.0f};     ///< Strength of procedural grid relief; zero disables relief.
             };
 
+            /** @brief Configures a procedural grid with optional minor and major line components. */
             struct Grid {
 
-                Color                        color {};
-                std::optional<GridComponent> minor {};
-                std::optional<GridComponent> major {};
-                float                        specularIntensity {0.15f};
-                float                        specularExponent {32.0f};
+                // [Public Member Variables]
+
+                Color                        color {};                   ///< Base ground color between grid lines.
+                std::optional<GridComponent> minor {};                   ///< Optional minor grid lines.
+                std::optional<GridComponent> major {};                   ///< Optional major grid lines.
+                float                        specularIntensity {0.15f};   ///< Specular intensity; must be non-negative.
+                float                        specularExponent {32.0f};    ///< Specular exponent; must be greater than zero.
             };
 
+            /** @brief Supported procedural ground content. */
             using Content = std::variant<Grid>;
 
-            Content content {Grid {}};
+            // [Public Member Variables]
+
+            Content content {Grid {}}; ///< Procedural content to render.
         };
 
+        /** @brief Procedural or material-backed ground fill. */
         using Fill = std::variant<Procedural, std::shared_ptr<Material>>;
 
+        /** @brief Configures a radial transition from the ground fill toward a color. */
         struct RadialFade {
 
-            Color      color {Color::Black()};
-            math::vec2 center {0.0f, 0.0f};
-            float      startDistance {10.0f};
-            float      endDistance {100.0f};
+            // [Public Member Variables]
+
+            Color      color {Color::Black()};   ///< Color approached beyond the fade range.
+            math::vec2 center {0.0f, 0.0f};      ///< Center of the radial fade on the ground surface.
+            float      startDistance {10.0f};    ///< Distance from the center where fading begins; must be non-negative.
+            float      endDistance {100.0f};     ///< Distance where fading completes; must be greater than startDistance.
         };
 
+        /** @brief Configures haze concentrated around the ground horizon. */
         struct HorizonHaze {
 
-            Color color {};
-            float angularWidth {3.0f};
+            // [Public Member Variables]
+
+            Color color {};               ///< Horizon-haze color.
+            float angularWidth {3.0f};     ///< Angular width in degrees; must be greater than zero and at most 90.
         };
 
-        Fill                       fill {Procedural {}};
-        std::optional<RadialFade>  radialFade {};
-        std::optional<HorizonHaze> horizonHaze {};
+        // [Public Member Variables]
+
+        Fill                       fill {Procedural {}}; ///< Ground fill to render.
+        std::optional<RadialFade>  radialFade {};       ///< Optional radial fade applied to the ground.
+        std::optional<HorizonHaze> horizonHaze {};      ///< Optional haze applied around the ground horizon.
     };
 
 }

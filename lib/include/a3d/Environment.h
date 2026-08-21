@@ -15,22 +15,29 @@
 
 namespace a3d {
 
+    // [Public Types]
+
+    /** @brief Identifies individual A3D target platforms and platform groups. */
     enum class Platform : std::uint8_t {
-        None = 0,
+        None = 0, ///< No platform.
 
-        Linux   = 1 << 0,
-        macOS   = 1 << 1,
-        Windows = 1 << 2,
-        Android = 1 << 3,
-        iOS     = 1 << 4,
-        Web     = 1 << 5,
+        Linux   = 1 << 0, ///< Linux.
+        macOS   = 1 << 1, ///< macOS.
+        Windows = 1 << 2, ///< Windows.
+        Android = 1 << 3, ///< Android.
+        iOS     = 1 << 4, ///< iOS.
+        Web     = 1 << 5, ///< WebAssembly/Web.
 
-        Desktop = (1 << 0) | (1 << 1) | (1 << 2),
-        Mobile  = (1 << 3) | (1 << 4)
+        Desktop = (1 << 0) | (1 << 1) | (1 << 2), ///< Linux, macOS, or Windows.
+        Mobile  = (1 << 3) | (1 << 4)             ///< Android or iOS.
     };
 
+    /** @brief Compile-time target-platform information. */
     namespace env {
 
+        // [Public Constants]
+
+        /** @brief Platform selected for the current build. */
 #if defined(A3D_LINUX)
         inline constexpr Platform platform = Platform::Linux;
 #elif defined(A3D_MACOS)
@@ -47,6 +54,9 @@ namespace a3d {
     #error Unsupported platform.
 #endif
 
+        // [Public Functions]
+
+        /** @brief Returns whether the current build platform matches any platform in @p platforms. */
         constexpr bool is(Platform platforms) noexcept {
 
             return util::bitmask::any(platform, platforms);
@@ -55,6 +65,8 @@ namespace a3d {
     }
 
     namespace util::bitmask {
+
+        // [Internal Types]
 
         template<>
         struct enable_ops<Platform> : std::true_type {};

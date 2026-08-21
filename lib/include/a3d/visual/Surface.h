@@ -15,17 +15,26 @@
 
 namespace a3d::surface {
 
+    // [Public Types]
+
+    /** @brief Infinite planar reference surface used by ground and atmospheric effects. */
     struct Plane {
 
-        float height {0.0f};
+        // [Public Member Variables]
+
+        float height {0.0f}; ///< Height of the reference plane in scene units.
     };
 
+    /** @brief Spherical reference surface used by ground and atmospheric effects. */
     struct Sphere {
 
-        math::vec3 center {0.0f, 0.0f, 0.0f};
-        float      radius {1.0f};
+        // [Public Member Variables]
+
+        math::vec3 center {0.0f, 0.0f, 0.0f}; ///< Center of the reference sphere in scene coordinates.
+        float      radius {1.0f};              ///< Radius of the reference sphere in scene units; must be greater than zero.
     };
 
+    /** @brief Planar or spherical reference surface used by VisualWorld environment effects. */
     using Surface = std::variant<Plane, Sphere>;
 
 }
