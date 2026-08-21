@@ -9,32 +9,27 @@
 #ifndef AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 #define AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 
+#include <string>
+
 #include "a3d/Math.h"
-#include "a3d/mesh/AABB.h"
 #include "a3d/visual/camera/Camera.h"
 
 namespace a3d {
 
-    /**
-     * @brief Camera using an orthographic projection defined by an AABB.
-     *
-     * The extent's X range supplies the left and right projection limits, Y supplies
-     * bottom and top, and Z supplies the near and far clipping limits. The projection
-     * does not change with viewport aspect ratio.
-     */
+    /** @brief Camera using a centered orthographic projection with a fixed vertical size. */
     class OrthographicCamera : public Camera {
 
     public:
         // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed OrthographicCamera with extent [-1, 1] on all three axes. */
+        /** @brief Creates an unnamed camera with a 0.1 near plane, 1000 far plane, and vertical size of 2. */
         OrthographicCamera();
 
-        /** @brief Creates an unnamed OrthographicCamera using @p extent. */
-        explicit OrthographicCamera(const AABB& extent);
+        /** @brief Creates an unnamed orthographic camera with the supplied clipping distances and vertical size. */
+        OrthographicCamera(float zNear, float zFar, float ySize);
 
-        /** @brief Creates a named OrthographicCamera using @p extent. */
-        OrthographicCamera(const std::string& name, const AABB& extent);
+        /** @brief Creates a named orthographic camera with the supplied clipping distances and vertical size. */
+        OrthographicCamera(const std::string& name, float zNear, float zFar, float ySize);
 
         OrthographicCamera(const OrthographicCamera&)            = default;
         OrthographicCamera& operator=(const OrthographicCamera&) = default;
@@ -46,20 +41,34 @@ namespace a3d {
 
         // [Public Member Functions]
 
-        /** @brief Returns the orthographic projection extent. */
-        const AABB& extent() const;
+        /** @brief Returns the near clipping distance. */
+        float      zNear() const;
 
-        /** @brief Sets the orthographic projection extent. */
-        void        extent(const AABB& e);
+        /** @brief Sets the near clipping distance. */
+        void       zNear(float zNear);
+
+        /** @brief Returns the far clipping distance. */
+        float      zFar() const;
+
+        /** @brief Sets the far clipping distance. */
+        void       zFar(float zFar);
+
+        /** @brief Returns the vertical size of the projection in scene units. */
+        float      ySize() const;
+
+        /** @brief Sets the vertical size of the projection in scene units. */
+        void       ySize(float ySize);
 
         // [Camera Internal Member Functions]
 
-        math::mat4  projection(const math::uvec2& viewportSize) const override;
+        math::mat4 projection(const math::uvec2& viewportSize) const override;
 
     private:
         // [Private Member Variables]
 
-        AABB _extent;
+        float _zNear;
+        float _zFar;
+        float _ySize;
     };
 
 }

@@ -24,16 +24,8 @@ float PlanePhysicsShape::width() const {
     return _width;
 }
 
-void PlanePhysicsShape::width(float width) {
-    _width = width;
-}
-
 float PlanePhysicsShape::height() const {
     return _height;
-}
-
-void PlanePhysicsShape::height(float height) {
-    _height = height;
 }
 
 // [PhysicsShape Public Member Functions]

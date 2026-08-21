@@ -11,22 +11,28 @@
 #include "a3d/log/Log.h"
 
 using namespace a3d;
-using namespace std;
 using namespace a3d::math;
+using namespace std;
 
 // [Public Lifecycle Functions]
 
 OrthographicCamera::OrthographicCamera():
     Camera {},
-    _extent {{-1, -1, -1}, {1, 1, 1}} {}
+    _zNear {0.1f},
+    _zFar {1000.0f},
+    _ySize {2.0f} {}
 
-OrthographicCamera::OrthographicCamera(const AABB& extent):
+OrthographicCamera::OrthographicCamera(float zNear, float zFar, float ySize):
     Camera {},
-    _extent {extent} {}
+    _zNear {zNear},
+    _zFar {zFar},
+    _ySize {ySize} {}
 
-OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
+OrthographicCamera::OrthographicCamera(const string& name, float zNear, float zFar, float ySize):
     Camera {name},
-    _extent {extent} {}
+    _zNear {zNear},
+    _zFar {zFar},
+    _ySize {ySize} {}
 
 OrthographicCamera::~OrthographicCamera() {
 
@@ -40,17 +46,37 @@ OrthographicCamera::~OrthographicCamera() {
 
 // [Public Member Functions]
 
-const AABB& OrthographicCamera::extent() const {
-    return _extent;
+float OrthographicCamera::zNear() const {
+    return _zNear;
 }
 
-void OrthographicCamera::extent(const AABB& e) {
-    _extent = e;
+void OrthographicCamera::zNear(float zNear) {
+    _zNear = zNear;
+}
+
+float OrthographicCamera::zFar() const {
+    return _zFar;
+}
+
+void OrthographicCamera::zFar(float zFar) {
+    _zFar = zFar;
+}
+
+float OrthographicCamera::ySize() const {
+    return _ySize;
+}
+
+void OrthographicCamera::ySize(float ySize) {
+    _ySize = ySize;
 }
 
 // [Camera Internal Member Functions]
 
-mat4 OrthographicCamera::projection(const uvec2&) const {
+mat4 OrthographicCamera::projection(const uvec2& viewportSize) const {
 
-    return ortho(_extent.min.x, _extent.max.x, _extent.min.y, _extent.max.y, _extent.min.z, _extent.max.z);
+    const float aspect = float(viewportSize.x) / float(viewportSize.y);
+    const float halfHeight = _ySize / 2.0f;
+    const float halfWidth = halfHeight * aspect;
+
+    return ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, _zNear, _zFar);
 }

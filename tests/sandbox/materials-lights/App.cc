@@ -89,10 +89,9 @@ std::unique_ptr<Scene> App::init() {
 
         if (ORTHO_CAMERA) {
 
-            auto frustum = scene->rootNode()->aabb();
-            frustum.min.z = 0.01;
-            frustum.max.z = 10000;
-            auto orthoCameraNode = Node::CameraNode(make_shared<OrthographicCamera>("Ortho camera", frustum));
+            const auto ySize = scene->rootNode()->extent().y;
+            auto       orthoCameraNode =
+                Node::CameraNode(make_shared<OrthographicCamera>("Ortho camera", 0.01f, 10000.0f, ySize));
 
             scene->rootNode()->addChild(orthoCameraNode);
 

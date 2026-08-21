@@ -32,14 +32,8 @@ namespace a3d {
         /** @brief Returns the configured capsule radius. */
         float radius() const;
 
-        /** @brief Sets the configured capsule radius. */
-        void  radius(float radius);
-
         /** @brief Returns the configured distance between the centers of the hemispherical caps. */
         float height() const;
-
-        /** @brief Sets the configured distance between the centers of the hemispherical caps. */
-        void  height(float height);
 
         // [Public PhysicsShape Member Functions]
 

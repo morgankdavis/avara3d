@@ -30,22 +30,8 @@ float CapsulePhysicsShape::radius() const {
     return _radius;
 }
 
-void CapsulePhysicsShape::radius(float radius) {
-    _radius = radius;
-
-//	_proxy = nullptr;
-//	checkCreateProxy();
-}
-
 float CapsulePhysicsShape::height() const {
     return _height;
-}
-
-void CapsulePhysicsShape::height(float height) {
-    _height = height;
-
-//	_proxy = nullptr;
-//	checkCreateProxy();
 }
 
 // [PhysicsShape Public Member Functions]

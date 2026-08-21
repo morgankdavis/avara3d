@@ -24,16 +24,8 @@ float CylinderPhysicsShape::radius() const {
     return _radius;
 }
 
-void CylinderPhysicsShape::radius(float radius) {
-    _radius = radius;
-}
-
 float CylinderPhysicsShape::height() const {
     return _height;
-}
-
-void CylinderPhysicsShape::height(float height) {
-    _height = height;
 }
 
 // [PhysicsShape Public Member Functions]

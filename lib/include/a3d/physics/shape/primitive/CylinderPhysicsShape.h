@@ -27,14 +27,8 @@ namespace a3d {
         /** @brief Returns the configured cylinder radius. */
         float radius() const;
 
-        /** @brief Sets the configured cylinder radius. */
-        void  radius(float radius);
-
         /** @brief Returns the configured full height along Y. */
         float height() const;
-
-        /** @brief Sets the configured full height along Y. */
-        void  height(float height);
 
         // [Public PhysicsShape Member Functions]
 

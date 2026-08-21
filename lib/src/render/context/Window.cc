@@ -78,6 +78,8 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     _antialiasing = antialiasing; // see above (?)
 
     if (InitGLFW()) {
+        const string title = util::fs::ExecutableName().value_or("avara3d");
+
 #if defined(A3D_GL_WEB)
         // Emscripten GLFW expects the WebGL version, not the GLES version
         // WebGL 2 corresponds to GLES 3.0 / GLSL ES 300-style shaders
@@ -101,19 +103,9 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     #if defined(A3D_LINUX)
             // check if X or Wayland...?
             // TODO: change these
-        glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
-        glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
-
-        string title;
-
-        auto execName = util::fs::ExecutableName();
-        if (execName != nullopt) {
-            title = *execName;
-            glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
-        }
-        else {
-            title = "avara3d";
-        }
+        glfwWindowHintString(GLFW_WAYLAND_APP_ID, title.c_str());
+        glfwWindowHintString(GLFW_X11_CLASS_NAME, title.c_str());
+        glfwWindowHintString(GLFW_X11_INSTANCE_NAME, title.c_str());
     #endif
     #if defined(A3D_MACOS)
         // the documentation says this has the same effect as GLFW_SCALE_TO_MONITOR, but if you don't also

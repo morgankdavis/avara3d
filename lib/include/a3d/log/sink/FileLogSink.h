@@ -38,7 +38,8 @@ namespace a3d {
          * measured in bytes; the defaults retain up to five files with a 1 MiB size
          * threshold for each active file.
          *
-         * @throws std::runtime_error if required directory creation or file removal during rotation fails.
+         * @throws std::invalid_argument if @p maxFiles or @p maxFilesize is not greater than zero.
+         * @throws std::runtime_error if required directories cannot be created or the log file cannot be opened.
          */
         explicit FileLogSink(const std::filesystem::path& relPath,
                              int                          maxFiles    = DEFAULT_MAX_FILES,

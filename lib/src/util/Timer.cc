@@ -8,6 +8,8 @@
 
 #include "a3d/util/Timer.h"
 
+#include <stdexcept>
+
 using namespace a3d::util;
 using namespace std;
 

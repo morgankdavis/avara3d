@@ -27,9 +27,6 @@ namespace a3d {
         /** @brief Returns the configured sphere radius. */
         float radius() const;
 
-        /** @brief Sets the configured sphere radius. */
-        void  radius(float radius);
-
         // [Public PhysicsShape Member Functions]
 
         /** @brief Returns PhysicsShape::Type::Primitive. */

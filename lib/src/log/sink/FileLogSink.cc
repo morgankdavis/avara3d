@@ -23,15 +23,24 @@ FileLogSink::FileLogSink(const filesystem::path& relPath, int maxFiles, int maxF
     _maxFiles {maxFiles},
     _maxFilesize {maxFilesize} {
 
-    error_code errorCode;
-    filesystem::create_directories(_filepath.parent_path(), errorCode);
-    // this bugs me.
-    // errc::success or anything evaluating to 0 does not exist, apparently.
-    auto code = errorCode.value();
-    if (code != 0) {
-        // TODO: esception sublass
-        throw std::runtime_error(std::format("Error creating intermediate directories for log: '{}', code: {}.",
-                                             _filepath.string(), to_string(code)));
+    if (_maxFiles <= 0) {
+        throw invalid_argument("FileLogSink maxFiles must be greater than zero.");
+    }
+
+    if (_maxFilesize <= 0) {
+        throw invalid_argument("FileLogSink maxFilesize must be greater than zero.");
+    }
+
+    const auto parentPath = _filepath.parent_path();
+    if (!parentPath.empty()) {
+
+        error_code errorCode;
+        filesystem::create_directories(parentPath, errorCode);
+
+        if (errorCode) {
+            throw runtime_error(format("Error creating intermediate directories for log '{}': {}.",
+                                       _filepath.string(), errorCode.message()));
+        }
     }
 
     openStream();
@@ -84,7 +93,11 @@ void FileLogSink::openStream() {
         _fileStream->close();
     }
 
-    _fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
+    _fileStream = make_shared<ofstream>(_filepath, ios::out | ios::app);
+
+    if (!_fileStream->is_open()) {
+        throw runtime_error(format("Unable to open log file '{}'.", _filepath.string()));
+    }
 }
 
 void FileLogSink::checkRotate() {

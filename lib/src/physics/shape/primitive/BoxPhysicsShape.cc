@@ -25,24 +25,12 @@ float BoxPhysicsShape::width() const {
     return _width;
 }
 
-void BoxPhysicsShape::width(float width) {
-    _width = width;
-}
-
 float BoxPhysicsShape::height() const {
     return _height;
 }
 
-void BoxPhysicsShape::height(float height) {
-    _height = height;
-}
-
 float BoxPhysicsShape::length() const {
     return _length;
-}
-
-void BoxPhysicsShape::length(float length) {
-    _length = length;
 }
 
 // [PhysicsShape Public Member Functions]

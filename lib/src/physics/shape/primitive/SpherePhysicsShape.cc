@@ -23,10 +23,6 @@ float SpherePhysicsShape::radius() const {
     return _radius;
 }
 
-void SpherePhysicsShape::radius(float radius) {
-    _radius = radius;
-}
-
 // [PhysicsShape Public Member Functions]
 
 PhysicsShape::Type SpherePhysicsShape::type() const {

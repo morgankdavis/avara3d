@@ -27,14 +27,8 @@ namespace a3d {
         /** @brief Returns the configured full width along X. */
         float width() const;
 
-        /** @brief Sets the configured full width along X. */
-        void  width(float width);
-
         /** @brief Returns the configured full height along Y. */
         float height() const;
-
-        /** @brief Sets the configured full height along Y. */
-        void  height(float height);
 
         // [Public PhysicsShape Member Functions]
 

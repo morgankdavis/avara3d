@@ -10,6 +10,7 @@
 #define AVARA3D_UTIL_TIMER_H
 
 #include <chrono>
+#include <optional>
 
 namespace a3d::util {
 

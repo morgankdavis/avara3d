@@ -24,16 +24,8 @@ float ConePhysicsShape::radius() const {
     return _radius;
 }
 
-void ConePhysicsShape::radius(float radius) {
-    _radius = radius;
-}
-
 float ConePhysicsShape::height() const {
     return _height;
-}
-
-void ConePhysicsShape::height(float height) {
-    _height = height;
 }
 
 // [PhysicsShape Public Member Functions]
