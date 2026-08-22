@@ -26,13 +26,9 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const float                       TIME_STEP {1.0 / 120.0};
 const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
-const vec3   GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
-const vec3   GRAVITY_MOON {0.0f, -1.62f, 0.0f};
-const vec3   GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
-const float  PANEL_WIDTH {180.0f};
-const bool   ENABLE_CURSOR_MARKER {false};
-const float  CURSOR_MARKER_RADIUS {0.1f};
-const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
+const vec3 GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
+const vec3 GRAVITY_MOON {0.0f, -1.62f, 0.0f};
+const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 // [Private Static Non-Member Prototypes]
 
@@ -192,7 +188,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transient node groups
 
-        _transients.groupPolicy("drop", {.maxCount = 50});
+        _transients.groupPolicy("drop", {.maxCount = (3*3*3)*3});
         _transients.groupPolicy("throw", {.maxCount = 10,
                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
 
@@ -224,10 +220,12 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(_simulationRoot);
 
         // create the action target marker
-
         {
+            const bool ENABLE_CURSOR_MARKER {false};
             if (ENABLE_CURSOR_MARKER) {
-                auto material = Material::EmissionMaterial(Color::Yellow());
+
+                const float CURSOR_MARKER_RADIUS {0.1f};
+                auto        material = Material::EmissionMaterial(Color::Yellow());
                 material->depthTestEnabled(false);
                 material->depthWriteEnabled(false);
 
@@ -273,9 +271,7 @@ std::unique_ptr<Scene> App::init() {
                 orb->name(std::format("Orb {}", i + 1));
                 orb->mesh(orbMesh);
 
-                orb->position({math::uniform_linear(ORB_POSITION_MIN.x, ORB_POSITION_MAX.x),
-                               math::uniform_linear(ORB_POSITION_MIN.y, ORB_POSITION_MAX.y),
-                               math::uniform_linear(ORB_POSITION_MIN.z, ORB_POSITION_MAX.z)});
+                orb->position(math::uniform_linear(ORB_POSITION_MIN, ORB_POSITION_MAX));
 
                 orb->physicsBody(PhysicsBody::KinematicBody());
 
@@ -456,6 +452,8 @@ void App::frameDidBegin(Runner&                        runner,
 // [Private Member Functions]
 
 bool App::drawPanel() {
+
+    const float PANEL_WIDTH {180.0f};
 
     auto& runner = App::runner();
     auto& scene = App::scene();
@@ -947,19 +945,21 @@ void App::queueAction(const vec2& screenPosition) {
 
 void App::performAction(const PendingAction& action) {
 
-    const float  DROP_HEIGHT {5.0f};
+    const float DROP_HEIGHT {5.0f};
 
     const vec3   DROP_BOX_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 DROP_STACK_SIZE {3, 3, 3};
     const float  DROP_PADDING {0.065f};
 
-    const float  THROW_SPAWN_DISTANCE {0.5f};
-    const float  THROW_SPEED {15.0f};
-    const float  THROW_MIN_FLIGHT_TIME {0.25f};
-    const float  THROW_MAX_FLIGHT_TIME {1.5f};
+    const float THROW_SPAWN_DISTANCE {0.5f};
+    const float THROW_SPEED {15.0f};
+    const float THROW_MIN_FLIGHT_TIME {0.25f};
+    const float THROW_MAX_FLIGHT_TIME {1.5f};
 
-    const float  POKE_IMPULSE_SOFT = 5.0f;
-    const float  POKE_IMPULSE_HARD = 10.0f;
+    const float POKE_IMPULSE_SOFT = 5.0f;
+    const float POKE_IMPULSE_HARD = 10.0f;
+
+    const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
 
     auto& scene = App::scene();
 
@@ -1337,9 +1337,7 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                 physicsBody->friction(0.8f);
 
                 const float ANGULAR_VARIANCE = radians(30.0f);
-                physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                              uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                              uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
+                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
                 node->physicsBody(std::move(physicsBody));
 
@@ -1413,11 +1411,11 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 static int boxNum = 0;
                 node->name(std::format("Coin {}", ++boxNum));
 
-                const float positionVariance = padding / 2.0;
+                const vec3 positionVariance {padding / 2.0f, padding / 8.0f, padding / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
                                      startZ + static_cast<float>(z) * stepZ}
-                               + uniform_linear(vec3 {-positionVariance}, vec3 {positionVariance}));
+                               + uniform_linear(-positionVariance, positionVariance));
 
                 node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
@@ -1499,11 +1497,11 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 static int boxNum = 0;
                 node->name(std::format("Beachball {}", ++boxNum));
 
-                const float positionVariance = padding / 2.0f;
+                const vec3 positionVariance {padding / 2.0f, padding / 8.0f, padding / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
                                      startZ + static_cast<float>(z) * stepZ}
-                               + uniform_linear(vec3 {-positionVariance}, vec3 {positionVariance}));
+                               + uniform_linear(-positionVariance, positionVariance));
 
                 node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
