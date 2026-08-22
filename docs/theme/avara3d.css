@@ -95,3 +95,16 @@ body {
 .fieldtable {
     border-color: var(--separator-color);
 }
+
+/* Work around Doxygen 1.16 member-group styling conflicting with
+ * doxygen-awesome-css. */
+h2.groupheader,
+td h2.groupheader,
+div.groupHeader {
+    box-shadow: none;
+}
+
+table.memberdecls tr.groupHeader,
+table.memberdecls tr.groupHeader > td {
+    background: var(--page-background-color);
+}
