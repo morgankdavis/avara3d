@@ -233,72 +233,105 @@ namespace a3d::log {
 
     // [Public Functions]
 
+    /**
+     * @name Main Log Convenience Functions
+     *
+     * Shorthand accessors for writing to MainLog() at the corresponding severity.
+     * Invoke the returned entry with a message or a std::format-compatible format string.
+     *
+     * @code
+     * log::d()("Loaded {} meshes", meshCount);
+     * log::e()("Failed to open {}", path.string());
+     * log::i()("Mom, leave me alone.");
+     * @endcode
+     *
+     * @{
+     */
+
     /** @brief Returns a Trace-level entry for A3D's main log. */
     inline Log::Entry t(std::source_location where = std::source_location::current()) {
-        return log::MainLog().trace(where);
+        return MainLog().trace(where);
     }
 
-        /** @brief Returns a Debug-level entry for A3D's main log. */
+    /** @brief Returns a Debug-level entry for A3D's main log. */
     inline Log::Entry d(std::source_location where = std::source_location::current()) {
-        return log::MainLog().debug(where);
+        return MainLog().debug(where);
     }
 
     /** @brief Returns an Info-level entry for A3D's main log. */
     inline Log::Entry i(std::source_location where = std::source_location::current()) {
-        return log::MainLog().info(where);
+        return MainLog().info(where);
     }
 
     /** @brief Returns a Warn-level entry for A3D's main log. */
     inline Log::Entry w(std::source_location where = std::source_location::current()) {
-        return log::MainLog().warn(where);
+        return MainLog().warn(where);
     }
 
     /** @brief Returns an Error-level entry for A3D's main log. */
     inline Log::Entry e(std::source_location where = std::source_location::current()) {
-        return log::MainLog().error(where);
+        return MainLog().error(where);
     }
 
     /** @brief Returns a Fatal-level entry for A3D's main log. */
     inline Log::Entry f(std::source_location where = std::source_location::current()) {
-        return log::MainLog().fatal(where);
+        return MainLog().fatal(where);
     }
+
+    /** @} */
 
     namespace app {
 
         // [Public Functions]
 
+        /**
+         * @name Application Log Convenience Functions
+         *
+         * Shorthand accessors for writing to AppLog() at the corresponding severity.
+         * These functions use the same callable-entry convention as the main-log helpers.
+         *
+         * @code
+         * log::app::i()("Simulation started");
+         * log::app::w()("Controller saturated at {}", value);
+         * @endcode
+         *
+         * @{
+         */
+
         /** @brief Returns a Trace-level entry for the application log. */
         inline Log::Entry t(std::source_location where = std::source_location::current()) {
-            return log::AppLog().trace(where);
+            return AppLog().trace(where);
         }
 
         /** @brief Returns a Debug-level entry for the application log. */
         inline Log::Entry d(std::source_location where = std::source_location::current()) {
-            return log::AppLog().debug(where);
+            return AppLog().debug(where);
         }
 
         /** @brief Returns an Info-level entry for the application log. */
         inline Log::Entry i(std::source_location where = std::source_location::current()) {
-            return log::AppLog().info(where);
+            return AppLog().info(where);
         }
 
         /** @brief Returns a Warn-level entry for the application log. */
         inline Log::Entry w(std::source_location where = std::source_location::current()) {
-            return log::AppLog().warn(where);
+            return AppLog().warn(where);
         }
 
         /** @brief Returns an Error-level entry for the application log. */
         inline Log::Entry e(std::source_location where = std::source_location::current()) {
-            return log::AppLog().error(where);
+            return AppLog().error(where);
         }
 
         /** @brief Returns a Fatal-level entry for the application log. */
         inline Log::Entry f(std::source_location where = std::source_location::current()) {
-            return log::AppLog().fatal(where);
+            return AppLog().fatal(where);
         }
+
+        /** @} */
 
     } // namespace app
 
-} // namespace a3d
+} // namespace a3d::log
 
 #endif // A3D_LOG_LOG_H

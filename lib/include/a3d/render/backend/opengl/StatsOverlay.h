@@ -21,12 +21,6 @@ namespace a3d {
     class ImguiContext;
     class RenderContext;
 
-    /**
-     * Draws A3D's built-in statistics and debug-options overlay.
-     *
-     * The owning ImguiContext must be started before initialize() is called,
-     * and a Dear ImGui frame must be active before draw() is called.
-     */
     class StatsOverlay {
 
     public:
