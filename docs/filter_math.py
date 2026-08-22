@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-SECTION_MARKER = re.compile(r"^\s*// \[[^\]\r\n]+\]\s*$")
+SECTION_MARKER = re.compile(r"^(?P<indent>\s*)// \[(?P<title>[^\]\r\n]+)\]\s*$")
 NAMESPACE_DECL = "namespace a3d::math {"
 NAMESPACE_DOC = "/** @brief Mathematical types and utilities used throughout A3D. */ "
 
@@ -30,7 +30,14 @@ def main() -> int:
     path = Path(sys.argv[1])
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
 
+    namespace_close_line = max(
+        line_number
+        for line_number, line in enumerate(lines, start=1)
+        if code_before_comment(line.rstrip("\r\n")).strip() == "}"
+    )
+
     in_documented_section = False
+    section_open = False
     template_pending = False
     template_body_depth = 0
     output: list[str] = []
@@ -55,13 +62,30 @@ def main() -> int:
             template_body_depth = max(0, code.count("{") - code.count("}"))
             continue
 
-        if SECTION_MARKER.fullmatch(without_eol):
-            in_documented_section = True
+        section_match = SECTION_MARKER.fullmatch(without_eol)
+        if section_match:
+            indent = section_match.group("indent")
+            title = section_match.group("title")
+
+            if section_open:
+                output.append(f"{indent}/// @}}\n")
+
             output.append(line)
+            output.append(f"{indent}/** @name {title} */\n")
+            output.append(f"{indent}/// @{{\n")
+            in_documented_section = True
+            section_open = True
             continue
 
         if stripped == NAMESPACE_DECL:
             output.append(add_prefix(line, NAMESPACE_DOC))
+            continue
+
+        if section_open and line_number == namespace_close_line:
+            indent = line[: len(line) - len(line.lstrip(" \t"))]
+            output.append(f"{indent}/// @}}\n")
+            section_open = False
+            output.append(line)
             continue
 
         if not in_documented_section or not stripped or stripped.startswith("//") or stripped.startswith("#"):
