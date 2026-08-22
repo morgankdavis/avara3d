@@ -34,6 +34,11 @@ namespace a3d::math {
     struct f32mat4;
     struct f32quat;
 
+    /** @name Types & Constants */
+    /// @{
+
+    /** @brief Scalar/type aliases and common mathematical constants. */
+
     // [Types]
 
     using f32 = float;
@@ -93,6 +98,8 @@ namespace a3d::math {
 
     inline constexpr f32 SQRT_2          = 1.41421356237309504880f;
     inline constexpr f32 ONE_OVER_SQRT_2 = 0.70710678118654752440f;
+
+    /// @}
 
     // [32-bit Float Vector]
 
@@ -169,6 +176,10 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
+    /** @name Floating-Point Vector Functions */
+    /// @{
+
+    /** @brief Floating-point vector operations and utilities. */
     f32vec2     operator-(const f32vec2& v);
     f32vec3     operator-(const f32vec3& v);
     f32vec4     operator-(const f32vec4& v);
@@ -282,6 +293,8 @@ namespace a3d::math {
     f32vec3     make_vec3(const f32* ptr);
     f32vec4     make_vec4(const f32* ptr);
 
+    /// @}
+
     // [Signed 32-bit Integer Vector]
 
     /** @brief Two-component signed 32-bit integer vector. */
@@ -322,6 +335,10 @@ namespace a3d::math {
         const i32& operator[](std::size_t i) const;
     };
 
+    /** @name Signed Integer Vector Functions */
+    /// @{
+
+    /** @brief Signed integer vector operations and utilities. */
     i32vec2     operator-(const i32vec2& v);
     i32vec3     operator-(const i32vec3& v);
     i32vec4     operator-(const i32vec4& v);
@@ -404,6 +421,8 @@ namespace a3d::math {
     i32vec3     make_vec3(const i32* ptr);
     i32vec4     make_vec4(const i32* ptr);
 
+    /// @}
+
     // [Unsigned 32-bit Integer Vector]
 
     /** @brief Two-component unsigned 32-bit integer vector. */
@@ -444,6 +463,10 @@ namespace a3d::math {
         const u32& operator[](std::size_t i) const;
     };
 
+    /** @name Unsigned Integer Vector Functions */
+    /// @{
+
+    /** @brief Unsigned integer vector operations and utilities. */
     u32vec2     operator+(const u32vec2& a, const u32vec2& b);
     u32vec3     operator+(const u32vec3& a, const u32vec3& b);
     u32vec4     operator+(const u32vec4& a, const u32vec4& b);
@@ -522,6 +545,8 @@ namespace a3d::math {
     u32vec3     make_vec3(const u32* ptr);
     u32vec4     make_vec4(const u32* ptr);
 
+    /// @}
+
     // [Unsigned 8-bit Integer Vector]
 
     /** @brief Two-component unsigned 8-bit integer vector. */
@@ -580,6 +605,10 @@ namespace a3d::math {
         const u8& operator[](std::size_t i) const;
     };
 
+    /** @name Unsigned 8-bit Vector Functions */
+    /// @{
+
+    /** @brief Unsigned 8-bit vector operations and utilities. */
     u8vec2      operator+(const u8vec2& a, const u8vec2& b);
     u8vec3      operator+(const u8vec3& a, const u8vec3& b);
     u8vec4      operator+(const u8vec4& a, const u8vec4& b);
@@ -588,17 +617,17 @@ namespace a3d::math {
     u8vec3      operator-(const u8vec3& a, const u8vec3& b);
     u8vec4      operator-(const u8vec4& a, const u8vec4& b);
 
-    u8vec2      operator*(const u8vec2& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec3      operator*(const u8vec3& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec4      operator*(const u8vec4& v, f32 s); ///< Saturates components to [0, 255].
+    u8vec2      operator*(const u8vec2& v, f32 s); // saturates to [0, 255]
+    u8vec3      operator*(const u8vec3& v, f32 s); // saturates to [0, 255]
+    u8vec4      operator*(const u8vec4& v, f32 s); // saturates to [0, 255]
 
-    u8vec2      operator*(f32 s, const u8vec2& v); ///< Saturates components to [0, 255].
-    u8vec3      operator*(f32 s, const u8vec3& v); ///< Saturates components to [0, 255].
-    u8vec4      operator*(f32 s, const u8vec4& v); ///< Saturates components to [0, 255].
+    u8vec2      operator*(f32 s, const u8vec2& v); // saturates to [0, 255]
+    u8vec3      operator*(f32 s, const u8vec3& v); // saturates to [0, 255]
+    u8vec4      operator*(f32 s, const u8vec4& v); // saturates to [0, 255]
 
-    u8vec2      operator/(const u8vec2& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec3      operator/(const u8vec3& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec4      operator/(const u8vec4& v, f32 s); ///< Saturates components to [0, 255].
+    u8vec2      operator/(const u8vec2& v, f32 s); // saturates to [0, 255]
+    u8vec3      operator/(const u8vec3& v, f32 s); // saturates to [0, 255]
+    u8vec4      operator/(const u8vec4& v, f32 s); // saturates to [0, 255]
 
     u8vec2&     operator+=(u8vec2& a, const u8vec2& b);
     u8vec3&     operator+=(u8vec3& a, const u8vec3& b);
@@ -608,13 +637,13 @@ namespace a3d::math {
     u8vec3&     operator-=(u8vec3& a, const u8vec3& b);
     u8vec4&     operator-=(u8vec4& a, const u8vec4& b);
 
-    u8vec2&     operator*=(u8vec2& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec3&     operator*=(u8vec3& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec4&     operator*=(u8vec4& v, f32 s); ///< Saturates components to [0, 255].
+    u8vec2&     operator*=(u8vec2& v, f32 s); // saturates to [0, 255]
+    u8vec3&     operator*=(u8vec3& v, f32 s); // saturates to [0, 255]
+    u8vec4&     operator*=(u8vec4& v, f32 s); // saturates to [0, 255]
 
-    u8vec2&     operator/=(u8vec2& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec3&     operator/=(u8vec3& v, f32 s); ///< Saturates components to [0, 255].
-    u8vec4&     operator/=(u8vec4& v, f32 s); ///< Saturates components to [0, 255].
+    u8vec2&     operator/=(u8vec2& v, f32 s); // saturates to [0, 255]
+    u8vec3&     operator/=(u8vec3& v, f32 s); // saturates to [0, 255]
+    u8vec4&     operator/=(u8vec4& v, f32 s); // saturates to [0, 255]
 
     bool        operator==(const u8vec2& a, const u8vec2& b);
     bool        operator==(const u8vec3& a, const u8vec3& b);
@@ -657,6 +686,8 @@ namespace a3d::math {
     std::string to_string(const u8vec3& v);
     std::string to_string(const u8vec4& v);
 
+    /// @}
+
     // [32-bit Float Matrix]
 
     /** @brief 2x2 single-precision floating-point matrix. */
@@ -691,6 +722,10 @@ namespace a3d::math {
         const f32vec4& operator[](std::size_t i) const;
     };
 
+    /** @name Matrix Functions */
+    /// @{
+
+    /** @brief Matrix operations and transform utilities. */
     f32mat2     operator-(const f32mat2& m);
     f32mat3     operator-(const f32mat3& m);
     f32mat4     operator-(const f32mat4& m);
@@ -754,6 +789,8 @@ namespace a3d::math {
     f32mat3     make_mat3(const f32* ptr);
     f32mat4     make_mat4(const f32* ptr);
 
+    /// @}
+
     // [32-bit Float Quaternion]
 
     /** @brief Single-precision floating-point quaternion. */
@@ -766,6 +803,10 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
+    /** @name Quaternion Functions */
+    /// @{
+
+    /** @brief Quaternion operations, interpolation, and conversions. */
     f32quat     operator*(const f32quat& a, const f32quat& b);
     f32quat     operator*(const f32quat& q, f32 s);
     f32quat     operator*(f32 s, const f32quat& q);
@@ -788,8 +829,8 @@ namespace a3d::math {
     f32quat     quaternion(const f32vec3& axis, f32 angle);
     f32vec4     axis_angle(const f32quat& q);
 
-    f32quat     quaternion(const f32vec3& euler_angles); ///< Pitch/yaw/roll to quaternion, Y-X-Z order.
-    f32vec3     euler_angles(const f32quat& q); ///< Quaternion to pitch/yaw/roll, Y-X-Z order.
+    f32quat     quaternion(const f32vec3& euler_angles); // pitch/yaw/roll to quaternion, y–x–z order
+    f32vec3     euler_angles(const f32quat& q); // pitch/yaw/roll to quaternion, y–x–z order
 
     f32quat     slerp(const f32quat& a, const f32quat& b, f32 t);
 
@@ -803,35 +844,49 @@ namespace a3d::math {
 
     f32quat     make_quat(const f32* ptr);
 
+    /// @}
+
+    /** @name Projection & Decomposition */
+    /// @{
+
+    /** @brief Projection, view, and matrix decomposition utilities. */
+
     // [Projection & Camera]
 
-    f32mat4     perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far); ///< Right-handed perspective projection matrix.
-    f32mat4     ortho(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far); ///< Right-handed orthographic projection matrix.
-    f32mat4     look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up); ///< Right-handed view matrix.
+    f32mat4     perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far); // rh
+    f32mat4     ortho(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far); // rh
+    f32mat4     look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up); // rh
 
     // [Matrix Decomposition]
 
     bool        decompose(const f32mat4& m, f32vec3& scale, f32quat& rotation, f32vec3& translation);
 
+    /// @}
+
+    /** @name Random & Probability */
+    /// @{
+
+    /** @brief Random sampling and probability utilities. */
+
     // [Random / Probability]
 
-    f32         uniform_01(); ///< Uniform value in [0, 1).
-    f32         uniform_01(std::mt19937* gen); ///< Uniform value in [0, 1).
+    f32         uniform_01(); // [0, 1)
+    f32         uniform_01(std::mt19937* gen); // [0, 1)
 
-    f32         uniform_n11(); ///< Uniform value in [-1, 1).
-    f32         uniform_n11(std::mt19937* gen); ///< Uniform value in [-1, 1).
+    f32         uniform_n11(); // [-1, 1)
+    f32         uniform_n11(std::mt19937* gen); // [-1, 1)
 
-    u8          uniform_linear(u8 min, u8 max); ///< Uniform value in [min, max].
-    u8          uniform_linear(std::mt19937* gen, u8 min, u8 max); ///< Uniform value in [min, max].
+    u8          uniform_linear(u8 min, u8 max); // [min, max]
+    u8          uniform_linear(std::mt19937* gen, u8 min, u8 max); // [min, max]
 
-    u32         uniform_linear(u32 min, u32 max); ///< Uniform value in [min, max].
-    u32         uniform_linear(std::mt19937* gen, u32 min, u32 max); ///< Uniform value in [min, max].
+    u32         uniform_linear(u32 min, u32 max); // [min, max]
+    u32         uniform_linear(std::mt19937* gen, u32 min, u32 max); // [min, max]
 
-    i32         uniform_linear(i32 min, i32 max); ///< Uniform value in [min, max].
-    i32         uniform_linear(std::mt19937* gen, i32 min, i32 max); ///< Uniform value in [min, max].
+    i32         uniform_linear(i32 min, i32 max); // [min, max]
+    i32         uniform_linear(std::mt19937* gen, i32 min, i32 max); // [min, max]
 
-    f32         uniform_linear(f32 min, f32 max); ///< Uniform value in [min, max).
-    f32         uniform_linear(std::mt19937* gen, f32 min, f32 max); ///< Uniform value in [min, max).
+    f32         uniform_linear(f32 min, f32 max); // [min, max)
+    f32         uniform_linear(std::mt19937* gen, f32 min, f32 max); // [min, max)
 
     f32vec2     uniform_circular(f32 radius);
     f32vec2     uniform_circular(std::mt19937* gen, f32 radius);
@@ -851,12 +906,19 @@ namespace a3d::math {
     bool        bernoulli(f32 p);
     bool        bernoulli(std::mt19937* gen, f32 p);
 
+    /// @}
+
+    /** @name Interpolation & Easing */
+    /// @{
+
+    /** @brief Interpolation, smoothing, and easing utilities. */
+
     // [Easing]
 
     f32         saturate(f32 t);
 
-    f32         lerp(f32 a, f32 b, f32 t); ///< Unclamped interpolation.
-    f32         lerp_01(f32 a, f32 b, f32 t); ///< Clamps t to [0, 1].
+    f32         lerp(f32 a, f32 b, f32 t);       // unclamped
+    f32         lerp_01(f32 a, f32 b, f32 t);    // clamps t to [0,1]
 
     f32vec2     lerp(const f32vec2& a, const f32vec2& b, f32 t);
     f32vec2     lerp_01(const f32vec2& a, const f32vec2& b, f32 t);
@@ -867,25 +929,25 @@ namespace a3d::math {
     f32vec4     lerp(const f32vec4& a, const f32vec4& b, f32 t);
     f32vec4     lerp_01(const f32vec4& a, const f32vec4& b, f32 t);
 
-    f32         inverse_lerp(f32 a, f32 b, f32 v); ///< Unclamped interpolation parameter.
-    f32         inverse_lerp_01(f32 a, f32 b, f32 v); ///< Clamps the result to [0, 1].
+    f32         inverse_lerp(f32 a, f32 b, f32 v);       // unclamped
+    f32         inverse_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
 
-    f32         remap(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v); ///< Unclamped remapping.
-    f32         remap_01(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v); ///< Clamps the normalized interpolation parameter to [0, 1].
+    f32         remap(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v);       // unclamped
+    f32         remap_01(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v);    // clamps normalized t to [0,1]
 
-    f32         step(f32 edge, f32 x); ///< Returns 0 when x < edge, otherwise 1.
+    f32         step(f32 edge, f32 x);               // x < edge ? 0 : 1
 
-    f32         smoothstep(f32 t); ///< Unclamped; expects t in [0, 1].
-    f32         smoothstep_01(f32 t); ///< Clamps t to [0, 1].
+    f32         smoothstep(f32 t);                   // unclamped, expects t in [0,1]
+    f32         smoothstep_01(f32 t);                // clamps t to [0,1]
 
-    f32         smootherstep(f32 t); ///< Unclamped; expects t in [0, 1].
-    f32         smootherstep_01(f32 t); ///< Clamps t to [0, 1].
+    f32         smootherstep(f32 t);                 // unclamped, expects t in [0,1]
+    f32         smootherstep_01(f32 t);              // clamps t to [0,1]
 
-    f32         smoothstep(f32 edge0, f32 edge1, f32 x); ///< Clamps the normalized interpolation parameter.
-    f32         smoothstep_unclamped(f32 edge0, f32 edge1, f32 x); ///< Does not clamp the normalized interpolation parameter.
+    f32         smoothstep(f32 edge0, f32 edge1, f32 x);              // clamps internally (classic)
+    f32         smoothstep_unclamped(f32 edge0, f32 edge1, f32 x);    // no clamp of normalized t
 
-    f32         smootherstep(f32 edge0, f32 edge1, f32 x); ///< Clamps the normalized interpolation parameter.
-    f32         smootherstep_unclamped(f32 edge0, f32 edge1, f32 x); ///< Does not clamp the normalized interpolation parameter.
+    f32         smootherstep(f32 edge0, f32 edge1, f32 x);            // clamps internally
+    f32         smootherstep_unclamped(f32 edge0, f32 edge1, f32 x);  // no clamp of normalized t
 
     f32         ease_linear(f32 t);
     f32         ease_linear_01(f32 t);
@@ -936,6 +998,13 @@ namespace a3d::math {
     f32quat     slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
     f32quat     slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 
+    /// @}
+
+    /** @name Color */
+    /// @{
+
+    /** @brief Color-space conversion and color math utilities. */
+
     // [Color]
 
     f32         srgb_to_linear(f32 v);
@@ -944,23 +1013,30 @@ namespace a3d::math {
     f32vec3     srgb_to_linear(const f32vec3& v);
     f32vec3     linear_to_srgb(const f32vec3& v);
 
-    f32vec4     srgb_to_linear(const f32vec4& v); ///< Alpha is unchanged.
-    f32vec4     linear_to_srgb(const f32vec4& v); ///< Alpha is unchanged.
+    f32vec4     srgb_to_linear(const f32vec4& v); // alpha unchanged
+    f32vec4     linear_to_srgb(const f32vec4& v); // alpha unchanged
 
     f32vec3     saturate(const f32vec3& v);
     f32vec4     saturate(const f32vec4& v);
 
-    f32         luminance_rec709(const f32vec3& rgb); ///< Uses Rec. 709 luminance coefficients.
+    f32         luminance_rec709(const f32vec3& rgb); // dot(rgb, {0.2126,0.7152,0.0722})
     f32         luminance_rec709(const f32vec4& rgba);
 
     f32vec3     lerp_linear_rgb(const f32vec3& a, const f32vec3& b, f32 t);
     f32vec4     lerp_linear_rgba(const f32vec4& a, const f32vec4& b, f32 t);
 
     f32vec3     rgb_to_hsv(const f32vec3& rgb_linear);
-    f32vec3     hsv_to_rgb(const f32vec3& hsv); ///< Returns linear RGB.
+    f32vec3     hsv_to_rgb(const f32vec3& hsv); // returns linear rgb
 
     f32vec3     rgb_to_hsl(const f32vec3& rgb_linear);
-    f32vec3     hsl_to_rgb(const f32vec3& hsl); ///< Returns linear RGB.
+    f32vec3     hsl_to_rgb(const f32vec3& hsl); // returns linear rgb
+
+    /// @}
+
+    /** @name Scalar Math */
+    /// @{
+
+    /** @brief Scalar angle, trigonometric, comparison, range, classification, and utility functions. */
 
     // [Scalar Angles]
 
@@ -1033,7 +1109,7 @@ namespace a3d::math {
     // [Scalar Remainder / Wrap]
 
     f32     fmod(f32 x, f32 y);
-    f32     mod(f32 x, f32 y); ///< Positive modulo.
+    f32     mod(f32 x, f32 y); // positive modulo
     f32     wrap(f32 x, f32 lo, f32 hi);
 
     // [Bitwise / Classification]
@@ -1053,6 +1129,8 @@ namespace a3d::math {
             std::swap(a[i], b[i]);
         }
     }
+
+    /// @}
 
 }
 
