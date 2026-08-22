@@ -40,16 +40,34 @@ namespace a3d {
         /** @brief Collision-geometry representation requested for a PhysicsShape. */
         enum class Type : uint8_t {
             // TODO: change this
-            Primitive,         ///< Reserved for internal use; public callers should not supply this value. This API is expected to change.
-            BoundingBox,       ///< Bounding-box collision geometry derived from the source geometry.
-            ConvexHull,        ///< Convex-hull collision geometry derived from the source geometry.
-            ConcavePolyhedron  ///< Potentially concave polygonal collision geometry derived from the source geometry.
+            Primitive, ///< Reserved for internal use; public callers should not supply this value. This API is expected to change.
+            BoundingBox, ///< Bounding-box collision geometry derived from the source geometry.
+            ConvexHull, ///< Convex-hull collision geometry derived from the source geometry.
+            ConcavePolyhedron ///< Potentially concave polygonal collision geometry derived from the source geometry.
         };
 
         /** @brief Weak source object used to derive collision geometry, or no source for primitive shapes. */
         using Source = std::variant<std::monostate, std::weak_ptr<Mesh>, std::weak_ptr<Node>>;
 
-        // TODO: add static MeshShape(), NodeShape() ?
+        // [Public Static Member Functions]
+
+        /** @brief Creates a bounding-box collision shape derived from @p mesh. */
+        static std::shared_ptr<PhysicsShape> BoundingBoxShape(const std::shared_ptr<Mesh>& mesh);
+
+        /** @brief Creates a bounding-box collision shape from mesh geometry in the @p node hierarchy. */
+        static std::shared_ptr<PhysicsShape> BoundingBoxShape(const std::shared_ptr<Node>& node);
+
+        /** @brief Creates a convex-hull collision shape derived from @p mesh. */
+        static std::shared_ptr<PhysicsShape> ConvexHullShape(const std::shared_ptr<Mesh>& mesh);
+
+        /** @brief Creates a convex-hull collision shape from mesh geometry in the @p node hierarchy. */
+        static std::shared_ptr<PhysicsShape> ConvexHullShape(const std::shared_ptr<Node>& node);
+
+        /** @brief Creates a concave-polyhedron collision shape derived from @p mesh. */
+        static std::shared_ptr<PhysicsShape> ConcavePolyhedronShape(const std::shared_ptr<Mesh>& mesh);
+
+        /** @brief Creates a concave-polyhedron collision shape from mesh geometry in the @p node hierarchy. */
+        static std::shared_ptr<PhysicsShape> ConcavePolyhedronShape(const std::shared_ptr<Node>& node);
 
         // [Public Lifecycle Functions]
 

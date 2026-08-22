@@ -141,18 +141,16 @@ std::unique_ptr<Scene> App::init() {
                                               .startDistance = 10.0f,
                                               .endDistance = 100.0f};
 
-        auto horizonHaze = Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f},
-                                                .angularWidth = math::radians(4.0f)};
+        auto horizonHaze =
+            Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f}, .angularWidth = math::radians(4.0f)};
 
         visualWorld->ground(Ground {.fill = Ground::Procedural {.content = grid},
                                     .radialFade = radialFade,
                                     .horizonHaze = horizonHaze});
 
-        auto atmosphhericHaze =
-            Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
+        auto atmosphhericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
 
-        auto limbGlow =
-            Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
+        auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
         visualWorld->atmosphere(Atmosphere {.scaleHeight = 1.00f,
                                             .haze = atmosphhericHaze,
@@ -181,7 +179,7 @@ std::unique_ptr<Scene> App::init() {
         auto groundNode = Node::NamedNode("Ground");
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
         auto groundShape = make_shared<InfinitePlanePhysicsShape>();
-        auto groundBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        auto groundBody = PhysicsBody::StaticBody(groundShape);
         groundBody->friction(1.0f);
         groundBody->restitution(0.1f);
         groundNode->physicsBody(std::move(groundBody));
@@ -189,7 +187,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color{0.15f});
+        auto ambientLight = make_shared<AmbientLight>(Color {0.15f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
@@ -205,11 +203,9 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transiet node groups
 
-        _transients.groupPolicy("drop", {.maxCount = {50}});
-        _transients.groupPolicy("throw",
-                                {.maxCount = {10},
-                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                  .radius = 100.0f}});
+        _transients.groupPolicy("drop", {.maxCount = 50});
+        _transients.groupPolicy("throw", {.maxCount = 10,
+                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
 
         // create and configure the camera and camera controller
 
@@ -272,9 +268,7 @@ std::unique_ptr<Scene> App::init() {
             orbGroup->position(ORB_GROUP_POSITION);
             scene->rootNode()->addChild(orbGroup);
 
-            auto orbMaterial = make_shared<Material>();
-            orbMaterial->emission(Color::White());
-
+            auto orbMaterial = Material::EmissionMaterial(Color::White());
             auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
 
             _orbWanderers.reserve(ORB_COUNT);
@@ -1123,7 +1117,7 @@ shared_ptr<Node> MakeSimulationRoot() {
             //physMesh->burnTransform(transform, true);
 
             //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
-            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, visMesh);
+            auto shape = PhysicsShape::ConvexHullShape(visMesh);
 
             return std::pair {visMesh, shape};
         }();
@@ -1132,7 +1126,7 @@ shared_ptr<Node> MakeSimulationRoot() {
         node->name("Janus");
         node->position({-1.5f, 0.0f, 0.0f});
 
-        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        auto body = PhysicsBody::DynamicBody(shape);
         body->mass(10.0f);
         body->friction(0.6f);
         body->restitution(0.15f);
@@ -1157,7 +1151,7 @@ shared_ptr<Node> MakeSimulationRoot() {
             visMesh->burnTransform(transform, true);
             physMesh->burnTransform(transform, true);
 
-            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physMesh);
 
             return std::pair {visMesh, shape};
         }();
@@ -1167,7 +1161,7 @@ shared_ptr<Node> MakeSimulationRoot() {
         node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
         node->position({0.0f, 0.0f, 0.0f});
 
-        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+        auto body = PhysicsBody::StaticBody(shape);
         // body->mass(1000.0f);
         // body->friction(0.65f);
         // body->rollingFriction(0.02f);
@@ -1192,8 +1186,8 @@ shared_ptr<Node> MakeSimulationRoot() {
         node->name("Teapot");
         node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
 
-        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        static auto shape = PhysicsShape::ConvexHullShape(mesh);
+        auto        body = PhysicsBody::DynamicBody(shape);
         body->mass(1.5f);
         body->friction(0.6f);
         body->restitution(0.15f);
@@ -1292,7 +1286,7 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
 
         mesh->burnTransform(util::geom::fit_inside(mesh->localAABB(), boxSize), true);
 
-        auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
 
         rocks.push_back({std::move(mesh), std::move(physicsShape)});
     }
@@ -1561,7 +1555,7 @@ shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& vel
         auto            transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
         transform = math::scale(transform, scaleFactor);
         mesh->burnTransform(transform, true);
-        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        auto shape = PhysicsShape::ConvexHullShape(mesh);
         return std::pair {mesh, shape};
     }();
 
@@ -1570,7 +1564,7 @@ shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& vel
     node->name(std::format("Hammer {}", ++hammerNum));
     node->position(location);
 
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+    auto physicsBody = PhysicsBody::DynamicBody(shape);
     physicsBody->mass(5.0f);
     physicsBody->restitution(0.15f);
     physicsBody->friction(0.8f);
@@ -1607,7 +1601,7 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
         auto            mesh = util::fs::MeshAt("hula/hula.gltf");
         const float     scaleFactor = DIAMETER / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+        auto shape = PhysicsShape::ConcavePolyhedronShape(mesh);
         return std::pair {mesh, shape};
     }();
 
@@ -1616,7 +1610,7 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
     node->name(std::format("Hula {}", ++hulaNum));
     node->position(location);
 
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+    auto physicsBody = PhysicsBody::DynamicBody(shape);
 
     physicsBody->mass(1.0f);
     physicsBody->restitution(0.15f);
@@ -1665,7 +1659,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
         auto            mesh = util::fs::MeshAt("duck/duck.gltf");
         const float     scaleFactor = HEIGHT / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        auto shape = PhysicsShape::ConvexHullShape(mesh);
         return std::pair {mesh, shape};
     }();
 
@@ -1674,7 +1668,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     node->name(std::format("Quack {}", ++quackNum));
     node->position(location);
 
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+    auto physicsBody = PhysicsBody::DynamicBody(shape);
     physicsBody->mass(1.0f);
     physicsBody->restitution(0.35f);
     physicsBody->friction(0.8f);

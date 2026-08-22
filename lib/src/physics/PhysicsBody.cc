@@ -42,12 +42,24 @@ unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
     return make_unique<PhysicsBody>(Type::Static);
 }
 
+unique_ptr<PhysicsBody> PhysicsBody::StaticBody(const std::shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Static, shape);
+}
+
 unique_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
     return make_unique<PhysicsBody>(Type::Dynamic);
 }
 
+unique_ptr<PhysicsBody> PhysicsBody::DynamicBody(const std::shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Dynamic, shape);
+}
+
 unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
+}
+
+unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const std::shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Kinematic, shape);
 }
 
 // [Private Static Non-Member Prototypes]

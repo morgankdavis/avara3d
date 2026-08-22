@@ -57,11 +57,32 @@ namespace a3d {
         /** @brief Creates a shape-less static body. */
         static std::unique_ptr<PhysicsBody> StaticBody();
 
+        /**
+         * @brief Creates a static body using @p shape.
+         *
+         * @throws std::logic_error if @p shape is incompatible with a static body.
+         */
+        static std::unique_ptr<PhysicsBody> StaticBody(const std::shared_ptr<PhysicsShape>& shape);
+
         /** @brief Creates a shape-less dynamic body. */
         static std::unique_ptr<PhysicsBody> DynamicBody();
 
+        /**
+         * @brief Creates a dynamic body using @p shape.
+         *
+         * @throws std::logic_error if @p shape is incompatible with a dynamic body.
+         */
+        static std::unique_ptr<PhysicsBody> DynamicBody(const std::shared_ptr<PhysicsShape>& shape);
+
         /** @brief Creates a shape-less kinematic body. */
         static std::unique_ptr<PhysicsBody> KinematicBody();
+
+        /**
+         * @brief Creates a kinematic body using @p shape.
+         *
+         * @throws std::logic_error if @p shape is incompatible with a kinematic body.
+         */
+        static std::unique_ptr<PhysicsBody> KinematicBody(const std::shared_ptr<PhysicsShape>& shape);
 
         // [Public Lifecycle Functions]
 

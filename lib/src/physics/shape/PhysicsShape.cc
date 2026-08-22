@@ -21,6 +21,32 @@
 using namespace a3d;
 using namespace std;
 
+// [Public Static Member Functions]
+
+shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape(const shared_ptr<Mesh>& mesh) {
+    return make_shared<PhysicsShape>(Type::BoundingBox, mesh);
+}
+
+shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape(const shared_ptr<Node>& node) {
+    return make_shared<PhysicsShape>(Type::BoundingBox, node);
+}
+
+shared_ptr<PhysicsShape> PhysicsShape::ConvexHullShape(const shared_ptr<Mesh>& mesh) {
+    return make_shared<PhysicsShape>(Type::ConvexHull, mesh);
+}
+
+shared_ptr<PhysicsShape> PhysicsShape::ConvexHullShape(const shared_ptr<Node>& node) {
+    return make_shared<PhysicsShape>(Type::ConvexHull, node);
+}
+
+shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape(const shared_ptr<Mesh>& mesh) {
+    return make_shared<PhysicsShape>(Type::ConcavePolyhedron, mesh);
+}
+
+shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape(const shared_ptr<Node>& node) {
+    return make_shared<PhysicsShape>(Type::ConcavePolyhedron, node);
+}
+
 // [Public Lifecycle Functions]
 
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
