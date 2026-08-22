@@ -40,7 +40,7 @@ namespace a3d::log {
     // [Public LogSink Member Functions]
 
         /** @brief Writes Error and Fatal output to standard error and lower severities to standard output. */
-        void write(const std::string& output, Log::Level level) override;
+        void write(const std::string& output, Level level) override;
     };
 
 }

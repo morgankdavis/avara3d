@@ -1327,12 +1327,12 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     if (const auto& surface = scene.visualWorld()->surface()) {
 
-        if (const auto* plane = get_if<VisualWorld::Plane>(&*surface)) {
+        if (const auto* plane = get_if<PlaneSurface>(&*surface)) {
 
             surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Plane);
             surfaceStruct.planeHeight = plane->height;
         }
-        else if (const auto* sphere = get_if<VisualWorld::Sphere>(&*surface)) {
+        else if (const auto* sphere = get_if<SphereSurface>(&*surface)) {
 
             surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Sphere);
             surfaceStruct.sphereCenter = sphere->center;

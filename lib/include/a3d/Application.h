@@ -73,7 +73,7 @@ namespace a3d {
          * @param argv process command-line argument array.
          * @param logLevel initial application log level.
          */
-        Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
+        Application(int argc, char* argv[], log::Level logLevel = log::Level::Info);
 
         Application(const Application&)            = delete;
         Application& operator=(const Application&) = delete;
@@ -252,7 +252,7 @@ namespace a3d {
     private:
         // [Private Member Functions]
 
-        void initLog(Log::Level level);
+        void initLog(log::Level level);
         void prepare();
         bool update();
         void shutdown() noexcept;

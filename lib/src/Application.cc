@@ -86,7 +86,7 @@ int Application::Run(unique_ptr<Application> application) {
 
 // [Public Lifecycle Functions]
 
-Application::Application(int argc, char* argv[], Log::Level logLevel):
+Application::Application(int argc, char* argv[], log::Level logLevel):
     _args(argv + 1, argv + argc),
     _scene {},
     _runner {},
@@ -202,24 +202,24 @@ void Application::contactDidEnd(Runner&               runner,
 
 // [Private Member Functions]
 
-void Application::initLog(Log::Level level) {
+void Application::initLog(log::Level level) {
 
-    Log::MainLog().level(level);
+    log::MainLog().level(level);
 
     string executableName = *util::fs::ExecutableName();
 
-    auto sinks = vector<unique_ptr<LogSink>>();
+    auto sinks = vector<unique_ptr<log::LogSink>>();
 
-    auto nativeSink = make_unique<StdOutLogSink>();
+    auto nativeSink = make_unique<log::StdOutLogSink>();
     sinks.push_back(std::move(nativeSink));
 
 #ifndef A3D_WEB
     auto fileSink =
-        make_unique<FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
+        make_unique<log::FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
     sinks.push_back(std::move(fileSink));
 #endif
 
-    Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
+    log::AppLog(make_unique<log::Log>(executableName, std::move(sinks), level));
 
     const auto& buildInfo = BuildInfo::Info();
     log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));

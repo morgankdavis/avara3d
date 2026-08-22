@@ -27,17 +27,19 @@ static_assert(__cplusplus >= 202002L, "C++20 is required for std::source_locatio
 #endif
 
 using namespace a3d;
+using namespace a3d::log;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Variables]
 
-static string TimestampString();
-static string HeaderString(const string& logName, Log::Level level, const Log::SourceInfo& sourceInfo);
-static string HeaderString(const string& logName, Log::Level level);
+namespace {
 
-// [Public Static Member Functions]
+    unique_ptr<Log> _appLog {};
+}
 
-Log& Log::AppLog() {
+// [Public Static Non-Member Functions]
+
+Log& log::AppLog() {
     if (_appLog) {
         return *_appLog;
     }
@@ -45,18 +47,24 @@ Log& Log::AppLog() {
     return MainLog();
 }
 
-void Log::AppLog(unique_ptr<Log> log) {
+void log::AppLog(unique_ptr<Log> log) {
     _appLog = std::move(log);
 }
 
-Log& Log::MainLog() {
-    static Log main {"a3d", std::make_unique<a3d::log::StdOutLogSink>(), DEFAULT_LEVEL, DEFAULT_FLUSH_LEVEL};
+Log& log::MainLog() {
+    static Log main {"a3d", std::make_unique<a3d::log::StdOutLogSink>()};
     return main;
 }
 
+// [Private Static Non-Member Prototypes]
+
+static string TimestampString();
+static string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo);
+static string HeaderString(const string& logName, Level level);
+
 // [Public Types]
 
-Log::Entry::Entry(Log& logger, Log::Level level, SourceInfo source):
+Log::Entry::Entry(Log& logger, Level level, SourceInfo source):
     _logger(&logger),
     _level(level),
     _source(std::move(source)) {}
@@ -80,7 +88,7 @@ Log::Log():
     _level(DEFAULT_LEVEL),
     _flushLevel(DEFAULT_FLUSH_LEVEL) {}
 
-Log::Log(const string& name, unique_ptr<LogSink> sink, Log::Level level, Log::Level flushLevel):
+Log::Log(const string& name, unique_ptr<LogSink> sink, Level level, Level flushLevel):
     _name(name),
     _level(level),
     _flushLevel(flushLevel) {
@@ -89,7 +97,7 @@ Log::Log(const string& name, unique_ptr<LogSink> sink, Log::Level level, Log::Le
     }
 }
 
-Log::Log(const string& name, vector<unique_ptr<LogSink>> sinks, Log::Level level, Log::Level flushLevel):
+Log::Log(const string& name, vector<unique_ptr<LogSink>> sinks, Level level, Level flushLevel):
     _name(name),
     _sinks(std::move(sinks)),
     _level(level),
@@ -107,47 +115,47 @@ const vector<unique_ptr<LogSink>>& Log::sinks() const {
     return _sinks;
 }
 
-Log::Level Log::level() const {
+Level Log::level() const {
     return _level;
 }
 
-void Log::level(Log::Level level) {
+void Log::level(Level level) {
     _level = level;
 }
 
-Log::Level Log::flushLevel() const {
+Level Log::flushLevel() const {
     return _flushLevel;
 }
 
-void Log::flushLevel(Log::Level flushLevel) {
+void Log::flushLevel(Level flushLevel) {
     _flushLevel = flushLevel;
 }
 
 void Log::trace(const string& msg) {
-    log(Log::Level::Trace, msg);
+    log(Level::Trace, msg);
 }
 
 void Log::debug(const string& msg) {
-    log(Log::Level::Debug, msg);
+    log(Level::Debug, msg);
 }
 
 void Log::info(const string& msg) {
-    log(Log::Level::Info, msg);
+    log(Level::Info, msg);
 }
 
 void Log::warn(const string& msg) {
-    log(Log::Level::Warn, msg);
+    log(Level::Warn, msg);
 }
 
 void Log::error(const string& msg) {
-    log(Log::Level::Error, msg);
+    log(Level::Error, msg);
 }
 
 void Log::fatal(const string& msg) {
-    log(Log::Level::Fatal, msg);
+    log(Level::Fatal, msg);
 }
 
-void Log::log(Log::Level level, const SourceInfo& sourceInfo, const string& msg) {
+void Log::log(Level level, const SourceInfo& sourceInfo, const string& msg) {
     if (!enabled(level)) {
         return;
     }
@@ -176,30 +184,30 @@ void Log::flush() {
 // [Internal Member Functions]
 
 Log::Entry Log::trace(std::source_location where) {
-    return Entry {*this, Log::Level::Trace, MakeSourceInfo(where)};
+    return Entry {*this, Level::Trace, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::debug(std::source_location where) {
-    return Entry {*this, Log::Level::Debug, MakeSourceInfo(where)};
+    return Entry {*this, Level::Debug, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::info(std::source_location where) {
-    return Entry {*this, Log::Level::Info, MakeSourceInfo(where)};
+    return Entry {*this, Level::Info, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::warn(std::source_location where) {
-    return Entry {*this, Log::Level::Warn, MakeSourceInfo(where)};
+    return Entry {*this, Level::Warn, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::error(std::source_location where) {
-    return Entry {*this, Log::Level::Error, MakeSourceInfo(where)};
+    return Entry {*this, Level::Error, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::fatal(std::source_location where) {
-    return Entry {*this, Log::Level::Fatal, MakeSourceInfo(where)};
+    return Entry {*this, Level::Fatal, MakeSourceInfo(where)};
 }
 
-void Log::write(Log::Level level, const SourceInfo& sourceInfo, string_view msg) {
+void Log::write(log::Level level, const SourceInfo& sourceInfo, string_view msg) {
     if (!enabled(level)) {
         return;
     }
@@ -215,7 +223,7 @@ void Log::write(Log::Level level, const SourceInfo& sourceInfo, string_view msg)
     dispatch(level, out);
 }
 
-void Log::write(Log::Level level, string_view msg) {
+void Log::write(log::Level level, string_view msg) {
     if (!enabled(level)) {
         return;
     }
@@ -280,7 +288,7 @@ Log::Log(const string& name):
 
 // [Private Member Functions]
 
-void Log::log(Log::Level level, const string& msg) {
+void Log::log(log::Level level, const string& msg) {
     if (!enabled(level)) {
         return;
     }
@@ -297,26 +305,26 @@ void Log::log(Log::Level level, const string& msg) {
     dispatch(level, line);
 }
 
-void Log::dispatch(Log::Level level, string& output) {
+void Log::dispatch(log::Level level, string& output) {
     for (auto& sink : _sinks) {
         sink->write(output, level);
     }
 
-    if (static_cast<std::underlying_type_t<Log::Level>>(level)
-        >= static_cast<std::underlying_type_t<Log::Level>>(_flushLevel)) {
+    if (static_cast<std::underlying_type_t<log::Level>>(level)
+        >= static_cast<std::underlying_type_t<log::Level>>(_flushLevel)) {
         flush();
     }
 }
 
-bool Log::enabled(Log::Level level) const {
-    if (level == Log::Level::Off) {
+bool Log::enabled(log::Level level) const {
+    if (level == Level::Off) {
         return false;
     }
-    if (_level == Log::Level::Off) {
+    if (_level == Level::Off) {
         return false;
     }
-    return static_cast<std::underlying_type_t<Log::Level>>(level)
-           >= static_cast<std::underlying_type_t<Log::Level>>(_level);
+    return static_cast<std::underlying_type_t<log::Level>>(level)
+           >= static_cast<std::underlying_type_t<log::Level>>(_level);
 }
 
 // [Private Static Non-Member Functions]
@@ -343,15 +351,17 @@ static string TimestampString() {
 #endif
 }
 
-static string HeaderString(const string& logName, Log::Level level, const Log::SourceInfo& sourceInfo) {
+static string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo) {
     return std::format("{} [{}] [{}] [{}:{}] [{}()]", TimestampString(), logName, util::enums::enum_name(level),
                        sourceInfo.filename, sourceInfo.line, sourceInfo.function);
 }
 
 // [Private Static Member Variables]
 
-unique_ptr<Log> Log::_appLog {};
+// unique_ptr<Log> Log::_appLog {};
 
-static string HeaderString(const string& logName, Log::Level level) {
+// [Private Static Member Functions]
+
+static string HeaderString(const string& logName, Level level) {
     return std::format("{} [{}] [{}]", TimestampString(), logName, util::enums::enum_name(level));
 }

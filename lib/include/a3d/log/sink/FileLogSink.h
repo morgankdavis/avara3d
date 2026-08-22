@@ -67,7 +67,7 @@ namespace a3d::log {
         // [Public LogSink Member Functions]
 
         /** @brief Appends @p output to the active file and performs size-based rotation when needed. */
-        void                         write(const std::string& output, Log::Level level) override;
+        void                         write(const std::string& output, Level level) override;
 
         /** @brief Flushes buffered output to the active file. */
         void                         flush() override;

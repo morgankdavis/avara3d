@@ -26,7 +26,7 @@ namespace a3d::log {
 // [Public Member Functions]
 
         /** @brief Writes already-formatted @p output associated with @p level. */
-        virtual void write(const std::string& output, Log::Level level) = 0;
+        virtual void write(const std::string& output, Level level) = 0;
 
         /** @brief Flushes buffered sink output; the base implementation does nothing. */
         virtual void flush();

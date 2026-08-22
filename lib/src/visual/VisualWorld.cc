@@ -214,7 +214,7 @@ void VisualWorld::atmosphere(const optional<Atmosphere>& atmosphere) {
 
         if (atmosphere->limbGlow) {
 
-            if (!holds_alternative<Sphere>(*_surface)) {
+            if (!holds_alternative<SphereSurface>(*_surface)) {
                 throw logic_error("Atmosphere limb glow requires a spherical VisualWorld surface.");
             }
 
@@ -301,7 +301,7 @@ void VisualWorld::ground(const optional<Ground>& ground) {
     _ground = ground;
 }
 
-const optional<VisualWorld::Surface>& VisualWorld::surface() const {
+const optional<a3d::Surface>& VisualWorld::surface() const {
 
     return _surface;
 }
@@ -314,14 +314,14 @@ void VisualWorld::surface(const optional<Surface>& surface) {
 
     if (surface) {
 
-        if (const auto* sphere = get_if<Sphere>(&*surface)) {
+        if (const auto* sphere = get_if<SphereSurface>(&*surface)) {
 
             if (sphere->radius <= 0.0f) {
                 throw invalid_argument("VisualWorld::Sphere radius must be greater than zero.");
             }
         }
 
-        if (surface && _atmosphere && _atmosphere->limbGlow && !holds_alternative<Sphere>(*surface)) {
+        if (surface && _atmosphere && _atmosphere->limbGlow && !holds_alternative<SphereSurface>(*surface)) {
 
             throw logic_error("Atmosphere limb glow requires a spherical VisualWorld surface.");
         }

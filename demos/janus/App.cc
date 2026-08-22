@@ -20,7 +20,7 @@ using namespace std;
 
 // [Private Constants]
 
-const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const float                       TIME_STEP {1.0 / 120.0};
@@ -110,7 +110,7 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
 
-        visualWorld->surface(VisualWorld::Sphere {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
+        visualWorld->surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
         //tiles_ceramic_white_diff.jpg
 

@@ -19,9 +19,34 @@
 #include <utility>
 #include <vector>
 
-namespace a3d {
+namespace a3d::log {
 
+    class Log;
     class LogSink;
+
+    // [Public Types]
+
+    /** @brief Log-message severity and filtering threshold. */
+    enum class Level : uint8_t {
+        Trace = 0, ///< Finest-grained diagnostic messages.
+        Debug = 1, ///< Debug diagnostic messages.
+        Info  = 2, ///< Informational messages.
+        Warn  = 3, ///< Warning messages.
+        Error = 4, ///< Error messages.
+        Fatal = 5, ///< Fatal-error messages.
+        Off   = 6  ///< Disables message emission when used as the log level.
+    };
+
+    // [Public Static Member Functions]
+
+    /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
+    static Log& AppLog();
+
+    /** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
+    static void AppLog(std::unique_ptr<Log> log);
+
+    /** @brief Returns A3D's process-wide default Log. */
+    static Log& MainLog();
 
     /**
      * @brief Dispatches severity-filtered log messages to one or more LogSink objects.
@@ -32,18 +57,6 @@ namespace a3d {
     class Log {
 
     public:
-        // [Public Types]
-
-        /** @brief Log-message severity and filtering threshold. */
-        enum class Level : uint8_t {
-            Trace = 0, ///< Finest-grained diagnostic messages.
-            Debug = 1, ///< Debug diagnostic messages.
-            Info  = 2, ///< Informational messages.
-            Warn  = 3, ///< Warning messages.
-            Error = 4, ///< Error messages.
-            Fatal = 5, ///< Fatal-error messages.
-            Off   = 6  ///< Disables message emission when used as the log level.
-        };
 
         // [Internal Types]
 
@@ -103,17 +116,6 @@ namespace a3d {
             Level      _level;
             SourceInfo _source;
         };
-
-        // [Public Static Member Functions]
-
-        /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
-        static Log& AppLog();
-
-        /** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
-        static void AppLog(std::unique_ptr<Log> log);
-
-        /** @brief Returns A3D's process-wide default Log. */
-        static Log& MainLog();
 
         // [Public Lifecycle Functions]
 
@@ -246,38 +248,38 @@ namespace a3d {
      * log::i()("Mom, leave me alone.");
      * @endcode
      */
-    namespace log {
+    // namespace log {
 
         // [Public Functions]
 
         /** @brief Returns a Trace-level entry for A3D's main log. */
         inline Log::Entry t(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().trace(where);
+            return log::MainLog().trace(where);
         }
 
         /** @brief Returns a Debug-level entry for A3D's main log. */
         inline Log::Entry d(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().debug(where);
+            return log::MainLog().debug(where);
         }
 
         /** @brief Returns an Info-level entry for A3D's main log. */
         inline Log::Entry i(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().info(where);
+            return log::MainLog().info(where);
         }
 
         /** @brief Returns a Warn-level entry for A3D's main log. */
         inline Log::Entry w(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().warn(where);
+            return log::MainLog().warn(where);
         }
 
         /** @brief Returns an Error-level entry for A3D's main log. */
         inline Log::Entry e(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().error(where);
+            return log::MainLog().error(where);
         }
 
         /** @brief Returns a Fatal-level entry for A3D's main log. */
         inline Log::Entry f(std::source_location where = std::source_location::current()) {
-            return Log::MainLog().fatal(where);
+            return log::MainLog().fatal(where);
         }
 
         /**
@@ -297,36 +299,36 @@ namespace a3d {
 
             /** @brief Returns a Trace-level entry for the application log. */
             inline Log::Entry t(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().trace(where);
+                return log::AppLog().trace(where);
             }
 
             /** @brief Returns a Debug-level entry for the application log. */
             inline Log::Entry d(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().debug(where);
+                return log::AppLog().debug(where);
             }
 
             /** @brief Returns an Info-level entry for the application log. */
             inline Log::Entry i(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().info(where);
+                return log::AppLog().info(where);
             }
 
             /** @brief Returns a Warn-level entry for the application log. */
             inline Log::Entry w(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().warn(where);
+                return log::AppLog().warn(where);
             }
 
             /** @brief Returns an Error-level entry for the application log. */
             inline Log::Entry e(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().error(where);
+                return log::AppLog().error(where);
             }
 
             /** @brief Returns a Fatal-level entry for the application log. */
             inline Log::Entry f(std::source_location where = std::source_location::current()) {
-                return Log::AppLog().fatal(where);
+                return log::AppLog().fatal(where);
             }
 
         } // namespace app
-    } // namespace log
+    // } // namespace log
 
 } // namespace a3d
 

@@ -72,7 +72,7 @@ int FileLogSink::maxFilesize() const {
 
 // [Public LogSink Member Functions]
 
-void FileLogSink::write(const string& output, Log::Level level) {
+void FileLogSink::write(const string& output, Level level) {
 
     *_fileStream << output;
 
