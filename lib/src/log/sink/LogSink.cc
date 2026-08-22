@@ -13,8 +13,8 @@ using namespace a3d::log;
 
 // [Public Lifecycle Functions]
 
-LogSink::~LogSink() {}
+log::LogSink::~LogSink() {}
 
 // [Public Member Functions]
 
-void LogSink::flush() {}
+void log::LogSink::flush() {}

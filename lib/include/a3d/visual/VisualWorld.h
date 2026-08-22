@@ -53,11 +53,11 @@ namespace a3d {
     class VisualWorld {
 
     public:
-        // [Internal Types]
-
-        using Plane   = PlaneSurface;
-        using Sphere  = SphereSurface;
-        using Surface = a3d::Surface;
+        // // [Internal Types]
+        //
+        // using Plane   = PlaneSurface;
+        // using Sphere  = SphereSurface;
+        // using Surface = a3d::Surface;
 
         // [Public Types]
 
@@ -82,7 +82,8 @@ namespace a3d {
             double        updateDeltaTime {0.0}; ///< Delta time of the containing Runner update, in seconds.
 
             // time reached by the most recently completed simulation step
-            double        simulationTime {0.0}; ///< Time reached by the most recently completed simulation step, in seconds.
+            double        simulationTime {
+                0.0}; ///< Time reached by the most recently completed simulation step, in seconds.
 
             // total number of completed simulation steps
             std::uint64_t simulationStepCount {0}; ///< Total number of completed simulation steps.
@@ -119,10 +120,10 @@ namespace a3d {
         // [Public Member Functions]
 
         /** @brief Returns the rendering capabilities currently available to the VisualWorld. */
-        Capabilities                     capabilities() const;
+        Capabilities                       capabilities() const;
 
         /** @brief Returns the optional Scene background. */
-        const std::optional<Background>& background() const;
+        const std::optional<Background>&   background() const;
 
         /**
          * @brief Sets or disables the Scene background.
@@ -133,20 +134,20 @@ namespace a3d {
          *
          * @throws std::invalid_argument if the supplied background contents are invalid.
          */
-        void                             background(const std::optional<Background>& background);
+        void                               background(const std::optional<Background>& background);
 
         /** @brief Returns the optional distance fog configuration. */
-        const std::optional<Fog>&        fog() const;
+        const std::optional<Fog>&          fog() const;
 
         /**
          * @brief Sets or disables distance fog.
          *
          * @throws std::invalid_argument if distances or transition exponent are invalid.
          */
-        void                             fog(const std::optional<Fog>& fog);
+        void                               fog(const std::optional<Fog>& fog);
 
         /** @brief Returns the optional atmosphere configuration. */
-        const std::optional<Atmosphere>& atmosphere() const;
+        const std::optional<Atmosphere>&   atmosphere() const;
 
         /**
          * @brief Sets or disables atmospheric effects.
@@ -157,10 +158,10 @@ namespace a3d {
          * @throws std::logic_error if the required Surface configuration is absent.
          * @throws std::invalid_argument if an atmospheric numeric parameter is invalid.
          */
-        void                             atmosphere(const std::optional<Atmosphere>& atmosphere);
+        void                               atmosphere(const std::optional<Atmosphere>& atmosphere);
 
         /** @brief Returns the optional visual ground configuration. */
-        const std::optional<Ground>&     ground() const;
+        const std::optional<Ground>&       ground() const;
 
         /**
          * @brief Sets or disables visual ground rendering.
@@ -170,7 +171,7 @@ namespace a3d {
          * @throws std::logic_error if no Surface is configured.
          * @throws std::invalid_argument if a ground, fade, or haze parameter is invalid.
          */
-        void                             ground(const std::optional<Ground>& ground);
+        void                               ground(const std::optional<Ground>& ground);
 
         /** @brief Returns the optional reference Surface used by ground and atmospheric effects. */
         const std::optional<a3d::Surface>& surface() const;
@@ -187,7 +188,7 @@ namespace a3d {
         void                               surface(const std::optional<a3d::Surface>& surface);
 
         /** @brief Returns the weak reference to the camera Node used as the point of view. */
-        std::weak_ptr<Node>&             pointOfView();
+        std::weak_ptr<Node>&               pointOfView();
 
         /**
          * @brief Sets the camera Node used as the point of view.
@@ -196,7 +197,7 @@ namespace a3d {
          * of view is set before the first draw, first-draw initialization selects or
          * creates a Scene camera automatically.
          */
-        void                             pointOfView(const std::weak_ptr<Node>& cameraNode);
+        void                               pointOfView(const std::weak_ptr<Node>& cameraNode);
 
         /**
          * @brief Projects a world-space point into logical viewport coordinates.
@@ -206,7 +207,7 @@ namespace a3d {
          *
          * @throws std::runtime_error if no valid point of view or viewport is available.
          */
-        math::vec3                       projectPoint(const math::vec3& point) const;
+        math::vec3                         projectPoint(const math::vec3& point) const;
 
         /**
          * @brief Unprojects a logical viewport point into world coordinates.
@@ -216,7 +217,7 @@ namespace a3d {
          *
          * @throws std::runtime_error if no valid point of view or viewport is available.
          */
-        math::vec3                       unprojectPoint(const math::vec3& point) const;
+        math::vec3                         unprojectPoint(const math::vec3& point) const;
 
         /**
          * @brief Hit-tests visible Scene mesh geometry beneath a logical viewport point.
@@ -227,13 +228,13 @@ namespace a3d {
          * @throws std::runtime_error if the Scene, point of view, or viewport cannot
          * produce a valid hit-test ray.
          */
-        std::vector<HitTestResult>       hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult> hitTest(const math::vec2& point, const HitTestOptions& options) const;
 
         /** @brief Hit-tests the closest visible Scene mesh geometry beneath a logical viewport point. */
-        std::vector<HitTestResult>       hitTest(const math::vec2& point) const;
+        std::vector<HitTestResult> hitTest(const math::vec2& point) const;
 
         /** @brief Returns whether renderer-provided default lighting is enabled. */
-        bool                             defaultLightingEnabled() const;
+        bool                       defaultLightingEnabled() const;
 
         /**
          * @brief Enables or disables renderer-provided default lighting.
@@ -241,54 +242,54 @@ namespace a3d {
          * When enabled, material base content is rendered without evaluating the
          * Scene's ambient, directional, point, or spot lights.
          */
-        void                             defaultLightingEnabled(bool enabled);
+        void                       defaultLightingEnabled(bool enabled);
 
         /** @brief Returns the callback invoked immediately before Scene rendering begins. */
-        DidBeginFrameCallback            didBeginFrameCallback() const;
+        DidBeginFrameCallback      didBeginFrameCallback() const;
 
         /** @brief Sets the begin-frame callback; an empty callback disables it. */
-        void                             didBeginFrameCallback(DidBeginFrameCallback function);
+        void                       didBeginFrameCallback(DidBeginFrameCallback function);
 
         /** @brief Returns the non-owning RenderContext associated with this VisualWorld. */
-        RenderContext*                   renderContext() const;
+        RenderContext*             renderContext() const;
 
         /** @brief Returns the Scene this VisualWorld is attached to, or nullptr if unattached. */
-        Scene*                           scene() const;
+        Scene*                     scene() const;
 
         // [Internal Member Functions]
 
-        void                             attachedToScene(Scene& scene);
-        void                             detachedFromScene(Scene& scene);
+        void                       attachedToScene(Scene& scene);
+        void                       detachedFromScene(Scene& scene);
 
-        bool                             draw(const Scene&             scene,
-                                              const PhysicsWorld*      physicsWorld,
-                                              const RenderInfo&        info,
-                                              Scene::DebugOptions      debugOptions,
-                                              FrameStats&              stats,
-                                              Profiler&                profiler,
-                                              const FrameStatsHistory& statsHistory);
+        bool                       draw(const Scene&             scene,
+                                        const PhysicsWorld*      physicsWorld,
+                                        const RenderInfo&        info,
+                                        Scene::DebugOptions      debugOptions,
+                                        FrameStats&              stats,
+                                        Profiler&                profiler,
+                                        const FrameStatsHistory& statsHistory);
 
-        std::shared_ptr<Material>        backgroundMaterial();
+        std::shared_ptr<Material>  backgroundMaterial();
 
     private:
         // [Private Member Functions]
 
-        void                      firstDraw();
-        std::shared_ptr<Node>     defaultPOV();
+        void                        firstDraw();
+        std::shared_ptr<Node>       defaultPOV();
 
         // [Private Member Variables]
 
-        std::optional<Background>    _background;
-        std::shared_ptr<Material>    _backgroundMaterial;
-        std::optional<Fog>           _fog;
-        std::optional<Atmosphere>    _atmosphere;
-        std::optional<Ground>        _ground;
-        std::optional<a3d::Surface>  _surface;
-        bool                         _defaultLightingEnabled;
-        std::weak_ptr<Node>          _pointOfView;
-        RenderContext*               _renderContext;
-        Scene*                       _scene;
-        DidBeginFrameCallback        _didBeginFrameCallback;
+        std::optional<Background>   _background;
+        std::shared_ptr<Material>   _backgroundMaterial;
+        std::optional<Fog>          _fog;
+        std::optional<Atmosphere>   _atmosphere;
+        std::optional<Ground>       _ground;
+        std::optional<a3d::Surface> _surface;
+        bool                        _defaultLightingEnabled;
+        std::weak_ptr<Node>         _pointOfView;
+        RenderContext*              _renderContext;
+        Scene*                      _scene;
+        DidBeginFrameCallback       _didBeginFrameCallback;
     };
 
 }

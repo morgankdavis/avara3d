@@ -31,7 +31,7 @@ namespace a3d {
         // [Public Member Variables]
 
         math::vec3 center {0.0f, 0.0f, 0.0f}; ///< Center of the reference sphere in scene coordinates.
-        float      radius {1.0f};              ///< Radius of the reference sphere in scene units; must be greater than zero.
+        float      radius {1.0f}; ///< Radius of the reference sphere in scene units; must be greater than zero.
     };
 
     /** @brief Planar or spherical reference surface used by VisualWorld environment effects. */

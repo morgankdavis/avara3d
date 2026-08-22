@@ -50,7 +50,7 @@ void Log::AppLog(unique_ptr<Log> log) {
 }
 
 Log& Log::MainLog() {
-    static Log main {"a3d", std::make_unique<StdOutLogSink>(), DEFAULT_LEVEL, DEFAULT_FLUSH_LEVEL};
+    static Log main {"a3d", std::make_unique<a3d::log::StdOutLogSink>(), DEFAULT_LEVEL, DEFAULT_FLUSH_LEVEL};
     return main;
 }
 
