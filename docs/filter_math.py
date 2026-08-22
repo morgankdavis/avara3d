@@ -6,8 +6,11 @@ from pathlib import Path
 
 SECTION_MARKER = re.compile(r"^\s*// \[[^\]\r\n]+\]\s*$")
 NAMESPACE_DECL = "namespace a3d::math {"
-SYNTHETIC_DOC = "/*! <!-- Doxygen-only: self-documenting declaration. --> */ "
 NAMESPACE_DOC = "/** @brief Mathematical types and utilities used throughout A3D. */ "
+
+
+def synthetic_doc(line_number: int) -> str:
+    return f"/*! @anchor a3d_math_decl_{line_number} */ "
 
 
 def add_prefix(line: str, prefix: str) -> str:
@@ -32,7 +35,7 @@ def main() -> int:
     template_body_depth = 0
     output: list[str] = []
 
-    for line in lines:
+    for line_number, line in enumerate(lines, start=1):
         without_eol = line.rstrip("\r\n")
         code = code_before_comment(without_eol)
         stripped = code.strip()
@@ -47,7 +50,7 @@ def main() -> int:
                 output.append(line)
                 continue
 
-            output.append(add_prefix(line, SYNTHETIC_DOC))
+            output.append(add_prefix(line, synthetic_doc(line_number)))
             template_pending = False
             template_body_depth = max(0, code.count("{") - code.count("}"))
             continue
@@ -71,11 +74,11 @@ def main() -> int:
             continue
 
         if re.match(r"struct\s+[A-Za-z_]\w*\s*\{", stripped):
-            output.append(add_prefix(line, SYNTHETIC_DOC))
+            output.append(add_prefix(line, synthetic_doc(line_number)))
             continue
 
         if code.endswith(";") and stripped != "};":
-            output.append(add_prefix(line, SYNTHETIC_DOC))
+            output.append(add_prefix(line, synthetic_doc(line_number)))
             continue
 
         output.append(line)
