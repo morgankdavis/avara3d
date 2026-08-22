@@ -14,7 +14,6 @@
 #include <random>
 #include <string>
 
-/** @brief Mathematical types and utilities used throughout A3D. */
 namespace a3d::math {
 
     struct f32vec2;
@@ -33,11 +32,6 @@ namespace a3d::math {
     struct f32mat3;
     struct f32mat4;
     struct f32quat;
-
-    /** @name Types & Constants */
-    /// @{
-
-    /** @brief Scalar/type aliases and common mathematical constants. */
 
     // [Types]
 
@@ -99,11 +93,8 @@ namespace a3d::math {
     inline constexpr f32 SQRT_2          = 1.41421356237309504880f;
     inline constexpr f32 ONE_OVER_SQRT_2 = 0.70710678118654752440f;
 
-    /// @}
-
     // [32-bit Float Vector]
 
-    /** @brief Two-component single-precision floating-point vector. */
     struct f32vec2 {
         union {
             struct {
@@ -124,7 +115,6 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
-    /** @brief Three-component single-precision floating-point vector. */
     struct f32vec3 {
         union {
             struct {
@@ -154,7 +144,6 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
-    /** @brief Four-component single-precision floating-point vector. */
     struct f32vec4 {
         union {
             struct {
@@ -176,10 +165,6 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
-    /** @name Floating-Point Vector Functions */
-    /// @{
-
-    /** @brief Floating-point vector operations and utilities. */
     f32vec2     operator-(const f32vec2& v);
     f32vec3     operator-(const f32vec3& v);
     f32vec4     operator-(const f32vec4& v);
@@ -293,11 +278,8 @@ namespace a3d::math {
     f32vec3     make_vec3(const f32* ptr);
     f32vec4     make_vec4(const f32* ptr);
 
-    /// @}
-
     // [Signed 32-bit Integer Vector]
 
-    /** @brief Two-component signed 32-bit integer vector. */
     struct i32vec2 {
         i32 x, y;
         i32vec2();
@@ -309,7 +291,6 @@ namespace a3d::math {
         const i32& operator[](std::size_t i) const;
     };
 
-    /** @brief Three-component signed 32-bit integer vector. */
     struct i32vec3 {
         i32 x, y, z;
         i32vec3();
@@ -322,7 +303,6 @@ namespace a3d::math {
         const i32& operator[](std::size_t i) const;
     };
 
-    /** @brief Four-component signed 32-bit integer vector. */
     struct i32vec4 {
         i32 x, y, z, w;
         i32vec4();
@@ -335,10 +315,6 @@ namespace a3d::math {
         const i32& operator[](std::size_t i) const;
     };
 
-    /** @name Signed Integer Vector Functions */
-    /// @{
-
-    /** @brief Signed integer vector operations and utilities. */
     i32vec2     operator-(const i32vec2& v);
     i32vec3     operator-(const i32vec3& v);
     i32vec4     operator-(const i32vec4& v);
@@ -421,11 +397,8 @@ namespace a3d::math {
     i32vec3     make_vec3(const i32* ptr);
     i32vec4     make_vec4(const i32* ptr);
 
-    /// @}
-
     // [Unsigned 32-bit Integer Vector]
 
-    /** @brief Two-component unsigned 32-bit integer vector. */
     struct u32vec2 {
         u32 x, y;
         u32vec2();
@@ -437,7 +410,6 @@ namespace a3d::math {
         const u32& operator[](std::size_t i) const;
     };
 
-    /** @brief Three-component unsigned 32-bit integer vector. */
     struct u32vec3 {
         u32 x, y, z;
         u32vec3();
@@ -450,7 +422,6 @@ namespace a3d::math {
         const u32& operator[](std::size_t i) const;
     };
 
-    /** @brief Four-component unsigned 32-bit integer vector. */
     struct u32vec4 {
         u32 x, y, z, w;
         u32vec4();
@@ -463,10 +434,6 @@ namespace a3d::math {
         const u32& operator[](std::size_t i) const;
     };
 
-    /** @name Unsigned Integer Vector Functions */
-    /// @{
-
-    /** @brief Unsigned integer vector operations and utilities. */
     u32vec2     operator+(const u32vec2& a, const u32vec2& b);
     u32vec3     operator+(const u32vec3& a, const u32vec3& b);
     u32vec4     operator+(const u32vec4& a, const u32vec4& b);
@@ -545,11 +512,8 @@ namespace a3d::math {
     u32vec3     make_vec3(const u32* ptr);
     u32vec4     make_vec4(const u32* ptr);
 
-    /// @}
-
     // [Unsigned 8-bit Integer Vector]
 
-    /** @brief Two-component unsigned 8-bit integer vector. */
     struct u8vec2 {
         u8 x, y;
         u8vec2();
@@ -561,7 +525,6 @@ namespace a3d::math {
         const u8& operator[](std::size_t i) const;
     };
 
-    /** @brief Three-component unsigned 8-bit integer vector. */
     struct u8vec3 {
         union {
             struct {
@@ -583,7 +546,6 @@ namespace a3d::math {
         const u8& operator[](std::size_t i) const;
     };
 
-    /** @brief Four-component unsigned 8-bit integer vector. */
     struct u8vec4 {
         union {
             struct {
@@ -605,10 +567,6 @@ namespace a3d::math {
         const u8& operator[](std::size_t i) const;
     };
 
-    /** @name Unsigned 8-bit Vector Functions */
-    /// @{
-
-    /** @brief Unsigned 8-bit vector operations and utilities. */
     u8vec2      operator+(const u8vec2& a, const u8vec2& b);
     u8vec3      operator+(const u8vec3& a, const u8vec3& b);
     u8vec4      operator+(const u8vec4& a, const u8vec4& b);
@@ -686,11 +644,8 @@ namespace a3d::math {
     std::string to_string(const u8vec3& v);
     std::string to_string(const u8vec4& v);
 
-    /// @}
-
     // [32-bit Float Matrix]
 
-    /** @brief 2x2 single-precision floating-point matrix. */
     struct f32mat2 {
         f32vec2 c0, c1;
         f32mat2();
@@ -700,7 +655,6 @@ namespace a3d::math {
         const f32vec2& operator[](std::size_t i) const;
     };
 
-    /** @brief 3x3 single-precision floating-point matrix. */
     struct f32mat3 {
         f32vec3 c0, c1, c2;
         f32mat3();
@@ -711,7 +665,6 @@ namespace a3d::math {
         const f32vec3& operator[](std::size_t i) const;
     };
 
-    /** @brief 4x4 single-precision floating-point matrix. */
     struct f32mat4 {
         f32vec4 c0, c1, c2, c3;
         f32mat4();
@@ -722,10 +675,6 @@ namespace a3d::math {
         const f32vec4& operator[](std::size_t i) const;
     };
 
-    /** @name Matrix Functions */
-    /// @{
-
-    /** @brief Matrix operations and transform utilities. */
     f32mat2     operator-(const f32mat2& m);
     f32mat3     operator-(const f32mat3& m);
     f32mat4     operator-(const f32mat4& m);
@@ -789,11 +738,8 @@ namespace a3d::math {
     f32mat3     make_mat3(const f32* ptr);
     f32mat4     make_mat4(const f32* ptr);
 
-    /// @}
-
     // [32-bit Float Quaternion]
 
-    /** @brief Single-precision floating-point quaternion. */
     struct f32quat {
         f32 w, x, y, z;
         f32quat();
@@ -803,10 +749,6 @@ namespace a3d::math {
         const f32& operator[](std::size_t i) const;
     };
 
-    /** @name Quaternion Functions */
-    /// @{
-
-    /** @brief Quaternion operations, interpolation, and conversions. */
     f32quat     operator*(const f32quat& a, const f32quat& b);
     f32quat     operator*(const f32quat& q, f32 s);
     f32quat     operator*(f32 s, const f32quat& q);
@@ -844,13 +786,6 @@ namespace a3d::math {
 
     f32quat     make_quat(const f32* ptr);
 
-    /// @}
-
-    /** @name Projection & Decomposition */
-    /// @{
-
-    /** @brief Projection, view, and matrix decomposition utilities. */
-
     // [Projection & Camera]
 
     f32mat4     perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far); // rh
@@ -860,13 +795,6 @@ namespace a3d::math {
     // [Matrix Decomposition]
 
     bool        decompose(const f32mat4& m, f32vec3& scale, f32quat& rotation, f32vec3& translation);
-
-    /// @}
-
-    /** @name Random & Probability */
-    /// @{
-
-    /** @brief Random sampling and probability utilities. */
 
     // [Random / Probability]
 
@@ -905,13 +833,6 @@ namespace a3d::math {
 
     bool        bernoulli(f32 p);
     bool        bernoulli(std::mt19937* gen, f32 p);
-
-    /// @}
-
-    /** @name Interpolation & Easing */
-    /// @{
-
-    /** @brief Interpolation, smoothing, and easing utilities. */
 
     // [Easing]
 
@@ -998,13 +919,6 @@ namespace a3d::math {
     f32quat     slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
     f32quat     slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 
-    /// @}
-
-    /** @name Color */
-    /// @{
-
-    /** @brief Color-space conversion and color math utilities. */
-
     // [Color]
 
     f32         srgb_to_linear(f32 v);
@@ -1030,13 +944,6 @@ namespace a3d::math {
 
     f32vec3     rgb_to_hsl(const f32vec3& rgb_linear);
     f32vec3     hsl_to_rgb(const f32vec3& hsl); // returns linear rgb
-
-    /// @}
-
-    /** @name Scalar Math */
-    /// @{
-
-    /** @brief Scalar angle, trigonometric, comparison, range, classification, and utility functions. */
 
     // [Scalar Angles]
 
@@ -1129,8 +1036,6 @@ namespace a3d::math {
             std::swap(a[i], b[i]);
         }
     }
-
-    /// @}
 
 }
 
