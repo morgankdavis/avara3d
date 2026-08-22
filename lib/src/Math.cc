@@ -2833,6 +2833,32 @@ namespace a3d::math {
         // return dis(pick_random_gen(gen));
     }
 
+    f32vec2 uniform_linear(const f32vec2& min, const f32vec2& max) {
+        return uniform_linear(nullptr, min, max);
+    }
+
+    f32vec2 uniform_linear(std::mt19937* gen, const f32vec2& min, const f32vec2& max) {
+        return {uniform_linear(gen, min.x, max.x), uniform_linear(gen, min.y, max.y)};
+    }
+
+    f32vec3 uniform_linear(const f32vec3& min, const f32vec3& max) {
+        return uniform_linear(nullptr, min, max);
+    }
+
+    f32vec3 uniform_linear(std::mt19937* gen, const f32vec3& min, const f32vec3& max) {
+        return {uniform_linear(gen, min.x, max.x), uniform_linear(gen, min.y, max.y),
+                uniform_linear(gen, min.z, max.z)};
+    }
+
+    f32vec4 uniform_linear(const f32vec4& min, const f32vec4& max) {
+        return uniform_linear(nullptr, min, max);
+    }
+
+    f32vec4 uniform_linear(std::mt19937* gen, const f32vec4& min, const f32vec4& max) {
+        return {uniform_linear(gen, min.x, max.x), uniform_linear(gen, min.y, max.y),
+                uniform_linear(gen, min.z, max.z), uniform_linear(gen, min.w, max.w)};
+    }
+
     f32vec2 uniform_circular(f32 radius) {
         return uniform_circular(nullptr, radius);
     }

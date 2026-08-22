@@ -25,25 +25,14 @@ const uvec2                       WINDOW_SIZE {1280, 768};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const float                       TIME_STEP {1.0 / 120.0};
 const std::uint32_t               MAX_CATCH_UP_STEPS {8};
-const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
-const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
-const float                       PANEL_WIDTH {180.0f};
-const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
-const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
-const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
-const float                       CURSOR_MARKER_RADIUS {0.1f};
-const float                       DROP_HEIGHT {5.0f};
-const vec3                        DROP_BOX_SIZE {vec3 {1.0f} * 0.35f};
-const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
-const float                       DROP_PADDING {0.065f};
-const float                       THROW_SPAWN_DISTANCE {0.5f};
-const float                       THROW_SPEED {15.0f};
-const float                       THROW_MIN_FLIGHT_TIME {0.25f};
-const float                       THROW_MAX_FLIGHT_TIME {1.5f};
-const float                       POKE_IMPULSE_SOFT = 5.0f;
-const float                       POKE_IMPULSE_HARD = 10.0f;
-const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
-const bool                        ENABLE_CURSOR_MARKER {false};
+
+const vec3   GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
+const vec3   GRAVITY_MOON {0.0f, -1.62f, 0.0f};
+const vec3   GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
+const float  PANEL_WIDTH {180.0f};
+const bool   ENABLE_CURSOR_MARKER {false};
+const float  CURSOR_MARKER_RADIUS {0.1f};
+const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
 
 // [Private Static Non-Member Prototypes]
 
@@ -398,6 +387,9 @@ void App::frameDidBegin(Runner&                        runner,
     if (!runner.simulationPaused()) {
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
     }
+
+    const float BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+    const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
     const float angle =
         radians(180.0f) + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
@@ -955,6 +947,20 @@ void App::queueAction(const vec2& screenPosition) {
 
 void App::performAction(const PendingAction& action) {
 
+    const float  DROP_HEIGHT {5.0f};
+
+    const vec3   DROP_BOX_SIZE {vec3 {1.0f} * 0.35f};
+    const u8vec3 DROP_STACK_SIZE {3, 3, 3};
+    const float  DROP_PADDING {0.065f};
+
+    const float  THROW_SPAWN_DISTANCE {0.5f};
+    const float  THROW_SPEED {15.0f};
+    const float  THROW_MIN_FLIGHT_TIME {0.25f};
+    const float  THROW_MAX_FLIGHT_TIME {1.5f};
+
+    const float  POKE_IMPULSE_SOFT = 5.0f;
+    const float  POKE_IMPULSE_HARD = 10.0f;
+
     auto& scene = App::scene();
 
     auto simulationRoot = action.simulationRoot.lock();
@@ -1330,10 +1336,10 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                 physicsBody->restitution(0.02f);
                 physicsBody->friction(0.8f);
 
-                const float angularVariance = radians(30.0f);
-                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance)});
+                const float ANGULAR_VARIANCE = radians(30.0f);
+                physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                              uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                              uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
 
                 node->physicsBody(std::move(physicsBody));
 
@@ -1408,19 +1414,12 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 node->name(std::format("Coin {}", ++boxNum));
 
                 const float positionVariance = padding / 2.0;
-
-                const vec3 position {startX + static_cast<float>(x) * stepX,
+                node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
-                                     startZ + static_cast<float>(z) * stepZ};
+                                     startZ + static_cast<float>(z) * stepZ}
+                               + uniform_linear(vec3 {-positionVariance}, vec3 {positionVariance}));
 
-                const vec3 variation {uniform_linear(-positionVariance, positionVariance),
-                                      uniform_linear(-positionVariance * 0.25f, positionVariance * 0.25f),
-                                      uniform_linear(-positionVariance, positionVariance)};
-
-                node->position(position + variation);
-
-                node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-                                   uniform_linear(0.0f, TWO_PI)});
+                node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(20.0f);
@@ -1436,10 +1435,8 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 // physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
                 // physicsBody->ccdEnabled(true);
 
-                const float angularVariance = radians(180.0f);
-                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance)});
+                const float ANGULAR_VARIANCE = radians(180.0f);
+                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
                 node->physicsBody(std::move(physicsBody));
 
@@ -1502,20 +1499,13 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 static int boxNum = 0;
                 node->name(std::format("Beachball {}", ++boxNum));
 
-                const float positionVariance = padding / 2.0;
-
-                const vec3 position {startX + static_cast<float>(x) * stepX,
+                const float positionVariance = padding / 2.0f;
+                node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
-                                     startZ + static_cast<float>(z) * stepZ};
+                                     startZ + static_cast<float>(z) * stepZ}
+                               + uniform_linear(vec3 {-positionVariance}, vec3 {positionVariance}));
 
-                const vec3 variation {uniform_linear(-positionVariance, positionVariance),
-                                      uniform_linear(-positionVariance * 0.25f, positionVariance * 0.25f),
-                                      uniform_linear(-positionVariance, positionVariance)};
-
-                node->position(position + variation);
-
-                node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-                                   uniform_linear(0.0f, TWO_PI)});
+                node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(0.10f);
@@ -1524,10 +1514,8 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 physicsBody->rollingFriction(0.01);
                 physicsBody->angularDamping(0.6);
 
-                const float angularVariance = radians(30.0f);
-                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance)});
+                const float ANGULAR_VARIANCE = radians(30.0f);
+                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
                 node->physicsBody(std::move(physicsBody));
 
@@ -1675,13 +1663,10 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
     physicsBody->ccdEnabled(true);
 
-    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-                       uniform_linear(0.0f, TWO_PI)});
+    node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
     static const float ANGULAR_VARIANCE = radians(360.0f);
-    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
+    physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
     physicsBody->linearVelocity(velocity);
 

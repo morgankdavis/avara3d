@@ -27,7 +27,7 @@ namespace a3d {
 
 namespace a3d::util::fs {
 
-    // [Public Process Path Functions]
+    // [Process]
 
     /** @brief Returns the path to the current executable, or std::nullopt if unavailable. */
     std::optional<std::filesystem::path> ExecutablePath();
@@ -41,7 +41,7 @@ namespace a3d::util::fs {
     /** @brief Returns the current working directory, or std::nullopt if unavailable. */
     std::optional<std::filesystem::path> CurrentWorkingDirectory();
 
-    // [Public Image Functions]
+    // [Image]
 
     /** @brief Loads an image resource, optionally flipping it vertically or horizontally; returns nullptr if not found. */
     std::unique_ptr<Image>               ImageAt(const std::filesystem::path& resourcePath,
@@ -57,33 +57,51 @@ namespace a3d::util::fs {
      */
     std::unique_ptr<CubeImage>           CubeImageAt(const std::filesystem::path& baseFilename);
 
-    // [Public Scene Functions]
+    // [Scene]
 
     /** @brief Loads a scene resource with @p options; returns nullptr if not found. */
     std::unique_ptr<Scene>               SceneAt(const std::filesystem::path& resourcePath,
                                                  Scene::ImportOptions         options = Scene::ImportOptions::ImportAll);
 
-    // [Public Mesh Functions]
+    // [Mesh]
 
     /** @brief Loads a mesh resource with @p options; returns nullptr if not found. */
     std::shared_ptr<Mesh>                MeshAt(const std::filesystem::path& resourcePath,
                                                 Mesh::ImportOptions          options = Mesh::ImportOptions::ImportMaterials);
 
-    // [Public Text Functions]
+    // [Text]
 
     /** @brief Loads a text resource; returns std::nullopt if it is not found or cannot be opened. */
     std::optional<std::string>           TextAt(const std::filesystem::path& resourcePath);
 
-    // [Public Font Functions]
+    // [Font]
 
     /** @brief Loads a font resource; returns nullptr if not found. */
     std::unique_ptr<Font>                FontAt(const std::filesystem::path& resourcePath);
 
-    // [Public Auxiliary Functions]
+    // [Auxiliary]
 
     /** @brief Returns the resolved path to an auxiliary resource, or std::nullopt if not found. */
     std::optional<std::filesystem::path> AuxiliaryFileAt(const std::filesystem::path& resourcePath);
 
+    // [Search Paths]
+
+    // /** @brief Returns the current ordered resource search paths. */
+    // std::vector<std::filesystem::path> SearchPaths();
+    //
+    // /**
+    //  * @brief Adds a resource search path with highest search priority.
+    //  *
+    //  * @return true if the path was added, or false if it was already present.
+    //  */
+    // bool AddSearchPath(const std::filesystem::path& path);
+    //
+    // /**
+    //  * @brief Removes a resource search path.
+    //  *
+    //  * @return true if the path was removed, or false if it was not present.
+    //  */
+    // bool RemoveSearchPath(const std::filesystem::path& path);
 }
 
 #endif // AVARA3D_UTIL_FILESYSTEM_H

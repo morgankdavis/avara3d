@@ -58,7 +58,7 @@ static std::vector<std::filesystem::path>   AuxiliarySearchPaths();
 static std::optional<std::filesystem::path> SearchInPaths(const std::filesystem::path&              filename,
                                                           const std::vector<std::filesystem::path>& paths);
 
-// [Process Paths]
+// [Process]
 
 std::optional<std::filesystem::path> a3d::util::fs::ExecutablePath() {
 

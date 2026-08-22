@@ -816,6 +816,15 @@ namespace a3d::math {
     f32         uniform_linear(f32 min, f32 max); // [min, max)
     f32         uniform_linear(std::mt19937* gen, f32 min, f32 max); // [min, max)
 
+    f32vec2     uniform_linear(const f32vec2& min, const f32vec2& max); // [min, max)
+    f32vec2     uniform_linear(std::mt19937* gen, const f32vec2& min, const f32vec2& max); // [min, max)
+
+    f32vec3     uniform_linear(const f32vec3& min, const f32vec3& max); // [min, max)
+    f32vec3     uniform_linear(std::mt19937* gen, const f32vec3& min, const f32vec3& max); // [min, max)
+
+    f32vec4     uniform_linear(const f32vec4& min, const f32vec4& max); // [min, max)
+    f32vec4     uniform_linear(std::mt19937* gen, const f32vec4& min, const f32vec4& max); // [min, max)
+
     f32vec2     uniform_circular(f32 radius);
     f32vec2     uniform_circular(std::mt19937* gen, f32 radius);
 
