@@ -37,7 +37,7 @@ namespace {
     unique_ptr<Log> _appLog {};
 }
 
-// [Public Static Non-Member Functions]
+// [Public Functions]
 
 Log& log::AppLog() {
     if (_appLog) {

@@ -37,7 +37,7 @@ namespace a3d::log {
         Off   = 6  ///< Disables message emission when used as the log level.
     };
 
-    // [Public Static Member Functions]
+    // [Public Functions]
 
     /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
     Log& AppLog();
@@ -57,7 +57,6 @@ namespace a3d::log {
     class Log {
 
     public:
-
         // [Internal Types]
 
         struct SourceInfo {
@@ -224,10 +223,6 @@ namespace a3d::log {
         static constexpr Level                DEFAULT_LEVEL       = Level::Debug;
         static constexpr Level                DEFAULT_FLUSH_LEVEL = Level::Warn;
 
-        // [Private Static Member Variables]
-
-        static std::unique_ptr<Log>           _appLog;
-
         // [Private Member Variables]
 
         std::string                           _name;
@@ -236,99 +231,73 @@ namespace a3d::log {
         Level                                 _flushLevel;
     };
 
-    /**
-     * @details Convenience functions for writing to A3D's main log.
-     *
-     * Each function returns a callable Log::Entry for the corresponding severity.
-     * Invoke the returned entry with a message or a std::format-compatible format string.
-     *
-     * @code
-     * log::d()("Loaded {} meshes", meshCount);
-     * log::e()("Failed to open {}", path.string());
-     * log::i()("Mom, leave me alone.");
-     * @endcode
-     */
-    // namespace log {
+    // [Public Functions]
+
+    /** @brief Returns a Trace-level entry for A3D's main log. */
+    inline Log::Entry t(std::source_location where = std::source_location::current()) {
+        return log::MainLog().trace(where);
+    }
+
+        /** @brief Returns a Debug-level entry for A3D's main log. */
+    inline Log::Entry d(std::source_location where = std::source_location::current()) {
+        return log::MainLog().debug(where);
+    }
+
+    /** @brief Returns an Info-level entry for A3D's main log. */
+    inline Log::Entry i(std::source_location where = std::source_location::current()) {
+        return log::MainLog().info(where);
+    }
+
+    /** @brief Returns a Warn-level entry for A3D's main log. */
+    inline Log::Entry w(std::source_location where = std::source_location::current()) {
+        return log::MainLog().warn(where);
+    }
+
+    /** @brief Returns an Error-level entry for A3D's main log. */
+    inline Log::Entry e(std::source_location where = std::source_location::current()) {
+        return log::MainLog().error(where);
+    }
+
+    /** @brief Returns a Fatal-level entry for A3D's main log. */
+    inline Log::Entry f(std::source_location where = std::source_location::current()) {
+        return log::MainLog().fatal(where);
+    }
+
+    namespace app {
 
         // [Public Functions]
 
-        /** @brief Returns a Trace-level entry for A3D's main log. */
+        /** @brief Returns a Trace-level entry for the application log. */
         inline Log::Entry t(std::source_location where = std::source_location::current()) {
-            return log::MainLog().trace(where);
+            return log::AppLog().trace(where);
         }
 
-        /** @brief Returns a Debug-level entry for A3D's main log. */
+        /** @brief Returns a Debug-level entry for the application log. */
         inline Log::Entry d(std::source_location where = std::source_location::current()) {
-            return log::MainLog().debug(where);
+            return log::AppLog().debug(where);
         }
 
-        /** @brief Returns an Info-level entry for A3D's main log. */
+        /** @brief Returns an Info-level entry for the application log. */
         inline Log::Entry i(std::source_location where = std::source_location::current()) {
-            return log::MainLog().info(where);
+            return log::AppLog().info(where);
         }
 
-        /** @brief Returns a Warn-level entry for A3D's main log. */
+        /** @brief Returns a Warn-level entry for the application log. */
         inline Log::Entry w(std::source_location where = std::source_location::current()) {
-            return log::MainLog().warn(where);
+            return log::AppLog().warn(where);
         }
 
-        /** @brief Returns an Error-level entry for A3D's main log. */
+        /** @brief Returns an Error-level entry for the application log. */
         inline Log::Entry e(std::source_location where = std::source_location::current()) {
-            return log::MainLog().error(where);
+            return log::AppLog().error(where);
         }
 
-        /** @brief Returns a Fatal-level entry for A3D's main log. */
+        /** @brief Returns a Fatal-level entry for the application log. */
         inline Log::Entry f(std::source_location where = std::source_location::current()) {
-            return log::MainLog().fatal(where);
+            return log::AppLog().fatal(where);
         }
 
-        /**
-         * @details Convenience functions for writing to the application log.
-         *
-         * These functions have the same calling convention as the parent log namespace,
-         * but write through Log::AppLog() instead of Log::MainLog().
-         *
-         * @code
-         * log::app::i()("Simulation started");
-         * log::app::w()("Controller saturated at {}", value);
-         * @endcode
-         */
-        namespace app {
-
-            // [Public Functions]
-
-            /** @brief Returns a Trace-level entry for the application log. */
-            inline Log::Entry t(std::source_location where = std::source_location::current()) {
-                return log::AppLog().trace(where);
-            }
-
-            /** @brief Returns a Debug-level entry for the application log. */
-            inline Log::Entry d(std::source_location where = std::source_location::current()) {
-                return log::AppLog().debug(where);
-            }
-
-            /** @brief Returns an Info-level entry for the application log. */
-            inline Log::Entry i(std::source_location where = std::source_location::current()) {
-                return log::AppLog().info(where);
-            }
-
-            /** @brief Returns a Warn-level entry for the application log. */
-            inline Log::Entry w(std::source_location where = std::source_location::current()) {
-                return log::AppLog().warn(where);
-            }
-
-            /** @brief Returns an Error-level entry for the application log. */
-            inline Log::Entry e(std::source_location where = std::source_location::current()) {
-                return log::AppLog().error(where);
-            }
-
-            /** @brief Returns a Fatal-level entry for the application log. */
-            inline Log::Entry f(std::source_location where = std::source_location::current()) {
-                return log::AppLog().fatal(where);
-            }
-
-        } // namespace app
-    // } // namespace log
+    } // namespace app
 
 } // namespace a3d
 
