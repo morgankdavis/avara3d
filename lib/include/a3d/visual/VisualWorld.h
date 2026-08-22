@@ -53,16 +53,13 @@ namespace a3d {
     class VisualWorld {
 
     public:
+        // [Internal Types]
+
+        using Plane   = PlaneSurface;
+        using Sphere  = SphereSurface;
+        using Surface = a3d::Surface;
+
         // [Public Types]
-
-        /** @brief Infinite planar reference surface used by ground and atmospheric effects. */
-        using Plane   = surface::Plane;
-
-        /** @brief Spherical reference surface used by ground and atmospheric effects. */
-        using Sphere  = surface::Sphere;
-
-        /** @brief Planar or spherical reference surface used by visual environment effects. */
-        using Surface = surface::Surface;
 
         /** @brief Rendering capabilities available through this VisualWorld. */
         struct Capabilities {
@@ -155,7 +152,7 @@ namespace a3d {
          * @brief Sets or disables atmospheric effects.
          *
          * An enabled Atmosphere requires a Surface; limb glow additionally requires
-         * a spherical Surface.
+         * a SphereSurface.
          *
          * @throws std::logic_error if the required Surface configuration is absent.
          * @throws std::invalid_argument if an atmospheric numeric parameter is invalid.
@@ -176,18 +173,18 @@ namespace a3d {
         void                             ground(const std::optional<Ground>& ground);
 
         /** @brief Returns the optional reference Surface used by ground and atmospheric effects. */
-        const std::optional<Surface>&    surface() const;
+        const std::optional<a3d::Surface>& surface() const;
 
         /**
          * @brief Sets or removes the reference Surface used by ground and atmospheric effects.
          *
          * The Surface cannot be removed while Ground or Atmosphere is enabled, and
-         * an Atmosphere with limb glow requires a spherical Surface.
+         * an Atmosphere with limb glow requires a SphereSurface.
          *
          * @throws std::logic_error if the requested Surface conflicts with enabled effects.
          * @throws std::invalid_argument if the Surface contains invalid geometry.
          */
-        void                             surface(const std::optional<Surface>& surface);
+        void                               surface(const std::optional<a3d::Surface>& surface);
 
         /** @brief Returns the weak reference to the camera Node used as the point of view. */
         std::weak_ptr<Node>&             pointOfView();
@@ -281,17 +278,17 @@ namespace a3d {
 
         // [Private Member Variables]
 
-        std::optional<Background> _background;
-        std::shared_ptr<Material> _backgroundMaterial;
-        std::optional<Fog>        _fog;
-        std::optional<Atmosphere> _atmosphere;
-        std::optional<Ground>     _ground;
-        std::optional<Surface>    _surface;
-        bool                      _defaultLightingEnabled;
-        std::weak_ptr<Node>       _pointOfView;
-        RenderContext*            _renderContext;
-        Scene*                    _scene;
-        DidBeginFrameCallback     _didBeginFrameCallback;
+        std::optional<Background>    _background;
+        std::shared_ptr<Material>    _backgroundMaterial;
+        std::optional<Fog>           _fog;
+        std::optional<Atmosphere>    _atmosphere;
+        std::optional<Ground>        _ground;
+        std::optional<a3d::Surface>  _surface;
+        bool                         _defaultLightingEnabled;
+        std::weak_ptr<Node>          _pointOfView;
+        RenderContext*               _renderContext;
+        Scene*                       _scene;
+        DidBeginFrameCallback        _didBeginFrameCallback;
     };
 
 }

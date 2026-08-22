@@ -13,12 +13,12 @@
 
 #include "a3d/Math.h"
 
-namespace a3d::surface {
+namespace a3d {
 
     // [Public Types]
 
     /** @brief Infinite planar reference surface used by ground and atmospheric effects. */
-    struct Plane {
+    struct PlaneSurface {
 
         // [Public Member Variables]
 
@@ -26,7 +26,7 @@ namespace a3d::surface {
     };
 
     /** @brief Spherical reference surface used by ground and atmospheric effects. */
-    struct Sphere {
+    struct SphereSurface {
 
         // [Public Member Variables]
 
@@ -35,7 +35,7 @@ namespace a3d::surface {
     };
 
     /** @brief Planar or spherical reference surface used by VisualWorld environment effects. */
-    using Surface = std::variant<Plane, Sphere>;
+    using Surface = std::variant<PlaneSurface, SphereSurface>;
 
 }
 
