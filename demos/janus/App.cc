@@ -148,12 +148,12 @@ std::unique_ptr<Scene> App::init() {
                                     .radialFade = radialFade,
                                     .horizonHaze = horizonHaze});
 
-        auto atmosphhericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
 
         auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
         visualWorld->atmosphere(Atmosphere {.scaleHeight = 1.00f,
-                                            .haze = atmosphhericHaze,
+                                            .haze = atmosphericHaze,
                                             .limbGlow = limbGlow});
 
         // visualWorld->fog(Fog {
@@ -201,7 +201,7 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(pointLightNode);
         }
 
-        // setup transiet node groups
+        // setup transient node groups
 
         _transients.groupPolicy("drop", {.maxCount = 50});
         _transients.groupPolicy("throw", {.maxCount = 10,
@@ -1325,12 +1325,10 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                 node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
                                 startZ + static_cast<float>(z) * stepZ});
 
-                auto physicsBody = PhysicsBody::DynamicBody();
+                auto physicsBody = PhysicsBody::DynamicBody(rock.physicsShape);
                 physicsBody->mass(3.5f);
                 physicsBody->restitution(0.02f);
                 physicsBody->friction(0.8f);
-
-                physicsBody->shape(rock.physicsShape);
 
                 const float angularVariance = radians(30.0f);
                 physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
@@ -1424,7 +1422,7 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
                                    uniform_linear(0.0f, TWO_PI)});
 
-                auto physicsBody = PhysicsBody::DynamicBody();
+                auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(20.0f);
                 physicsBody->restitution(0.25f);
                 physicsBody->friction(0.5f);
@@ -1437,8 +1435,6 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 // physicsBody->ccdMotionThreshold(minExtent * 0.25f);
                 // physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
                 // physicsBody->ccdEnabled(true);
-
-                physicsBody->shape(shape);
 
                 const float angularVariance = radians(180.0f);
                 physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
@@ -1521,14 +1517,12 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
                                    uniform_linear(0.0f, TWO_PI)});
 
-                auto physicsBody = PhysicsBody::DynamicBody();
+                auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(0.10f);
                 physicsBody->restitution(0.8f);
                 physicsBody->friction(0.4f);
                 physicsBody->rollingFriction(0.01);
                 physicsBody->angularDamping(0.6);
-
-                physicsBody->shape(shape);
 
                 const float angularVariance = radians(30.0f);
                 physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
