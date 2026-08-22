@@ -13,7 +13,7 @@
 
 #include "a3d/log/sink/LogSink.h"
 
-namespace a3d {
+namespace a3d::log {
 
     /** @brief LogSink that writes ordinary messages to standard output and errors to standard error. */
     class StdOutLogSink : public LogSink {

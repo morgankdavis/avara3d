@@ -13,7 +13,7 @@
 
 #include "a3d/log/Log.h"
 
-namespace a3d {
+namespace a3d::log {
 
     /** @brief Interface for destinations that receive formatted Log output. */
     class LogSink {

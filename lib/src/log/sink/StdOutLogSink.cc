@@ -16,6 +16,7 @@
 #endif
 
 using namespace a3d;
+using namespace a3d::log;
 using namespace std;
 
 // [Public Lifecycle Functions]

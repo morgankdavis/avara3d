@@ -9,6 +9,7 @@
 #include "a3d/log/sink/LogSink.h"
 
 using namespace a3d;
+using namespace a3d::log;
 
 // [Public Lifecycle Functions]
 

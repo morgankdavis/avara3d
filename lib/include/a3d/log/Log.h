@@ -183,7 +183,7 @@ namespace a3d {
         void                                         fatal(const std::string& msg);
 
         /** @brief Flushes every owned sink. */
-        void  flush();
+        void                                         flush();
 
         // [Internal Member Functions]
 
@@ -234,6 +234,18 @@ namespace a3d {
         Level                                 _flushLevel;
     };
 
+    /**
+     * @details Convenience functions for writing to A3D's main log.
+     *
+     * Each function returns a callable Log::Entry for the corresponding severity.
+     * Invoke the returned entry with a message or a std::format-compatible format string.
+     *
+     * @code
+     * log::d()("Loaded {} meshes", meshCount);
+     * log::e()("Failed to open {}", path.string());
+     * log::i()("Mom, leave me alone.");
+     * @endcode
+     */
     namespace log {
 
         // [Public Functions]
@@ -268,6 +280,17 @@ namespace a3d {
             return Log::MainLog().fatal(where);
         }
 
+        /**
+         * @details Convenience functions for writing to the application log.
+         *
+         * These functions have the same calling convention as the parent log namespace,
+         * but write through Log::AppLog() instead of Log::MainLog().
+         *
+         * @code
+         * log::app::i()("Simulation started");
+         * log::app::w()("Controller saturated at {}", value);
+         * @endcode
+         */
         namespace app {
 
             // [Public Functions]
@@ -303,7 +326,7 @@ namespace a3d {
             }
 
         } // namespace app
-    }
+    } // namespace log
 
 } // namespace a3d
 

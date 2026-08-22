@@ -18,7 +18,7 @@
 
 #include "a3d/log/sink/LogSink.h"
 
-namespace a3d {
+namespace a3d::log {
 
     /**
      * @brief LogSink that appends output to a file and rotates older files by size.
