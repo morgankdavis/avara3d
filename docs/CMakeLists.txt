@@ -40,6 +40,17 @@ set(DOXYGEN_HIDE_UNDOC_MEMBERS YES)
 set(DOXYGEN_SHOW_FILES NO)
 set(DOXYGEN_SHOW_NAMESPACES YES)
 set(DOXYGEN_HIDE_UNDOC_NAMESPACES NO)
+set(DOXYGEN_EXCLUDE_SYMBOLS
+		"*::detail"
+		"*::detail::*"
+		"a3d::prof"
+		"a3d::prof::*"
+		"a3d::gl"
+		"a3d::gl::"
+		"a3d::testing"
+		"a3d::testing::"
+		"a3d::util::string"
+		"a3d::util::string::")
 set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
 
 set(DOXYGEN_STRIP_FROM_PATH "${PROJECT_SOURCE_DIR}/lib/include")

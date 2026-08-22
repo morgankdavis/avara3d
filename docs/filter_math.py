@@ -6,8 +6,6 @@ from pathlib import Path
 
 SECTION_MARKER = re.compile(r"^(?P<indent>\s*)// \[(?P<title>[^\]\r\n]+)\]\s*$")
 NAMESPACE_DECL = "namespace a3d::math {"
-NAMESPACE_DOC = "/** @brief Mathematical types and utilities used throughout A3D. */ "
-
 
 def synthetic_doc(line_number: int) -> str:
     return f"/*! @anchor a3d_math_decl_{line_number} */ "
@@ -78,7 +76,7 @@ def main() -> int:
             continue
 
         if stripped == NAMESPACE_DECL:
-            output.append(add_prefix(line, NAMESPACE_DOC))
+            output.append(line)
             continue
 
         if section_open and line_number == namespace_close_line:

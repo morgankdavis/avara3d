@@ -32,7 +32,6 @@ namespace a3d {
         Mobile  = (1 << 3) | (1 << 4)             ///< Android or iOS.
     };
 
-    /** @brief Compile-time target-platform information. */
     namespace env {
 
         // [Public Constants]
