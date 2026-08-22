@@ -38,7 +38,7 @@ namespace a3d {
         /**
          * @brief Rejects attempts to change the fixed primitive shape type.
          *
-         * @throws std::logic_error always; PlanePhysicsShape has a fixed type.
+         * @throws std::logic_error always; FinitePlanePhysicsShape has a fixed type.
          */
         void  type(Type type) override;
 

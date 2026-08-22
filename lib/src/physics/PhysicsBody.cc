@@ -694,7 +694,7 @@ static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<M
     }
 
     if (auto plane = dynamic_cast<Plane*>(element)) {
-        log::d()("Creating PlanePhysicsShape based on Plane MeshElement.");
+        log::d()("Creating FinitePlanePhysicsShape based on Plane MeshElement.");
         return make_shared<FinitePlanePhysicsShape>(plane->width(), plane->height());
     }
 

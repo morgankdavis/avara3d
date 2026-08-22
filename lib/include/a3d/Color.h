@@ -97,8 +97,14 @@ namespace a3d {
         /** @brief Creates an opaque color from floating-point RGB components. */
         explicit Color(const math::vec3& rgb);
 
+        /** @brief Creates an opaque color from floating-point RGB components. */
+        Color(float r, float g, float b);
+
         /** @brief Creates a color from floating-point RGBA components. */
         explicit Color(const math::vec4& rgba);
+
+        /** @brief Creates a color from floating-point RGBA components. */
+        Color(float r, float g, float b, float a);
 
         /** @brief Creates an opaque color from 8-bit RGB components. */
         explicit Color(const math::u8vec3& irgb);

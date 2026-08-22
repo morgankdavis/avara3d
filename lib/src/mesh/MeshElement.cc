@@ -189,8 +189,6 @@ void MeshElement::beginBuild(VertexLayout      layout,
     _indexCount = 0;
     _indexData.clear();
 
-//	_faces.clear(); // legacy bridge (remove in Phase B)
-
     if (reserveVerts) {
         _vertexData.reserve(size_t(reserveVerts) * size_t(vertexStride));
     }

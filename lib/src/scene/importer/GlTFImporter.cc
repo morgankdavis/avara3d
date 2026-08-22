@@ -848,11 +848,11 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 }
 
 Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
-    return Color(vec3 {v[0], v[1], v[2]});
+    return {v[0], v[1], v[2]};
 }
 
 Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
-    return Color(vec3 {v[0], v[1], v[2]});
+    return {v[0], v[1], v[2]};
 }
 
 float PhongExponentFromGlTFRoughness(float roughness) {

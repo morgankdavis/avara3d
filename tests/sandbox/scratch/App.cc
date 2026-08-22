@@ -60,14 +60,14 @@ std::unique_ptr<Scene> App::init() {
                             .color = Color::DarkGray(),
                             .minor =
                                 Ground::Procedural::GridComponent {
-                                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                                    .color = {0.5f, 0.5f, 0.5f, 0.25f},
                                     .spacing = 1.0f,
                                     .lineWidthPixels = 1.0f,
                                     .reliefStrength = -0.15f,
                                 },
                             .major =
                                 Ground::Procedural::GridComponent {
-                                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                                    .color = {0.75f, 0.75f, 0.75f, 0.25f},
                                     .spacing = 10.0f,
                                     .lineWidthPixels = 1.0f,
                                     .reliefStrength = -0.15f,
@@ -78,7 +78,7 @@ std::unique_ptr<Scene> App::init() {
                 },
             .horizonHaze =
                 Ground::HorizonHaze {
-                    .color = Color(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
+                    .color = {0.1f, 0.1f, 0.1f, 0.5f},
                     .angularWidth = math::radians(2.5f),
                 },
         });

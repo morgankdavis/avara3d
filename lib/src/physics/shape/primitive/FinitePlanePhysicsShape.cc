@@ -1,5 +1,5 @@
 //
-//  PlanePhysicsShape.cc
+//  FinitePlanePhysicsShape.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
@@ -35,5 +35,5 @@ PhysicsShape::Type FinitePlanePhysicsShape::type() const {
 }
 
 void FinitePlanePhysicsShape::type(PhysicsShape::Type type) {
-    throw std::logic_error("Cannot set PhysicsShape::Type for PlanePhysicsShape.");
+    throw std::logic_error("Cannot set PhysicsShape::Type for FinitePlanePhysicsShape.");
 }

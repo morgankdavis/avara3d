@@ -17,79 +17,79 @@ using namespace std;
 // [Public Static Member Functions]
 
 Color Color::Black() {
-    return Color(vec4 {0.0f, 0.0f, 0.0f, 1.0f});
+    return {0.0f, 0.0f, 0.0f, 1.0f};
 }
 
 Color Color::DarkGray() {
-    return Color(vec4 {0.25f, 0.25f, 0.25f, 1.0f});
+    return {0.25f, 0.25f, 0.25f, 1.0f};
 }
 
 Color Color::Gray() {
-    return Color(vec4 {0.5f, 0.5f, 0.5f, 1.0f});
+    return {0.5f, 0.5f, 0.5f, 1.0f};
 }
 
 Color Color::LightGray() {
-    return Color(vec4 {0.75f, 0.75f, 0.75f, 1.0f});
+    return {0.75f, 0.75f, 0.75f, 1.0f};
 }
 
 Color Color::White() {
-    return Color(vec4 {1.0f, 1.0f, 1.0f, 1.0f});
+    return {1.0f, 1.0f, 1.0f, 1.0f};
 }
 
 Color Color::Maroon() {
-    return Color(vec4 {128.0f / 255.0f, 0.0f, 0.0f, 1.0f});
+    return {128.0f / 255.0f, 0.0f, 0.0f, 1.0f};
 }
 
 Color Color::Red() {
-    return Color(vec4 {1.0f, 0.0f, 0.0f, 1.0f});
+    return {1.0f, 0.0f, 0.0f, 1.0f};
 }
 
 Color Color::Orange() {
-    return Color(vec4 {1.0f, 165.0f / 255.0f, 0.0f, 1.0f});
+    return {1.0f, 165.0f / 255.0f, 0.0f, 1.0f};
 }
 
 Color Color::Yellow() {
-    return Color(vec4 {1.0f, 1.0f, 0.0f, 1.0f});
+    return {1.0f, 1.0f, 0.0f, 1.0f};
 }
 
 Color Color::Olive() {
-    return Color(vec4 {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+    return {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f};
 }
 
 Color Color::Lime() {
-    return Color(vec4 {0.0f, 1.0f, 0.0f, 1.0f});
+    return {0.0f, 1.0f, 0.0f, 1.0f};
 }
 
 Color Color::Green() {
-    return Color(vec4 {0.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+    return {0.0f, 128.0f / 255.0f, 0.0f, 1.0f};
 }
 
 Color Color::Cyan() {
-    return Color(vec4 {0.0f, 1.0f, 1.0f, 1.0f});
+    return {0.0f, 1.0f, 1.0f, 1.0f};
 }
 
 Color Color::Blue() {
-    return Color(vec4 {0.0f, 0.0f, 1.0f, 1.0f});
+    return {0.0f, 0.0f, 1.0f, 1.0f};
 }
 
 Color Color::Navy() {
-    return Color(vec4 {0.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+    return {0.0f, 0.0f, 128.0f / 255.0f, 1.0f};
 }
 
 Color Color::Teal() {
-    return Color(vec4 {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f});
+    return {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f};
 }
 
 Color Color::Magenta() {
-    return Color(vec4 {1.0f, 0.0f, 1.0f, 1.0f});
+    return {1.0f, 0.0f, 1.0f, 1.0f};
 }
 
 Color Color::Purple() {
-    return Color(vec4 {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+    return {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f};
 }
 
 Color Color::Brown() {
-    return Color(vec4 {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f});
+    return {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f};
 }
 
 Color Color::Random() {
@@ -113,8 +113,14 @@ Color::Color():
 Color::Color(const vec3& rgb):
     _rgba {vec4 {math::clamp_01(rgb), 1.0f}} {}
 
+Color::Color(float r, float g, float b):
+    Color(math::vec3 {r, g, b}) {}
+
 Color::Color(const vec4& rgba):
     _rgba {math::clamp_01(rgba)} {}
+
+Color::Color(float r, float g, float b, float a):
+    Color(math::vec4 {r, g, b, a}) {}
 
 Color::Color(const u8vec3& irgb):
     _rgba {(float) irgb.r / 255.0f, (float) irgb.g / 255.0f, (float) irgb.b / 255.0f, 1.0} {}

@@ -120,12 +120,12 @@ std::unique_ptr<Scene> App::init() {
         // groundMaterial->specularExponent(16.0f);
         // groundMaterial->uvScale(5.0f);
 
-        auto minor = Ground::Procedural::GridComponent {.color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+        auto minor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
                                                         .spacing = 1.0f,
                                                         .lineWidthPixels = 1.0f,
                                                         .reliefStrength = -0.125f};
 
-        auto major = Ground::Procedural::GridComponent {.color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+        auto major = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
                                                         .spacing = 10.0f,
                                                         .lineWidthPixels = 1.0f,
                                                         .reliefStrength = -0.125f};
@@ -136,12 +136,12 @@ std::unique_ptr<Scene> App::init() {
                                               .specularIntensity = 0.05f,
                                               .specularExponent = 8.0f};
 
-        auto radialFade = Ground::RadialFade {.color = Color(vec4 {0.01f, 0.01f, 0.01f, 1.0f}),
+        auto radialFade = Ground::RadialFade {.color = {0.01f, 0.01f, 0.01f, 1.0f},
                                               .center = {0.0f, 0.0f},
                                               .startDistance = 10.0f,
                                               .endDistance = 100.0f};
 
-        auto horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.3f}),
+        auto horizonHaze = Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f},
                                                 .angularWidth = math::radians(4.0f)};
 
         visualWorld->ground(Ground {.fill = Ground::Procedural {.content = grid},
@@ -149,17 +149,17 @@ std::unique_ptr<Scene> App::init() {
                                     .horizonHaze = horizonHaze});
 
         auto atmosphhericHaze =
-            Atmosphere::Haze {.color = Color(vec4 {0.10f, 0.11f, 0.12f, 0.3}), .density = .35};
+            Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
 
         auto limbGlow =
-            Atmosphere::LimbGlow {.color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}), .intensity = 0.25f};
+            Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
         visualWorld->atmosphere(Atmosphere {.scaleHeight = 1.00f,
                                             .haze = atmosphhericHaze,
                                             .limbGlow = limbGlow});
 
         // visualWorld->fog(Fog {
-        //     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.25f}),
+        //     .color = {0.2f, 0.2f, 0.2f, 0.25f},
         //     .startDistance = 10.0f,
         //     .endDistance = 50.0f,
         //     .transitionExponent = 1.0f,
@@ -189,7 +189,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color(0.15f));
+        auto ambientLight = make_shared<AmbientLight>(Color{0.15f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
@@ -205,20 +205,9 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transiet node groups
 
-        _transients.groupPolicy("rock", {.maxCount = {75}});
-        _transients.groupPolicy("coin", {.maxCount = {75}});
-        _transients.groupPolicy("ball", {.maxCount = {75}});
-
-        _transients.groupPolicy("hammer",
+        _transients.groupPolicy("drop", {.maxCount = {50}});
+        _transients.groupPolicy("throw",
                                 {.maxCount = {10},
-                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                  .radius = 100.0f}});
-        _transients.groupPolicy("hula",
-                                {.maxCount = {10},
-                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                  .radius = 100.0f}});
-        _transients.groupPolicy("duck",
-                                {.maxCount = {15},
                                  .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
                                                                                   .radius = 100.0f}});
 
@@ -991,19 +980,19 @@ void App::performAction(const PendingAction& action) {
                 case DropAction::Rocks: {
                     auto rocks =
                         DropRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
-                    _transients.track(rocks, "rock");
+                    _transients.track(rocks, "drop");
                     break;
                 }
                 case DropAction::Coins: {
                     auto coins = DropCoins(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
                                            DROP_PADDING + .1);
-                    _transients.track(coins, "coin");
+                    _transients.track(coins, "drop");
                     break;
                 }
                 case DropAction::Balls: {
                     auto balls = DropBalls(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
                                            DROP_PADDING + .1);
-                    _transients.track(balls, "ball");
+                    _transients.track(balls, "drop");
                     break;
                 }
             }
@@ -1034,21 +1023,21 @@ void App::performAction(const PendingAction& action) {
                     auto projectile = ThrowHammer(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "hammer");
+                    _transients.track(projectile, "throw");
                     break;
                 }
                 case ThrowAction::Hula: {
                     auto projectile = ThrowHula(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "hula");
+                    _transients.track(projectile, "throw");
                     break;
                 }
                 case ThrowAction::Duck: {
                     auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "duck");
+                    _transients.track(projectile, "throw");
                     break;
                 }
             }
