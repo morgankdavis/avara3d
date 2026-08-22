@@ -18,7 +18,7 @@ using namespace std;
 
 // [Private Constants]
 
-const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
 const bool                        FULLSCREEN {false};
 const bool                        ENABLE_HIGH_DPI {true};
@@ -47,7 +47,7 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->background(Background {Color(u8vec3 {109, 136, 164})});
 
-        visualWorld->surface(VisualWorld::Sphere {
+        visualWorld->surface(SphereSurface {
             .center = {0.0f, -5000.0f, 0.0f},
             .radius = 5000.0f,
         });

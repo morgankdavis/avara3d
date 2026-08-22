@@ -52,7 +52,7 @@ namespace a3de {
     private:
         void initA3D();
         void updateA3D();
-        void initLog(a3d::Log::Level level);
+        void initLog(a3d::log::Level level);
 
         // [Runner Callbacks]
 

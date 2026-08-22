@@ -40,13 +40,13 @@ namespace a3d::log {
     // [Public Static Member Functions]
 
     /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
-    static Log& AppLog();
+    Log& AppLog();
 
     /** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
-    static void AppLog(std::unique_ptr<Log> log);
+    void AppLog(std::unique_ptr<Log> log);
 
     /** @brief Returns A3D's process-wide default Log. */
-    static Log& MainLog();
+    Log& MainLog();
 
     /**
      * @brief Dispatches severity-filtered log messages to one or more LogSink objects.

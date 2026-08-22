@@ -20,7 +20,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const bool                        CAPTURE_CURSOR {false};
@@ -106,20 +106,20 @@ void MainWindow::updateA3D() {
     }
 }
 
-void MainWindow::initLog(Log::Level level) {
+void MainWindow::initLog(log::Level level) {
 
-    Log::MainLog().level(level);
+    log::MainLog().level(level);
 
     string executableName = *util::fs::ExecutableName();
 
-    auto nativeSink = make_unique<StdOutLogSink>();
+    auto nativeSink = make_unique<log::StdOutLogSink>();
     auto fileSink =
-        make_unique<FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
-    auto sinks = vector<unique_ptr<LogSink>>();
+        make_unique<log::FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
+    auto sinks = vector<unique_ptr<log::LogSink>>();
     sinks.push_back(std::move(nativeSink));
     sinks.push_back(std::move(fileSink));
 
-    Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
+    log::AppLog(make_unique<log::Log>(executableName, std::move(sinks), level));
 
     const auto& buildInfo = BuildInfo::Info();
     log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));

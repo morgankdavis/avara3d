@@ -27,7 +27,7 @@ using namespace test::rigidbody;
 
 // [Private Constants]
 
-const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
 const bool                        FULLSCREEN {false};
 const bool                        ENABLE_HIGH_DPI {true};
