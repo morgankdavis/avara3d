@@ -59,23 +59,21 @@ bool Panel::subOption(string_view label, bool selected, Padding padding) {
                       IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
 
     if (selected) {
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.32f, 0.32f, 0.32f, 0.98f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.40f, 0.40f, 0.40f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.80f));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
     else {
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.70f, 0.70f, 0.70f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.08f, 0.08f, 0.08f, 0.72f));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.135f, 0.135f, 0.135f, 0.81f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.16f, 0.16f, 0.16f, 0.88f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.28f, 0.28f, 0.28f, 0.96f));
-        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.45f));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.70f));
     }
 
     const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(contentWidth, contentHeight));
 
-    ImGui::PopStyleColor(5);
+    ImGui::PopStyleColor(4);
 
     ImGui::EndGroup();
 
