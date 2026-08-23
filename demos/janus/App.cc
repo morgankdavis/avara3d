@@ -545,37 +545,37 @@ bool App::drawPanel() {
     switch (_action) {
         case Action::Drop:
             panel.row(3);
-            if (panel.option("Rocks", _dropAction == DropAction::Rocks)) {
+            if (panel.subOption("Rocks", _dropAction == DropAction::Rocks)) {
                 _dropAction = DropAction::Rocks;
             }
-            if (panel.option("Coins", _dropAction == DropAction::Coins)) {
+            if (panel.subOption("Coins", _dropAction == DropAction::Coins)) {
                 _dropAction = DropAction::Coins;
             }
-            if (panel.option("Balls", _dropAction == DropAction::Balls)) {
+            if (panel.subOption("Balls", _dropAction == DropAction::Balls)) {
                 _dropAction = DropAction::Balls;
             }
             break;
         case Action::Throw:
             panel.row(3);
-            if (panel.option("Hammer", _throwAction == ThrowAction::Hammer)) {
+            if (panel.subOption("Hammer", _throwAction == ThrowAction::Hammer)) {
                 _throwAction = ThrowAction::Hammer;
             }
-            if (panel.option("Hula", _throwAction == ThrowAction::Hula)) {
+            if (panel.subOption("Hula", _throwAction == ThrowAction::Hula)) {
                 _throwAction = ThrowAction::Hula;
             }
-            if (panel.option("Duck", _throwAction == ThrowAction::Duck)) {
+            if (panel.subOption("Duck", _throwAction == ThrowAction::Duck)) {
                 _throwAction = ThrowAction::Duck;
             }
             break;
         case Action::Poke:
             panel.row(3);
-            if (panel.option("Soft", _pokiness == Pokiness::Soft)) {
+            if (panel.subOption("Soft", _pokiness == Pokiness::Soft)) {
                 _pokiness = Pokiness::Soft;
             }
-            if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
+            if (panel.subOption("Hard", _pokiness == Pokiness::Hard)) {
                 _pokiness = Pokiness::Hard;
             }
-            if (panel.option("Flip", _pokiness == Pokiness::Flip)) {
+            if (panel.subOption("Flip", _pokiness == Pokiness::Flip)) {
                 _pokiness = Pokiness::Flip;
             }
             break;
