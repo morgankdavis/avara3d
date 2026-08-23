@@ -548,20 +548,17 @@ void PhysicsBody::shapeWillUpdate() {
 void PhysicsBody::shapeDidUpdate() {
 
     if (!_proxy) {
-        log::e()("No body proxy.");
-        return;
+        throw logic_error(std::format("No body proxy for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     if (!_shape) {
-        log::e()("No shape.");
         _proxy->shapeProxy(nullptr);
-        return;
+        throw logic_error(std::format("No shape for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     if (!_shape->proxy()) {
-        log::e()("PhysicsShape has no proxy.");
         _proxy->shapeProxy(nullptr);
-        return;
+        throw logic_error(std::format("Shape has no proxy for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     _proxy->shapeProxy(_shape->proxy());

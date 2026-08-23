@@ -197,7 +197,7 @@ void StatsOverlay::initialize(ImguiContext& context) {
         _titleImFont = context.addFont(std::move(overlayTitleFont));
     }
     else {
-        log::e()("Unable to load font: {}", STATS_TITLE_FONT);
+        throw runtime_error(std::format("Unable to load font: {}", STATS_TITLE_FONT));
     }
 }
 

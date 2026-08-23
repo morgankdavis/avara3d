@@ -161,10 +161,9 @@ void PhysicsWorld::remove(PhysicsBody& body) {
 
 void PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
-    if (!util::flow::edge_guard(_proxy, [&] {
-            log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
-        })) {
-        return;
+    if (!_proxy) {
+        throw logic_error(std::format("No PhysicsWorldProxy attached to PhysicsWorld {:p}",
+                                      static_cast<void*>(this)));
     }
 
     const auto& contactEvents = _proxy->step(deltaTime, profiler);

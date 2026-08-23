@@ -8,6 +8,7 @@
 
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
@@ -93,15 +94,19 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
     log::d()("shape: {:p}", static_cast<void*>(&shape));
 
-    auto bodyType = (*shape.bodies().begin())->type();
+    if (shape.bodies().empty()) {
+        throw logic_error("Cannot create BulletShapeProxy for an unattached PhysicsShape.");
+    }
+
+    const auto bodyType = (*shape.bodies().begin())->type();
 
     auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
     auto btShapes = vector<unique_ptr<btCollisionShape>>();
 
-    auto sourceObject = shape.source();
+    const auto sourceObject = shape.source();
 
     auto newShape = std::visit(
-        [&shape, &bodyType, &btShapes, &btIndexVertexArrays](auto&& source) -> unique_ptr<btCollisionShape> {
+        [&shape, bodyType, &btShapes, &btIndexVertexArrays](auto&& source) -> unique_ptr<btCollisionShape> {
             using T = std::decay_t<decltype(source)>;
 
             if constexpr (std::is_same_v<T, weak_ptr<Mesh>>) {
@@ -110,11 +115,8 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
                     return BTShapeFromSourceMesh(*sourceMesh, shape.type(), bodyType, btShapes,
                                                  btIndexVertexArrays);
                 }
-                else {
-                    log::w()("sourceMesh is null.");
-                // TODO: throw?
-                    return nullptr;
-                }
+
+                throw logic_error("PhysicsShape source Mesh has expired.");
             }
             else if constexpr (std::is_same_v<T, weak_ptr<Node>>) {
 
@@ -122,37 +124,28 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
                     return BTShapeFromSourceNode(*sourceNode, shape.type(), bodyType, btShapes,
                                                  btIndexVertexArrays);
                 }
-                else {
-                    log::w()("sourceNode is null.");
-                // TODO: throw?
-                    return nullptr;
-                }
-            }
 
+                throw logic_error("PhysicsShape source Node has expired.");
+            }
             else if constexpr (std::is_same_v<T, std::monostate>) {
                 return BTShapeFromPrimitiveShape(shape);
             }
         },
         sourceObject);
 
-    if (newShape) {
-
-        newShape->setUserPointer(static_cast<void*>(&shape));
-        btShapes.insert(btShapes.begin(), std::move(newShape));
-
-        _btShapes.insert(_btShapes.begin(), std::make_move_iterator(btShapes.begin()),
-                         std::make_move_iterator(btShapes.end()));
-
-        _btIndexVertexArrays.insert(_btIndexVertexArrays.begin(),
-                                    std::make_move_iterator(btIndexVertexArrays.begin()),
-                                    std::make_move_iterator(btIndexVertexArrays.end()));
-
-//		shape->dirtyMask(PHYSICS_SHAPE_DIRTY_MASK_REMOVE(shape->dirtyMask(),
-//														PHYSICS_SHAPE_DIRTY_MASK::MODEL));
+    if (!newShape) {
+        throw logic_error("Failed to create a Bullet collision shape for PhysicsShape.");
     }
-    else {
-        log::e()("PhysicsShape with no mesh or source node.");
-    }
+
+    newShape->setUserPointer(static_cast<void*>(&shape));
+    btShapes.insert(btShapes.begin(), std::move(newShape));
+
+    _btShapes.insert(_btShapes.begin(), std::make_move_iterator(btShapes.begin()),
+                     std::make_move_iterator(btShapes.end()));
+
+    _btIndexVertexArrays.insert(_btIndexVertexArrays.begin(),
+                                std::make_move_iterator(btIndexVertexArrays.begin()),
+                                std::make_move_iterator(btIndexVertexArrays.end()));
 }
 
 BulletShapeProxy::~BulletShapeProxy() {
@@ -192,7 +185,8 @@ static unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                 
         newShape = BTShapeFromMesh(mesh, shapeType, bodyType, btShapes, btIndexVertexArrays);
     }
     else {
-        log::e()("Can't create physic shape for Mesh {:p}: has no elements.", static_cast<void*>(&mesh));
+        throw std::invalid_argument(std::format("Can't create physic shape for Mesh {:p} with no elements.",
+                                                static_cast<void*>(&mesh)));
     }
 
     return newShape;
@@ -259,7 +253,7 @@ static unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shap
         return make_unique<btSphereShape>((btScalar) sphereShape->radius());
     }
     else {
-        log::e()("PhysicsShape {:p} is not a valid subclass.", static_cast<void*>(&shape));
+        throw logic_error(std::format("PhysicsShape {:p} is not a valid subclass.", static_cast<void*>(&shape));
     }
 
     return nullptr;

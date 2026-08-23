@@ -163,7 +163,7 @@ bool GLSLProgram::validate() {
 void GLSLProgram::use() {
 
     if (_glID <= 0 || (!_isLinked)) {
-        log::e()("Program '{}' not ready.", _name);
+        throw logic_error(std::format("Program '{}' not ready.", _name));
     }
     else {
         glUseProgram(_glID);

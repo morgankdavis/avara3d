@@ -545,17 +545,16 @@ bool VisualWorld::draw(const Scene&             scene,
                        FrameStats&              stats,
                        Profiler&                profiler,
                        const FrameStatsHistory& statsHistory) {
-    if (!util::flow::edge_guard(_renderContext, [&] {
-            log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
-        })) {
-        return false;
+
+    if (!_renderContext) {
+        throw logic_error(std::format("No RenderContext attached to VisualWorld {:p}",
+                                      static_cast<void*>(this)));
     }
 
     auto renderer = _renderContext->renderer();
-    if (!util::flow::edge_guard(renderer, [&] {
-            log::e()("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
-        })) {
-        return false;
+    if (!renderer) {
+        throw logic_error(std::format("No Renderer attached to RenderContext {:p}",
+                                      static_cast<void*>(_renderContext)));
     }
 
     util::flow::once([&] {

@@ -139,54 +139,54 @@ PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
 void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
     log::t()("proxy: {:p}", static_cast<void*>(proxy));
 
-    if (proxy) {
+    if (!proxy) {
+        _btBody->setCollisionShape(nullptr);
+        _centerOfMassOffsetShape.reset();
+        _shapeProxy = nullptr;
 
-        auto* bulletProxy = dynamic_cast<BulletShapeProxy*>(proxy);
+        syncRollingFrictionAnisotropy();
 
-        if (bulletProxy && !bulletProxy->btShapes().empty()) {
-            if (auto* btShape = bulletProxy->btShapes().front().get()) {
-
-                const auto bodyType = _body->type();
-
-                switch (bodyType) {
-                    case PhysicsBody::Type::Static:
-                    case PhysicsBody::Type::Kinematic:
-                        SetMassPropsPreservingType(*_btBody, bodyType, 0.0f, btVector3(0, 0, 0));
-                        ForceActivationForBodyType(*_btBody, bodyType);
-                        break;
-
-                    case PhysicsBody::Type::Dynamic:
-                        break;
-                }
-
-                _shapeProxy = proxy;
-
-                if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesCenterOfMass) {
-                    calculateCenterOfMass();
-                }
-
-                rebuildCenterOfMassOffsetShape();
-                syncRollingFrictionAnisotropy();
-
-                if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
-                    calculateMomentOfInertia();
-                }
-
-                return;
-            }
+        if (_autocalculatesCenterOfMass) {
+            _centerOfMass = vec3 {0.0f};
         }
 
-        log::e()("Could not get shape resources.");
+        return;
     }
 
-    _btBody->setCollisionShape(nullptr);
-    _centerOfMassOffsetShape.reset();
-    _shapeProxy = nullptr;
+    auto* bulletProxy = dynamic_cast<BulletShapeProxy*>(proxy);
 
+    if (!bulletProxy) {
+        throw logic_error("BulletBodyProxy requires a BulletShapeProxy.");
+    }
+
+    if (bulletProxy->btShapes().empty() || !bulletProxy->btShapes().front()) {
+        throw logic_error("BulletShapeProxy has no root Bullet collision shape.");
+    }
+
+    const auto bodyType = _body->type();
+
+    switch (bodyType) {
+        case PhysicsBody::Type::Static:
+        case PhysicsBody::Type::Kinematic:
+            SetMassPropsPreservingType(*_btBody, bodyType, 0.0f, btVector3(0, 0, 0));
+            ForceActivationForBodyType(*_btBody, bodyType);
+            break;
+
+        case PhysicsBody::Type::Dynamic:
+            break;
+    }
+
+    _shapeProxy = proxy;
+
+    if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesCenterOfMass) {
+        calculateCenterOfMass();
+    }
+
+    rebuildCenterOfMassOffsetShape();
     syncRollingFrictionAnisotropy();
 
-    if (_autocalculatesCenterOfMass) {
-        _centerOfMass = vec3 {0.0f};
+    if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
+        calculateMomentOfInertia();
     }
 }
 
@@ -478,8 +478,7 @@ bool BulletBodyProxy::allowsResting() const {
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
     if (type() == PhysicsBody::Type::Kinematic && allowsResting) {
-        log::e()("Cannot enable resting for kinematic bodies.");
-        return;
+        throw logic_error("Cannot enable resting for kinematic bodies.");
     }
 
     if (allowsResting) {

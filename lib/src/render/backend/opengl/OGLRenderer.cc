@@ -916,11 +916,10 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
     const VertexLayout elemLayout = element.vertexLayout();
     const VertexLayout pipeLayout = pipe.desc.vertexLayoutKey;
 
-    // TODO: change?
     if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
-        log::e()("VertexLayout mismatch: element={}, pipeline={}", (uint32_t) elemLayout,
-                 (uint32_t) pipeLayout);
-        return; // skip draw
+        throw logic_error(std::format("VertexLayout mismatch for pipeline {}: element={}, pipeline={}",
+                                      _state.pipelineId, static_cast<uint32_t>(elemLayout),
+                                      static_cast<uint32_t>(pipeLayout)));
     }
 
     auto*       e = const_cast<MeshElement*>(&element);
@@ -1244,8 +1243,9 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                                     index = 3;
                                     break;
                                 default:
-                                    log::e()("Invalid MaterialPropertyType: {}",
-                                             util::enums::enum_name<Material::PropertyType>(type));
+                                    throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                                  util::enums::enum_name<
+                                                                      Material::PropertyType>(type)));
                                     return;
                             }
 
@@ -1287,8 +1287,8 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                         colorUniformName = "colors.emission";
                         break;
                     default:
-                        log::e()("Invalid MaterialPropertyType: {}",
-                                 util::enums::enum_name<Material::PropertyType>(type));
+                        throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                      util::enums::enum_name<Material::PropertyType>(type)));
                         return;
                 }
 
