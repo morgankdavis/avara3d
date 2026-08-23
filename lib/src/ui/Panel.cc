@@ -83,13 +83,15 @@ Panel::Panel(string_view id, const Options& options):
         throw logic_error("Cannot create a Panel without the default A3D UI font.");
     }
 
+    static const float BUTTON_Y_PAD = 1.0f;
+
     ImGui::PushFont(panelFont, PANEL_FONT_SIZE);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6.0f, 2.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 1.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, BUTTON_Y_PAD));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
 
@@ -296,17 +298,23 @@ bool Panel::option(string_view label, bool selected, Padding padding) {
 
 bool Panel::subOption(string_view label, bool selected, Padding padding) {
 
-    if (selected) {
-        return drawButton(label, true, padding);
+    const auto framePadding = ImGui::GetStyle().FramePadding;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding.x, -.5f));
+
+    if (!selected) {
+        // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.135f, 0.135f, 0.135f, 0.94f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.34f, 0.34f, 0.34f, 0.98f));
     }
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.135f, 0.135f, 0.135f, 0.94f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.34f, 0.34f, 0.34f, 0.98f));
+    const bool pressed = drawButton(label, selected, padding);
 
-    const bool pressed = drawButton(label, false, padding);
+    if (!selected) {
+        ImGui::PopStyleColor(2);
+    }
 
-    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar();
 
     return pressed;
 }
@@ -530,8 +538,8 @@ bool Panel::slider(string_view label,
     const float     usableSize = sliderSize - grabSize;
     const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
     const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
-    const float t = a3d::math::clamp_01(static_cast<float>(value - minimum)
-                                        / static_cast<float>(maximum - minimum));
+    const float     t =
+        a3d::math::clamp_01(static_cast<float>(value - minimum) / static_cast<float>(maximum - minimum));
     const float grabPosition = usableMin + (usableMax - usableMin) * t;
 
     const ImVec2 grabMin {
