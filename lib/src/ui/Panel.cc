@@ -294,6 +294,23 @@ bool Panel::option(string_view label, bool selected, Padding padding) {
     return drawButton(label, selected, padding);
 }
 
+bool Panel::subOption(string_view label, bool selected, Padding padding) {
+
+    if (selected) {
+        return drawButton(label, true, padding);
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.135f, 0.135f, 0.135f, 0.94f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.34f, 0.34f, 0.34f, 0.98f));
+
+    const bool pressed = drawButton(label, false, padding);
+
+    ImGui::PopStyleColor(3);
+
+    return pressed;
+}
+
 bool Panel::slider(string_view label,
                    float&      value,
                    float       minimum,
