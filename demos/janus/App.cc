@@ -188,7 +188,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transient node groups
 
-        _transients.groupPolicy("drop", {.maxCount = (3*3*3)*3});
+        _transients.groupPolicy("drop", {.maxCount = (3 * 3 * 3) * 3});
         _transients.groupPolicy("throw", {.maxCount = 10,
                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
 
@@ -575,8 +575,8 @@ bool App::drawPanel() {
             if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
                 _pokiness = Pokiness::Hard;
             }
-            if (panel.option("Twist", _pokiness == Pokiness::Twist)) {
-                _pokiness = Pokiness::Twist;
+            if (panel.option("Flip", _pokiness == Pokiness::Flip)) {
+                _pokiness = Pokiness::Flip;
             }
             break;
     }
@@ -956,7 +956,7 @@ void App::performAction(const PendingAction& action) {
     const float THROW_MIN_FLIGHT_TIME {0.25f};
     const float THROW_MAX_FLIGHT_TIME {1.5f};
 
-    const float POKE_IMPULSE_SOFT = 5.0f;
+    const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
 
     const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
@@ -1054,25 +1054,22 @@ void App::performAction(const PendingAction& action) {
                 return;
             }
 
-            float impulse = 0;
-
             switch (_pokiness) {
                 case Pokiness::Soft: {
-                    impulse = POKE_IMPULSE_SOFT;
+                    body->applyForce(action.rayDirection * POKE_IMPULSE_SOFT, action.target.hitPosition, true);
                     break;
                 }
                 case Pokiness::Hard: {
-                    impulse = POKE_IMPULSE_HARD;
+                    body->applyForce(action.rayDirection * POKE_IMPULSE_HARD, action.target.hitPosition, true);
                     break;
                 }
 
-                case Pokiness::Twist: {
-                    log::app::i()("Twist!");
+                case Pokiness::Flip: {
+                    body->applyForce(vec3 {0.0f, (POKE_IMPULSE_SOFT + POKE_IMPULSE_HARD) / 2.0f, 0.0f},
+                                     action.target.hitPosition, true);
                     break;
                 }
             }
-
-            body->applyForce(action.rayDirection * impulse, action.target.hitPosition, true);
 
             break;
         }

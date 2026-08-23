@@ -92,7 +92,7 @@ namespace demo::janus {
         enum class Pokiness {
             Soft,
             Hard,
-            Twist
+            Flip
         };
 
         struct PendingAction {
