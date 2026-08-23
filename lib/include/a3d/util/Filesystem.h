@@ -43,13 +43,21 @@ namespace a3d::util::fs {
 
     // [Image]
 
-    /** @brief Loads an image resource, optionally flipping it vertically or horizontally; returns nullptr if not found. */
+    /**
+     * @brief Loads an image resource, optionally flipping it vertically or horizontally; returns nullptr if not found.
+     *
+     * Relative paths are searched beneath the `images` directory of A3D's resource directories; absolute paths are
+     * loaded directly.
+     */
     std::unique_ptr<Image>               ImageAt(const std::filesystem::path& resourcePath,
                                                  bool                         flipVertical   = true,
                                                  bool                         flipHorizontal = false);
 
     /**
      * @brief Loads a cubemap from six image resources derived from @p baseFilename.
+     *
+     * Relative base filenames are searched beneath the `images` directory of A3D's resource directories. Absolute
+     * base filenames resolve the six face images alongside the specified path.
      *
      * Face filenames append _x_pos, _x_neg, _y_pos, _y_neg, _z_pos, or _z_neg before the extension.
      *
@@ -59,49 +67,55 @@ namespace a3d::util::fs {
 
     // [Scene]
 
-    /** @brief Loads a scene resource with @p options; returns nullptr if not found. */
-    std::unique_ptr<Scene>               SceneAt(const std::filesystem::path& resourcePath,
-                                                 Scene::ImportOptions         options = Scene::ImportOptions::ImportAll);
+    /**
+     * @brief Loads a scene resource with @p options; returns nullptr if not found.
+     *
+     * Relative paths are searched beneath the `scenes` directory of A3D's resource directories; absolute paths are
+     * loaded directly.
+     */
+    std::unique_ptr<Scene>     SceneAt(const std::filesystem::path& resourcePath,
+                                       Scene::ImportOptions         options = Scene::ImportOptions::ImportAll);
 
     // [Mesh]
 
-    /** @brief Loads a mesh resource with @p options; returns nullptr if not found. */
-    std::shared_ptr<Mesh>                MeshAt(const std::filesystem::path& resourcePath,
-                                                Mesh::ImportOptions          options = Mesh::ImportOptions::ImportMaterials);
+    /**
+     * @brief Loads a mesh resource with @p options; returns nullptr if not found.
+     *
+     * Relative paths are searched beneath the `models` directory of A3D's resource directories; absolute paths are
+     * loaded directly.
+     */
+    std::shared_ptr<Mesh>      MeshAt(const std::filesystem::path& resourcePath,
+                                      Mesh::ImportOptions          options = Mesh::ImportOptions::ImportMaterials);
 
     // [Text]
 
-    /** @brief Loads a text resource; returns std::nullopt if it is not found or cannot be opened. */
-    std::optional<std::string>           TextAt(const std::filesystem::path& resourcePath);
+    /**
+     * @brief Loads a text resource; returns std::nullopt if it is not found or cannot be opened.
+     *
+     * Relative paths are searched directly beneath A3D's resource directories; absolute paths are loaded directly.
+     */
+    std::optional<std::string> TextAt(const std::filesystem::path& resourcePath);
 
     // [Font]
 
-    /** @brief Loads a font resource; returns nullptr if not found. */
-    std::unique_ptr<Font>                FontAt(const std::filesystem::path& resourcePath);
+    /**
+     * @brief Loads a font resource; returns nullptr if not found.
+     *
+     * Relative paths are searched beneath the `fonts` directory of A3D's resource directories; absolute paths are
+     * loaded directly.
+     */
+    std::unique_ptr<Font>      FontAt(const std::filesystem::path& resourcePath);
 
     // [Auxiliary]
 
-    /** @brief Returns the resolved path to an auxiliary resource, or std::nullopt if not found. */
+    /**
+     * @brief Returns the resolved path to an auxiliary resource, or std::nullopt if not found.
+     *
+     * Relative paths are searched beneath the `auxiliary` directory of A3D's resource directories; absolute paths are
+     * resolved directly.
+     */
     std::optional<std::filesystem::path> AuxiliaryFileAt(const std::filesystem::path& resourcePath);
 
-    // [Search Paths]
-
-    /** @brief Returns the current ordered resource search paths. */
-    std::vector<std::filesystem::path> ResourceSearchPaths();
-
-    /**
-     * @brief Adds a resource search path with highest search priority.
-     *
-     * @return true if the path was added, or false if it was already present.
-     */
-    bool AddResourceSearchPath(const std::filesystem::path& path);
-
-    /**
-     * @brief Removes a resource search path.
-     *
-     * @return true if the path was removed, or false if it was not present.
-     */
-    bool RemoveResourceSearchPath(const std::filesystem::path& path);
 }
 
 #endif // AVARA3D_UTIL_FILESYSTEM_H

@@ -12,7 +12,6 @@
 #include <fstream>
 #include <initializer_list>
 #include <memory>
-#include <random>
 #include <string_view>
 #include <system_error>
 
@@ -45,18 +44,17 @@
 using namespace a3d;
 using namespace std;
 
-// [Search Paths Prototypes]
+// [Private Search Paths Prototypes]
 
-static std::vector<std::filesystem::path>   BaseSearchPaths();
-static std::vector<std::filesystem::path>   ShaderSearchPaths();
-static std::vector<std::filesystem::path>   ShaderIncludeSearchPaths();
-static std::vector<std::filesystem::path>   SceneSearchPaths();
-static std::vector<std::filesystem::path>   ModelSearchPaths();
-static std::vector<std::filesystem::path>   ImageSearchPaths();
-static std::vector<std::filesystem::path>   FontSearchPaths();
-static std::vector<std::filesystem::path>   AuxiliarySearchPaths();
-static std::optional<std::filesystem::path> SearchInPaths(const std::filesystem::path&              filename,
-                                                          const std::vector<std::filesystem::path>& paths);
+static const std::vector<std::filesystem::path>& ResourceSearchPaths();
+static std::vector<std::filesystem::path>        ShaderSearchPaths();
+static std::vector<std::filesystem::path>        SceneSearchPaths();
+static std::vector<std::filesystem::path>        ModelSearchPaths();
+static std::vector<std::filesystem::path>        ImageSearchPaths();
+static std::vector<std::filesystem::path>        FontSearchPaths();
+static std::vector<std::filesystem::path>        AuxiliarySearchPaths();
+static std::optional<std::filesystem::path>      SearchInPaths(const std::filesystem::path& resourcePath,
+                                                               const std::vector<std::filesystem::path>& paths);
 
 // [Process]
 
@@ -172,14 +170,57 @@ shared_ptr<Mesh> a3d::util::fs::MeshAt(const filesystem::path& resourcePath, Mes
     return nullptr;
 }
 
-// [Search Paths Implementations]
+// [Text]
 
-vector<std::filesystem::path> BaseSearchPaths() {
+optional<string> a3d::util::fs::TextAt(const filesystem::path& resourcePath) {
 
-    // TODO: allow adding new locations at runtime
+    auto path = SearchInPaths(resourcePath, ResourceSearchPaths());
+    if (!path) {
+        return {};
+    }
 
-    static const vector<std::filesystem::path> basePaths = [] {
-        vector<std::filesystem::path>   paths;
+    log::t()("Found text file at path: {}", path->string());
+
+    ifstream file(*path);
+    if (!file) {
+        return {};
+    }
+
+    return string(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
+}
+
+// [Fonts]
+
+unique_ptr<Font> a3d::util::fs::FontAt(const filesystem::path& resourcePath) {
+
+    auto path = SearchInPaths(resourcePath, FontSearchPaths());
+    if (path) {
+        log::t()("Found font at path: {}", path->string());
+        return make_unique<Font>(*path);
+    }
+
+    return nullptr;
+}
+
+// [Auxiliary]
+
+optional<filesystem::path> a3d::util::fs::AuxiliaryFileAt(const filesystem::path& resourcePath) {
+
+    auto path = SearchInPaths(resourcePath, AuxiliarySearchPaths());
+    if (path) {
+        log::t()("Found auxiliary file at path: {}", path->string());
+        return path;
+    }
+
+    return nullopt;
+}
+
+// [Private Search Paths Implementations]
+
+const vector<filesystem::path>& ResourceSearchPaths() {
+
+    static const vector<filesystem::path> paths = [] {
+        vector<filesystem::path>        paths;
         optional<std::filesystem::path> execDir {};
         optional<string>                execName {};
 
@@ -247,28 +288,20 @@ vector<std::filesystem::path> BaseSearchPaths() {
         return paths;
     }();
 
-    return basePaths;
+    return paths;
 }
 
 vector<std::filesystem::path> ShaderSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "shaders");
-    }
-    return searchPaths;
-}
-
-vector<filesystem::path> ShaderIncludeSearchPaths() {
-    auto searchPaths = vector<filesystem::path>();
-    for (const auto& path : ShaderSearchPaths()) {
-        searchPaths.push_back(path / "include");
     }
     return searchPaths;
 }
 
 vector<std::filesystem::path> SceneSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "scenes");
     }
     return searchPaths;
@@ -276,7 +309,7 @@ vector<std::filesystem::path> SceneSearchPaths() {
 
 vector<std::filesystem::path> ModelSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "models");
     }
     return searchPaths;
@@ -284,7 +317,7 @@ vector<std::filesystem::path> ModelSearchPaths() {
 
 vector<std::filesystem::path> ImageSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "images");
     }
     return searchPaths;
@@ -292,7 +325,7 @@ vector<std::filesystem::path> ImageSearchPaths() {
 
 vector<std::filesystem::path> FontSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "fonts");
     }
     return searchPaths;
@@ -300,71 +333,38 @@ vector<std::filesystem::path> FontSearchPaths() {
 
 vector<std::filesystem::path> AuxiliarySearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
-    for (auto& path : BaseSearchPaths()) {
+    for (const auto& path : ResourceSearchPaths()) {
         searchPaths.push_back(path / "auxiliary");
     }
     return searchPaths;
 }
 
-optional<filesystem::path> SearchInPaths(const filesystem::path&         filename,
+optional<filesystem::path> SearchInPaths(const filesystem::path&         resourcePath,
                                          const vector<filesystem::path>& paths) {
 
-    for (const auto& searchPath : paths) {
-        if (filesystem::is_directory(searchPath)) {
-            log::t()("Searching for '{}' in '{}'", filename.string(), searchPath.string());
+    if (resourcePath.is_absolute()) {
 
-            auto path = searchPath / filename;
+        if (filesystem::is_regular_file(resourcePath)) {
+            return resourcePath;
+        }
+
+        log::w()("'{}' not found.", resourcePath.string());
+        return {};
+    }
+
+    for (const auto& searchPath : paths) {
+
+        if (filesystem::is_directory(searchPath)) {
+
+            log::t()("Searching for '{}' in '{}'", resourcePath.string(), searchPath.string());
+
+            auto path = searchPath / resourcePath;
             if (filesystem::is_regular_file(path)) {
                 return path;
             }
         }
     }
 
-    log::w()("'{}' not found.", filename.string());
+    log::w()("'{}' not found.", resourcePath.string());
     return {};
-}
-
-// [Text]
-
-optional<string> a3d::util::fs::TextAt(const filesystem::path& resourcePath) {
-
-    auto path = SearchInPaths(resourcePath, BaseSearchPaths());
-    if (!path) {
-        return {};
-    }
-
-    log::t()("Found text file at path: {}", path->string());
-
-    ifstream file(*path);
-    if (!file) {
-        return {};
-    }
-
-    return string(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
-}
-
-// [Fonts]
-
-unique_ptr<Font> a3d::util::fs::FontAt(const filesystem::path& resourcePath) {
-
-    auto path = SearchInPaths(resourcePath, FontSearchPaths());
-    if (path) {
-        log::t()("Found font at path: {}", path->string());
-        return make_unique<Font>(*path);
-    }
-
-    return nullptr;
-}
-
-// [Auxiliary]
-
-optional<filesystem::path> a3d::util::fs::AuxiliaryFileAt(const filesystem::path& resourcePath) {
-
-    auto path = SearchInPaths(resourcePath, AuxiliarySearchPaths());
-    if (path) {
-        log::t()("Found auxiliary file at path: {}", path->string());
-        return path;
-    }
-
-    return nullopt;
 }
