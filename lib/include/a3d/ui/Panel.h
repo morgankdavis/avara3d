@@ -139,6 +139,16 @@ namespace a3d::ui {
         bool option(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
+         * @brief Draws a visually subordinate selectable option button and reports activation once.
+         *
+         * @p selected controls the persistent selected appearance for this frame and
+         * is not retained by Panel.
+         *
+         * @throws std::invalid_argument if @p label is empty.
+         */
+        bool subOption(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
+
+        /**
          * @brief Draws a floating-point slider and reports whether @p value changed.
          *
          * @throws std::invalid_argument if @p label is empty or the range is not increasing.
