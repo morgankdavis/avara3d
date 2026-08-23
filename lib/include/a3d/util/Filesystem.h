@@ -86,22 +86,22 @@ namespace a3d::util::fs {
 
     // [Search Paths]
 
-    // /** @brief Returns the current ordered resource search paths. */
-    // std::vector<std::filesystem::path> SearchPaths();
-    //
-    // /**
-    //  * @brief Adds a resource search path with highest search priority.
-    //  *
-    //  * @return true if the path was added, or false if it was already present.
-    //  */
-    // bool AddSearchPath(const std::filesystem::path& path);
-    //
-    // /**
-    //  * @brief Removes a resource search path.
-    //  *
-    //  * @return true if the path was removed, or false if it was not present.
-    //  */
-    // bool RemoveSearchPath(const std::filesystem::path& path);
+    /** @brief Returns the current ordered resource search paths. */
+    std::vector<std::filesystem::path> ResourceSearchPaths();
+
+    /**
+     * @brief Adds a resource search path with highest search priority.
+     *
+     * @return true if the path was added, or false if it was already present.
+     */
+    bool AddResourceSearchPath(const std::filesystem::path& path);
+
+    /**
+     * @brief Removes a resource search path.
+     *
+     * @return true if the path was removed, or false if it was not present.
+     */
+    bool RemoveResourceSearchPath(const std::filesystem::path& path);
 }
 
 #endif // AVARA3D_UTIL_FILESYSTEM_H
