@@ -1,5 +1,5 @@
 //
-//  GLFWWindow.cc
+//  Window.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.

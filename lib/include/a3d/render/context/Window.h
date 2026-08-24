@@ -1,13 +1,13 @@
 //
-//  GLFWWindow.h
+//  Window.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
-#define AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
+#ifndef AVARA3D_RENDER_CONTEXT_WINDOW_H
+#define AVARA3D_RENDER_CONTEXT_WINDOW_H
 
 #include <memory>
 #include <string>
@@ -201,4 +201,4 @@ namespace a3d {
 
 }
 
-#endif // AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
+#endif // AVARA3D_RENDER_CONTEXT_WINDOW_H

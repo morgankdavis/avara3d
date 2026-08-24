@@ -233,7 +233,7 @@ void Application::prepare() {
     _scene = init();
 
     if (!_scene) {
-        throw runtime_error("Application::initialize() returned a null Scene.");
+        throw runtime_error("Application::init() returned a null Scene.");
     }
 
     _runner = make_unique<Runner>(*_scene, simulationConfig());

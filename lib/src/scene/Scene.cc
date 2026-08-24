@@ -215,17 +215,18 @@ void Scene::inputContext(unique_ptr<InputContext> inputContext) {
 }
 
 AABB Scene::aabb(bool vertfit) const {
-    AABB out = AABB::Invalid();
 
-    for (auto& node : rootNode()->children()) {
-        out |= node->aabb();
-    }
-
-    return out;
+    return rootNode()->aabb(vertfit);
 }
 
 vec3 Scene::extent(bool vertfit) const {
-    auto aabb = Scene::aabb(vertfit);
+
+    const auto aabb = Scene::aabb(vertfit);
+
+    if (!aabb.valid()) {
+        return {0.0f, 0.0f, 0.0f};
+    }
+
     return aabb.max - aabb.min;
 }
 

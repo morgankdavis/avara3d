@@ -358,10 +358,28 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
 
 void Node::addChild(const shared_ptr<Node>& node) {
 
+    if (!node) {
+        throw invalid_argument("Node::addChild() requires a non-null Node.");
+    }
+
+    if (node.get() == this) {
+        throw invalid_argument("A Node cannot be added as a child of itself.");
+    }
+
     if (containsChild(node)) {
-        throw std::runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
-                                             static_cast<void*>(node.get()),
-                                             (node->name() ? *node->name() : "(unnamed)")));
+        throw runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
+                                        static_cast<void*>(node.get()),
+                                        (node->name() ? *node->name() : "(unnamed)")));
+    }
+
+    for (auto ancestor = _parent.lock(); ancestor; ancestor = ancestor->_parent.lock()) {
+        if (ancestor.get() == node.get()) {
+            throw invalid_argument("An ancestor Node cannot be added as a child.");
+        }
+    }
+
+    if (!node->_parent.expired()) {
+        throw invalid_argument("Node is already attached to another parent.");
     }
 
     _children.push_back(node);
@@ -425,9 +443,9 @@ void Node::removeFromParent() {
     }
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) const {
+vector<shared_ptr<Node>> Node::children(bool recursive) const {
 
-    if (resursive) {
+    if (recursive) {
         return children(*this);
     }
     else {
@@ -435,9 +453,9 @@ vector<shared_ptr<Node>> Node::children(bool resursive) const {
     }
 }
 
-shared_ptr<Node> Node::childNamed(const string& name, bool resursive) const {
+shared_ptr<Node> Node::childNamed(const string& name, bool recursive) const {
 
-    for (auto& child : children(resursive)) {
+    for (auto& child : children(recursive)) {
         if (child->name() != nullopt && *child->name() == name) {
             return child;
         }
@@ -720,16 +738,17 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 }
 
 AABB Node::aabb(bool vertfit) const {
+
     AABB out = AABB::Invalid();
 
-    const mat4 W = worldTransform();
+    const mat4 worldTransform = this->worldTransform();
 
     if (mesh()) {
-        out |= mesh()->worldAABB(W, vertfit);
+        out |= mesh()->worldAABB(worldTransform, vertfit);
     }
 
-    for (auto& child : children()) {
-        out |= child->aabb();
+    for (const auto& child : children()) {
+        out |= child->aabb(vertfit);
     }
 
     return out;

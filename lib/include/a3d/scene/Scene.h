@@ -108,11 +108,13 @@ namespace a3d {
         // [Public Static Member Functions]
 
         /**
-         * @brief Imports a Scene from @p path.
+         * @brief Imports a Scene from a glTF or GLB file.
          *
-         * @param path glTF scene file to import.
+         * @param path glTF or GLB scene file to import.
          * @param options resource categories to import.
-         * @return The imported Scene.
+         * @return The imported Scene, or nullptr if the file cannot be parsed, contains
+         *         no scenes, or the selected scene contains no root nodes.
+         * @throws std::runtime_error if @p path has an unsupported file extension.
          */
         static std::unique_ptr<Scene> FromFile(const std::filesystem::path& path,
                                                ImportOptions                options = ImportOptions::ImportAll);
@@ -193,6 +195,8 @@ namespace a3d {
         /**
          * @brief Returns the world-space axis-aligned bounding box enclosing the Scene hierarchy.
          *
+         * If the Scene contains no mesh geometry, returns AABB::Invalid().
+         *
          * @param vertfit when true, fits bounds to transformed mesh vertices; when false,
          *                uses transformed local mesh bounds for a faster, potentially looser result.
          */
@@ -200,6 +204,8 @@ namespace a3d {
 
         /**
          * @brief Returns the dimensions of the Scene world-space axis-aligned bounding box.
+         *
+         * If the Scene contains no mesh geometry, returns a zero vector.
          *
          * @param vertfit when true, fits bounds to transformed mesh vertices; when false,
          *                uses transformed local mesh bounds for a faster, potentially looser result.

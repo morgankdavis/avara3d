@@ -77,8 +77,8 @@ set(DOXYGEN_WARN_IF_DOC_ERROR YES)
 set(DOXYGEN_WARN_AS_ERROR NO)
 set(DOXYGEN_WARN_LOGFILE "${CMAKE_CURRENT_BINARY_DIR}/warnings.log")
 
-# Keep this as an explicit target rather than part of ALL or install. Normal
-# engine builds therefore do not require Doxygen, Graphviz, or the theme files.
+# When documentation is enabled, generate it as part of the default build so
+# install() can package the generated API documentation.
 doxygen_add_docs(a3d-docs
 		"${PROJECT_SOURCE_DIR}/lib/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/mainpage.md"

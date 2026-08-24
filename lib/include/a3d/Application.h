@@ -57,7 +57,9 @@ namespace a3d {
          * Application is destroyed when that loop terminates.
          *
          * @return zero after successful launch or completion.
-         * @throws std::invalid_argument if @p application is nullptr.
+         * @throws std::invalid_argument if @p application is nullptr or its initial
+         * SimulationConfig is invalid.
+         * @throws std::runtime_error if Application::init() returns nullptr.
          */
         static int Run(std::unique_ptr<Application> application);
 

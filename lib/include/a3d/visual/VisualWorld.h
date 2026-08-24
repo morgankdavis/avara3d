@@ -53,12 +53,6 @@ namespace a3d {
     class VisualWorld {
 
     public:
-        // // [Internal Types]
-        //
-        // using Plane   = PlaneSurface;
-        // using Sphere  = SphereSurface;
-        // using Surface = a3d::Surface;
-
         // [Public Types]
 
         /** @brief Rendering capabilities available through this VisualWorld. */
@@ -129,8 +123,8 @@ namespace a3d {
          * @brief Sets or disables the Scene background.
          *
          * Background contents must be a Color or a Texture containing a CubeImage.
-         * A cubemap Texture is expected to have a non-null Sampler; its wrapping is
-         * set to ClampToEdge on all three axes.
+         * A cubemap Texture must have a non-null Sampler. Its wrapping is set to
+         * ClampToEdge on all three axes.
          *
          * @throws std::invalid_argument if the supplied background contents are invalid.
          */

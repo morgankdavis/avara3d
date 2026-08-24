@@ -9,6 +9,7 @@
 #include "a3d/Color.h"
 
 #include <cctype>
+#include <stdexcept>
 
 using namespace a3d;
 using namespace a3d::math;
@@ -137,17 +138,47 @@ Color::Color(uint32_t color):
            (float) ((color & 0x0000FF00) >> 8) / 255.0f, (float) ((color & 0x000000FF) >> 0) / 255.0f} {}
 
 Color::Color(const string& hexString) {
-    if (hexString.length() > 7) { // assume this means it has alpha...
-        u8vec4 u8rgba;
-        ParseHexRgba(hexString.c_str(), u8rgba);
-        _rgba = {float(u8rgba.r) / 255.0f, float(u8rgba.g) / 255.0f, float(u8rgba.b) / 255.0f,
-                 float(u8rgba.a) / 255.0f};
+
+    const bool rgb = hexString.length() == 6 || (hexString.length() == 7 && hexString.front() == '#');
+    const bool rgba = hexString.length() == 8 || (hexString.length() == 9 && hexString.front() == '#');
+
+    if (rgb) {
+
+        u8vec3 value;
+
+        if (!ParseHexRgb(hexString.c_str(), value)) {
+            throw invalid_argument("Invalid hexadecimal color string.");
+        }
+
+        _rgba = {
+            float(value.r) / 255.0f,
+            float(value.g) / 255.0f,
+            float(value.b) / 255.0f,
+            1.0f,
+        };
+
+        return;
     }
-    else {
-        u8vec3 u8rgb;
-        ParseHexRgb(hexString.c_str(), u8rgb);
-        _rgba = {float(u8rgb.r) / 255.0f, float(u8rgb.g) / 255.0f, float(u8rgb.b) / 255.0f, 1.0f};
+
+    if (rgba) {
+
+        u8vec4 value;
+
+        if (!ParseHexRgba(hexString.c_str(), value)) {
+            throw invalid_argument("Invalid hexadecimal color string.");
+        }
+
+        _rgba = {
+            float(value.r) / 255.0f,
+            float(value.g) / 255.0f,
+            float(value.b) / 255.0f,
+            float(value.a) / 255.0f,
+        };
+
+        return;
     }
+
+    throw invalid_argument("Invalid hexadecimal color string.");
 }
 
 // [Public Member Functions]

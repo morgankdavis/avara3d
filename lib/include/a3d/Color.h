@@ -122,6 +122,9 @@ namespace a3d {
          * @brief Creates a color from hexadecimal RGB or RGBA text.
          *
          * Supported forms are RRGGBB, #RRGGBB, RRGGBBAA, and #RRGGBBAA.
+         *
+         * @throws std::invalid_argument if @p hexString does not use a supported
+         * format or contains non-hexadecimal characters.
          */
         explicit Color(const std::string& hexString);
 

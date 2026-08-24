@@ -19,7 +19,7 @@ namespace a3d::util::snapshot {
 
     // [Public Functions]
 
-    /** @brief Saves a timestamped PNG snapshot of @p context beside the current executable. */
+    /** @brief Attempts to save a timestamped PNG snapshot of @p context beside the current executable. */
     void SaveSnapshot(RenderContext& context);
 
 }

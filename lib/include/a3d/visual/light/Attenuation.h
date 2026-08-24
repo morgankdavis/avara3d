@@ -22,9 +22,12 @@ namespace a3d {
         // [Public Static Member Functions]
 
         /**
-         * @brief Returns quadratic attenuation that falls to the fraction @p p at distance @p range.
+         * @brief Returns quadratic attenuation that falls to the fraction @p p at
+         * distance @p range.
          *
-         * The returned coefficients use constant = 1 and linear = 0.
+         * The returned coefficients use constant = 1 and linear = 0. Values of @p p
+         * are clamped to the open interval (0, 1). If @p range is less than or equal
+         * to zero, the returned quadratic coefficient is zero.
          */
         static Attenuation FromRange(float range, float p = 0.01f);
 

@@ -231,11 +231,24 @@ namespace a3d {
         /**
          * @brief Adds @p node as a child of this node.
          *
+         * A node that already has a parent must first be detached with removeFromParent().
+         *
+         * @throws std::invalid_argument if @p node is nullptr, is this node, is an
+         * ancestor of this node, or is already attached to another parent.
          * @throws std::runtime_error if @p node is already contained in this node's subtree.
          */
         void                               addChild(const std::shared_ptr<Node>& node);
 
-        /** @brief Adds each node in @p nodes as a child. */
+        /**
+         * @brief Adds each node in @p nodes as a child, in order.
+         *
+         * The same validation as addChild() applies to each node. If adding a node
+         * throws, nodes added earlier in @p nodes remain attached.
+         *
+         * @throws std::invalid_argument if a node is nullptr, is this node, is an
+         * ancestor of this node, or is already attached to another parent.
+         * @throws std::runtime_error if a node is already contained in this node's subtree.
+         */
         void                               addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 
         /** @brief Detaches this node from its current parent, if it has one. */
@@ -244,19 +257,19 @@ namespace a3d {
         /**
          * @brief Returns this node's children.
          *
-         * @param resursive when true, returns all descendants; otherwise returns direct children only.
+         * @param recursive when true, returns all descendants; otherwise returns direct children only.
          * @return Child nodes in hierarchy traversal order.
          */
-        std::vector<std::shared_ptr<Node>> children(bool resursive = false) const;
+        std::vector<std::shared_ptr<Node>> children(bool recursive = false) const;
 
         /**
          * @brief Finds a child with @p name.
          *
          * @param name name to match.
-         * @param resursive when true, searches all descendants; otherwise searches direct children only.
+         * @param recursive when true, searches all descendants; otherwise searches direct children only.
          * @return The first matching child, or nullptr if no match is found.
          */
-        std::shared_ptr<Node>              childNamed(const std::string& name, bool resursive = false) const;
+        std::shared_ptr<Node>              childNamed(const std::string& name, bool recursive = false) const;
 
         /** @brief Returns the physics body owned by this node, or nullptr if none is attached. */
         PhysicsBody*                       physicsBody() const;

@@ -151,6 +151,11 @@ void VisualWorld::background(const optional<Background>& background) {
         }
 
         auto sampler = (*texture)->sampler();
+
+        if (!sampler) {
+            throw invalid_argument("Background cubemap Texture must have a Sampler.");
+        }
+
         sampler->wrapS(Sampler::WrapMode::ClampToEdge);
         sampler->wrapT(Sampler::WrapMode::ClampToEdge);
         sampler->wrapR(Sampler::WrapMode::ClampToEdge);
