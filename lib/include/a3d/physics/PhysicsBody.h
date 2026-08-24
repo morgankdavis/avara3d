@@ -256,7 +256,7 @@ namespace a3d {
          *
          * @param force world-space force vector, or impulse vector when @p impulse is true.
          * @param location world-space application position.
-         * @param impulse when true, applies @p force as an instantaneous angular impulse.
+         * @param impulse when true, applies @p force as an instantaneous impulse instead of a continuous force.
          * @throws std::logic_error if the body is not dynamic.
          */
         void                    applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
