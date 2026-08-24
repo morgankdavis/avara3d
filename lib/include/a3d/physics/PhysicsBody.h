@@ -60,7 +60,9 @@ namespace a3d {
         /**
          * @brief Creates a static body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a static body.
+         * @throws std::logic_error if @p shape is incompatible with a static body, its
+         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> StaticBody(const std::shared_ptr<PhysicsShape>& shape);
 
@@ -70,7 +72,9 @@ namespace a3d {
         /**
          * @brief Creates a dynamic body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a dynamic body.
+         * @throws std::logic_error if @p shape is incompatible with a dynamic body, its
+         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> DynamicBody(const std::shared_ptr<PhysicsShape>& shape);
 
@@ -80,7 +84,9 @@ namespace a3d {
         /**
          * @brief Creates a kinematic body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a kinematic body.
+         * @throws std::logic_error if @p shape is incompatible with a kinematic body, its
+         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> KinematicBody(const std::shared_ptr<PhysicsShape>& shape);
 
@@ -92,7 +98,9 @@ namespace a3d {
         /**
          * @brief Creates a body of @p type using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with @p type.
+         * @throws std::logic_error if @p shape is incompatible with @p type, its source
+         * has expired, or valid collision geometry cannot be created from it.
+         * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
 
@@ -124,7 +132,9 @@ namespace a3d {
         /**
          * @brief Replaces the collision shape retained by this body; nullptr removes it.
          *
-         * @throws std::logic_error if @p shape does not support this body's type.
+         * @throws std::logic_error if @p shape does not support this body's type, its
+         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         void                                 shape(const std::shared_ptr<PhysicsShape>& shape);
 
@@ -295,6 +305,8 @@ namespace a3d {
          * @brief Sets whether the body may enter the resting state automatically.
          *
          * Kinematic bodies cannot enable resting.
+         *
+         * @throws std::logic_error if @p allowsResting is true for a kinematic body.
          */
         void                    allowsResting(bool allowsResting);
 

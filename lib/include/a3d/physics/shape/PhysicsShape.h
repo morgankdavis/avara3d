@@ -30,7 +30,9 @@ namespace a3d {
      * A PhysicsShape may derive its collision geometry from a Mesh, from the mesh
      * hierarchy beneath a Node, or from a specialized primitive PhysicsShape
      * subclass. Mesh and Node sources are retained weakly, so constructing a shape
-     * does not extend the lifetime of its source object.
+     * does not extend the lifetime of its source object. A source must remain alive
+     * until the shape is attached to a PhysicsBody and its collision geometry is
+     * created.
      */
     class PhysicsShape {
 

@@ -121,7 +121,11 @@ namespace a3d {
          * @brief Replaces the mesh attached to this node.
          *
          * An attached PhysicsBody is notified of the mesh change. Passing nullptr
-         * removes the current mesh.
+         * removes the current mesh. If the PhysicsBody has no explicit PhysicsShape,
+         * A3D may automatically derive one from the new Mesh.
+         *
+         * @throws std::invalid_argument if automatic collision-shape creation is required
+         * and @p mesh contains no elements.
          */
         void                               mesh(const std::shared_ptr<Mesh>& mesh);
 
@@ -252,7 +256,15 @@ namespace a3d {
         /** @brief Returns the physics body owned by this node, or nullptr if none is attached. */
         PhysicsBody*                       physicsBody() const;
 
-        /** @brief Replaces the physics body owned by this node; nullptr removes it. */
+        /**
+         * @brief Replaces the physics body owned by this node; nullptr removes it.
+         *
+         * If @p body has no explicit PhysicsShape, A3D may automatically derive one
+         * from this node's Mesh or hierarchy.
+         *
+         * @throws std::invalid_argument if automatic collision-shape creation is required
+         * from a Mesh with no elements.
+         */
         void                               physicsBody(std::unique_ptr<PhysicsBody> body);
 
         /** @brief Returns true when this node is hidden from rendering. */
