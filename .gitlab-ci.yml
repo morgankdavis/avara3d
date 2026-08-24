@@ -472,8 +472,8 @@ documentation:
       echo "Branch: ${CI_COMMIT_BRANCH}"
       echo "Commit: ${CI_COMMIT_SHORT_SHA}"
       echo "Environment: ${CI_ENVIRONMENT_NAME}"
-      : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
-      : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+      : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
+      : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
       : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
       test -f "${SSH_PRIVATE_KEY}"
       test -f "${SSH_KNOWN_HOSTS}"
@@ -532,7 +532,7 @@ documentation:
           -o IdentitiesOnly=yes \
           -o StrictHostKeyChecking=yes \
           -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
           "test -d '${A3D_DEPLOY_PATH}' &&
            test -w '${A3D_DEPLOY_PATH}'"
       echo
@@ -547,7 +547,7 @@ documentation:
           --itemize-changes \
           --rsync-path="umask 0002 && rsync" \
           build-website/ \
-          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
+          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
       echo
       echo "Verifying deployed files..."
       ssh \
@@ -555,7 +555,7 @@ documentation:
           -o IdentitiesOnly=yes \
           -o StrictHostKeyChecking=yes \
           -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
           "test -f '${A3D_DEPLOY_PATH}/index.html' &&
            test -f '${A3D_DEPLOY_PATH}/demo/janus.js' &&
            test -f '${A3D_DEPLOY_PATH}/demo/janus.wasm' &&
@@ -619,8 +619,8 @@ website-publish-production:
             echo "Pipeline: ${CI_PIPELINE_IID}"
             : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
             : "${A3D_DOWNLOAD_DESTINATION:?A3D_DOWNLOAD_DESTINATION is not set}"
-            : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
-            : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+            : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
+            : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
             : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
             case "${A3D_DOWNLOAD_CHANNEL}" in
                 stable|testing)
@@ -674,7 +674,7 @@ website-publish-production:
                 -o IdentitiesOnly=yes \
                 -o StrictHostKeyChecking=yes \
                 -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
                 "test -d '${remote_channel_dir}' &&
                  test -w '${remote_channel_dir}'"
             echo
@@ -687,7 +687,7 @@ website-publish-production:
                 --itemize-changes \
                 --rsync-path="umask 0002 && rsync" \
                 build-downloads/ \
-                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${remote_channel_dir}/"
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${remote_channel_dir}/"
             echo
             echo "Verifying deployed packages and checksums..."
             ssh \
@@ -695,7 +695,7 @@ website-publish-production:
                 -o IdentitiesOnly=yes \
                 -o StrictHostKeyChecking=yes \
                 -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
                 "cd '${remote_channel_dir}' &&
                  test -f manifest.json &&
                  test -f SHA256SUMS &&
@@ -763,14 +763,13 @@ website-downloads-publish-testing-production:
           allow_failure: true
         - when: never
 
-cloudflare-pages-auth-test:
+cloudflare-r2-tool-test:
   stage: deploy
   tags:
     - ubuntu-23
   needs: []
   script:
-    - source "${EMSDK_ROOT}/emsdk_env.sh"
-    - npx --yes wrangler@4.125.0 pages project list
+    - rclone version
   rules:
     - if: '$CI_COMMIT_BRANCH'
       when: manual
