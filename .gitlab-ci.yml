@@ -760,9 +760,10 @@ website-publish-staging:
     - when: never
 
 website-publish-production:
-  extends: .website-publish
+  extends: .website-publish-cloudflare
   variables:
-    A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+    A3D_CLOUDFLARE_PAGES_PROJECT: avara3d
+    A3D_R2_PREFIX: production
   environment:
     name: production
     url: https://avara3d.net/
@@ -772,6 +773,51 @@ website-publish-production:
       allow_failure: true
     - when: never
 
+website-restore-production-redirect:
+  stage: deploy
+  tags:
+    - ubuntu-23
+  needs: []
+  resource_group: avara3d-website-deployment
+  script:
+    - |
+      set -euo pipefail
+
+      : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
+      : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
+
+      source "${EMSDK_ROOT}/emsdk_env.sh"
+
+      rm -rf build-production-redirect
+      mkdir -p build-production-redirect
+
+      cat > build-production-redirect/index.html <<'EOF'
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta http-equiv="refresh" content="1; url='https://gitlab.mkd.net/a3d/avara3d'" />
+        </head>
+        <body>
+          <p>Going to GitLab...</p>
+        </body>
+      </html>
+      EOF
+
+      npx --yes wrangler@4.125.0 pages deploy \
+          build-production-redirect \
+          --project-name=avara3d \
+          --branch=main \
+          --commit-dirty=true
+
+      echo "Production redirect deployed successfully."
+  environment:
+    name: production
+    url: https://avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
+      when: manual
+      allow_failure: true
+    - when: never
     
 .website-downloads-publish:
   stage: deploy
@@ -1088,11 +1134,10 @@ website-downloads-publish-testing-staging:
 
 
 website-downloads-publish-stable-production:
-  extends: .website-downloads-publish
+  extends: .website-downloads-publish-cloudflare
   variables:
     A3D_DOWNLOAD_CHANNEL: stable
-    A3D_DOWNLOAD_DESTINATION: production
-    A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+    A3D_R2_PREFIX: production
   environment:
     name: downloads/stable/production
     url: https://avara3d.net/downloads.html
@@ -1104,11 +1149,10 @@ website-downloads-publish-stable-production:
 
 
 website-downloads-publish-testing-production:
-  extends: .website-downloads-publish
+  extends: .website-downloads-publish-cloudflare
   variables:
     A3D_DOWNLOAD_CHANNEL: testing
-    A3D_DOWNLOAD_DESTINATION: production
-    A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+    A3D_R2_PREFIX: production
   environment:
     name: downloads/testing/production
     url: https://avara3d.net/downloads.html
@@ -1117,4 +1161,4 @@ website-downloads-publish-testing-production:
       when: manual
       allow_failure: true
     - when: never
-    
+  
