@@ -33,10 +33,25 @@
         statusText.innerHTML = "Web build not found. Build and install <code>janus</code>, then refresh.";
     };
 
+    const r2DemoBaseByHost = {
+        "staging.avara3d.net":
+            "https://cdn.avara3d.net/staging/demo/",
+        "avara3d.net":
+            "https://cdn.avara3d.net/production/demo/"
+    };
+
+    const r2DemoBase = r2DemoBaseByHost[window.location.hostname];
+
     window.Module = {
         canvas,
         noExitRuntime: true,
         locateFile(path) {
+            if (r2DemoBase &&
+                (path.endsWith(".wasm") || path.endsWith(".data"))) {
+
+                return new URL(path, r2DemoBase).href;
+            }
+
             return new URL(`demo/${path}`, window.location.href).href;
         },
         print(text) {

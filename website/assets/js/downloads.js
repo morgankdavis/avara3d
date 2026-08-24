@@ -1,6 +1,28 @@
 (() => {
     "use strict";
 
+    const r2DownloadsBaseByHost = {
+        "staging.avara3d.net":
+            "https://cdn.avara3d.net/staging/downloads/",
+        "avara3d.net":
+            "https://cdn.avara3d.net/production/downloads/"
+    };
+
+    const downloadsBase =
+        r2DownloadsBaseByHost[window.location.hostname] ||
+        new URL("downloads/", window.location.href).href;
+
+    document
+        .querySelectorAll("[data-download-checksum]")
+        .forEach((link) => {
+            const channel = link.dataset.downloadChecksum;
+
+            link.href = new URL(
+                `${channel}/SHA256SUMS`,
+                downloadsBase
+            ).href;
+        });
+
     document
         .querySelectorAll("[data-download-channel]")
         .forEach((panel) => {
@@ -16,8 +38,8 @@
         }
 
         const manifestUrl = new URL(
-            `downloads/${channel}/manifest.json`,
-            window.location.href
+            `${channel}/manifest.json`,
+            downloadsBase
         );
 
         try {
