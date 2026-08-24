@@ -35,6 +35,7 @@ using namespace std;
 namespace {
 
     unique_ptr<Log> _appLog {};
+
 }
 
 // [Public Functions]

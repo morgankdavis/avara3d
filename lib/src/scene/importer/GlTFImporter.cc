@@ -105,7 +105,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
                 }
 
                 auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
-                auto name = string(scene.name);
+                auto  name = string(scene.name);
 
                 log::i()("Loading scene: '{}'...", name);
 

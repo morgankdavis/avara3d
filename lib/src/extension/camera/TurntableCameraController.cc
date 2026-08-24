@@ -461,8 +461,7 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
 
     if (config.scrollDollySensitivity < 0.0f) {
 
-        throw invalid_argument(
-            "TurntableCameraController scroll dolly sensitivity must be non-negative.");
+        throw invalid_argument("TurntableCameraController scroll dolly sensitivity must be non-negative.");
     }
 
     if (config.dragThreshold < 0.0f) {

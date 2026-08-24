@@ -37,7 +37,6 @@ namespace a3d {
 
         // [Internal Member Functions]
 
-
         void    startup(const RenderContext& context);
         void    shutdown();
 

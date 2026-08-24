@@ -34,21 +34,28 @@ namespace a3d::ext {
         /** @brief Key bindings used for free-flight translation and speed control. */
         struct Controls {
 
-            DesktopInputContext::Key forward {DesktopInputContext::Key::W}; ///< Move along the POV's forward axis.
-            DesktopInputContext::Key back {DesktopInputContext::Key::S}; ///< Move opposite the POV's forward axis.
-            DesktopInputContext::Key left {DesktopInputContext::Key::A}; ///< Move opposite the POV's right axis.
+            DesktopInputContext::Key forward {
+                DesktopInputContext::Key::W}; ///< Move along the POV's forward axis.
+            DesktopInputContext::Key back {
+                DesktopInputContext::Key::S}; ///< Move opposite the POV's forward axis.
+            DesktopInputContext::Key left {
+                DesktopInputContext::Key::A}; ///< Move opposite the POV's right axis.
             DesktopInputContext::Key right {DesktopInputContext::Key::D}; ///< Move along the POV's right axis.
             DesktopInputContext::Key up {DesktopInputContext::Key::Space}; ///< Move along the POV's up axis.
-            DesktopInputContext::Key descendModifier {DesktopInputContext::Key::LeftShift}; ///< Reverses the up control while held.
-            DesktopInputContext::Key fastModifier {DesktopInputContext::Key::LeftControl}; ///< Applies the fast-movement multiplier while held.
+            DesktopInputContext::Key descendModifier {
+                DesktopInputContext::Key::LeftShift}; ///< Reverses the up control while held.
+            DesktopInputContext::Key fastModifier {
+                DesktopInputContext::Key::LeftControl}; ///< Applies the fast-movement multiplier while held.
         };
 
         /** @brief Free-flight sensitivity, speed, and control bindings. */
         struct Config {
 
-            float    lookSensitivity {0.001f}; ///< Pointer-look sensitivity applied to logical pointer displacement.
-            float    moveSpeed {1.0f}; ///< Translation speed in scene units per second.
-            float    fastMoveMultiplier {2.0f}; ///< Multiplier applied to moveSpeed while the fast modifier is held.
+            float lookSensitivity {
+                0.001f}; ///< Pointer-look sensitivity applied to logical pointer displacement.
+            float moveSpeed {1.0f}; ///< Translation speed in scene units per second.
+            float fastMoveMultiplier {
+                2.0f}; ///< Multiplier applied to moveSpeed while the fast modifier is held.
             Controls controls; ///< Keyboard bindings used for translation and speed control.
         };
 

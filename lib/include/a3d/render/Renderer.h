@@ -144,9 +144,9 @@ namespace a3d {
         virtual void drawElements()                                                                    = 0;
 
         virtual void drawLines(const LinesPass&     pass,
-                                     const RenderContext& context,
-                                     const math::mat4&    view,
-                                     const math::mat4&    proj) = 0;
+                               const RenderContext& context,
+                               const math::mat4&    view,
+                               const math::mat4&    proj) = 0;
     };
 
 }

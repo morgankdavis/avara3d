@@ -24,8 +24,9 @@ namespace a3d {
 
         // [Public Member Variables]
 
-        Material::Property contents {};             ///< Background contents; VisualWorld accepts a Color or a Texture containing a CubeImage.
-        math::quat         orientation {1.0f};       ///< Orientation applied when sampling a cubemap background.
+        Material::Property
+            contents {}; ///< Background contents; VisualWorld accepts a Color or a Texture containing a CubeImage.
+        math::quat orientation {1.0f}; ///< Orientation applied when sampling a cubemap background.
     };
 
 }

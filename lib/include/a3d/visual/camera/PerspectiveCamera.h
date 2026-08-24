@@ -40,33 +40,33 @@ namespace a3d {
         // [Public Member Functions]
 
         /** @brief Returns the near clipping distance. */
-        float                       zNear() const;
+        float      zNear() const;
 
         /** @brief Sets the near clipping distance. */
-        void                        zNear(float zNear);
+        void       zNear(float zNear);
 
         /** @brief Returns the far clipping distance. */
-        float                       zFar() const;
+        float      zFar() const;
 
         /** @brief Sets the far clipping distance. */
-        void                        zFar(float zFar);
+        void       zFar(float zFar);
 
         /** @brief Returns the vertical field of view in radians. */
-        float                       yFov() const;
+        float      yFov() const;
 
         /** @brief Sets the vertical field of view in radians. */
-        void                        yFov(float fov);
+        void       yFov(float fov);
 
         // [Camera Internal Member Functions]
 
-        math::mat4                  projection(const math::uvec2& framebufferSize) const override;
+        math::mat4 projection(const math::uvec2& framebufferSize) const override;
 
     private:
         // [Private Member Variables]
 
-        float                _zNear;
-        float                _zFar;
-        float                _yFov;
+        float _zNear;
+        float _zFar;
+        float _yFov;
     };
 
 }

@@ -30,6 +30,7 @@ namespace a3d::util::string {
 
     std::string              Tree(const Node& root);
     std::string              Timestamp();
+
 }
 
 #endif // AVARA3D_UTIL_STRING_H

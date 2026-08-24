@@ -58,9 +58,9 @@ namespace a3d::util::enums {
 #if defined(__clang__) || defined(__GNUC__)
 
             constexpr std::string_view signature = __PRETTY_FUNCTION__;
-            constexpr std::string_view prefix = "V = ";
+            constexpr std::string_view prefix    = "V = ";
 
-            const auto prefixPos = signature.find(prefix);
+            const auto                 prefixPos = signature.find(prefix);
             if (prefixPos == std::string_view::npos) {
                 return {};
             }
@@ -85,15 +85,15 @@ namespace a3d::util::enums {
 #elif defined(_MSC_VER)
 
             constexpr std::string_view signature = __FUNCSIG__;
-            constexpr std::string_view prefix = "enum_name_impl<";
+            constexpr std::string_view prefix    = "enum_name_impl<";
 
-            const auto prefixPos = signature.find(prefix);
+            const auto                 prefixPos = signature.find(prefix);
             if (prefixPos == std::string_view::npos) {
                 return {};
             }
 
             const auto begin = prefixPos + prefix.size();
-            const auto end = signature.find(">(void)", begin);
+            const auto end   = signature.find(">(void)", begin);
             if (end == std::string_view::npos) {
                 return {};
             }
@@ -118,19 +118,18 @@ namespace a3d::util::enums {
         consteval auto make_names(std::index_sequence<I...>) noexcept {
 
             return std::array<std::string_view, sizeof...(I)> {
-                enum_name_impl<static_cast<E>(Min + static_cast<int>(I))>()...
-            };
+                enum_name_impl<static_cast<E>(Min + static_cast<int>(I))>()...};
         }
 
         template<typename E>
         struct EnumData {
             static_assert(std::is_enum_v<E>);
 
-            static constexpr int min = range_min<E>();
-            static constexpr int max = range_max<E>();
+            static constexpr int         min   = range_min<E>();
+            static constexpr int         max   = range_max<E>();
             static constexpr std::size_t count = static_cast<std::size_t>(max - min + 1);
 
-            static constexpr auto names = make_names<E, min>(std::make_index_sequence<count> {});
+            static constexpr auto        names = make_names<E, min>(std::make_index_sequence<count> {});
         };
 
     }
@@ -149,11 +148,11 @@ namespace a3d::util::enums {
 
         using U = std::underlying_type_t<E>;
 
-        constexpr int min = detail::EnumData<E>::min;
-        constexpr int max = detail::EnumData<E>::max;
+        constexpr int   min   = detail::EnumData<E>::min;
+        constexpr int   max   = detail::EnumData<E>::max;
         constexpr auto& names = detail::EnumData<E>::names;
 
-        const U raw = static_cast<U>(value);
+        const U         raw = static_cast<U>(value);
         if (raw < static_cast<U>(min) || raw > static_cast<U>(max)) {
             return {};
         }
@@ -171,7 +170,7 @@ namespace a3d::util::enums {
 
         static_assert(std::is_enum_v<E>, "a3d::util::enums::enum_cast() requires an enum type");
 
-        constexpr int min = detail::EnumData<E>::min;
+        constexpr int   min   = detail::EnumData<E>::min;
         constexpr auto& names = detail::EnumData<E>::names;
 
         for (std::size_t i = 0; i < names.size(); ++i) {

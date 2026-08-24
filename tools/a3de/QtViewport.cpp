@@ -41,7 +41,7 @@ static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
 
 Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
     RenderContext(),
-    QOpenGLWidget{parent},
+    QOpenGLWidget {parent},
     _cursorCaptured {false},
     _lastCursorPosition {},
     _lastCapturedCursorPosition {},

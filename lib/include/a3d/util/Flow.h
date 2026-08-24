@@ -361,6 +361,7 @@ namespace a3d::util::flow {
                         : std::invoke(std::forward<ElseFn>(else_fn));
         }
     }
+
 } // namespace a3d::util::flow
 
 #endif // AVARA3D_UTIL_FLOW_H

@@ -60,10 +60,14 @@ namespace a3d::ext {
         /** @brief Pointer buttons and modifier keys used for camera manipulation. */
         struct Controls {
 
-            DesktopInputContext::MouseButton orbitButton {DesktopInputContext::MouseButton::One}; ///< Primary orbit/click button.
-            DesktopInputContext::MouseButton panButton {DesktopInputContext::MouseButton::Two}; ///< Dedicated pan/click button.
-            DesktopInputContext::Key         panModifier {DesktopInputContext::Key::LeftShift}; ///< Makes orbit-button dragging pan.
-            DesktopInputContext::Key         dollyModifier {DesktopInputContext::Key::LeftControl}; ///< Makes orbit-button dragging dolly.
+            DesktopInputContext::MouseButton orbitButton {
+                DesktopInputContext::MouseButton::One}; ///< Primary orbit/click button.
+            DesktopInputContext::MouseButton panButton {
+                DesktopInputContext::MouseButton::Two}; ///< Dedicated pan/click button.
+            DesktopInputContext::Key panModifier {
+                DesktopInputContext::Key::LeftShift}; ///< Makes orbit-button dragging pan.
+            DesktopInputContext::Key dollyModifier {
+                DesktopInputContext::Key::LeftControl}; ///< Makes orbit-button dragging dolly.
         };
 
         /** @brief Pointer click reported when a configured button is released without becoming a drag. */
@@ -75,16 +79,18 @@ namespace a3d::ext {
         /** @brief Limits, sensitivities, and input bindings used by the controller. */
         struct Config {
 
-            float    minPitch {-math::radians(85.0f)}; ///< Minimum pitch in radians; must remain above -90 degrees.
-            float    maxPitch {math::radians(85.0f)}; ///< Maximum pitch in radians; must remain below 90 degrees.
+            float minPitch {
+                -math::radians(85.0f)}; ///< Minimum pitch in radians; must remain above -90 degrees.
+            float maxPitch {math::radians(85.0f)}; ///< Maximum pitch in radians; must remain below 90 degrees.
 
-            float    minDistance {0.01f}; ///< Minimum positive target distance in scene units.
-            float    maxDistance {math::F32_MAX}; ///< Maximum target distance in scene units.
+            float minDistance {0.01f}; ///< Minimum positive target distance in scene units.
+            float maxDistance {math::F32_MAX}; ///< Maximum target distance in scene units.
 
-            float    orbitSensitivity {0.004f}; ///< Orbit radians per logical pointer unit.
-            float    dollySensitivity {0.01f}; ///< Exponential dolly sensitivity for pointer dragging.
-            float    scrollDollySensitivity {0.15f}; ///< Exponential dolly sensitivity per scroll unit.
-            float    dragThreshold {4.0f}; ///< Pointer displacement required to convert a click candidate into a drag.
+            float orbitSensitivity {0.004f}; ///< Orbit radians per logical pointer unit.
+            float dollySensitivity {0.01f}; ///< Exponential dolly sensitivity for pointer dragging.
+            float scrollDollySensitivity {0.15f}; ///< Exponential dolly sensitivity per scroll unit.
+            float dragThreshold {
+                4.0f}; ///< Pointer displacement required to convert a click candidate into a drag.
             bool     invertPitch {false}; ///< Reverses vertical orbit direction when true.
 
             Controls controls; ///< Pointer-button and modifier bindings.
@@ -93,10 +99,12 @@ namespace a3d::ext {
         /** @brief Results produced by one input update. */
         struct UpdateResult {
 
-            bool                        cameraChanged {false}; ///< Whether update() changed the View.
-            bool                        pointerDragging {false}; ///< Whether an orbit or pan button is currently dragging.
-            std::optional<PointerClick> orbitButtonClick; ///< Orbit-button click released without crossing the drag threshold.
-            std::optional<PointerClick> panButtonClick; ///< Pan-button click released without crossing the drag threshold.
+            bool cameraChanged {false}; ///< Whether update() changed the View.
+            bool pointerDragging {false}; ///< Whether an orbit or pan button is currently dragging.
+            std::optional<PointerClick>
+                orbitButtonClick; ///< Orbit-button click released without crossing the drag threshold.
+            std::optional<PointerClick>
+                panButtonClick; ///< Pan-button click released without crossing the drag threshold.
         };
 
         // [Public Lifecycle Functions]

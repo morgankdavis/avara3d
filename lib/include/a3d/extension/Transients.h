@@ -51,7 +51,7 @@ namespace a3d::ext {
             math::vec3 center {0.0f};
 
             /** Maximum permitted distance from center. */
-            float radius {0.0f};
+            float      radius {0.0f};
         };
 
         /** @brief Removal limits applied globally or to a named group. */
@@ -62,14 +62,14 @@ namespace a3d::ext {
              *
              * Excess nodes are removed immediately, oldest first.
              */
-            std::optional<std::size_t> maxCount {};
+            std::optional<std::size_t>   maxCount {};
 
             /**
              * Maximum node age in seconds of simulation time.
              *
              * The limit is evaluated during sweeps.
              */
-            std::optional<double> maxAge {};
+            std::optional<double>        maxAge {};
 
             /**
              * Maximum world-space distance from a fixed point.
@@ -90,13 +90,13 @@ namespace a3d::ext {
             };
 
             /** Selected scheduling mode. */
-            Mode mode {Mode::EveryUpdate};
+            Mode               mode {Mode::EveryUpdate};
 
             /** Number of update() calls between sweeps in Mode::EveryNUpdates. */
-            std::uint64_t updateInterval {1};
+            std::uint64_t      updateInterval {1};
 
             /** Seconds of simulation time between sweeps in Mode::EveryInterval. */
-            double timeInterval {0.0};
+            double             timeInterval {0.0};
 
             /**
              * @brief Creates a policy that sweeps on every call to update().
@@ -160,7 +160,7 @@ namespace a3d::ext {
          * @throws std::invalid_argument if node is null or is not attached beneath a Scene root.
          * @throws std::logic_error if node is already tracked.
          */
-        void track(const std::shared_ptr<Node>& node, const std::string& group = {});
+        void          track(const std::shared_ptr<Node>& node, const std::string& group = {});
 
         /**
          * @brief Tracks a collection of nodes as members of the same transient group.
@@ -171,14 +171,14 @@ namespace a3d::ext {
          * @param nodes Nodes to track.
          * @param group Optional transient group shared by all nodes.
          */
-        void track(const std::vector<std::shared_ptr<Node>>& nodes, const std::string& group = {});
+        void          track(const std::vector<std::shared_ptr<Node>>& nodes, const std::string& group = {});
 
         /**
          * @brief Stops tracking a node without removing it from its parent.
          *
          * @param node Node to stop tracking.
          */
-        void untrack(const Node& node);
+        void          untrack(const Node& node);
 
         /** @brief Returns the global removal policy. */
         const Policy& policy() const;
@@ -192,7 +192,7 @@ namespace a3d::ext {
          *
          * @throws std::invalid_argument if policy contains an invalid age or distance limit.
          */
-        void policy(const Policy& policy);
+        void          policy(const Policy& policy);
 
         /**
          * @brief Replaces the removal policy for a named group.
@@ -205,7 +205,7 @@ namespace a3d::ext {
          *
          * @throws std::invalid_argument if policy contains an invalid age or distance limit.
          */
-        void groupPolicy(const std::string& group, const Policy& policy);
+        void          groupPolicy(const std::string& group, const Policy& policy);
 
         /** @brief Returns the scheduling policy used by update(). */
         const SweepPolicy& sweepPolicy() const;
@@ -219,7 +219,7 @@ namespace a3d::ext {
          *
          * @throws std::invalid_argument if policy is invalid.
          */
-        void sweepPolicy(const SweepPolicy& policy);
+        void               sweepPolicy(const SweepPolicy& policy);
 
         /**
          * @brief Advances registry scheduling and sweeps when the configured policy is due.
@@ -230,7 +230,7 @@ namespace a3d::ext {
          *
          * @param info Information for the completed simulation step.
          */
-        void update(const Scene::StepInfo& info);
+        void               update(const Scene::StepInfo& info);
 
         /**
          * @brief Immediately evaluates all swept removal policies.
@@ -240,21 +240,21 @@ namespace a3d::ext {
          *
          * @param info Information for the completed simulation step.
          */
-        void sweep(const Scene::StepInfo& info);
+        void               sweep(const Scene::StepInfo& info);
 
         /**
          * @brief Forgets every tracked node and resets runtime scheduling state.
          *
          * Tracked nodes are not removed from their parents. Global, group, and sweep policies are retained.
          */
-        void clear();
+        void               clear();
 
         /**
          * @brief Removes every live tracked node from its parent and clears the registry.
          *
          * Global, group, and sweep policies are retained.
          */
-        void removeAll();
+        void               removeAll();
 
     private:
         // [Private Types]
@@ -279,9 +279,9 @@ namespace a3d::ext {
 
         bool               shouldRemove(const Entry& entry, const Node& node, double simulationTime) const;
         bool               policyRemoves(const Policy& policy,
-                                         const Entry& entry,
-                                         const Node& node,
-                                         double simulationTime) const;
+                                         const Entry&  entry,
+                                         const Node&   node,
+                                         double        simulationTime) const;
 
         void               pruneInactiveEntries();
         void               enforceCountLimits(const std::string& group);
@@ -292,8 +292,8 @@ namespace a3d::ext {
 
         // [Private Member Variables]
 
-        std::vector<Entry>                      _entries;
-        Policy                                  _policy;
+        std::vector<Entry> _entries;
+        Policy             _policy;
         std::unordered_map<std::string, Policy> _groupPolicies;
         SweepPolicy                             _sweepPolicy;
         std::uint64_t                           _updatesSinceSweep;

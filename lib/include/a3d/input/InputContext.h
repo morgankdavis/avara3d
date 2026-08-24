@@ -41,7 +41,8 @@ namespace a3d {
 
             // monotonic seconds since the beginning of the previous
             // host update; zero during the first update
-            double        deltaTime {0.0}; ///< Time since the preceding host update, in seconds; zero on the first update.
+            double        deltaTime {
+                0.0}; ///< Time since the preceding host update, in seconds; zero on the first update.
         };
 
         /** @brief Callback invoked after input state has been updated for the current Runner host update. */

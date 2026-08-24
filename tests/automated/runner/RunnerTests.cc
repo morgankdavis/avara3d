@@ -7,7 +7,7 @@ using namespace a3d;
 
 TEST_CASE("Runner is initially idle") {
 
-    Scene scene;
+    Scene  scene;
     Runner runner(scene);
 
     REQUIRE(runner.state() == Runner::State::Idle);

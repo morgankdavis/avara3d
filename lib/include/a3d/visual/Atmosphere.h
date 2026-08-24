@@ -40,9 +40,9 @@ namespace a3d {
 
         // [Public Member Variables]
 
-        float                   scaleHeight {5.0f}; ///< Scale controlling atmospheric density falloff; must be greater than zero.
-        std::optional<Haze>     haze {};             ///< Optional atmospheric haze.
-        std::optional<LimbGlow> limbGlow {};         ///< Optional limb glow; requires a spherical reference Surface.
+        float scaleHeight {5.0f}; ///< Scale controlling atmospheric density falloff; must be greater than zero.
+        std::optional<Haze>     haze {}; ///< Optional atmospheric haze.
+        std::optional<LimbGlow> limbGlow {}; ///< Optional limb glow; requires a spherical reference Surface.
     };
 
 }
