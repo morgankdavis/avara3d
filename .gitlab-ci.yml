@@ -762,3 +762,15 @@ website-downloads-publish-testing-production:
           when: manual
           allow_failure: true
         - when: never
+
+cloudflare-pages-auth-test:
+  stage: deploy
+  tags:
+    - ubuntu-23
+  needs: []
+  script:
+    - npx --yes wrangler@4.125.0 pages project list
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+      when: manual
+    - when: never
