@@ -60,8 +60,9 @@ namespace a3d {
         /**
          * @brief Creates a static body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a static body, its
-         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::logic_error if @p shape is incompatible with a static body, or if
+         * collision geometry must be created and its source has expired or cannot produce
+         * a valid collision shape.
          * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> StaticBody(const std::shared_ptr<PhysicsShape>& shape);
@@ -72,8 +73,9 @@ namespace a3d {
         /**
          * @brief Creates a dynamic body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a dynamic body, its
-         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::logic_error if @p shape is incompatible with a dynamic body, or if
+         * collision geometry must be created and its source has expired or cannot produce
+         * a valid collision shape.
          * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> DynamicBody(const std::shared_ptr<PhysicsShape>& shape);
@@ -84,8 +86,9 @@ namespace a3d {
         /**
          * @brief Creates a kinematic body using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with a kinematic body, its
-         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::logic_error if @p shape is incompatible with a kinematic body, or if
+         * collision geometry must be created and its source has expired or cannot produce
+         * a valid collision shape.
          * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         static std::unique_ptr<PhysicsBody> KinematicBody(const std::shared_ptr<PhysicsShape>& shape);
@@ -98,8 +101,9 @@ namespace a3d {
         /**
          * @brief Creates a body of @p type using @p shape.
          *
-         * @throws std::logic_error if @p shape is incompatible with @p type, its source
-         * has expired, or valid collision geometry cannot be created from it.
+         * @throws std::logic_error if @p shape is incompatible with @p type, or if collision
+         * geometry must be created and its source has expired or cannot produce a valid
+         * collision shape.
          * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
@@ -132,8 +136,9 @@ namespace a3d {
         /**
          * @brief Replaces the collision shape retained by this body; nullptr removes it.
          *
-         * @throws std::logic_error if @p shape does not support this body's type, its
-         * source has expired, or valid collision geometry cannot be created from it.
+         * @throws std::logic_error if @p shape does not support this body's type, or if
+         * collision geometry must be created and its source has expired or cannot produce
+         * a valid collision shape.
          * @throws std::invalid_argument if @p shape is derived from a Mesh with no elements.
          */
         void                                 shape(const std::shared_ptr<PhysicsShape>& shape);
@@ -251,7 +256,7 @@ namespace a3d {
          *
          * @param force world-space force vector, or impulse vector when @p impulse is true.
          * @param location world-space application position.
-         * @param impulse when true, applies @p force as an instantaneous impulse instead of a continuous force.
+         * @param impulse when true, applies @p force as an instantaneous angular impulse.
          * @throws std::logic_error if the body is not dynamic.
          */
         void                    applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
