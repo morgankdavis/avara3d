@@ -763,13 +763,29 @@ website-downloads-publish-testing-production:
           allow_failure: true
         - when: never
 
-cloudflare-r2-tool-test:
+cloudflare-r2-auth-test:
   stage: deploy
   tags:
     - ubuntu-23
   needs: []
   script:
-    - rclone version
+    - |
+      set -euo pipefail
+
+      cat > /tmp/rclone-r2.conf <<EOF
+      [r2]
+      type = s3
+      provider = Cloudflare
+      access_key_id = ${R2_ACCESS_KEY_ID}
+      secret_access_key = ${R2_SECRET_ACCESS_KEY}
+      endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+      acl = private
+      no_check_bucket = true
+      EOF
+
+      rclone \
+          --config /tmp/rclone-r2.conf \
+          lsf r2:avara3d-public
   rules:
     - if: '$CI_COMMIT_BRANCH'
       when: manual
