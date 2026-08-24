@@ -362,28 +362,29 @@ namespace a3d {
         void                    attachedToNode(const std::shared_ptr<Node>& node);
         void                    detachedFromNode(const std::shared_ptr<Node>& node);
 
-        void                    meshWillChangeOnNode();
-        void                    meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
-        void                    meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
-        void                    meshDidChangeOnNode();
+        void meshDetachedFromNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Mesh>& mesh);
+        void meshAttachedToNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Mesh>& mesh);
 
-        void                    physicsWorldReachable(PhysicsWorld& world);
-        void                    physicsWorldUnreachable(PhysicsWorld& world);
+        void meshWillChangeOnNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Mesh>& oldMesh);
+        void meshDidChangeOnNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Mesh>& newMesh);
 
-        void                    addedToWorld(PhysicsWorld& world);
-        void                    removedFromWorld(PhysicsWorld& world);
+        void physicsWorldReachable(PhysicsWorld& world);
+        void physicsWorldUnreachable(PhysicsWorld& world);
 
-        void                    shapeWillUpdate();
-        void                    shapeDidUpdate();
+        void addedToWorld(PhysicsWorld& world);
+        void removedFromWorld(PhysicsWorld& world);
 
-        void                    syncTransformFromNode();
+        void shapeWillUpdate();
+        void shapeDidUpdate();
 
-        std::weak_ptr<Node>     node() const;
+        void syncTransformFromNode();
+
+        std::weak_ptr<Node> node() const;
 
         // the scene's world, if it exists.  not the same as _world.
-        PhysicsWorld*           physicsWorld() const;
+        PhysicsWorld*       physicsWorld() const;
 
-        PhysicsBodyProxy*       proxy() const;
+        PhysicsBodyProxy*   proxy() const;
 
     private:
         // [Private Member Functions]

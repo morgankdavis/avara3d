@@ -132,24 +132,27 @@ const shared_ptr<Mesh>& Node::mesh() const {
 
 void Node::mesh(const shared_ptr<Mesh>& mesh) {
 
-    if (_physicsBody) {
-        _physicsBody->meshWillChangeOnNode();
+    if (!_physicsBody) {
+        _mesh = mesh;
+        return;
     }
 
+    auto node = shared_from_this();
     auto oldMesh = _mesh;
+
+    _physicsBody->meshWillChangeOnNode(node, oldMesh);
+
+    if (oldMesh) {
+        _physicsBody->meshDetachedFromNode(node, oldMesh);
+    }
+
     _mesh = mesh;
 
-    if (_physicsBody && oldMesh) {
-        _physicsBody->meshDetachedFromNode(oldMesh);
+    if (_mesh) {
+        _physicsBody->meshAttachedToNode(node, _mesh);
     }
 
-    if (_physicsBody && _mesh) {
-        _physicsBody->meshAttachedToNode(_mesh);
-    }
-
-    if (_physicsBody) {
-        _physicsBody->meshDidChangeOnNode();
-    }
+    _physicsBody->meshDidChangeOnNode(node, _mesh);
 }
 
 const vec3& Node::position() const {

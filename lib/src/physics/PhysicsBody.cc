@@ -493,28 +493,28 @@ void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
     _node = {}; // ^^ physicsWorld() relies on old _node
 }
 
-void PhysicsBody::meshWillChangeOnNode() {
-    log::t();
+void PhysicsBody::meshDetachedFromNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& mesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(mesh.get()));
+}
+
+void PhysicsBody::meshAttachedToNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& mesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(mesh.get()));
+
+    checkAutocreateShape(mesh);
+}
+
+void PhysicsBody::meshWillChangeOnNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& oldMesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(oldMesh.get()));
 
     if (_shapeAutocreated) {
         shape(nullptr);
     }
 }
 
-void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
-    log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
+void PhysicsBody::meshDidChangeOnNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& newMesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(newMesh.get()));
 
-    checkAutocreateShape(mesh);
-}
-
-void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
-    log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
-}
-
-void PhysicsBody::meshDidChangeOnNode() {
-    log::t();
-
-    if (auto node = _node.lock(); node && !node->mesh()) {
+    if (!newMesh) {
         checkAutocreateShape(node);
     }
 }
