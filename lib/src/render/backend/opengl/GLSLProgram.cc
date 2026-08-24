@@ -165,9 +165,8 @@ void GLSLProgram::use() {
     if (_glID <= 0 || (!_isLinked)) {
         throw logic_error(std::format("Program '{}' not ready.", _name));
     }
-    else {
-        glUseProgram(_glID);
-    }
+
+    glUseProgram(_glID);
 }
 
 void GLSLProgram::unuse() {

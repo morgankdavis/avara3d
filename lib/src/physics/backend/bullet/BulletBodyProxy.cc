@@ -8,6 +8,8 @@
 
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 
+#include <stdexcept>
+
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include "a3d/log/Log.h"

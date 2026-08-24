@@ -8,6 +8,7 @@
 
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 
+#include <format>
 #include <stdexcept>
 #include <utility>
 #include <variant>
@@ -253,7 +254,8 @@ static unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shap
         return make_unique<btSphereShape>((btScalar) sphereShape->radius());
     }
     else {
-        throw logic_error(std::format("PhysicsShape {:p} is not a valid subclass.", static_cast<void*>(&shape));
+        throw logic_error(std::format("PhysicsShape {:p} is not a valid subclass.",
+                                      static_cast<void*>(&shape)));
     }
 
     return nullptr;
@@ -291,7 +293,7 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
     else if (shapeType == PhysicsShape::Type::Primitive) {
 
         // gross
-        log::e()("Primitive PhysicsShape cannot be generated from a generic MeshElement.");
+        throw logic_error("Primitive PhysicsShape cannot be generated from a generic MeshElement.");
         return nullptr;
     }
     else if (shapeType == PhysicsShape::Type::ConvexHull) {

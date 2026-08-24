@@ -916,7 +916,7 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
     const VertexLayout elemLayout = element.vertexLayout();
     const VertexLayout pipeLayout = pipe.desc.vertexLayoutKey;
 
-    if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
+    if (elemLayout != pipeLayout) {
         throw logic_error(std::format("VertexLayout mismatch for pipeline {}: element={}, pipeline={}",
                                       _state.pipelineId, static_cast<uint32_t>(elemLayout),
                                       static_cast<uint32_t>(pipeLayout)));

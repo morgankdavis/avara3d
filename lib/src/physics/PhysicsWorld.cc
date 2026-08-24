@@ -9,6 +9,7 @@
 #include "a3d/physics/PhysicsWorld.h"
 
 #include <cmath>
+#include <format>
 #include <stdexcept>
 
 #include "a3d/log/Log.h"

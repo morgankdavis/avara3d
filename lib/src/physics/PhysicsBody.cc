@@ -9,6 +9,7 @@
 #include "a3d/physics/PhysicsBody.h"
 
 #include <cmath>
+#include <format>
 #include <stdexcept>
 
 #include "a3d/log/Log.h"
@@ -552,12 +553,10 @@ void PhysicsBody::shapeDidUpdate() {
     }
 
     if (!_shape) {
-        _proxy->shapeProxy(nullptr);
         throw logic_error(std::format("No shape for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     if (!_shape->proxy()) {
-        _proxy->shapeProxy(nullptr);
         throw logic_error(std::format("Shape has no proxy for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
@@ -593,8 +592,9 @@ PhysicsWorld* PhysicsBody::physicsWorld() const {
         }
     }
     else {
-        log::e()("_node is gone.");
-        // TODO: throw?
+
+        throw logic_error(std::format("Node has disappeared for PhysicsBody {:p}",
+                                      static_cast<const void*>(this)));
     }
     return nullptr;
 }
