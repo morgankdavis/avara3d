@@ -582,6 +582,183 @@ website-publish-localstaging:
       allow_failure: true
     - when: never
 
+.website-publish-cloudflare:
+  stage: deploy
+  tags:
+    - ubuntu-23
+  needs:
+    - job: documentation
+      artifacts: true
+  resource_group: avara3d-website-deployment
+  script:
+    - |
+      set -euo pipefail
+
+      echo "Preparing Cloudflare website deployment..."
+      echo "Branch: ${CI_COMMIT_BRANCH}"
+      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+      echo "Environment: ${CI_ENVIRONMENT_NAME}"
+
+      : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
+      : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
+      : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is not set}"
+      : "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is not set}"
+      : "${A3D_CLOUDFLARE_PAGES_PROJECT:?A3D_CLOUDFLARE_PAGES_PROJECT is not set}"
+      : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
+
+      echo
+      echo "Building fresh WebAssembly release..."
+      source "${EMSDK_ROOT}/emsdk_env.sh"
+      export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+      emcc --version
+
+      rm -rf gitlab-build-website build-website build-pages
+
+      emcmake /usr/bin/cmake \
+          -S . \
+          -B gitlab-build-website \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DA3D_BUILD_EDITOR=OFF \
+          -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+          -DA3D_BUILD_SANDBOX_TESTS=OFF \
+          -DA3D_BUILD_DEMOS=ON \
+          -DA3D_BUILD_DOCUMENTATION=OFF \
+          -DA3D_WEB_GENERATE_HTML=OFF \
+          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+
+      /usr/bin/cmake \
+          --build gitlab-build-website \
+          --target install \
+          -j4
+
+      echo
+      echo "Assembling website bundle..."
+      A3D_WEB_BUILD_DIR=gitlab-build-website \
+      A3D_REQUIRE_WEB_DEMO=1 \
+      A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
+      A3D_REQUIRE_DOCUMENTATION=1 \
+      A3D_WEBSITE_OUTPUT_DIR=build-website \
+          ./tools/website/assemble.sh
+
+      echo
+      echo "Verifying website bundle..."
+      test -f build-website/index.html
+      test -f build-website/assets/css/site.css
+      test -f build-website/demo/janus.js
+      test -f build-website/demo/janus.wasm
+      test -f build-website/demo/janus.data
+      test -f build-website/source/main.cc
+      test -f build-website/source/App.h
+      test -f build-website/source/App.cc
+      test -f build-website/build-info.json
+      test -f build-website/api/index.html
+      test -f build-website/api/doxygen-awesome.css
+      test -f build-website/api/avara3d.css
+      du -sh build-website
+
+      echo
+      echo "Configuring R2 client..."
+      umask 077
+      RCLONE_CONFIG_FILE="$(mktemp)"
+      trap 'rm -f "${RCLONE_CONFIG_FILE}"' EXIT
+
+      cat > "${RCLONE_CONFIG_FILE}" <<EOF
+      [r2]
+      type = s3
+      provider = Cloudflare
+      access_key_id = ${R2_ACCESS_KEY_ID}
+      secret_access_key = ${R2_SECRET_ACCESS_KEY}
+      endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+      acl = private
+      no_check_bucket = true
+      EOF
+
+      echo
+      echo "Uploading Janus runtime payload to R2..."
+      rclone \
+          --config "${RCLONE_CONFIG_FILE}" \
+          copyto \
+          build-website/demo/janus.wasm \
+          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.wasm"
+
+      rclone \
+          --config "${RCLONE_CONFIG_FILE}" \
+          copyto \
+          build-website/demo/janus.data \
+          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.data"
+
+      echo
+      echo "Verifying R2 runtime payload..."
+      rclone \
+          --config "${RCLONE_CONFIG_FILE}" \
+          lsl \
+          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/"
+
+      curl -fsSI \
+          "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.wasm" \
+          | grep -qi '^content-type: application/wasm'
+
+      curl -fsSI \
+          "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.data" \
+          | grep -qi '^content-type: application/octet-stream'
+
+      echo
+      echo "Preparing Cloudflare Pages payload..."
+      cp -a build-website build-pages
+      rm build-pages/demo/janus.wasm
+      rm build-pages/demo/janus.data
+
+      test -f build-pages/demo/janus.js
+      test ! -e build-pages/demo/janus.wasm
+      test ! -e build-pages/demo/janus.data
+
+      oversized_file="$(
+          find build-pages \
+              -type f \
+              -size +25M \
+              -print \
+              -quit
+      )"
+
+      if [[ -n "${oversized_file}" ]]; then
+          echo "Cloudflare Pages payload contains a file larger than 25 MiB:" >&2
+          echo "  ${oversized_file}" >&2
+          exit 1
+      fi
+
+      echo
+      echo "Publishing website to Cloudflare Pages..."
+      npx --yes wrangler@4.125.0 pages deploy \
+          build-pages \
+          --project-name="${A3D_CLOUDFLARE_PAGES_PROJECT}" \
+          --branch=main \
+          --commit-dirty=true
+
+      echo
+      echo "Cloudflare website deployment completed successfully."
+  artifacts:
+    name: "avara3d-cloudflare-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
+    expose_as: "assembled-website"
+    paths:
+      - build-website/
+    expire_in: 1 week
+
+website-publish-staging:
+  extends: .website-publish-cloudflare
+  variables:
+    A3D_CLOUDFLARE_PAGES_PROJECT: avara3d-staging
+    A3D_R2_PREFIX: staging
+  environment:
+    name: staging
+    url: https://staging.avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+      when: manual
+      allow_failure: true
+    - when: never
+
 website-publish-production:
   extends: .website-publish
   variables:
@@ -762,32 +939,3 @@ website-downloads-publish-testing-production:
           when: manual
           allow_failure: true
         - when: never
-
-cloudflare-r2-auth-test:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs: []
-  script:
-    - |
-      set -euo pipefail
-
-      cat > /tmp/rclone-r2.conf <<EOF
-      [r2]
-      type = s3
-      provider = Cloudflare
-      access_key_id = ${R2_ACCESS_KEY_ID}
-      secret_access_key = ${R2_SECRET_ACCESS_KEY}
-      endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
-      acl = private
-      no_check_bucket = true
-      EOF
-
-      rclone \
-          --config /tmp/rclone-r2.conf \
-          lsf r2:avara3d-public
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
-      when: manual
-    - when: never
-    
