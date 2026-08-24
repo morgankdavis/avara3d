@@ -769,8 +769,10 @@ cloudflare-pages-auth-test:
     - ubuntu-23
   needs: []
   script:
+    - source "${EMSDK_ROOT}/emsdk_env.sh"
     - npx --yes wrangler@4.125.0 pages project list
   rules:
     - if: '$CI_COMMIT_BRANCH'
       when: manual
     - when: never
+    
