@@ -1,6 +1,6 @@
 # Avara3D C++ API {#mainpage}
 
-[Back to avara3d.net](/)
+[Back to avara3d.net](https://avara3d.net/)
 
 Avara3D is a C++20 engine for real-time 3D visualization and physical simulation.
 

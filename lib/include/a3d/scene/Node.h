@@ -234,8 +234,8 @@ namespace a3d {
          * A node that already has a parent must first be detached with removeFromParent().
          *
          * @throws std::invalid_argument if @p node is nullptr, is this node, is an
-         * ancestor of this node, or is already attached to another parent.
-         * @throws std::runtime_error if @p node is already contained in this node's subtree.
+         * ancestor of this node, is already contained in this node's subtree, or is
+         * already attached to another parent.
          */
         void                               addChild(const std::shared_ptr<Node>& node);
 
@@ -246,8 +246,8 @@ namespace a3d {
          * throws, nodes added earlier in @p nodes remain attached.
          *
          * @throws std::invalid_argument if a node is nullptr, is this node, is an
-         * ancestor of this node, or is already attached to another parent.
-         * @throws std::runtime_error if a node is already contained in this node's subtree.
+         * ancestor of this node, is already contained in this node's subtree, or is
+         * already attached to another parent.
          */
         void                               addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 

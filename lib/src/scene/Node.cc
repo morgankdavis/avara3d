@@ -367,9 +367,9 @@ void Node::addChild(const shared_ptr<Node>& node) {
     }
 
     if (containsChild(node)) {
-        throw runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
-                                        static_cast<void*>(node.get()),
-                                        (node->name() ? *node->name() : "(unnamed)")));
+        throw invalid_argument(std::format("Node already exists in tree: {:p}, (\"{}\")",
+                                           static_cast<void*>(node.get()),
+                                           (node->name() ? *node->name() : "(unnamed)")));
     }
 
     for (auto ancestor = _parent.lock(); ancestor; ancestor = ancestor->_parent.lock()) {
