@@ -4,7 +4,7 @@
 
 Avara3D is a C++20 engine for real-time 3D visualization and physical simulation.
 
-This reference documents Avara3D's supported public C++ API.
+This reference documents Avara3D's public API.
 
 Core entry points include:
 
@@ -15,3 +15,4 @@ Core entry points include:
 
 The reference also covers geometry, materials, textures, cameras, lights, input, resource loading, mathematical types and
 functions, and general utilities.
+````
