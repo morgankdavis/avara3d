@@ -132,14 +132,23 @@ const shared_ptr<Mesh>& Node::mesh() const {
 
 void Node::mesh(const shared_ptr<Mesh>& mesh) {
 
-    if (_physicsBody && _mesh) {
-        _physicsBody->meshDetachedFromNode(mesh);
+    if (_physicsBody) {
+        _physicsBody->meshWillChangeOnNode();
     }
 
+    auto oldMesh = _mesh;
     _mesh = mesh;
 
+    if (_physicsBody && oldMesh) {
+        _physicsBody->meshDetachedFromNode(oldMesh);
+    }
+
     if (_physicsBody && _mesh) {
-        _physicsBody->meshAttachedToNode(mesh);
+        _physicsBody->meshAttachedToNode(_mesh);
+    }
+
+    if (_physicsBody) {
+        _physicsBody->meshDidChangeOnNode();
     }
 }
 

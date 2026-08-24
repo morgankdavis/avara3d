@@ -33,6 +33,8 @@ namespace a3d {
      *
      * When a body without an explicit shape is attached to a Node, A3D attempts to
      * derive a suitable collision shape from the node's mesh or hierarchy.
+     * Automatically derived shapes are rebuilt when the owning Node's Mesh changes;
+     * explicitly assigned shapes are left unchanged.
      */
     class PhysicsBody {
 
@@ -135,6 +137,9 @@ namespace a3d {
 
         /**
          * @brief Replaces the collision shape retained by this body; nullptr removes it.
+         *
+         * A non-null shape assigned through this function is treated as explicit and is
+         * not automatically replaced when the owning Node's Mesh changes.
          *
          * @throws std::logic_error if @p shape does not support this body's type, or if
          * collision geometry must be created and its source has expired or cannot produce
@@ -357,8 +362,10 @@ namespace a3d {
         void                    attachedToNode(const std::shared_ptr<Node>& node);
         void                    detachedFromNode(const std::shared_ptr<Node>& node);
 
+        void                    meshWillChangeOnNode();
         void                    meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
         void                    meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
+        void                    meshDidChangeOnNode();
 
         void                    physicsWorldReachable(PhysicsWorld& world);
         void                    physicsWorldUnreachable(PhysicsWorld& world);
@@ -389,6 +396,7 @@ namespace a3d {
         // [Private Member Variables]
 
         std::shared_ptr<PhysicsShape>     _shape;
+        bool                              _shapeAutocreated;
         std::unique_ptr<PhysicsBodyProxy> _proxy;
         std::weak_ptr<Node>               _node;
         // either a pointer to the world we are currently in or null.

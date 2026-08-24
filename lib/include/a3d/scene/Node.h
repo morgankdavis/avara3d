@@ -120,9 +120,14 @@ namespace a3d {
         /**
          * @brief Replaces the mesh attached to this node.
          *
-         * An attached PhysicsBody is notified of the mesh change. Passing nullptr
-         * removes the current mesh. If the PhysicsBody has no explicit PhysicsShape,
-         * A3D may automatically derive one from the new Mesh.
+         * Passing nullptr removes the current Mesh. If this node owns a PhysicsBody
+         * whose PhysicsShape was automatically derived by A3D, the collision shape is
+         * rebuilt from the updated Mesh or node hierarchy. An explicitly assigned
+         * PhysicsShape is left unchanged.
+         *
+         * If an explicitly assigned PhysicsShape derives from the previous Mesh, the
+         * caller must keep that Mesh alive as required by the PhysicsShape source-lifetime
+         * contract.
          *
          * @throws std::invalid_argument if automatic collision-shape creation is required
          * and @p mesh contains no elements.
@@ -259,8 +264,8 @@ namespace a3d {
         /**
          * @brief Replaces the physics body owned by this node; nullptr removes it.
          *
-         * If @p body has no explicit PhysicsShape, A3D may automatically derive one
-         * from this node's Mesh or hierarchy.
+         * If @p body has no PhysicsShape, A3D may automatically derive one from this
+         * node's Mesh or hierarchy.
          *
          * @throws std::invalid_argument if automatic collision-shape creation is required
          * from a Mesh with no elements.

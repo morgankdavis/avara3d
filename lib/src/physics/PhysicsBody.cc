@@ -71,6 +71,7 @@ static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<M
 
 PhysicsBody::PhysicsBody(Type type):
     _shape {},
+    _shapeAutocreated {false},
     _node {},
     _world {} {
 
@@ -153,6 +154,8 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
             checkAddToWorld();
         }
     }
+
+    _shapeAutocreated = false;
 }
 
 float PhysicsBody::mass() const {
@@ -490,6 +493,14 @@ void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
     _node = {}; // ^^ physicsWorld() relies on old _node
 }
 
+void PhysicsBody::meshWillChangeOnNode() {
+    log::t();
+
+    if (_shapeAutocreated) {
+        shape(nullptr);
+    }
+}
+
 void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
     log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
 
@@ -498,6 +509,14 @@ void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
 
 void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
     log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
+}
+
+void PhysicsBody::meshDidChangeOnNode() {
+    log::t();
+
+    if (auto node = _node.lock(); node && !node->mesh()) {
+        checkAutocreateShape(node);
+    }
 }
 
 void PhysicsBody::physicsWorldReachable(PhysicsWorld& world) {
@@ -608,42 +627,46 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
     if (!_shape) {
-//		if (auto sNode = node.lock()) {
+
         if (auto mesh = node->mesh()) {
+
                 // make a shape based on the mesh
             checkAutocreateShape(mesh);
         }
         else {
-                // make a shape based on the node
+            // make a shape based on the node
             auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
             if (type() == Type::Static) {
+
                 log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
+                _shapeAutocreated = true;
             }
             else {
+
                 auto shapeType = PhysicsShape::Type::ConvexHull;
                 log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
+                _shapeAutocreated = true;
             }
         }
-//		}
-//		else {
-//			throw std::bad_weak_ptr();
-//		}
     }
 }
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
 
     if (_shape) {
+
         log::i()("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
         return;
     }
 
     if (auto primitiveShape = PhysicsShapeFromPrimitiveMesh(mesh)) {
+
         shape(primitiveShape);
+        _shapeAutocreated = true;
         return;
     }
 
@@ -653,6 +676,7 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
         log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
                  static_cast<void*>(mesh.get()));
         shape(make_shared<PhysicsShape>(shapeType, mesh));
+        _shapeAutocreated = true;
     }
     else {
 
@@ -660,6 +684,7 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
         log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
                  static_cast<void*>(mesh.get()));
         shape(make_shared<PhysicsShape>(shapeType, mesh));
+        _shapeAutocreated = true;
     }
 }
 
