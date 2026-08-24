@@ -569,13 +569,13 @@ documentation:
       - build-website/
     expire_in: 1 week
 
-website-publish-staging:
+website-publish-localstaging:
   extends: .website-publish
   variables:
-    A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+    A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
   environment:
-    name: staging
-    url: https://staging.avara3d.net/
+    name: localstaging
+    url: https://localstaging.avara3d.net/
   rules:
     - if: '$CI_COMMIT_BRANCH'
       when: manual
@@ -631,7 +631,7 @@ website-publish-production:
                     ;;
             esac
             case "${A3D_DOWNLOAD_DESTINATION}" in
-                staging|production)
+                localstaging|production)
                     ;;
                 *)
                     echo "Invalid download destination: ${A3D_DOWNLOAD_DESTINATION}" >&2
@@ -703,30 +703,30 @@ website-publish-production:
             echo
             echo "Downloads deployment completed successfully."
 
-website-downloads-publish-stable-staging:
+website-downloads-publish-stable-localstaging:
     extends: .website-downloads-publish
     variables:
         A3D_DOWNLOAD_CHANNEL: stable
-        A3D_DOWNLOAD_DESTINATION: staging
-        A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+        A3D_DOWNLOAD_DESTINATION: localstaging
+        A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
     environment:
-        name: downloads/stable/staging
-        url: https://staging.avara3d.net/downloads.html
+        name: downloads/stable/localstaging
+        url: https://localstaging.avara3d.net/downloads.html
     rules:
         - if: '$CI_COMMIT_BRANCH == "stable"'
           when: manual
           allow_failure: true
         - when: never
 
-website-downloads-publish-testing-staging:
+website-downloads-publish-testing-localstaging:
     extends: .website-downloads-publish
     variables:
         A3D_DOWNLOAD_CHANNEL: testing
-        A3D_DOWNLOAD_DESTINATION: staging
-        A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+        A3D_DOWNLOAD_DESTINATION: localstaging
+        A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
     environment:
-        name: downloads/testing/staging
-        url: https://staging.avara3d.net/downloads.html
+        name: downloads/testing/localstaging
+        url: https://localstaging.avara3d.net/downloads.html
     rules:
         - if: '$CI_COMMIT_BRANCH == "testing"'
           when: manual
