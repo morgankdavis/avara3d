@@ -82,6 +82,7 @@ set(DOXYGEN_WARN_LOGFILE "${CMAKE_CURRENT_BINARY_DIR}/warnings.log")
 doxygen_add_docs(a3d-docs
 		"${PROJECT_SOURCE_DIR}/lib/include"
 		"${CMAKE_CURRENT_SOURCE_DIR}/mainpage.md"
+		"${CMAKE_CURRENT_SOURCE_DIR}/conventions.md"
 		ALL
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "Generating Avara3D API documentation")
