@@ -1,35 +1,18 @@
 # Avara3D
 
-Avara3D is a cross-platform real-time physics and visualization engine for applied simulation.
+Avara3D is a cross-platform C++20 engine for real-time 3D visualization and physical simulation.
 
-It is designed for interactive simulations of vehicles, robots, and other physical systems, with native desktop and WebAssembly targets.
+It integrates real-time rendering, rigid-body physics, input, and fixed-step simulation control into a Scene-oriented C++ API. Applications run natively on Linux, macOS, and Windows, or in modern browsers through WebAssembly and WebGL 2.
 
-A3D’s current development focus is a browser-accessible quadrotor simulation intended to demonstrate fixed-step physics, feedback control, sensor modeling, telemetry, and real-time 3D visualization.
+## Highlights
 
-## Goals
+- Intuitive Scene-oriented C++ API
+- Fixed-step simulation with pause, single-step, and bounded catch-up control
+- Separate simulation, physics, rendering, input, and tooling responsibilities
+- Rendering pipeline divided into scene gathering, draw packetization, and backend execution
+- Native Linux, macOS, and Windows targets plus WebAssembly and WebGL 2
+- Runtime telemetry, profiling, and visualization tools
 
-* Support stable, reproducible real-time simulation workflows
-* Provide rigid-body physics, visualization, telemetry, and debugging tools through a clean C++ API
-* Make simulated motion and system behavior easy to understand visually
-* Run on Linux, macOS, Windows, and modern web browsers
-* Remain easy to integrate into focused simulation applications and technical demonstrations
-
-## Design Principles
-
-- Provide a simple, RealityKit-inspired public C++ API
-- Keep engine internals and third-party dependencies out of the public API
-- Permit ECS-style and data-oriented implementation techniques without exposing internal handles or registries
-- Separate simulation, physics, rendering, input, and tooling concerns
-- Use fixed-step simulation to improve stability and reproducibility
-- Separate scene traversal and render-data gathering from backend drawing
-- Keep application-specific code outside the engine
-- Prefer straightforward, maintainable C++ over unnecessary abstraction or optimization
-
-## What It Is Not
-
-- A Unity/Unreal/Godot replacement. Lol.
-- A generic ECS framework
-- A research renderer
 
 ## Building
 
@@ -40,7 +23,7 @@ _Tested on Ubuntu 24.04.3 LTS_
 #### Install build dependencies
 ```
 sudo apt update
-sudo apt install git cmake ninja-build libwayland-dev libx11-dev xorg-dev libxkbcommon-dev
+sudo apt install clang git cmake ninja-build libwayland-dev libx11-dev xorg-dev libxkbcommon-dev
 ```
 
 #### Optional: Install Qt and additional dependencies to build the a3de editor

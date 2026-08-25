@@ -31,9 +31,10 @@ find_demo_directory() {
     fi
 
     local candidates=(
-        "${WEB_BUILD_DIR}/packaged/avara3d/web/release/demos/${DEMO_NAME}"
-        "${WEB_BUILD_DIR}/packaged/avara3d/web/debug/demos/${DEMO_NAME}"
-        "${WEB_BUILD_DIR}/demos/${DEMO_NAME}"
+        "${REPO_ROOT}/cmake-build-debug/docs/html"
+        "${REPO_ROOT}/cmake-build-release/docs/html"
+        "${REPO_ROOT}/build-documentation/docs/html"
+        "${REPO_ROOT}/gitlab-build-documentation/docs/html"
     )
 
     local candidate
