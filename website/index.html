@@ -6,6 +6,7 @@
     <meta name="description" content="Avara3D is a real-time 3D visualization and physical simulation engine.">
     <title>Avara3D - 3D visualization and simulation</title>
     <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
     <script src="assets/js/demo-loader.js" defer></script>
 </head>
@@ -24,10 +25,13 @@
 
             <nav class="site-nav" id="site-navigation" aria-label="Primary navigation" data-nav>
                 <a href="architecture.html">Architecture</a>
-                <a href="source.html">Demo source</a>
+                <a href="demo_source.html">Demo Source</a>
                 <a href="api/">API</a>
                 <a href="downloads.html">Downloads</a>
-                <a class="external-link" href="http://gitlab.mkd.net/a3d/avara3d">GitLab <span aria-hidden="true">↗</span></a>
+                <a class="external-link"
+                   href="http://gitlab.mkd.net/a3d/avara3d"
+                   target="_blank"
+                   rel="noopener noreferrer">GitLab <span aria-hidden="true">↗</span></a>
             </nav>
         </div>
     </header>
@@ -39,19 +43,19 @@
             <p class="hero-summary">Avara3D combines real-time rendering, rigid-body physics, fixed-step simulation, and
                 cross-platform application support into a scene-oriented C++20 API.</p>
             <div class="hero-actions">
-                <a class="button button-primary" href="#live-demo">Run the sandbox</a>
-                <a class="button button-secondary" href="source.html">Read the complete demo</a>
+                <a class="button button-primary" href="demo_source.html">Read the demo source</a>
+                <a class="button button-secondary" href="architecture.html">View the architecture</a>
             </div>
         </section>
 
         <section class="site-width demo-section" id="live-demo" aria-labelledby="demo-heading">
-            <div class="section-heading section-heading-row">
-                <div>
-                    <p class="section-kicker">Live WebAssembly application</p>
-                    <h2 id="demo-heading">Janus</h2>
-                </div>
-                <p class="section-note">The browser build runs the same application layer as the native desktop targets.</p>
-            </div>
+<!--            <div class="section-heading section-heading-row">-->
+<!--                <div>-->
+<!--                    <p class="section-kicker">Live WebAssembly application</p>-->
+<!--                    <h2 id="demo-heading">Janus</h2>-->
+<!--                </div>-->
+<!--                <p class="section-note">The browser build runs the same application layer as the native desktop targets.</p>-->
+<!--            </div>-->
 
             <div class="demo-frame">
                 <div class="demo-stage" data-demo-stage data-demo-script="demo/janus.js">
@@ -62,21 +66,90 @@
                     </div>
                 </div>
 
-                <aside class="demo-controls" aria-label="Demo controls">
-                    <div>
-                        <p class="panel-label">Controls</p>
-                        <p class="controls-intro">Click inside the demo before using keyboard input.</p>
+<!--                <aside class="demo-controls" aria-label="Demo controls">-->
+<!--                    <div>-->
+<!--                        <p class="panel-label">Controls</p>-->
+<!--                        <p class="controls-intro">Click inside the demo before using keyboard input.</p>-->
+<!--                    </div>-->
+<!--                    <dl class="control-list">-->
+<!--                        <div><dt><kbd>/</kbd></dt><dd>Capture pointer</dd></div>-->
+<!--                        <div><dt><kbd>I</kbd></dt><dd>Toggle statistics</dd></div>-->
+<!--                        <div><dt><kbd>F</kbd></dt><dd>Toggle wireframes</dd></div>-->
+<!--                        <div><dt><kbd>P</kbd></dt><dd>Physics bounds</dd></div>-->
+<!--                        <div><dt><span class="mouse-icon">↕</span></dt><dd>Adjust simulation speed</dd></div>-->
+<!--                    </dl>-->
+<!--                    <p class="controls-footnote">The rotating-banana build is a temporary integration target. The interactive rigid-body sandbox will replace it without changing the page shell.</p>-->
+<!--                </aside>-->
+
+
+                <aside class="demo-controls" aria-labelledby="demo-controls-heading">
+                    <p id="demo-controls-heading" class="panel-label">Controls</p>
+
+                    <div class="demo-control-groups">
+                        <section class="demo-control-group">
+                            <h3>Camera</h3>
+
+                            <dl class="demo-control-table">
+                                <div>
+                                    <dt>Orbit</dt>
+                                    <dd>Left drag</dd>
+                                </div>
+                                <div>
+                                    <dt>Pan</dt>
+                                    <dd>Right drag</dd>
+                                </div>
+                                <div>
+                                    <dt>Zoom</dt>
+                                    <dd>Wheel / scroll</dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="demo-control-group">
+                            <h3>Interaction</h3>
+
+                            <dl class="demo-control-table">
+                                <div>
+                                    <dt>Select</dt>
+                                    <dd>Left click</dd>
+                                </div>
+                                <div>
+                                    <dt>Action</dt>
+                                    <dd>Right click</dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="demo-control-group demo-control-group-alternate">
+                            <h3>One-button alternatives</h3>
+
+                            <dl class="demo-control-table">
+                                <div>
+                                    <dt>Pan</dt>
+                                    <dd>Shift + left drag</dd>
+                                </div>
+                                <div>
+                                    <dt>Zoom</dt>
+                                    <dd>Ctrl + left drag</dd>
+                                </div>
+                                <div>
+                                    <dt>Action</dt>
+                                    <dd>Ctrl + left click</dd>
+                                </div>
+                            </dl>
+                        </section>
                     </div>
-                    <dl class="control-list">
-                        <div><dt><kbd>/</kbd></dt><dd>Capture pointer</dd></div>
-                        <div><dt><kbd>I</kbd></dt><dd>Toggle statistics</dd></div>
-                        <div><dt><kbd>F</kbd></dt><dd>Toggle wireframes</dd></div>
-                        <div><dt><kbd>P</kbd></dt><dd>Physics bounds</dd></div>
-                        <div><dt><span class="mouse-icon">↕</span></dt><dd>Adjust simulation speed</dd></div>
-                    </dl>
-                    <p class="controls-footnote">The rotating-banana build is a temporary integration target. The interactive rigid-body sandbox will replace it without changing the page shell.</p>
                 </aside>
+
+
+
+
             </div>
+
+            <p class="demo-compatibility-note">
+                WebGL lighting is broken in macOS versions prior to macOS 26 Tahoe due to an
+                apparent graphics stack bug.
+            </p>
         </section>
 
         <section class="site-width evidence-strip" aria-label="Project capabilities">
@@ -97,48 +170,55 @@
             </article>
         </section>
 
-        <section class="site-width product-section">
-            <div class="product-copy">
-                <p class="section-kicker">Application model</p>
-                <h2>A small application layer on top of explicit engine systems.</h2>
-                <p>Avara3D keeps application behavior separate from scene ownership, fixed-step scheduling, physics, rendering, input, and tooling. The live demo is a normal engine application rather than a web-only reconstruction.</p>
-                <div class="inline-links">
-                    <a href="architecture.html">Explore the architecture <span aria-hidden="true">→</span></a>
-                    <a href="api/">Browse the API <span aria-hidden="true">→</span></a>
-                </div>
-            </div>
+<!--        <section class="site-width product-section">-->
+<!--            <div class="product-copy">-->
+<!--                <p class="section-kicker">Application model</p>-->
+<!--                <h2>A small application layer on top of explicit engine systems.</h2>-->
+<!--                <p>Avara3D keeps application behavior separate from scene ownership, fixed-step scheduling, physics, rendering, input, and tooling. The live demo is a normal engine application rather than a web-only reconstruction.</p>-->
+<!--                <div class="inline-links">-->
+<!--                    <a href="architecture.html">Explore the architecture <span aria-hidden="true">→</span></a>-->
+<!--                    <a href="api/">Browse the API <span aria-hidden="true">→</span></a>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            <div class="code-preview" aria-label="Avara3D application entry point">
-                <div class="code-preview-header">
-                    <span>main.cc</span>
-                    <span>Complete entry point</span>
-                </div>
-                <pre><code><span class="syntax-keyword">#include</span> <span class="syntax-string">&lt;memory&gt;</span>
-<span class="syntax-keyword">#include</span> <span class="syntax-string">"a3d/Application.h"</span>
-<span class="syntax-keyword">#include</span> <span class="syntax-string">"App.h"</span>
+<!--            <div class="code-preview" aria-label="Avara3D application entry point">-->
+<!--                <div class="code-preview-header">-->
+<!--                    <span>main.cc</span>-->
+<!--                    <span>Complete entry point</span>-->
+<!--                </div>-->
+<!--                <pre><code><span class="syntax-keyword">#include</span> <span class="syntax-string">&lt;memory&gt;</span>-->
+<!--<span class="syntax-keyword">#include</span> <span class="syntax-string">"a3d/Application.h"</span>-->
+<!--<span class="syntax-keyword">#include</span> <span class="syntax-string">"App.h"</span>-->
 
-<span class="syntax-type">int</span> main(<span class="syntax-type">int</span> argc, <span class="syntax-type">char</span>* argv[]) {
-    <span class="syntax-keyword">return</span> a3d::Application::Run(
-        std::make_unique&lt;test::physicssandbox::App&gt;(argc, argv));
-}</code></pre>
-                <a class="code-preview-link" href="source.html?file=main.cc">Open with line numbers <span aria-hidden="true">→</span></a>
-            </div>
-        </section>
+<!--<span class="syntax-type">int</span> main(<span class="syntax-type">int</span> argc, <span class="syntax-type">char</span>* argv[]) {-->
+<!--    <span class="syntax-keyword">return</span> a3d::Application::Run(-->
+<!--        std::make_unique&lt;test::physicssandbox::App&gt;(argc, argv));-->
+<!--}</code></pre>-->
+<!--                <a class="code-preview-link" href="demo_source.html?file=main.cc">Open with line numbers <span aria-hidden="true">→</span></a>-->
+<!--            </div>-->
+<!--        </section>-->
 
-        <section class="site-width final-callout">
-            <p class="section-kicker">From behavior to implementation</p>
-            <h2>Run it, read it, then follow one frame through the engine.</h2>
-            <div class="hero-actions">
-                <a class="button button-primary" href="source.html">Demo source</a>
-                <a class="button button-secondary" href="architecture.html">Architecture</a>
-            </div>
-        </section>
+<!--        <section class="site-width final-callout">-->
+<!--            <p class="section-kicker">From behavior to implementation</p>-->
+<!--            <h2>Run it, read it, then follow one frame through the engine.</h2>-->
+<!--            <div class="hero-actions">-->
+<!--                <a class="button button-primary" href="demo_source.html">Demo Source</a>-->
+<!--                <a class="button button-secondary" href="architecture.html">Architecture</a>-->
+<!--            </div>-->
+<!--        </section>-->
     </main>
 
     <footer class="site-footer">
         <div class="site-width footer-inner">
-            <p>Avara3D · Real-time 3D visualization and simulation.</p>
-            <p><span data-build-summary>Development build</span> · © <span data-current-year></span> Morgan Davis</p>
+            <p>
+                Avara3D
+            </p>
+            <p>
+                © <span data-current-year></span>
+                <a href="https://mkd.net/"
+                   target="_blank"
+                   rel="noopener noreferrer">Morgan Davis</a>
+            </p>
         </div>
     </footer>
 </div>

@@ -29,8 +29,16 @@ trap cleanup EXIT
 
 find_demo_directory() {
     if [[ -n "${A3D_WEB_DEMO_DIR:-}" ]]; then
-        absolute_from_repo "${A3D_WEB_DEMO_DIR}"
-        return
+        local requested
+        requested="$(absolute_from_repo "${A3D_WEB_DEMO_DIR}")"
+
+        if [[ -f "${requested}/${DEMO_NAME}.js" &&
+              -f "${requested}/${DEMO_NAME}.wasm" ]]; then
+            printf '%s\n' "${requested}"
+            return
+        fi
+
+        return 1
     fi
 
     local candidates=(
@@ -41,7 +49,8 @@ find_demo_directory() {
 
     local candidate
     for candidate in "${candidates[@]}"; do
-        if [[ -f "${candidate}/${DEMO_NAME}.js" && -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
+        if [[ -f "${candidate}/${DEMO_NAME}.js" &&
+              -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
             printf '%s\n' "${candidate}"
             return
         fi

@@ -7,6 +7,7 @@
     <title>Architecture - Avara3D</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/architecture.css">
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
 </head>
 <body>
@@ -21,17 +22,20 @@
             </button>
             <nav class="site-nav" id="site-navigation" aria-label="Primary navigation" data-nav>
                 <a href="architecture.html" aria-current="page">Architecture</a>
-                <a href="source.html">Demo source</a>
+                <a href="demo_source.html">Demo Source</a>
                 <a href="api/">API</a>
                 <a href="downloads.html">Downloads</a>
-                <a class="external-link" href="http://gitlab.mkd.net/a3d/avara3d">GitLab <span aria-hidden="true">↗</span></a>
+                <a class="external-link"
+                   href="http://gitlab.mkd.net/a3d/avara3d"
+                   target="_blank"
+                   rel="noopener noreferrer">GitLab <span aria-hidden="true">↗</span></a>
             </nav>
         </div>
     </header>
 
     <main class="site-width inner-page architecture-page">
         <header class="page-hero architecture-hero">
-            <p class="arch-overline">Selected engineering architecture</p>
+<!--            <p class="arch-overline">Selected engineering architecture</p>-->
             <h1>The boundaries behind Avara3D's simulation and rendering loop.</h1>
             <p>This page highlights the decisions that control lifetime, host time, simulation mutation, render-data flow, physics synchronization, and platform execution. The API reference records exact contracts; the Janus demo shows them running.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
@@ -157,14 +161,26 @@
             <p class="arch-overline">Reference and proof</p>
             <h2>Continue from design intent into exact contracts or running application code.</h2>
             <div class="hero-actions">
-                <a class="button button-primary" href="source.html">Open demo source</a>
+                <a class="button button-primary" href="demo_source.html">Open demo source</a>
                 <a class="button button-secondary" href="api/">API reference</a>
                 <a class="button button-secondary" href="api/conventions.html">Conventions</a>
             </div>
         </section>
     </main>
 
-    <footer class="site-footer"><div class="site-width footer-inner"><p>Avara3D · Architecture overview.</p><p><span data-build-summary>Development build</span> · © <span data-current-year></span> Morgan Davis</p></div></footer>
+    <footer class="site-footer">
+        <div class="site-width footer-inner">
+            <p>
+                Avara3D
+            </p>
+            <p>
+                © <span data-current-year></span>
+                <a href="https://mkd.net/"
+                   target="_blank"
+                   rel="noopener noreferrer">Morgan Davis</a>
+            </p>
+        </div>
+    </footer>
 </div>
 </body>
 </html>

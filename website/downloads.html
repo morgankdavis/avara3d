@@ -6,6 +6,7 @@
     <meta name="description" content="Native and WebAssembly Avara3D build targets.">
     <title>Downloads - Avara3D</title>
     <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
     <script src="assets/js/downloads.js" defer></script>
 </head>
@@ -21,10 +22,13 @@
             </button>
             <nav class="site-nav" id="site-navigation" aria-label="Primary navigation" data-nav>
                 <a href="architecture.html">Architecture</a>
-                <a href="source.html">Demo source</a>
+                <a href="demo_source.html">Demo Source</a>
                 <a href="api/">API</a>
                 <a href="downloads.html" aria-current="page">Downloads</a>
-                <a class="external-link" href="http://gitlab.mkd.net/a3d/avara3d">GitLab <span aria-hidden="true">↗</span></a>
+                <a class="external-link"
+                   href="http://gitlab.mkd.net/a3d/avara3d"
+                   target="_blank"
+                   rel="noopener noreferrer">GitLab <span aria-hidden="true">↗</span></a>
             </nav>
         </div>
     </header>
@@ -36,51 +40,6 @@
             <p>Avara3D builds the same engine and application model for WebAssembly and the three primary desktop platforms.</p>
         </header>
 
-<!--        <section class="download-panel" aria-labelledby="download-heading">-->
-<!--            <div class="download-panel-heading">-->
-<!--                <div>-->
-<!--                    <p class="section-kicker">Latest stable packages</p>-->
-<!--                    <h2 id="download-heading">Native builds</h2>-->
-<!--                </div>-->
-<!--                <p data-build-summary>Development build</p>-->
-<!--            </div>-->
-
-<!--            <div class="download-list">-->
-<!--                <article>-->
-<!--                    <div class="platform-mark">LNX</div>-->
-<!--                    <div><h3>Linux</h3><p>x86-64 · Release</p></div>-->
-<!--                    <span class="download-status">Artifact link pending</span>-->
-<!--                </article>-->
-<!--                <article>-->
-<!--                    <div class="platform-mark">MAC</div>-->
-<!--                    <div><h3>macOS</h3><p>Universal · Release</p></div>-->
-<!--                    <span class="download-status">Artifact link pending</span>-->
-<!--                </article>-->
-<!--                <article>-->
-<!--                    <div class="platform-mark">WIN</div>-->
-<!--                    <div><h3>Windows</h3><p>x86-64 · Release</p></div>-->
-<!--                    <span class="download-status">Artifact link pending</span>-->
-<!--                </article>-->
-<!--                <article>-->
-<!--                    <div class="platform-mark">WEB</div>-->
-<!--                    <div><h3>WebAssembly</h3><p>WebGL 2 · Release</p></div>-->
-<!--                    <a href="index.html#live-demo">Run in browser <span aria-hidden="true">→</span></a>-->
-<!--                </article>-->
-<!--            </div>-->
-<!--        </section>-->
-
-<!--        <section class="download-notes">-->
-<!--            <article>-->
-<!--                <p class="section-kicker">Current first-cut behavior</p>-->
-<!--                <h2>Website packaging is already separated from deployment.</h2>-->
-<!--                <p>The assembly script produces one self-contained directory containing the tracked site, WebAssembly demo output, and displayed source files. CI can expose that directory as an artifact; deployment remains a manual copy to the web server.</p>-->
-<!--            </article>-->
-<!--            <article>-->
-<!--                <p class="section-kicker">Before public launch</p>-->
-<!--                <h2>Native links need durable release assets.</h2>-->
-<!--                <p>The final page will point to non-expiring Linux, macOS, and Windows packages and identify the commit and pipeline that produced them.</p>-->
-<!--            </article>-->
-<!--        </section>-->
         <section class="download-panel"
                  aria-labelledby="stable-download-heading"
                  data-download-channel="stable">
@@ -205,8 +164,15 @@
 
     <footer class="site-footer">
         <div class="site-width footer-inner">
-            <p>Avara3D · Cross-platform build targets.</p>
-            <p><span data-build-summary>Development build</span> · © <span data-current-year></span> Morgan Davis</p>
+            <p>
+                Avara3D
+            </p>
+            <p>
+                © <span data-current-year></span>
+                <a href="https://mkd.net/"
+                   target="_blank"
+                   rel="noopener noreferrer">Morgan Davis</a>
+            </p>
         </div>
     </footer>
 </div>

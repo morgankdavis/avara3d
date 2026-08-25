@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Read the complete application source behind the Avara3D live demo.">
-    <title>Demo source - Avara3D</title>
+    <title>Demo Source - Avara3D</title>
     <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
     <script src="assets/js/source-browser.js" defer></script>
 </head>
@@ -21,10 +22,13 @@
             </button>
             <nav class="site-nav" id="site-navigation" aria-label="Primary navigation" data-nav>
                 <a href="architecture.html">Architecture</a>
-                <a href="source.html" aria-current="page">Demo source</a>
+                <a href="demo_source.html" aria-current="page">Demo Source</a>
                 <a href="api/">API</a>
                 <a href="downloads.html">Downloads</a>
-                <a class="external-link" href="http://gitlab.mkd.net/a3d/avara3d">GitLab <span aria-hidden="true">↗</span></a>
+                <a class="external-link"
+                   href="http://gitlab.mkd.net/a3d/avara3d"
+                   target="_blank"
+                   rel="noopener noreferrer">GitLab <span aria-hidden="true">↗</span></a>
             </nav>
         </div>
     </header>
@@ -45,7 +49,10 @@
                 <button type="button" data-source-file="main.cc"><strong>main.cc</strong><small>Application entry point</small></button>
                 <button type="button" data-source-file="App.h"><strong>App.h</strong><small>Application interface</small></button>
                 <button type="button" data-source-file="App.cc"><strong>App.cc</strong><small>Scene and fixed-step behavior</small></button>
-                <a class="source-repository-link" href="http://gitlab.mkd.net/a3d/avara3d">Full repository <span aria-hidden="true">↗</span></a>
+                <a class="external-link"
+                   href="http://gitlab.mkd.net/a3d/avara3d"
+                   target="_blank"
+                   rel="noopener noreferrer">Full repository <span aria-hidden="true">↗</span></a>
             </aside>
 
             <div class="source-view">
@@ -73,8 +80,15 @@
 
     <footer class="site-footer">
         <div class="site-width footer-inner">
-            <p>Avara3D · Complete demo application source.</p>
-            <p><span data-build-summary>Development build</span> · © <span data-current-year></span> Morgan Davis</p>
+            <p>
+                Avara3D
+            </p>
+            <p>
+                © <span data-current-year></span>
+                <a href="https://mkd.net/"
+                   target="_blank"
+                   rel="noopener noreferrer">Morgan Davis</a>
+            </p>
         </div>
     </footer>
 </div>
