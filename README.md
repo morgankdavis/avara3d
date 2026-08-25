@@ -84,6 +84,7 @@ cmake --build --preset debug
 _Tested on Windows 11 25H2 / build 26200.7171_
 
 #### [Enable Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
+
 This is necessary to enable symlinks, which are used by A3D's CMake scripts.
 
 #### Install [Visual Studio Community 18 2026](https://visualstudio.microsoft.com/downloads/)
@@ -98,11 +99,6 @@ This is necessary to enable symlinks, which are used by A3D's CMake scripts.
 
 The CMake tools component provides the CMake and Ninja tooling used by Avara3D’s build presets.
 
-#### Open a developer command prompt
-
-Open Visual Studio and select **Tools → Command Line → Developer Command Prompt**.
-Run the remaining commands from this prompt.
-
 #### Check out this repo
 
 ```bat
@@ -110,6 +106,10 @@ git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
+
+The debug preset uses Ninja, so the Visual Studio compiler, linker, and Windows SDK environment must be initialized.
+
+Open **Tools → Command Line → Developer Command Prompt** in Visual Studio, then run:
 
 ```bat
 cd avara3d
@@ -146,7 +146,7 @@ cmake --preset web-debug
 cmake --build --preset web-debug --target <target>
 ```
 
-Replace `<demo-target>` with the demo or sandbox test target you want to build.
+Replace `<target>` with the demo or sandbox test target you want to build.
 
 For an optimized web build:
 
@@ -165,7 +165,7 @@ emrun cmake-build-web-debug/demos/janus/janus.html
 
 ### Qt / a3de
 
-Avara3D does not depend on Qt, but the repository includes `a3de`, a minimal Qt desktop shell that may be developed further in the future. If you wish to use Avara3D in your Qt application this information may be useful.
+Avara3D does not depend on Qt, but the repository includes `a3de`, a minimal Qt desktop shell that may be developed further in the future. If you wish to use Avara3D in your Qt application, building and examining `a3de` may be helpful.
 
 #### Ubuntu
 
