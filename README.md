@@ -21,24 +21,23 @@ Avara3D integrates real-time rendering, rigid-body physics, and fixed-step simul
 _Tested on Ubuntu 24.04.3 LTS_
 
 #### Install build dependencies
-```
+
+```sh
 sudo apt update
 sudo apt install clang git cmake ninja-build libwayland-dev libx11-dev xorg-dev libxkbcommon-dev
 ```
 
 #### Check out this repo
 
-```
+```sh
 git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
 
-```
+```sh
 cd avara3d
-cmake --preset debug \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++
+cmake --preset debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 cmake --build --preset debug
 ```
 
@@ -49,44 +48,40 @@ _Tested on macOS Sequoia 15.7.2_
 
 #### Install Xcode or just the Xcode CLI tools
 
-```
+```sh
 xcode-select --install
 ```
 
 #### Install Homebrew
 
-```
+```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 #### Install CMake & Ninja
 
-```
+```sh
 brew update
 brew install cmake ninja
 ```
 
 #### Check out this repo
 
-```
+```sh
 git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
 
-```
+```sh
 cd avara3d
-cmake --preset debug \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++
+cmake --preset debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 cmake --build --preset debug
 ```
 
 ### Windows
 
 _Tested on Windows 11 25H2 / build 26200.7171_
-
-#### Enable Developer Mode
 
 #### [Enable Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
 This is necessary to enable symlinks, which are used by A3D's CMake scripts.
@@ -105,7 +100,8 @@ The CMake tools component provides the CMake and Ninja tooling used by Avara3D�
 
 #### Open a developer command prompt
 
-Open Visual Studio and select **Tools → Command Line → Developer Command Prompt**. Run the remaining commands from this prompt.
+Open Visual Studio and select **Tools → Command Line → Developer Command Prompt**.
+Run the remaining commands from this prompt.
 
 #### Check out this repo
 
@@ -117,9 +113,7 @@ git clone https://gitlab.mkd.net/a3d/avara3d.git
 
 ```bat
 cd avara3d
-cmake --preset debug ^
-    -DCMAKE_C_COMPILER=clang-cl ^
-    -DCMAKE_CXX_COMPILER=clang-cl
+cmake --preset debug -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl
 cmake --build --preset debug
 ```
 
