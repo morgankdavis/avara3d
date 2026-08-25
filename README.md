@@ -1,18 +1,18 @@
 # Avara3D
 
-Avara3D is a cross-platform C++20 engine for real-time 3D visualization and physical simulation.
+Avara3D is a real-time 3D visualization and physical simulation engine.
 
-It integrates real-time rendering, rigid-body physics, input, and fixed-step simulation control into a Scene-oriented C++ API. Applications run natively on Linux, macOS, and Windows, or in modern browsers through WebAssembly and WebGL 2.
+Avara3D integrates real-time rendering, rigid-body physics, and fixed-step simulation into a scene-oriented C++20 API. Applications run natively on Linux, macOS, and Windows, or in modern browsers through WebAssembly and WebGL 2.
 
 ## Highlights
 
-- Intuitive Scene-oriented C++ API
-- Fixed-step simulation with pause, single-step, and bounded catch-up control
-- Separate simulation, physics, rendering, input, and tooling responsibilities
+- A scene-oriented C++20 API
+- Fixed-step simulation with pause, single-step, and bounded catch-up
+- Rigid-body simulation with static, dynamic, and kinematic bodies and reusable collision shapes
 - Rendering pipeline divided into scene gathering, draw packetization, and backend execution
+- Separate subsystems for simulation, physics, rendering, input, and tooling
 - Native Linux, macOS, and Windows targets plus WebAssembly and WebGL 2
-- Runtime telemetry, profiling, and visualization tools
-
+- Runtime telemetry, CPU/GPU timing, and debug visualization
 
 ## Building
 
@@ -26,29 +26,20 @@ sudo apt update
 sudo apt install clang git cmake ninja-build libwayland-dev libx11-dev xorg-dev libxkbcommon-dev
 ```
 
-#### Optional: Install Qt and additional dependencies to build the a3de editor
-[Use the official installer](https://www.qt.io/development/download) ("Qt Framework and Tools")
-Take note of the install location (defaults to ~/Qt).
-
-```
-sudo apt install libxcb-cursor0 libxcb-cursor-dev
-```
-
 #### Check out this repo
 
 ```
-git clone http://gitlab.mkd.net/a3d/avara3d.git
+git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
-If building with Qt/a3de, substitute your real Qt install location & version in CMAKE_PREFIX_PATH
 
 ```
 cd avara3d
-mkdir build
-cd build
-cmake .. -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) -DCMAKE_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64" -GNinja
-cmake --build . -j
+cmake --preset debug \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++
+cmake --build --preset debug
 ```
 
 
@@ -68,79 +59,73 @@ xcode-select --install
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-#### Install cmake & ninja
+#### Install CMake & Ninja
 
 ```
 brew update
 brew install cmake ninja
 ```
 
-#### Optional: Install Qt to build the a3de editor
-Use [the official installer](https://www.qt.io/development/download) ("Qt Framework and Tools")
-Take note of the install location (defaults to ~/Qt).
-If you only installed the Xcode CLI tools and the Qt installer warns about missing Xcode, ignore it.
-    
 #### Check out this repo
 
 ```
-git clone http://gitlab.mkd.net/a3d/avara3d.git
+git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
-If building with Qt/a3de, substitute your real Qt install location in CMAKE_PREFIX_PATH
 
 ```
 cd avara3d
-mkdir build
-cd build
-cmake -DCMAKE_PREFIX_PATH="$HOME/Qt/6.10.1/macos" -GNinja ..
-cmake --build . -j$(sysctl -n hw.ncpu)
+cmake --preset debug \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++
+cmake --build --preset debug
 ```
 
 ### Windows
 
 _Tested on Windows 11 25H2 / build 26200.7171_
 
+#### Enable Developer Mode
+
 #### [Enable Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
 This is necessary to enable symlinks, which are used by A3D's CMake scripts.
 
 #### Install [Visual Studio Community 18 2026](https://visualstudio.microsoft.com/downloads/)
-- Check "Desktop development with C++"
-- Click the "Individual components" tab, add the following components:
-    - Git for Windows
-    - C++ Clang Compiler for Windows (20.1.8)
-    - MSBuild support for LLVM (clang-cl) toolset
 
-#### Install [CMake](https://cmake.org/download/)
+* Select **Desktop development with C++**.
+* On the **Individual components** tab, ensure the following components are selected:
 
-#### Optional: Install Qt to build the a3de editor
-Use [the official installer](https://www.qt.io/development/download) ("Qt Framework and Tools")
-- Check "Qt 6.x desktop development"
-- Check "Custom Installation"
-- Hit "Next"
-    - Expand "Qt 6.x" (latest)
-    - Uncheck "MinGW x.y.z 64-bit"
-    - Check "MSVC 2022 64-bit"
+  * Git for Windows
+  * C++ Clang Compiler for Windows
+  * MSBuild support for LLVM (clang-cl) toolset
+  * C++ CMake tools for Windows
+
+The CMake tools component provides the CMake and Ninja tooling used by Avara3D’s build presets.
+
+#### Open a developer command prompt
+
+Open Visual Studio and select **Tools → Command Line → Developer Command Prompt**. Run the remaining commands from this prompt.
 
 #### Check out this repo
 
-```
-git clone http://gitlab.mkd.net/a3d/avara3d.git
+```bat
+git clone https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
 
-```
+```bat
 cd avara3d
-mkdir build
-cd build
-cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64" -TClangCL ..
-cmake --build . -j
+cmake --preset debug ^
+    -DCMAKE_C_COMPILER=clang-cl ^
+    -DCMAKE_CXX_COMPILER=clang-cl
+cmake --build --preset debug
 ```
 
 ### Web / Emscripten
 
-A3D demos can be compiled to WebAssembly and WebGL 2 using Emscripten.
+A3D executables can be compiled to WebAssembly and WebGL 2 using Emscripten.
 
 #### Install Emscripten
 
@@ -160,61 +145,83 @@ C:\path\to\emsdk\emsdk_env.bat
 
 #### Configure and build
 
-Run these commands from the repository root:
+From the repository root:
 
 ```sh
 cmake --preset web-debug
-cmake --build cmake-build-web-debug --target <demo-target>
+cmake --build --preset web-debug --target <target>
 ```
 
-Replace `<demo-target>` with the demo or test target you want to build.
+Replace `<demo-target>` with the demo or sandbox test target you want to build.
 
 For an optimized web build:
 
 ```sh
 cmake --preset web-release
-cmake --build cmake-build-web-release --target <demo-target>
+cmake --build --preset web-release --target <target>
 ```
 
-Debug web builds generate an HTML launcher alongside the JavaScript, WebAssembly, and asset files. Release builds produce the files needed to embed the application in a custom web page.
+Debug web builds generate an HTML launcher along with the JavaScript, WebAssembly, and asset files. Release builds produce the files needed to embed the application in a custom web page.
 
 Web debug builds must be served over HTTP rather than opened directly with a `file://` URL. For example:
 
 ```sh
-emrun cmake-build-web-debug/demos/001-janus/001-janus.html
+emrun cmake-build-web-debug/demos/janus/janus.html
 ```
 
-### Automated tests
+### Qt / a3de
 
-A3D's automated tests use Catch2 3. Catch2 is optional and is only required to build the automated test suite. If Catch2 is not found, CMake prints a warning and skips the automated tests.
-
-Both automated and sandbox tests are enabled by default.
+Avara3D does not depend on Qt, but the repository includes `a3de`, a minimal Qt desktop shell that may be developed further in the future. If you wish to use Avara3D in your Qt application this information may be useful.
 
 #### Ubuntu
 
+Install Qt 6 using the [official Qt installer](https://www.qt.io/development/download) and select a desktop GCC kit. The default installation location is `~/Qt`.
+
+Install the additional XCB dependencies:
+
 ```sh
-sudo apt install catch2
+sudo apt install libxcb-cursor0 libxcb-cursor-dev
 ```
 
 #### macOS
 
-```sh
-brew install catch2
-```
+Install Qt 6 using the [official Qt installer](https://www.qt.io/development/download) and select the macOS desktop kit. The default installation location is `~/Qt`.
+
+If you installed only the Xcode command-line tools and the Qt installer warns that Xcode is missing, the warning can be ignored.
 
 #### Windows
 
-Install Catch2 using vcpkg or another CMake-compatible package installation.
+Install Qt 6 using the [official Qt installer](https://www.qt.io/development/download).
 
-Automated and sandbox tests can be enabled or disabled independently:
+* Select **Qt 6.x desktop development**.
+* Select **Custom Installation**.
+* Expand the latest Qt 6 release.
+* Select **MSVC 2022 64-bit**.
+* Do not select the MinGW kit.
+
+The MSVC Qt build is compatible with Avara3D’s ClangCL build.
+
+#### Configure and build
+
+Configure Avara3D using the normal instructions for your platform. If CMake reports that Qt 6 was not found, rerun the configure command with the installed desktop kit directory specified as `Qt6_ROOT`:
 
 ```sh
--DA3D_BUILD_AUTOMATED_TESTS=ON
--DA3D_BUILD_SANDBOX_TESTS=ON
+cmake --preset debug -DQt6_ROOT="/path/to/Qt/desktop-kit"
 ```
 
-Run the automated tests with:
+Then build `a3de`:
 
 ```sh
-ctest --test-dir cmake-build-debug --output-on-failure
+cmake --build --preset debug --target a3de
 ```
+
+Typical desktop kit directories are:
+
+| Platform | Directory                     |
+| -------- | ----------------------------- |
+| Ubuntu   | `$HOME/Qt/<version>/gcc_64`   |
+| macOS    | `$HOME/Qt/<version>/macos`    |
+| Windows  | `C:/Qt/<version>/msvc2022_64` |
+
+Replace `<version>` with the installed Qt version. If Qt is not found, CMake skips the `a3de` target.
+
