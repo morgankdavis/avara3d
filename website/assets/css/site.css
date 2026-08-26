@@ -731,6 +731,57 @@ kbd,
 .syntax-number { color: #ffbd86; }
 .syntax-comment { color: #70727e; font-style: italic; }
 
+.token.comment {
+    color: #70727e;
+    font-style: italic;
+}
+
+.token.punctuation,
+.token.double-colon {
+    color: #a9abb6;
+}
+
+.token.keyword,
+.token.directive {
+    color: #d8a0ff;
+}
+
+.token.class-name,
+.token.type-definition {
+    color: #7ed7ff;
+}
+
+.token.function,
+.token.macro-name {
+    color: #82b8ff;
+}
+
+.token.string,
+.token.char,
+.token.raw-string {
+    color: #a7dfa4;
+}
+
+.token.number,
+.token.boolean {
+    color: #ffbd86;
+}
+
+.token.operator,
+.token.directive-hash {
+    color: #ff8ea8;
+}
+
+.token.macro,
+.token.constant {
+    color: #ffd580;
+}
+
+.token.namespace,
+.token.module {
+    color: #c8c8cf;
+}
+
 .final-callout {
     margin-bottom: clamp(90px, 12vw, 150px);
     padding: clamp(44px, 7vw, 78px);

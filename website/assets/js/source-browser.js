@@ -80,118 +80,63 @@
     }
 
     function highlightCpp(source) {
-        const keywords = new Set([
-            "alignas", "alignof", "and", "asm", "auto", "break", "case", "catch", "class", "concept",
-            "const", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield",
-            "decltype", "default", "delete", "do", "else", "enum", "explicit", "export", "extern", "for",
-            "friend", "goto", "if", "inline", "mutable", "namespace", "new", "noexcept", "not", "operator",
-            "override", "private", "protected", "public", "requires", "return", "sizeof", "static", "struct",
-            "switch", "template", "this", "throw", "try", "typedef", "typename", "union", "using", "virtual",
-            "volatile", "while"
-        ]);
-        const types = new Set([
-            "bool", "char", "char8_t", "char16_t", "char32_t", "double", "float", "int", "long", "short",
-            "signed", "unsigned", "void", "wchar_t", "size_t", "nullptr", "true", "false"
-        ]);
+        const prism = window.Prism;
 
-        let inBlockComment = false;
+        if (!prism || !prism.languages || !prism.languages.cpp) {
+            return source.split("\n").map(escapeHtml);
+        }
 
-        return source.split("\n").map((line) => {
-            let index = 0;
-            let output = "";
+        const lines = [""];
+        const highlighted = prism.tokenize(source, prism.languages.cpp);
 
-            while (index < line.length) {
-                if (inBlockComment) {
-                    const end = line.indexOf("*/", index);
-                    const stop = end === -1 ? line.length : end + 2;
-                    output += token("comment", line.slice(index, stop));
-                    index = stop;
-                    inBlockComment = end === -1;
-                    continue;
-                }
+        appendHighlighted(highlighted, []);
+        return lines;
 
-                if (line.startsWith("//", index)) {
-                    output += token("comment", line.slice(index));
-                    break;
-                }
-
-                if (line.startsWith("/*", index)) {
-                    const end = line.indexOf("*/", index + 2);
-                    const stop = end === -1 ? line.length : end + 2;
-                    output += token("comment", line.slice(index, stop));
-                    index = stop;
-                    inBlockComment = end === -1;
-                    continue;
-                }
-
-                const character = line[index];
-
-                if (character === "#" && line.slice(0, index).trim() === "") {
-                    const match = line.slice(index).match(/^#[A-Za-z_]+/);
-                    if (match) {
-                        output += token("preprocessor", match[0]);
-                        index += match[0].length;
-                        continue;
-                    }
-                }
-
-                if (character === '"' || character === "'") {
-                    const quote = character;
-                    let end = index + 1;
-                    let escaped = false;
-
-                    while (end < line.length) {
-                        const current = line[end];
-                        if (!escaped && current === quote) {
-                            end += 1;
-                            break;
-                        }
-                        escaped = !escaped && current === "\\";
-                        if (current !== "\\") {
-                            escaped = false;
-                        }
-                        end += 1;
-                    }
-
-                    output += token("string", line.slice(index, end));
-                    index = end;
-                    continue;
-                }
-
-                if (/[A-Za-z_]/.test(character)) {
-                    const match = line.slice(index).match(/^[A-Za-z_][A-Za-z0-9_]*/)[0];
-                    if (keywords.has(match)) {
-                        output += token("keyword", match);
-                    }
-                    else if (types.has(match)) {
-                        output += token("type", match);
-                    }
-                    else {
-                        output += escapeHtml(match);
-                    }
-                    index += match.length;
-                    continue;
-                }
-
-                if (/\d/.test(character) || (character === "." && /\d/.test(line[index + 1] || ""))) {
-                    const match = line.slice(index).match(/^(?:0[xX][0-9A-Fa-f']+|0[bB][01']+|(?:\d[\d']*\.?[\d']*|\.\d[\d']*)(?:[eE][+-]?\d+)?)[uUlLfF]*/);
-                    if (match) {
-                        output += token("number", match[0]);
-                        index += match[0].length;
-                        continue;
-                    }
-                }
-
-                output += escapeHtml(character);
-                index += 1;
+        function appendHighlighted(value, classes) {
+            if (typeof value === "string") {
+                appendText(value, classes);
+                return;
             }
 
-            return output;
-        });
-    }
+            if (Array.isArray(value)) {
+                value.forEach((part) => appendHighlighted(part, classes));
+                return;
+            }
 
-    function token(type, value) {
-        return `<span class="syntax-${type}">${escapeHtml(value)}</span>`;
+            if (!value || typeof value !== "object") {
+                return;
+            }
+
+            const aliases = Array.isArray(value.alias)
+                ? value.alias
+                : value.alias
+                    ? [value.alias]
+                    : [];
+
+            appendHighlighted(value.content, [...classes, "token", value.type, ...aliases]);
+        }
+
+        function appendText(value, classes) {
+            value.split("\n").forEach((part, index) => {
+                if (index > 0) {
+                    lines.push("");
+                }
+
+                if (part) {
+                    lines[lines.length - 1] += wrapToken(escapeHtml(part), classes);
+                }
+            });
+        }
+
+        function wrapToken(value, classes) {
+            const className = [...new Set(classes)]
+                .filter((name) => /^[A-Za-z0-9_-]+$/.test(name))
+                .join(" ");
+
+            return className
+                ? `<span class="${className}">${value}</span>`
+                : value;
+        }
     }
 
     function escapeHtml(value) {
