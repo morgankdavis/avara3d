@@ -22,6 +22,7 @@ WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${2:-build-web-release
 DEMO_SOURCE_DIR="${REPO_ROOT}/demos/${DEMO_NAME}"
 DEMO_LINK="${SITE_DIR}/demo"
 SOURCE_LINK="${SITE_DIR}/source"
+SOURCE_MANIFEST_FILE="${SITE_DIR}/source-manifest.json"
 BUILD_INFO_FILE="${SITE_DIR}/build-info.json"
 
 find_demo_directory() {
@@ -76,7 +77,7 @@ SERVER_PID=""
 
 cleanup() {
     rm -rf -- "${DEMO_LINK}" "${SOURCE_LINK}"
-    rm -f -- "${BUILD_INFO_FILE}"
+    rm -f -- "${SOURCE_MANIFEST_FILE}" "${BUILD_INFO_FILE}"
 }
 
 stop_server() {
@@ -101,7 +102,12 @@ if [[ ! -d "${DEMO_SOURCE_DIR}" ]]; then
 fi
 
 rm -rf -- "${DEMO_LINK}" "${SOURCE_LINK}"
+rm -f -- "${SOURCE_MANIFEST_FILE}"
 ln -s -- "${DEMO_SOURCE_DIR}" "${SOURCE_LINK}"
+python3 \
+    "${SCRIPT_DIR}/generate-source-manifest.py" \
+    "${DEMO_SOURCE_DIR}" \
+    "${SOURCE_MANIFEST_FILE}"
 
 if DEMO_DIRECTORY="$(find_demo_directory)"; then
     ln -s -- "${DEMO_DIRECTORY}" "${DEMO_LINK}"

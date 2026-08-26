@@ -1,4 +1,5 @@
 # Local development overlays created by tools/website/serve.sh
 /demo
 /source
+/source-manifest.json
 /build-info.json

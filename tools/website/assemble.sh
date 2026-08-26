@@ -103,12 +103,25 @@ cp -a -- "${SITE_SOURCE_DIR}/." "${TEMP_DIR}/"
 # Local development overlays are symlinks inside website/. They are replaced
 # with copied build/source files in the assembled artifact.
 rm -rf -- "${TEMP_DIR}/demo" "${TEMP_DIR}/source"
-rm -f -- "${TEMP_DIR}/.gitignore" "${TEMP_DIR}/README.md" "${TEMP_DIR}/build-info.json"
+rm -f -- \
+    "${TEMP_DIR}/.gitignore" \
+    "${TEMP_DIR}/README.md" \
+    "${TEMP_DIR}/build-info.json" \
+    "${TEMP_DIR}/source-manifest.json"
 mkdir -p -- "${TEMP_DIR}/demo" "${TEMP_DIR}/source"
 
 for source_file in main.cc App.h App.cc; do
     cp -- "${DEMO_SOURCE_DIR}/${source_file}" "${TEMP_DIR}/source/${source_file}"
 done
+
+if [[ -d "${DEMO_SOURCE_DIR}/data" ]]; then
+    cp -a -- "${DEMO_SOURCE_DIR}/data" "${TEMP_DIR}/source/data"
+fi
+
+python3 \
+    "${SCRIPT_DIR}/generate-source-manifest.py" \
+    "${DEMO_SOURCE_DIR}" \
+    "${TEMP_DIR}/source-manifest.json"
 
 if DEMO_DIRECTORY="$(find_demo_directory)"; then
     cp -a -- "${DEMO_DIRECTORY}/." "${TEMP_DIR}/demo/"
