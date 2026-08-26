@@ -15,7 +15,7 @@
     <header class="site-header">
         <div class="site-width header-inner">
             <a class="site-brand" href="index.html" aria-label="Avara3D home">
-                <img class="site-logo" src="assets/images/avara3d-logo-white.svg" alt="Avara3D">
+                <img class="site-logo" src="assets/images/avara3d.svg" alt="Avara3D">
             </a>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-nav-toggle>
                 <span class="sr-only">Toggle navigation</span><span></span><span></span>
@@ -34,10 +34,9 @@
     </header>
 
     <main class="site-width inner-page downloads-page">
-        <header class="page-hero">
-<!--            <p class="eyebrow"><span></span> Build targets</p>-->
-            <h1>The browser demo is one target, not a separate implementation.</h1>
-            <p>Avara3D builds the same engine and application model for WebAssembly and the three primary desktop platforms.</p>
+        <header class="page-hero downloads-hero">
+            <h1>Download native builds for Linux, macOS and Windows</h1>
+            <p>Archives include library binary, headers, demo executables, and documentation.</p>
         </header>
 
         <section class="download-panel"
@@ -46,17 +45,19 @@
             <div class="download-panel-heading">
                 <div>
                     <p class="section-kicker">Stable channel</p>
-                    <h2 id="stable-download-heading">Stable native builds</h2>
+                    <h2 id="stable-download-heading">Stable</h2>
                 </div>
                 <p data-download-summary>Checking published packages…</p>
             </div>
 
             <div class="download-list">
                 <article data-download-platform="linux">
-                    <div class="platform-mark">LNX</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/linux.svg" alt="">
+                    </div>
                     <div>
                         <h3>Linux</h3>
-                        <p>x86-64 · Release</p>
+                        <p>x86-64</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -64,10 +65,12 @@
                 </article>
 
                 <article data-download-platform="macos">
-                    <div class="platform-mark">MAC</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/macos.svg" alt="">
+                    </div>
                     <div>
                         <h3>macOS</h3>
-                        <p>Universal · Release</p>
+                        <p>Universal</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -75,10 +78,12 @@
                 </article>
 
                 <article data-download-platform="windows">
-                    <div class="platform-mark">WIN</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/windows.svg" alt="">
+                    </div>
                     <div>
                         <h3>Windows</h3>
-                        <p>x86-64 · Release</p>
+                        <p>x86-64</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -93,17 +98,19 @@
             <div class="download-panel-heading">
                 <div>
                     <p class="section-kicker">Preview channel</p>
-                    <h2 id="preview-download-heading">Preview native builds</h2>
+                    <h2 id="preview-download-heading">Preview</h2>
                 </div>
                 <p data-download-summary>Checking published packages…</p>
             </div>
 
             <div class="download-list">
                 <article data-download-platform="linux">
-                    <div class="platform-mark">LNX</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/linux.svg" alt="">
+                    </div>
                     <div>
                         <h3>Linux</h3>
-                        <p>x86-64 · Release</p>
+                        <p>x86-64</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -111,10 +118,12 @@
                 </article>
 
                 <article data-download-platform="macos">
-                    <div class="platform-mark">MAC</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/macos.svg" alt="">
+                    </div>
                     <div>
                         <h3>macOS</h3>
-                        <p>Universal · Release</p>
+                        <p>Universal</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -122,10 +131,12 @@
                 </article>
 
                 <article data-download-platform="windows">
-                    <div class="platform-mark">WIN</div>
+                    <div class="platform-mark" aria-hidden="true">
+                        <img src="assets/images/windows.svg" alt="">
+                    </div>
                     <div>
                         <h3>Windows</h3>
-                        <p>x86-64 · Release</p>
+                        <p>x86-64</p>
                     </div>
                     <a class="download-status"
                        data-download-link
@@ -134,32 +145,32 @@
             </div>
         </section>
 
-        <section class="download-notes">
-            <article>
-                <p class="section-kicker">WebAssembly</p>
-                <h2>Run the current demo directly in the browser.</h2>
-                <p>The WebAssembly target uses the same engine and application model as the native builds.</p>
+<!--        <section class="download-notes">-->
+<!--            <article>-->
+<!--                <p class="section-kicker">WebAssembly</p>-->
+<!--                <h2>Run the current demo directly in the browser.</h2>-->
+<!--                <p>The WebAssembly target uses the same engine and application model as the native builds.</p>-->
 
-                <div class="inline-links">
-                    <a href="index.html#live-demo">
-                        Run in browser <span aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </article>
+<!--                <div class="inline-links">-->
+<!--                    <a href="index.html#live-demo">-->
+<!--                        Run in browser <span aria-hidden="true">→</span>-->
+<!--                    </a>-->
+<!--                </div>-->
+<!--            </article>-->
 
-            <article>
-                <p class="section-kicker">Package verification</p>
-                <h2>Every published package includes a SHA-256 checksum.</h2>
-                <p>The checksum files are generated from the same package bundle published to each channel.</p>
+<!--            <article>-->
+<!--                <p class="section-kicker">Package verification</p>-->
+<!--                <h2>Every published package includes a SHA-256 checksum.</h2>-->
+<!--                <p>The checksum files are generated from the same package bundle published to each channel.</p>-->
 
-                <div class="inline-links">
-                    <a data-download-checksum="stable"
-                       href="downloads/stable/SHA256SUMS">Stable checksums</a>
-                    <a data-download-checksum="testing"
-                       href="downloads/testing/SHA256SUMS">Preview checksums</a>
-                </div>
-            </article>
-        </section>
+<!--                <div class="inline-links">-->
+<!--                    <a data-download-checksum="stable"-->
+<!--                       href="downloads/stable/SHA256SUMS">Stable checksums</a>-->
+<!--                    <a data-download-checksum="testing"-->
+<!--                       href="downloads/testing/SHA256SUMS">Preview checksums</a>-->
+<!--                </div>-->
+<!--            </article>-->
+<!--        </section>-->
     </main>
 
     <footer class="site-footer">

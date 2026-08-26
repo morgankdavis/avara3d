@@ -16,7 +16,7 @@
     <header class="site-header">
         <div class="site-width header-inner">
             <a class="site-brand" href="index.html" aria-label="Avara3D home">
-                <img class="site-logo" src="assets/images/avara3d-logo-white.svg" alt="Avara3D">
+                <img class="site-logo" src="assets/images/avara3d.svg" alt="Avara3D">
             </a>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-nav-toggle>
                 <span class="sr-only">Toggle navigation</span><span></span><span></span>
@@ -35,10 +35,9 @@
     </header>
 
     <main class="site-width inner-page">
-        <header class="page-hero page-hero-compact">
-<!--            <p class="eyebrow"><span></span> Complete application source</p>-->
-            <h1>The source behind the demo, verbatim.</h1>
-            <p>Start at the entry point, then follow initialization, input, and fixed-step behavior into the application implementation.</p>
+        <header class="page-hero page-hero-compact demo-source-hero">
+            <h1>The code behind the demo.</h1>
+            <p>The complete demo application, from setup through simulation.</p>
         </header>
 
         <section class="source-browser" data-source-browser aria-label="Demo source browser">
@@ -50,7 +49,7 @@
                 <button type="button" data-source-file="main.cc"><strong>main.cc</strong><small>Application entry point</small></button>
                 <button type="button" data-source-file="App.h"><strong>App.h</strong><small>Application interface</small></button>
                 <button type="button" data-source-file="App.cc"><strong>App.cc</strong><small>Scene and fixed-step behavior</small></button>
-                <a class="external-link"
+                <a class="source-repository-link external-link"
                    href="https://gitlab.mkd.net/a3d/avara3d/-/tree/testing/demos/janus?ref_type=heads"
                    target="_blank"
                    rel="noopener noreferrer">View in GitLab<span aria-hidden="true">↗</span></a>
@@ -70,13 +69,13 @@
             </div>
         </section>
 
-        <section class="source-context">
-            <div>
-                <p class="section-kicker">Why show the whole thing?</p>
-                <h2>The application API should remain understandable when nothing is omitted.</h2>
-            </div>
-            <p>The source browser copies these files directly from the demo directory when the site bundle is assembled. The displayed application and the WebAssembly build therefore move together instead of becoming separate hand-maintained examples.</p>
-        </section>
+<!--        <section class="source-context">-->
+<!--            <div>-->
+<!--                <p class="section-kicker">Why show the whole thing?</p>-->
+<!--                <h2>The application API should remain understandable when nothing is omitted.</h2>-->
+<!--            </div>-->
+<!--            <p>The source browser copies these files directly from the demo directory when the site bundle is assembled. The displayed application and the WebAssembly build therefore move together instead of becoming separate hand-maintained examples.</p>-->
+<!--        </section>-->
     </main>
 
     <footer class="site-footer">

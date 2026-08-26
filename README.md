@@ -2,7 +2,7 @@
 
 Avara3D is a real-time 3D visualization and physical simulation engine.
 
-Avara3D combines real-time rendering, rigid-body physics, and fixed-step simulation into a scene-oriented C++20 API. Applications run natively on Linux, macOS, and Windows, or in modern browsers through WebAssembly and WebGL 2.
+Avara3D combines real-time rendering, rigid-body physics, and fixed-step simulation into an elegant C++20 API. Applications run natively on Linux, macOS, and Windows, or in modern browsers through WebAssembly and WebGL 2.
 
 ## Highlights
 
