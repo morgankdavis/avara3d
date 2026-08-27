@@ -85,21 +85,6 @@ function(a3d_add_program TARGET_NAME)
 
 endfunction()
 
-function(_a3d_add_directory_program TARGET_PREFIX)
-
-	get_filename_component(PROGRAM_NAME
-			"${CMAKE_CURRENT_SOURCE_DIR}"
-			NAME)
-
-	set(TARGET_NAME
-			"${TARGET_PREFIX}-${PROGRAM_NAME}")
-
-	a3d_add_program(${TARGET_NAME}
-			OUTPUT_NAME "${PROGRAM_NAME}"
-			${ARGN})
-
-endfunction()
-
 function(a3d_add_sandbox)
 
 	get_filename_component(PROGRAM_NAME
@@ -112,8 +97,8 @@ function(a3d_add_sandbox)
 			OUTPUT_NAME
 			"${PROGRAM_NAME}"
 
-			INSTALL_DESTINATION
-			"${INSTALL_TESTS_EXEC_DIR}"
+#			INSTALL_DESTINATION
+#			"${INSTALL_TESTS_EXEC_DIR}"
 
 			${ARGN})
 

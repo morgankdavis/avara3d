@@ -18,12 +18,6 @@
         return;
     }
 
-    const rootFileOrder = new Map([
-        ["main.cc", 0],
-        ["App.h", 1],
-        ["App.cc", 2],
-    ]);
-
     let currentDirectory = "";
     let demoName = "janus";
     let fileLoadSequence = 0;
@@ -163,14 +157,28 @@
 
         const directoryEntries = [...directories.values()].sort(compareNames);
         directFiles.sort((left, right) => {
-            if (!directory) {
-                const leftOrder = rootFileOrder.get(left.path) ?? Number.MAX_SAFE_INTEGER;
-                const rightOrder = rootFileOrder.get(right.path) ?? Number.MAX_SAFE_INTEGER;
+        if (!directory) {
+            if (left.path === "main.cc") {
+                return -1;
+            }
 
-                if (leftOrder !== rightOrder) {
-                    return leftOrder - rightOrder;
+            if (right.path === "main.cc") {
+                return 1;
+            }
+
+            const leftExtension = fileExtension(left.path);
+            const rightExtension = fileExtension(right.path);
+
+            if (leftExtension !== rightExtension) {
+                if (leftExtension === "h") {
+                    return -1;
+                }
+
+                if (rightExtension === "h") {
+                    return 1;
                 }
             }
+        }
 
             return compareNames(left, right);
         });

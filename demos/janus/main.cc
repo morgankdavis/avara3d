@@ -8,8 +8,8 @@
 
 #include <memory>
 #include "a3d/Application.h"
-#include "Janus.h"
+#include "JanusApp.h"
 
 int main(int argc, char* argv[]) {
-    return a3d::Application::Run(std::make_unique<demo::janus::Janus>(argc, argv));
+    return a3d::Application::Run(std::make_unique<demo::janus::JanusApp>(argc, argv));
 }

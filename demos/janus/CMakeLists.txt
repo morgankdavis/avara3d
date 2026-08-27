@@ -1,7 +1,7 @@
 a3d_add_demo(
 		SOURCES
-		Janus.cc
-		Janus.h
+		JanusApp.cc
+		JanusApp.h
 		main.cc
 
 		DATA_DIRECTORY

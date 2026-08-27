@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-SOURCE_FILES = ("main.cc", "App.h", "App.cc")
+SOURCE_EXTENSIONS = {".cc", ".h"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,9 +35,9 @@ def main() -> None:
 
     files: list[dict[str, object]] = []
 
-    for name in SOURCE_FILES:
-        path = demo_directory / name
-        if path.is_file():
+
+    for path in sorted(demo_directory.iterdir(), key=lambda item: item.name.lower()):
+        if path.is_file() and path.suffix in SOURCE_EXTENSIONS:
             files.append(file_entry(path, demo_directory))
 
     data_directory = demo_directory / "data"
