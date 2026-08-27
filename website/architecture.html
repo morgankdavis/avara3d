@@ -35,9 +35,14 @@
 
     <main class="site-width inner-page architecture-page">
         <header class="page-hero architecture-hero">
-<!--            <p class="arch-overline">Selected engineering architecture</p>-->
-            <h1>The boundaries behind Avara3D's simulation and rendering loop.</h1>
-            <p>This page highlights the decisions that control lifetime, host time, simulation mutation, render-data flow, physics synchronization, and platform execution. The API reference records exact contracts; the Janus demo shows them running.</p>
+<!--            <h1>From scene to simulation, physics, and rendering.</h1>-->
+            <h1>
+                From <span class="architecture-title-accent">scene</span>
+                to <span class="architecture-title-accent">simulation</span>,
+                <span class="architecture-title-accent">physics</span>, and
+                <span class="architecture-title-accent">rendering</span>.
+            </h1>
+            <p>A look at how A3D handles object lifetime, fixed-step simulation, rendering, physics synchronization, and cross-platform execution.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
                 <a href="#ownership">Ownership</a><a href="#simulation">Host + simulation</a><a href="#rendering">Rendering</a><a href="#physics">Physics</a><a href="#details">Other details</a>
             </nav>
@@ -45,7 +50,7 @@
 
         <section class="architecture-section" id="ownership" aria-labelledby="ownership-heading">
             <div class="architecture-copy">
-                <p class="arch-overline">01 / Ownership and boundaries</p>
+                <p class="arch-overline">Ownership and boundaries</p>
                 <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>
                 <p><code>Application</code> owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>
                 <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>
@@ -66,17 +71,25 @@
 
         <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">02 / Host updates and simulation</p>
+                <p class="arch-overline">Host updates and simulation</p>
                 <h2 id="simulation-heading">Host updates are variable-rate. Simulation advances through fixed-duration boundaries.</h2>
                 <p>Each Runner update samples host time, calls variable-rate application work, updates platform and input state, executes zero or more bounded fixed steps, and then renders the completed state.</p>
             </div>
+<!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
+<!--                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>-->
+<!--                <li><b>02</b><strong>Poll events</strong><small>Window + platform</small></li>-->
+<!--                <li><b>03</b><strong>Update input</strong><small>State + callback</small></li>-->
+<!--                <li><b>04</b><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
+<!--                <li><b>05</b><strong>Render</strong><small>Completed state</small></li>-->
+<!--                <li><b>06</b><strong>Present</strong><small>Swap buffers</small></li>-->
+<!--            </ol>-->
             <ol class="arch-flow host-flow" aria-label="One host update">
-                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>
-                <li><b>02</b><strong>Poll events</strong><small>Window + platform</small></li>
-                <li><b>03</b><strong>Update input</strong><small>State + callback</small></li>
-                <li><b>04</b><strong>Schedule</strong><small>0…N fixed steps</small></li>
-                <li><b>05</b><strong>Render</strong><small>Completed state</small></li>
-                <li><b>06</b><strong>Present</strong><small>Swap buffers</small></li>
+                <li><strong>Application update</strong><small>Variable-rate policy</small></li>
+                <li><strong>Poll events</strong><small>Window + platform</small></li>
+                <li><strong>Update input</strong><small>State + callback</small></li>
+                <li><strong>Schedule</strong><small>0…N fixed steps</small></li>
+                <li><strong>Render</strong><small>Completed state</small></li>
+                <li><strong>Present</strong><small>Swap buffers</small></li>
             </ol>
             <div class="arch-two-column">
                 <div class="arch-card scheduler-card">
@@ -97,7 +110,7 @@
 
         <section class="architecture-section architecture-section-stacked" id="rendering" aria-labelledby="rendering-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">03 / Rendering architecture</p>
+                <p class="arch-overline">Rendering architecture</p>
                 <h2 id="rendering-heading">Scene representation is extracted before the graphics backend is touched.</h2>
                 <p><code>VisualWorld</code> coordinates the frame, but scene objects are not submitted directly as graphics commands. Gathering extracts visible state, packetization converts it into backend-oriented work, and Renderer owns OpenGL/WebGL execution.</p>
             </div>
@@ -117,7 +130,7 @@
 
         <section class="architecture-section architecture-section-stacked" id="physics" aria-labelledby="physics-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">04 / Scene and physics integration</p>
+                <p class="arch-overline">Scene and physics integration</p>
                 <h2 id="physics-heading">A3D keeps its scene-facing rigid-body model above Bullet and makes transform authority explicit.</h2>
                 <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without becoming the public object model.</p>
             </div>
@@ -141,12 +154,11 @@
                 <article><h3>Dynamic</h3><p>Bullet simulation updates the Node through the motion-state bridge.</p></article>
                 <article><h3>Collision shape</h3><p>Explicit or derived from primitive, convex-hull, or concave scene geometry.</p></article>
             </div>
-            <p class="arch-reference">Exact axis, transform, angle, scale, time, and viewport rules live in <a href="api/conventions.html">Conventions</a>.</p>
         </section>
 
         <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">05 / Other design details</p>
+                <p class="arch-overline">Other design details</p>
                 <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>
             </div>
             <div class="other-detail-grid">
@@ -157,15 +169,15 @@
             </div>
         </section>
 
-        <section class="final-callout architecture-callout">
-            <p class="arch-overline">Reference and proof</p>
-            <h2>Continue from design intent into exact contracts or running application code.</h2>
-            <div class="hero-actions">
-                <a class="button button-primary" href="demo_source.html">Open demo source</a>
-                <a class="button button-secondary" href="api/">API reference</a>
-                <a class="button button-secondary" href="api/conventions.html">Conventions</a>
-            </div>
-        </section>
+<!--        <section class="final-callout architecture-callout">-->
+<!--            <p class="arch-overline">Reference and proof</p>-->
+<!--            <h2>Continue from design intent into exact contracts or running application code.</h2>-->
+<!--            <div class="hero-actions">-->
+<!--                <a class="button button-primary" href="demo_source.html">Open demo source</a>-->
+<!--                <a class="button button-secondary" href="api/">API reference</a>-->
+<!--                <a class="button button-secondary" href="api/conventions.html">Conventions</a>-->
+<!--            </div>-->
+<!--        </section>-->
     </main>
 
     <footer class="site-footer">
