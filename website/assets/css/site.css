@@ -1408,7 +1408,7 @@ kbd,
     align-items: center;
     justify-content: center;
     justify-self: end;
-    padding: 9px 8px 5px 12px;
+    padding: 7px 8px 6px 12px;
     border: 1px solid var(--line);
     border-radius: 999px;
     color: var(--muted);

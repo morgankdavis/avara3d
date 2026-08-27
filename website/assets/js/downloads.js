@@ -94,7 +94,7 @@
                     link.removeAttribute("aria-disabled");
                 });
         } catch (error) {
-            summary.textContent = "Not published yet";
+            summary.textContent = "Not yet published";
 
             panel
                 .querySelectorAll("[data-download-link]")

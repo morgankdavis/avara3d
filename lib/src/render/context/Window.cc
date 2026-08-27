@@ -116,17 +116,25 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     #error No A3D OpenGL backend selected.
 #endif
 
+#if defined(A3D_GL_WEB)
+        // setting the window title on web causes Emscripten to replace the page title.
+        // note setting the title to nullptr on desktop is not documented as valid.
+        const char* titleCStr = nullptr;
+#else
+        const char* titleCStr = title.c_str();
+#endif
+
         if (fullScreen) {
             GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
             _glfwWindow =
                 unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width, vmode->height,
-                                                                           title.c_str(), monitor, nullptr));
+                                                                           titleCStr, monitor, nullptr));
         }
         else {
             _glfwWindow =
                 unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow((int) size.x, (int) size.y,
-                                                                           title.c_str(), nullptr, nullptr));
+                                                                           titleCStr, nullptr, nullptr));
         }
 
         if (_glfwWindow) {
@@ -198,10 +206,10 @@ Window::~Window() {
 void Window::open() {
     log::i();
 
-// #if defined(A3D_WEB)
-// 	log::w()("Window::open() has no effect on web.");
-// 	return;
-// #else
+    // #if defined(A3D_WEB)
+    // 	log::w()("Window::open() has no effect on web.");
+    // 	return;
+    // #else
     if (_visualWorld && _visualWorld->scene()) {
         glfwMakeContextCurrent(_glfwWindow.get());
 
@@ -221,15 +229,15 @@ void Window::open() {
     else {
         throw std::runtime_error("Window has no scene.");
     }
-// #endif //A3D_WEB
+    // #endif //A3D_WEB
 }
 
 void Window::close() {
 
-// #if defined(A3D_WEB)
-// 	log::w()("Window::close() has no effect on web.");
-// 	return;
-// #else
+    // #if defined(A3D_WEB)
+    // 	log::w()("Window::close() has no effect on web.");
+    // 	return;
+    // #else
     glfwSetWindowSizeCallback(_glfwWindow.get(), nullptr);
     glfwSetWindowCloseCallback(_glfwWindow.get(), nullptr);
     glfwSetFramebufferSizeCallback(_glfwWindow.get(), nullptr);
@@ -240,7 +248,7 @@ void Window::close() {
     glfwSetWindowShouldClose(_glfwWindow.get(), true);
 
     _open = false;
-// #endif //A3D_WEB
+    // #endif //A3D_WEB
 }
 
 bool Window::isOpen() const {
@@ -703,8 +711,8 @@ void InstallWebGLContextLostHandler() {
 #endif
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-//			  static_cast<void*>(glfwWindow), width, height);
+    //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
+    //			  static_cast<void*>(glfwWindow), width, height);
 
     auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
     window->size(uvec2(width, height));
@@ -718,11 +726,11 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-//			  static_cast<void*>(glfwWindow), width, height);
+    //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
+    //			  static_cast<void*>(glfwWindow), width, height);
 
-//	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-//	window->renderer()->viewportScaleChanged(*window);
+    //	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+    //	window->renderer()->viewportScaleChanged(*window);
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
