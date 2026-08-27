@@ -8,7 +8,7 @@ and selected implementation details.
 ## Key Classes {#key-classes}
 
 - a3d::Application for application startup, lifecycle hooks, and callback dispatch.
-- a3d::Runner and a3d::SimulationConfig for host up****dates and fixed-step simulation.
+- a3d::Runner and a3d::SimulationConfig for host updates and fixed-step simulation.
 - a3d::Scene and a3d::Node for scene ownership and hierarchy.
 - a3d::VisualWorld and a3d::PhysicsWorld for visual configuration and rigid-body simulation.
 
@@ -42,7 +42,6 @@ A Node stores position, orientation, and scale relative to its parent.
 The worldPosition(), worldOrientation(), worldScale(), worldForward(), worldUp(), and worldRight() accessors expose
 inherited results. convertTo() and convertFrom() move points or transforms between node-local coordinate spaces through world
 space.
-``
 
 ## Rotations and angles
 

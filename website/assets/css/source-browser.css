@@ -190,10 +190,6 @@
     font-size: 0.7rem;
 }
 
-.token.property {
-    color: #82b8ff;
-}
-
 @media (max-width: 760px) {
     .source-file-list {
         display: flex;
