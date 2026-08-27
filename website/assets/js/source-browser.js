@@ -440,7 +440,7 @@
             case "h":
                 return {kind: "source", label: "C++", language: "cpp"};
             case "gltf":
-                return {kind: "source", label: "JSON", language: "json"};
+                return {kind: "source", label: "GLTF", language: "json"};
             case "webp":
                 return {kind: "image", label: "WEBP"};
             case "bin":
