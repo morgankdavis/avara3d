@@ -125,19 +125,35 @@
     }
 
     function formatSummary(manifest) {
-        const parts = [
-            manifest.publicLabel || manifest.channel
-        ];
+        const parts = [];
 
-        if (manifest.shortCommit) {
+        if (
+            typeof manifest.version === "string" &&
+            /^\d+\.\d+\.\d+$/.test(manifest.version)
+        ) {
+            parts.push(`v${manifest.version}`);
+        }
+
+        const buildNumber = Number.isInteger(manifest.buildNumber)
+            ? manifest.buildNumber
+            : Number.isInteger(manifest.pipelineIid)
+                ? manifest.pipelineIid
+                : null;
+
+        if (buildNumber !== null) {
+            parts.push(`build ${buildNumber}`);
+        }
+
+        if (
+            typeof manifest.shortCommit === "string" &&
+            manifest.shortCommit
+        ) {
             parts.push(manifest.shortCommit);
         }
 
-        if (Number.isInteger(manifest.pipelineIid)) {
-            parts.push(`pipeline ${manifest.pipelineIid}`);
-        }
-
-        return parts.join(" · ");
+        return parts.length > 0
+            ? parts.join(" · ")
+            : manifest.publicLabel || manifest.channel;
     }
 
     function formatBytes(byteCount) {
