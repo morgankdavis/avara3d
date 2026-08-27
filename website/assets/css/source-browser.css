@@ -52,7 +52,7 @@
     font-size: 0.76rem;
     font-weight: 600;
     text-overflow: ellipsis;
-    transform: translateY(1px);
+    transform: translateY(2px);
     white-space: nowrap;
 }
 
@@ -77,10 +77,21 @@
 }
 
 .source-directory-back {
+    position: relative;
     grid-template-columns: minmax(0, 1fr) !important;
-    margin-bottom: 8px !important;
-    border-bottom: 1px solid var(--line) !important;
+    margin-bottom: 13px !important;
     border-radius: 8px !important;
+}
+
+.source-directory-back::after {
+    position: absolute;
+    right: 0;
+    bottom: -7px;
+    left: 0;
+    height: 1px;
+    content: "";
+    pointer-events: none;
+    background: var(--line);
 }
 
 .source-directory-back .source-row-icon {
