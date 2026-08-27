@@ -18,11 +18,6 @@
         return;
     }
 
-    const rootDescriptions = new Map([
-        ["main.cc", "Application entry point"],
-        ["App.h", "Application interface"],
-        ["App.cc", "Scene and fixed-step behavior"],
-    ]);
     const rootFileOrder = new Map([
         ["main.cc", 0],
         ["App.h", 1],
@@ -156,15 +151,10 @@
 
             const name = relativePath.slice(0, slash);
             const path = prefix + name;
-            const existing = directories.get(path);
 
-            if (existing) {
-                existing.fileCount += 1;
-            }
-            else {
+            if (!directories.has(path)) {
                 directories.set(path, {
                     directory: true,
-                    fileCount: 1,
                     name,
                     path,
                 });
@@ -189,28 +179,21 @@
     }
 
     function createBackButton(parent, parentName) {
-        const button = createRowButton(`Back to ${parentName}`, `‹ ${parentName}`, "Parent directory");
+        const button = createRowButton(`Back to ${parentName}`, `‹ ${parentName}`, "folder.svg");
         button.classList.add("source-directory-back");
         button.addEventListener("click", () => navigateToDirectory(parent));
         return button;
     }
 
     function createDirectoryButton(entry) {
-        const description = entry.path === "data"
-            ? "Runtime assets"
-            : `${entry.fileCount} ${entry.fileCount === 1 ? "file" : "files"}`;
-        const button = createRowButton(`Open ${entry.name}`, entry.name, description, "›");
+        const button = createRowButton(`Open ${entry.name}`, entry.name, "folder.svg", "›");
         button.classList.add("source-directory-row");
         button.addEventListener("click", () => navigateToDirectory(entry.path));
         return button;
     }
 
     function createFileButton(entry) {
-        const button = createRowButton(
-            `Preview ${entry.name}`,
-            entry.name,
-            rootDescriptions.get(entry.path) || fileDescription(entry),
-        );
+        const button = createRowButton(`Preview ${entry.name}`, entry.name, fileIcon(entry.path));
         button.classList.add("source-file-row");
         button.toggleAttribute("data-selected", entry.path === selectedFile);
         button.setAttribute("aria-pressed", String(entry.path === selectedFile));
@@ -218,20 +201,22 @@
         return button;
     }
 
-    function createRowButton(label, name, description, chevron = "") {
+    function createRowButton(label, name, iconName, chevron = "") {
         const button = document.createElement("button");
-        const copy = document.createElement("span");
+        const icon = document.createElement("img");
         const strong = document.createElement("strong");
-        const small = document.createElement("small");
 
         button.type = "button";
         button.className = "source-browser-row";
         button.setAttribute("aria-label", label);
-        copy.className = "source-browser-row-copy";
+
+        icon.className = "source-row-icon";
+        icon.src = `assets/images/${iconName}`;
+        icon.alt = "";
+        icon.setAttribute("aria-hidden", "true");
+
         strong.textContent = name;
-        small.textContent = description;
-        copy.append(strong, small);
-        button.append(copy);
+        button.append(icon, strong);
 
         if (chevron) {
             const indicator = document.createElement("span");
@@ -282,12 +267,7 @@
             return;
         }
 
-        if (preview.kind === "binary") {
-            renderBinary(file, preview.label);
-            return;
-        }
-
-        if (preview.kind === "file") {
+        if (preview.kind === "binary" || preview.kind === "file") {
             renderBinary(file, preview.label);
             return;
         }
@@ -470,17 +450,18 @@
         }
     }
 
-    function fileDescription(file) {
-        const preview = previewType(file.path);
-        const type = preview.kind === "source" && preview.language === "json"
-            ? "glTF JSON"
-            : preview.kind === "image"
-                ? "WebP image"
-                : preview.kind === "binary"
-                    ? "Binary data"
-                    : preview.label;
-
-        return file.size === null ? type : `${type} · ${formatFileSize(file.size)}`;
+    function fileIcon(path) {
+        switch (fileExtension(path)) {
+            case "webp":
+                return "image_file.svg";
+            case "bin":
+                return "binary_file.svg";
+            case "cc":
+            case "h":
+            case "gltf":
+            default:
+                return "text_file.svg";
+        }
     }
 
     function updateUrl() {

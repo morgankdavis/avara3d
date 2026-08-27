@@ -1,6 +1,6 @@
 .source-file-list {
     min-width: 0;
-    padding-top: 12px;
+    padding-top: 0;
 }
 
 .source-directory-list {
@@ -16,9 +16,9 @@
 .source-file-list .source-browser-row {
     display: grid;
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
     margin: 0;
     padding: 11px;
     border: 0;
@@ -45,33 +45,27 @@
     outline: none;
 }
 
-.source-browser-row-copy {
+.source-file-list .source-browser-row strong {
     min-width: 0;
-}
-
-.source-file-list .source-browser-row strong,
-.source-file-list .source-browser-row small {
-    display: block;
     overflow: hidden;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.source-browser[data-source-subtitles="off"] .source-browser-row small {
-    display: none;
+.source-row-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    opacity: 0.68;
 }
 
-.source-file-list .source-browser-row strong {
-    font-family: var(--mono);
-    font-size: 0.76rem;
-    font-weight: 600;
-}
-
-.source-file-list .source-browser-row small {
-    margin-top: 3px;
-    color: inherit;
-    font-size: 0.67rem;
-    opacity: 0.72;
+.source-browser-row:hover .source-row-icon,
+.source-browser-row:focus-visible .source-row-icon,
+.source-browser-row[data-selected] .source-row-icon {
+    opacity: 0.92;
 }
 
 .source-row-chevron {
