@@ -1,12 +1,12 @@
 //
-//  App.cc
+//  Import.cc
 //  import
 //
 //  Created by Morgan Davis on 7/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "Import.h"
 
 #include <iostream>
 #include <memory>
@@ -17,7 +17,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::import;
+using namespace sandbox::import;
 using namespace std;
 
 // [Private Constants]
@@ -32,14 +32,14 @@ const bool                        CAPTURE_CURSOR {false};
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+Import::Import(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL) {}
 
-App::~App() = default;
+Import::~Import() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> Import::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -85,11 +85,11 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool Import::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&       runner,
+void Import::inputDidUpdate(Runner&       runner,
                          Scene&        scene,
                          InputContext& inputContext,
                          const InputContext::UpdateInfo&) {

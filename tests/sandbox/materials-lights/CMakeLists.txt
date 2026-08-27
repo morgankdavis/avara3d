@@ -1,11 +1,7 @@
-get_filename_component(TARGET_NAME
-		"${CMAKE_CURRENT_SOURCE_DIR}"
-		NAME)
-
-a3d_add_program(${TARGET_NAME}
+a3d_add_sandbox(
 		SOURCES
-		App.cc
-		App.h
+		MatLights.cc
+		MatLights.h
 		main.cc
 
 		DATA_DIRECTORY

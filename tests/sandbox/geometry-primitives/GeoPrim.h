@@ -1,13 +1,13 @@
 //
-//  App.h
+//  GeoPrim.h
 //  geometry-primitives
 //
 //  Created by Morgan Davis on 7/17/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_TEST_GEOPRIMITIVES_APP_H
-#define AVARA3D_TEST_GEOPRIMITIVES_APP_H
+#ifndef AVARA3D_TEST_SANDBOX_GEOPRIM_H
+#define AVARA3D_TEST_SANDBOX_GEOPRIM_H
 
 #include <memory>
 
@@ -23,15 +23,15 @@ namespace a3d {
 
 }
 
-namespace test::geoprim {
+namespace sandbox::geoprim {
 
-    class App : public a3d::Application {
+    class GeoPrim : public a3d::Application {
 
     public:
         // [Public Lifecycle Functions]
 
-        App(int argc, char* argv[]);
-        ~App() override;
+        GeoPrim(int argc, char* argv[]);
+        ~GeoPrim() override;
 
     protected:
         // [Application Protected Member Functions]
@@ -57,4 +57,4 @@ namespace test::geoprim {
 
 }
 
-#endif // AVARA3D_TEST_GEOPRIMITIVES_APP_H
+#endif // AVARA3D_TEST_SANDBOX_GEOPRIM_H

@@ -1,12 +1,12 @@
 //
-//  App.cc
+//  Janus.cc
 //  janus
 //
 //  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "Janus.h"
 
 #include <algorithm>
 #include <cmath>
@@ -33,10 +33,10 @@ const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 // [Private Static Non-Member Prototypes]
 
 static shared_ptr<Node>          MakeSimulationRoot();
-static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
+static optional<Janus::PickResult> Pick(VisualWorld&               visualWorld,
                                       const vec2&                screenPosition,
                                       const vector<const Node*>& ignoredNodes = {});
-static optional<App::PickResult> FindActionTarget(Scene&                     scene,
+static optional<Janus::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
 static vector<shared_ptr<Node>>  DropRocks(Node&         parent,
@@ -61,7 +61,7 @@ static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& i
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+Janus::Janus(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _window {nullptr},
     _simulationRoot {nullptr},
@@ -81,11 +81,11 @@ App::App(int argc, char* argv[]):
     _pickIgnores {},
     _pendingReset {false} {}
 
-App::~App() = default;
+Janus::~Janus() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> Janus::init() {
     try {
         // create and configure the window
         _window = make_unique<Window>(WINDOW_SIZE, false, true, ANTIALIASING);
@@ -297,18 +297,18 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-SimulationConfig App::simulationConfig() const {
+SimulationConfig Janus::simulationConfig() const {
     return {
         .timeStep = TIME_STEP,
         .maxCatchUpSteps = MAX_CATCH_UP_STEPS,
     };
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool Janus::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
+void Janus::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 
     if (_pendingReset) {
         _pendingReset = false;
@@ -321,7 +321,7 @@ void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
     }
 }
 
-void App::inputDidUpdate(Runner&       runner,
+void Janus::inputDidUpdate(Runner&       runner,
                          Scene&        scene,
                          InputContext& inputContext,
                          const InputContext::UpdateInfo&) {
@@ -355,14 +355,14 @@ void App::inputDidUpdate(Runner&       runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void Janus::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     for (auto& wander : _orbWanderers) {
         wander.update(info.deltaTime);
     }
 }
 
-void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void Janus::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     _transients.update(info);
 
@@ -375,7 +375,7 @@ void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info
     });
 }
 
-void App::frameDidBegin(Runner&                        runner,
+void Janus::frameDidBegin(Runner&                        runner,
                         Scene&                         scene,
                         VisualWorld&                   visualWorld,
                         const VisualWorld::RenderInfo& info) {
@@ -451,12 +451,12 @@ void App::frameDidBegin(Runner&                        runner,
 
 // [Private Member Functions]
 
-bool App::drawPanel() {
+bool Janus::drawPanel() {
 
     const float PANEL_WIDTH {180.0f};
 
-    auto& runner = App::runner();
-    auto& scene = App::scene();
+    auto& runner = Janus::runner();
+    auto& scene = Janus::scene();
     auto& visualWorld = *scene.visualWorld();
     auto& physicsWorld = *scene.physicsWorld();
 
@@ -849,7 +849,7 @@ bool App::drawPanel() {
     return panel.hovered();
 }
 
-void App::hover(shared_ptr<Node> node) {
+void Janus::hover(shared_ptr<Node> node) {
 
     using DebugOptions = Node::DebugOptions;
 
@@ -869,7 +869,7 @@ void App::hover(shared_ptr<Node> node) {
     }
 }
 
-void App::select(optional<PickResult> pickResult) {
+void Janus::select(optional<PickResult> pickResult) {
 
     using DebugOptions = Node::DebugOptions;
 
@@ -896,9 +896,9 @@ void App::select(optional<PickResult> pickResult) {
     }
 }
 
-void App::queueAction(const vec2& screenPosition) {
+void Janus::queueAction(const vec2& screenPosition) {
 
-    auto& scene = App::scene();
+    auto& scene = Janus::scene();
 
     auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
 
@@ -943,7 +943,7 @@ void App::queueAction(const vec2& screenPosition) {
     });
 }
 
-void App::performAction(const PendingAction& action) {
+void Janus::performAction(const PendingAction& action) {
 
     const float DROP_HEIGHT {5.0f};
 
@@ -961,7 +961,7 @@ void App::performAction(const PendingAction& action) {
 
     const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
 
-    auto& scene = App::scene();
+    auto& scene = Janus::scene();
 
     auto simulationRoot = action.simulationRoot.lock();
 
@@ -1076,7 +1076,7 @@ void App::performAction(const PendingAction& action) {
     }
 }
 
-void App::reset() {
+void Janus::reset() {
 
     select({});
 
@@ -1204,7 +1204,7 @@ shared_ptr<Node> MakeSimulationRoot() {
     return root;
 }
 
-optional<App::PickResult> Pick(VisualWorld&               visualWorld,
+optional<Janus::PickResult> Pick(VisualWorld&               visualWorld,
                                const vec2&                screenPosition,
                                const vector<const Node*>& ignoredNodes) {
 
@@ -1223,7 +1223,7 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
             continue;
         }
 
-        return App::PickResult {.node = node,
+        return Janus::PickResult {.node = node,
                                 .hitPosition = hit.worldCoordinates(),
                                 .hitNormal = hit.worldNormal()};
     }
@@ -1231,7 +1231,7 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
     return {};
 }
 
-optional<App::PickResult> FindActionTarget(Scene&                     scene,
+optional<Janus::PickResult> FindActionTarget(Scene&                     scene,
                                            const vec2&                screenPosition,
                                            const vector<const Node*>& ignoredNodes) {
 
@@ -1252,7 +1252,7 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
             continue;
         }
 
-        return App::PickResult {.node = node,
+        return Janus::PickResult {.node = node,
                                 .hitPosition = hit.worldCoordinates(),
                                 .hitNormal = hit.worldNormal()};
     }

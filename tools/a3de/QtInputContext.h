@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_QTINPUTCONTEXT_H
-#define AVARA3D_QTINPUTCONTEXT_H
+#ifndef A3DE_QTINPUTCONTEXT_H
+#define A3DE_QTINPUTCONTEXT_H
 
 #include "a3d/input/DesktopInputContext.h"
 
@@ -49,4 +49,4 @@ namespace a3d::qt {
 
 }
 
-#endif // AVARA3D_QTINPUTCONTEXT_H
+#endif // A3DE_QTINPUTCONTEXT_H

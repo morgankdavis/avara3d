@@ -1,13 +1,13 @@
 //
-//  App.h
+//  InputCam.h
 //  input-camera
 //
 //  Created by Morgan Davis on 7/17/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_TEST_INPUTCAMERA_APP_H
-#define AVARA3D_TEST_INPUTCAMERA_APP_H
+#ifndef AVARA3D_TEST_SANDBOX_INPUTCAM_H
+#define AVARA3D_TEST_SANDBOX_INPUTCAM_H
 
 #include <memory>
 
@@ -22,15 +22,15 @@ namespace a3d {
 
 }
 
-namespace test::inputcam {
+namespace sandbox::inputcam {
 
-    class App : public a3d::Application {
+    class InputCam : public a3d::Application {
 
     public:
         // [Public Lifecycle Functions]
 
-        App(int argc, char* argv[]);
-        ~App() override;
+        InputCam(int argc, char* argv[]);
+        ~InputCam() override;
 
     protected:
         // [Application Protected Member Functions]
@@ -52,4 +52,4 @@ namespace test::inputcam {
 
 }
 
-#endif // AVARA3D_TEST_INPUTCAMERA_APP_H
+#endif // AVARA3D_TEST_SANDBOX_INPUTCAM_H

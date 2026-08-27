@@ -1,18 +1,18 @@
 //
-//  App.cc
+//  MatLights.cc
 //  materials-lights
 //
 //  Created by Morgan Davis on 7/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "MatLights.h"
 
 #include "a3d/a3d.h"
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::matlights;
+using namespace sandbox::matlights;
 using namespace std;
 
 // [Private Static Non-Member Prototypes]
@@ -36,16 +36,16 @@ const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+MatLights::MatLights(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _pointLightNode {},
     _pointLightOrbitRadius {0.0f} {}
 
-App::~App() = default;
+MatLights::~MatLights() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> MatLights::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -125,11 +125,11 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool MatLights::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
+void MatLights::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
                          const InputContext::UpdateInfo& info) {
@@ -246,7 +246,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void MatLights::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     if (auto pointLight = _pointLightNode.lock()) {
         const vec3  center {0.0f, 30.0f, 0.0f};
@@ -257,7 +257,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 }
 
-void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+void MatLights::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
     const float delta = static_cast<float>(info.updateDeltaTime);
 

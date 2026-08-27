@@ -1,12 +1,12 @@
 //
-//  App.cc
+//  RigidBody.cc
 //  rigidbody
 //
 //  Created by Morgan Davis on 7/17/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "RigidBody.h"
 
 #include <algorithm>
 #include <chrono>
@@ -23,7 +23,7 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-using namespace test::rigidbody;
+using namespace sandbox::rigidbody;
 
 // [Private Constants]
 
@@ -45,7 +45,7 @@ const chrono::milliseconds SLURM_SHOT_INTERVAL {50};
 
 // [Private Static Non-Member Prototypes]
 
-void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
+void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<RigidBody::DuckFruitDef>& duckFruit);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void SpawnHACDTeapot(Scene& scene);
@@ -65,7 +65,7 @@ void                     SpawnChainMail(Scene& scene);
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+RigidBody::RigidBody(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _duckNode {},
     _duckFruitTrigger {DUCK_FRUIT_SPAWN_INTERVAL},
@@ -74,11 +74,11 @@ App::App(int argc, char* argv[]):
     _contactContinues {0},
     _contactEnds {0} {}
 
-App::~App() = default;
+RigidBody::~RigidBody() = default;
 
 // [Application Protected Member Functions]
 
-unique_ptr<Scene> App::init() {
+unique_ptr<Scene> RigidBody::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -298,15 +298,15 @@ unique_ptr<Scene> App::init() {
     }
 }
 
-SimulationConfig App::simulationConfig() const {
+SimulationConfig RigidBody::simulationConfig() const {
     return {.timeStep = TIMESTEP};
 }
 
-bool App::shouldContinue(const Scene&) {
+bool RigidBody::shouldContinue(const Scene&) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
+void RigidBody::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
                          const InputContext::UpdateInfo& info) {
@@ -435,7 +435,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 
     if (mouseScrollWheelDelta.y > 0.0f) {
-        auto& runner = App::runner();
+        auto& runner = RigidBody::runner();
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
 
@@ -444,7 +444,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void RigidBody::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
@@ -644,7 +644,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 // [Private Static Non-Member Functions]
 
 // small complex physics shapes fall through the floor easily even with aggressive CCD
-void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit) {
+void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<RigidBody::DuckFruitDef>& duckFruit) {
 
     auto fruit = duckFruit[uniform_linear(0, 5)];
 

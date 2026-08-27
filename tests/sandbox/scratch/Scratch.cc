@@ -1,19 +1,18 @@
 //
-//  App.cc
+//  Scratch.cc
 //  scratch
 //
 //  Created by Morgan Davis on 7/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "Scratch.h"
 
 #include "a3d/a3d.h"
-#include "../../extras/rug/alf/ALFImporter.h"
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::scratch;
+using namespace sandbox::scratch;
 using namespace std;
 
 // [Private Constants]
@@ -30,14 +29,14 @@ const bool                        DARK {false};
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+Scratch::Scratch(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL) {}
 
-App::~App() = default;
+Scratch::~Scratch() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> Scratch::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -46,6 +45,8 @@ std::unique_ptr<Scene> App::init() {
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
         visualWorld->background(Background {Color(u8vec3 {109, 136, 164})});
+
+        visualWorld->defaultLightingEnabled(true);
 
         visualWorld->surface(SphereSurface {
             .center = {0.0f, -5000.0f, 0.0f},
@@ -76,11 +77,11 @@ std::unique_ptr<Scene> App::init() {
                             .specularExponent = 32.0f,
                         },
                 },
-            .horizonHaze =
-                Ground::HorizonHaze {
-                    .color = {0.1f, 0.1f, 0.1f, 0.5f},
-                    .angularWidth = math::radians(2.5f),
-                },
+            // .horizonHaze =
+            //     Ground::HorizonHaze {
+            //         .color = {0.1f, 0.1f, 0.1f, 0.5f},
+            //         .angularWidth = math::radians(2.5f),
+            //     },
         });
 
         auto physicsWorld = make_unique<PhysicsWorld>();
@@ -96,27 +97,26 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
-        auto teapotNode = Node::MeshNode(util::fs::MeshAt("teapot/teapot.gltf"));
-        teapotNode->scale(teapotNode->scale() * 10.0f);
-        scene->rootNode()->addChild(teapotNode);
-        _teapotNode = teapotNode;
+        auto bananaNode = Node::MeshNode(util::fs::MeshAt("banana_lod/banana_lod.gltf"));
+        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        bananaNode->orientation(rx * ry);
+        bananaNode->position({0.0f, bananaNode->extent().y * 0.5f, 0.0f});
+        scene->rootNode()->addChild(bananaNode);
+        _bananaNode = bananaNode;
 
-        auto ambientLight = make_shared<AmbientLight>(Color(0.15f));
-        auto ambientLightNode = Node::LightNode(ambientLight);
-        scene->rootNode()->addChild(ambientLightNode);
-
-        auto pointLight = make_shared<PointLight>(Color::White());
-        pointLight->attenuation(Attenuation {
-            .quadratic = 0.05f,
-        });
-
-        auto pointLightNode = Node::LightNode(pointLight);
-        pointLightNode->position({5.0f, 5.0f, 5.0f});
-        scene->rootNode()->addChild(pointLightNode);
-        // auto pointLightMaterial = make_shared<Material>();
-        // pointLightMaterial->emission(Color::White());
-        // auto geometry = Sphere::Mesh(0.1, 4, pointLightMaterial);
-        // pointLightNode->mesh(geometry);
+        // auto ambientLight = make_shared<AmbientLight>(Color(0.15f));
+        // auto ambientLightNode = Node::LightNode(ambientLight);
+        // scene->rootNode()->addChild(ambientLightNode);
+        //
+        // auto pointLight = make_shared<PointLight>(Color::White());
+        // pointLight->attenuation(Attenuation {
+        //     .quadratic = 0.05f,
+        // });
+        //
+        // auto pointLightNode = Node::LightNode(pointLight);
+        // pointLightNode->position({5.0f, 5.0f, 5.0f});
+        // scene->rootNode()->addChild(pointLightNode);
 
         auto cameraConfig = _cameraController.config();
         cameraConfig.moveSpeed = math::max(scene->extent());
@@ -133,15 +133,15 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-SimulationConfig App::simulationConfig() const {
+SimulationConfig Scratch::simulationConfig() const {
     return {.timeStep = TIMESTEP};
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool Scratch::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
+void Scratch::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
                          const InputContext::UpdateInfo& info) {
@@ -314,12 +314,12 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void Scratch::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (auto teapotNode = _teapotNode.lock()) {
-        // rotate the teapot at 30 degrees per second
+    if (auto bananaNode = _bananaNode.lock()) {
+        // rotate the banana at 30 degrees per second
         const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
         const auto  rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
-        teapotNode->orientation(rotationY * teapotNode->orientation());
+        bananaNode->orientation(rotationY * bananaNode->orientation());
     }
 }

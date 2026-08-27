@@ -1,12 +1,12 @@
 //
-//  App.cc
+//  InputCam.cc
 //  input-camera
 //
 //  Created by Morgan Davis on 7/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "InputCam.h"
 
 #include <iostream>
 #include <memory>
@@ -18,7 +18,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::inputcam;
+using namespace sandbox::inputcam;
 using namespace std;
 
 // [Private Constants]
@@ -33,14 +33,14 @@ const bool                        CAPTURE_CURSOR {false};
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+InputCam::InputCam(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL) {}
 
-App::~App() = default;
+InputCam::~InputCam() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> InputCam::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -70,11 +70,11 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool InputCam::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
+void InputCam::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
                          const InputContext::UpdateInfo& info) {

@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef A3DVIEWPORT_H
-#define A3DVIEWPORT_H
+#ifndef A3DE_QTVIEWPORT_H
+#define A3DE_QTVIEWPORT_H
 
 #include <optional>
 
@@ -93,4 +93,4 @@ namespace a3d::qt {
 
 }
 
-#endif // A3DVIEWPORT_H
+#endif // A3DE_QTVIEWPORT_H

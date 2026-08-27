@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef A3DE_MAINWINDOW_H
+#define A3DE_MAINWINDOW_H
 
 #include <memory>
 
@@ -68,4 +68,4 @@ namespace a3de {
 
 }
 
-#endif // MAINWINDOW_H
+#endif // A3DE_MAINWINDOW_H

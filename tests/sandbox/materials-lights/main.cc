@@ -8,8 +8,8 @@
 
 #include <memory>
 #include "a3d/Application.h"
-#include "App.h"
+#include "MatLights.h"
 
 int main(int argc, char* argv[]) {
-    return a3d::Application::Run(std::make_unique<test::matlights::App>(argc, argv));
+    return a3d::Application::Run(std::make_unique<sandbox::matlights::MatLights>(argc, argv));
 }

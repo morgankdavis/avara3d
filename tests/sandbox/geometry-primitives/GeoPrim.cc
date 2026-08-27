@@ -1,18 +1,18 @@
 //
-//  App.cc
+//  GeoPrim.cc
 //  geometry-primitives
 //
 //  Created by Morgan Davis on 7/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "App.h"
+#include "GeoPrim.h"
 
 #include "a3d/a3d.h"
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::geoprim;
+using namespace sandbox::geoprim;
 using namespace std;
 
 // [Private Constants]
@@ -29,14 +29,14 @@ const bool                        DARK {false};
 
 // [Public Lifecycle Functions]
 
-App::App(int argc, char* argv[]):
+GeoPrim::GeoPrim(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL) {}
 
-App::~App() = default;
+GeoPrim::~GeoPrim() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> GeoPrim::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -203,15 +203,15 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
-SimulationConfig App::simulationConfig() const {
+SimulationConfig GeoPrim::simulationConfig() const {
     return {.timeStep = TIMESTEP};
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool GeoPrim::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
+void GeoPrim::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
                          const InputContext::UpdateInfo& info) {
@@ -259,7 +259,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+void GeoPrim::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     if (auto pivot = _pointLightPivotNode.lock()) {
         const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);

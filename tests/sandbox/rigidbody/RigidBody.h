@@ -1,13 +1,13 @@
 //
-//  App.h
+//  RigidBody.h
 //  rigidbody
 //
 //  Created by Morgan Davis on 7/17/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_TEST_RIGIDBODY_APP_H
-#define AVARA3D_TEST_RIGIDBODY_APP_H
+#ifndef AVARA3D_TEST_SANDBOX_RIGIDBODY_H
+#define AVARA3D_TEST_SANDBOX_RIGIDBODY_H
 
 #include <memory>
 #include <tuple>
@@ -33,15 +33,15 @@ namespace a3d::ext {
 
 }
 
-namespace test::rigidbody {
+namespace sandbox::rigidbody {
 
-    class App : public a3d::Application {
+    class RigidBody : public a3d::Application {
 
     public:
         // [Public Lifecycle Functions]
 
-        App(int argc, char* argv[]);
-        ~App() override;
+        RigidBody(int argc, char* argv[]);
+        ~RigidBody() override;
 
         // [Internal Types]
 
@@ -82,4 +82,4 @@ namespace test::rigidbody {
 
 }
 
-#endif // AVARA3D_TEST_RIGIDBODY_APP_H
+#endif // AVARA3D_TEST_SANDBOX_RIGIDBODY_H
