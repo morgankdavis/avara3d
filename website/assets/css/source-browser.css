@@ -52,6 +52,7 @@
     font-size: 0.76rem;
     font-weight: 600;
     text-overflow: ellipsis;
+    transform: translateY(1px);
     white-space: nowrap;
 }
 
@@ -76,9 +77,14 @@
 }
 
 .source-directory-back {
+    grid-template-columns: minmax(0, 1fr) !important;
     margin-bottom: 8px !important;
     border-bottom: 1px solid var(--line) !important;
-    border-radius: 8px 8px 0 0 !important;
+    border-radius: 8px !important;
+}
+
+.source-directory-back .source-row-icon {
+    display: none;
 }
 
 .source-directory-back strong {
@@ -138,37 +144,21 @@
 }
 
 .source-binary-icon {
-    position: relative;
-    display: flex;
-    width: 82px;
-    height: 104px;
-    align-items: center;
-    justify-content: center;
+    display: block;
+    width: 128px;
+    height: 128px;
     margin-bottom: 22px;
-    border: 1px solid var(--line-strong);
-    border-radius: 8px;
-    color: #7ed7ff;
-    background:
-        linear-gradient(145deg, rgba(126, 215, 255, 0.08), transparent 55%),
-        var(--surface-raised);
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    border: 0;
+    border-radius: 0;
+    color: transparent;
+    background: url("../images/binary_file_large_inverted.svg") center / contain no-repeat;
+    box-shadow: none;
+    font-size: 0;
+    letter-spacing: 0;
 }
 
 .source-binary-icon::before {
-    position: absolute;
-    top: -1px;
-    right: -1px;
-    width: 22px;
-    height: 22px;
-    border-bottom: 1px solid var(--line-strong);
-    border-left: 1px solid var(--line-strong);
-    border-radius: 0 8px 0 5px;
-    content: "";
-    background: #0c0c0f;
+    display: none;
 }
 
 .source-binary-preview strong {
