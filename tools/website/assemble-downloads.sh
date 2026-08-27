@@ -150,6 +150,7 @@ tar \
 )
 
 export A3D_MANIFEST_OUTPUT_DIR="${TEMP_DIR}/output"
+export A3D_MANIFEST_CMAKE_FILE="${REPO_ROOT}/CMakeLists.txt"
 export A3D_MANIFEST_CHANNEL="${CHANNEL}"
 export A3D_MANIFEST_PUBLIC_LABEL="${PUBLIC_LABEL}"
 export A3D_MANIFEST_BRANCH="${BRANCH}"
@@ -166,9 +167,32 @@ python3 <<'PY'
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 
 output_dir = Path(os.environ["A3D_MANIFEST_OUTPUT_DIR"])
+cmake_file = Path(os.environ["A3D_MANIFEST_CMAKE_FILE"])
+
+cmake_source = cmake_file.read_text(encoding="utf-8")
+project_match = re.search(
+    r"\bproject\s*\(\s*avara3d\b(?P<body>.*?)\)",
+    cmake_source,
+    flags=re.IGNORECASE | re.DOTALL,
+)
+
+if project_match is None:
+    raise SystemExit("could not find avara3d project() declaration")
+
+version_match = re.search(
+    r"\bVERSION\s+([0-9]+(?:\.[0-9]+){2})\b",
+    project_match.group("body"),
+    flags=re.IGNORECASE,
+)
+
+if version_match is None:
+    raise SystemExit("could not find avara3d project version")
+
+version = version_match.group(1)
 
 package_specs = {
     "linux": {
@@ -219,6 +243,8 @@ manifest = {
     "schemaVersion": 1,
     "channel": os.environ["A3D_MANIFEST_CHANNEL"],
     "publicLabel": os.environ["A3D_MANIFEST_PUBLIC_LABEL"],
+    "version": version,
+    "buildNumber": pipeline_value,
     "branch": os.environ["A3D_MANIFEST_BRANCH"],
     "commit": os.environ["A3D_MANIFEST_COMMIT"],
     "shortCommit": os.environ["A3D_MANIFEST_SHORT_COMMIT"],
