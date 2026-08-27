@@ -9,7 +9,6 @@
 #ifndef AVARA3D_DEMO_JANUSAPP_H
 #define AVARA3D_DEMO_JANUSAPP_H
 
-#include <chrono>
 #include <memory>
 #include <optional>
 #include <vector>

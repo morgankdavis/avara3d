@@ -144,7 +144,7 @@ cmake --preset web-debug
 cmake --build --preset web-debug --target <target>
 ```
 
-Replace `<target>` with the demo or sandbox test target you want to build.
+Replace `<target>` with the demo or sandbox test target you want to build, for example `a3d-demo-janus`.
 
 For an optimized web build:
 

@@ -121,6 +121,22 @@
         directoryList.replaceChildren(fragment);
     }
 
+    function rootFileOrder(name) {
+        if (name === "main.cc") {
+            return 0;
+        }
+
+        if (name.endsWith("App.h")) {
+            return 1;
+        }
+
+        if (name.endsWith("App.cc")) {
+            return 2;
+        }
+
+        return 3;
+    }
+
     function directoryChildren(directory) {
         const prefix = directory ? `${directory}/` : "";
         const directories = new Map();
@@ -157,28 +173,14 @@
 
         const directoryEntries = [...directories.values()].sort(compareNames);
         directFiles.sort((left, right) => {
-        if (!directory) {
-            if (left.path === "main.cc") {
-                return -1;
-            }
+            if (!directory) {
+                const leftOrder = rootFileOrder(left.name);
+                const rightOrder = rootFileOrder(right.name);
 
-            if (right.path === "main.cc") {
-                return 1;
-            }
-
-            const leftExtension = fileExtension(left.path);
-            const rightExtension = fileExtension(right.path);
-
-            if (leftExtension !== rightExtension) {
-                if (leftExtension === "h") {
-                    return -1;
-                }
-
-                if (rightExtension === "h") {
-                    return 1;
+                if (leftOrder !== rightOrder) {
+                    return leftOrder - rightOrder;
                 }
             }
-        }
 
             return compareNames(left, right);
         });
