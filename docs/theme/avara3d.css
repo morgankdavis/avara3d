@@ -108,3 +108,24 @@ table.memberdecls tr.groupHeader,
 table.memberdecls tr.groupHeader > td {
     background: var(--page-background-color);
 }
+
+.avara-project-logo {
+    display: block;
+    width: 150px;
+    height: auto;
+}
+
+#projectname {
+    margin: 0;
+    line-height: 1;
+}
+
+#projectbrief {
+    margin-top: 5px;
+    font-size: 0.78rem;
+}
+
+#projectalign {
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
