@@ -251,3 +251,7 @@ fastlane/readme.md
 
 # for build system virtal includes
 _external_virtual_include/
+
+
+# Cloudflare
+.wrangler/
