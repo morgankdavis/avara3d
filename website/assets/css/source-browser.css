@@ -237,3 +237,24 @@
         padding: 20px;
     }
 }
+
+/* "Files" */
+.source-list-heading .panel-label {
+    transform: translateY(-5px);
+}
+
+/* "C++" badge as a whole */
+.source-language {
+    /*transform: translateY(0px);*/
+    padding: 4px 6px 2px; /* text down 1px */
+}
+
+/* "main.cc" */
+.source-view-header [data-source-title] {
+    transform: translateY(1px);
+}
+
+/* "demos/janus/main.cc" */
+.source-view-header [data-source-path] {
+    transform: translateY(1px);
+}

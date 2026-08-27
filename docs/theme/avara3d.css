@@ -3,6 +3,7 @@ html,
 html:not(.light-mode) {
     color-scheme: dark;
 
+    --side-nav-fixed-width: 280px;
     --primary-color: #a68cff;
     --primary-dark-color: #c7b9ff;
     --primary-light-color: #6856a8;

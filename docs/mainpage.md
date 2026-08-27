@@ -1,4 +1,4 @@
-# C++ API {#mainpage}
+# API Reference {#mainpage}
 
 This reference documents Avara3D's public C++ API.
 
