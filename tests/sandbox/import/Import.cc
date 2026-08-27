@@ -61,10 +61,13 @@ std::unique_ptr<Scene> Import::init() {
 
         for (auto& node : testSceneNodes) {
 
+            // NOTE: maybe figure out a better way to handle node reparenting
             if (node->light() || node->camera()) {
+                node->removeFromParent();
                 importLightsCamerasRoot->addChild(node);
             }
             else {
+                node->removeFromParent();
                 importMeshRoot->addChild(node);
             }
         }

@@ -97,9 +97,6 @@ function(a3d_add_sandbox)
 			OUTPUT_NAME
 			"${PROGRAM_NAME}"
 
-#			INSTALL_DESTINATION
-#			"${INSTALL_TESTS_EXEC_DIR}"
-
 			${ARGN})
 
 endfunction()
