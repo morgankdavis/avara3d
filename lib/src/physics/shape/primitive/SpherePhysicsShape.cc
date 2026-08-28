@@ -32,3 +32,9 @@ PhysicsShape::Type SpherePhysicsShape::type() const {
 void SpherePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for SpherePhysicsShape.");
 }
+
+// [PhysicsShape Internal Member Functions]
+
+bool SpherePhysicsShape::supportsMargin() const {
+    return false;
+}

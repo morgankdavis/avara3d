@@ -26,7 +26,7 @@ namespace a3d {
         /** @brief Creates an infinite collision plane through the local XY plane. */
         InfinitePlanePhysicsShape();
 
-        // [Public PhysicsShape Member Functions]
+        // [PhysicsShape Public Member Functions]
 
         /** @brief Returns PhysicsShape::Type::Primitive. */
         Type type() const override;
@@ -41,6 +41,7 @@ namespace a3d {
         // [PhysicsShape Internal Member Functions]
 
         bool supportsBodyType(PhysicsBody::Type type) const override;
+        bool supportsMargin() const override;
     };
 
 }

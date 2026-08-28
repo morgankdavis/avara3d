@@ -41,6 +41,10 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+// [Private Constants]
+
+const bool USE_HIGHRES_CONVEX_HULL {true};
+
 // [Private Static Non-Member Prototypes]
 
 static unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                                 mesh,
@@ -85,6 +89,9 @@ static unique_ptr<btCompoundShape>        BTCompoundConvexHullHACDShapeFromMeshE
                                                                                            btCollisionShape>>&
                                                                                            btShapes);
 static vector<unique_ptr<MeshElement>>    HACDMeshElementsFromMeshElement(MeshElement& element);
+static void                               ValidateBTShapeMarginRec(const btCollisionShape& shape);
+static void                               SetBTShapeMarginRec(btCollisionShape& shape, btScalar margin);
+static void AccumulateBTShapeMarginRec(const btCollisionShape& shape, btScalar& margin, bool& foundMargin);
 
 // [Internal Lifecycle Functions]
 
@@ -154,6 +161,36 @@ BulletShapeProxy::~BulletShapeProxy() {
 }
 
 // [Internal Member Functions]
+
+float BulletShapeProxy::margin() const {
+
+    if (_btShapes.empty() || !_btShapes.front()) {
+        throw logic_error("BulletShapeProxy has no root collision shape.");
+    }
+
+    btScalar margin {};
+    bool     foundMargin {false};
+
+    AccumulateBTShapeMarginRec(*_btShapes.front(), margin, foundMargin);
+
+    if (!foundMargin) {
+        throw logic_error("BulletShapeProxy contains no collision shape with a configurable margin.");
+    }
+
+    return static_cast<float>(margin);
+}
+
+void BulletShapeProxy::margin(float margin) {
+
+    if (_btShapes.empty() || !_btShapes.front()) {
+        throw logic_error("BulletShapeProxy has no root collision shape.");
+    }
+
+    auto& rootShape = *_btShapes.front();
+
+    ValidateBTShapeMarginRec(rootShape);
+    SetBTShapeMarginRec(rootShape, static_cast<btScalar>(margin));
+}
 
 const vector<unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
     return _btShapes;
@@ -390,13 +427,14 @@ unique_ptr<btConvexHullShape> BTConvexHullShapeFromMeshElement(MeshElement& elem
         const vec3       p = VertexAccess::ReadVec3(base, posA->offset);
         originalShape.addPoint(BTVector3FromA3DVec3(p), false);
     }
+
+    // btShapeHull samples localGetSupportingVertex(), which includes the shape's
+    // collision margin. disable it here so reduction operates on the geometric hull
+    originalShape.setMargin(0.0f);
     originalShape.recalcLocalAabb();
 
-    // reduce number of verticies
-    // http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
     btShapeHull hull(&originalShape);
-    btScalar    margin = originalShape.getMargin();
-    hull.buildHull(margin);
+    hull.buildHull(0.0f, static_cast<int>(USE_HIGHRES_CONVEX_HULL));
 
     auto reducedShape = make_unique<btConvexHullShape>((btScalar*) hull.getVertexPointer(), hull.numVertices(),
                                                        sizeof(btVector3));
@@ -569,4 +607,157 @@ vector<unique_ptr<MeshElement>> HACDMeshElementsFromMeshElement(MeshElement& ele
 
     auto decomposer = ConvexDecomposer(element, options);
     return decomposer.decompose();
+}
+
+void ValidateBTShapeMarginRec(const btCollisionShape& shape) {
+
+    if (auto compound = dynamic_cast<const btCompoundShape*>(&shape)) {
+
+        for (int i = 0; i < compound->getNumChildShapes(); ++i) {
+
+            const auto* child = compound->getChildShape(i);
+
+            if (!child) {
+                throw logic_error("btCompoundShape contains a null child shape.");
+            }
+
+            ValidateBTShapeMarginRec(*child);
+        }
+
+        return;
+    }
+
+    if (dynamic_cast<const btConvexHullShape*>(&shape) || dynamic_cast<const btBoxShape*>(&shape)
+        || dynamic_cast<const btCylinderShape*>(&shape) || dynamic_cast<const btConeShape*>(&shape)
+        || dynamic_cast<const btBvhTriangleMeshShape*>(&shape)
+        || dynamic_cast<const btGImpactShapeInterface*>(&shape)) {
+
+        return;
+    }
+
+    if (dynamic_cast<const btSphereShape*>(&shape) || dynamic_cast<const btCapsuleShape*>(&shape)
+        || dynamic_cast<const btStaticPlaneShape*>(&shape)) {
+
+        throw logic_error("Bullet collision shape does not support a configurable A3D collision margin.");
+    }
+
+    throw logic_error("Unsupported Bullet collision shape for collision-margin update.");
+}
+
+static void SetBTShapeMarginRec(btCollisionShape& shape, btScalar margin) {
+
+    if (auto compound = dynamic_cast<btCompoundShape*>(&shape)) {
+
+        for (int i = 0; i < compound->getNumChildShapes(); ++i) {
+
+            auto* child = compound->getChildShape(i);
+
+            if (!child) {
+                throw logic_error("btCompoundShape contains a null child shape.");
+            }
+
+            SetBTShapeMarginRec(*child, margin);
+
+            compound->updateChildTransform(i, compound->getChildTransform(i), false);
+        }
+
+        compound->recalculateLocalAabb();
+
+        return;
+    }
+
+    if (auto hull = dynamic_cast<btConvexHullShape*>(&shape)) {
+
+        hull->setMargin(margin);
+        hull->recalcLocalAabb();
+
+        return;
+    }
+
+    if (auto box = dynamic_cast<btBoxShape*>(&shape)) {
+
+        box->setMargin(margin);
+        return;
+    }
+
+    if (auto cylinder = dynamic_cast<btCylinderShape*>(&shape)) {
+
+        cylinder->setMargin(margin);
+        return;
+    }
+
+    if (auto cone = dynamic_cast<btConeShape*>(&shape)) {
+
+        cone->setMargin(margin);
+        return;
+    }
+
+    if (auto mesh = dynamic_cast<btBvhTriangleMeshShape*>(&shape)) {
+
+        mesh->setMargin(margin);
+        return;
+    }
+
+    if (auto gImpact = dynamic_cast<btGImpactShapeInterface*>(&shape)) {
+
+        gImpact->setMargin(margin);
+        gImpact->updateBound();
+
+        return;
+    }
+
+    throw logic_error("Unsupported Bullet collision shape for collision-margin update.");
+}
+
+static void AccumulateBTShapeMarginRec(const btCollisionShape& shape, btScalar& margin, bool& foundMargin) {
+
+    if (auto compound = dynamic_cast<const btCompoundShape*>(&shape)) {
+
+        for (int i = 0; i < compound->getNumChildShapes(); ++i) {
+
+            const auto* child = compound->getChildShape(i);
+
+            if (!child) {
+                throw logic_error("btCompoundShape contains a null child shape.");
+            }
+
+            AccumulateBTShapeMarginRec(*child, margin, foundMargin);
+        }
+
+        return;
+    }
+
+    btScalar shapeMargin;
+
+    if (auto hull = dynamic_cast<const btConvexHullShape*>(&shape)) {
+        shapeMargin = hull->getMargin();
+    }
+    else if (auto box = dynamic_cast<const btBoxShape*>(&shape)) {
+        shapeMargin = box->getMargin();
+    }
+    else if (auto cylinder = dynamic_cast<const btCylinderShape*>(&shape)) {
+        shapeMargin = cylinder->getMargin();
+    }
+    else if (auto cone = dynamic_cast<const btConeShape*>(&shape)) {
+        shapeMargin = cone->getMargin();
+    }
+    else if (auto mesh = dynamic_cast<const btBvhTriangleMeshShape*>(&shape)) {
+        shapeMargin = mesh->getMargin();
+    }
+    else if (auto gImpact = dynamic_cast<const btGImpactShapeInterface*>(&shape)) {
+        shapeMargin = gImpact->getMargin();
+    }
+    else {
+        throw logic_error("Unsupported Bullet collision shape for collision-margin query.");
+    }
+
+    if (!foundMargin) {
+        margin = shapeMargin;
+        foundMargin = true;
+        return;
+    }
+
+    if (shapeMargin != margin) {
+        throw logic_error("PhysicsShape collision components do not use a uniform margin.");
+    }
 }

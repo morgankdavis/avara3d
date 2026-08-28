@@ -33,3 +33,7 @@ void InfinitePlanePhysicsShape::type(PhysicsShape::Type type) {
 bool InfinitePlanePhysicsShape::supportsBodyType(PhysicsBody::Type type) const {
     return type == PhysicsBody::Type::Static;
 }
+
+bool InfinitePlanePhysicsShape::supportsMargin() const {
+    return false;
+}

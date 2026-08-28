@@ -27,6 +27,11 @@ namespace a3d {
         PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
 
         virtual ~PhysicsShapeProxy() = 0;
+
+        // [Internal Member Functions]
+
+        virtual float margin() const       = 0;
+        virtual void  margin(float margin) = 0;
     };
 
 }

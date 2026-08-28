@@ -39,6 +39,10 @@ namespace a3d {
          */
         void  type(Type type) override;
 
+        // [PhysicsShape Internal Member Functions]
+
+        bool  supportsMargin() const override;
+
     private:
         // [Private Member Variables]
 

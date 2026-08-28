@@ -8,6 +8,7 @@
 
 #include "a3d/physics/shape/PhysicsShape.h"
 
+#include <cmath>
 #include <stdexcept>
 
 #include "a3d/mesh/Mesh.h"
@@ -52,6 +53,7 @@ shared_ptr<PhysicsShape> PhysicsShape::ConcavePolyhedronShape(const shared_ptr<N
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
     _type {type},
     _proxy {},
+    _margin {},
     _source {mesh},
     _bodies {} {
 
@@ -68,6 +70,7 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
     _type {type},
     _proxy {},
+    _margin {},
     _source {node},
     _bodies {} {
 
@@ -103,9 +106,57 @@ void PhysicsShape::type(Type type) {
     }
 }
 
+float PhysicsShape::margin() const {
+
+    if (!supportsMargin()) {
+        throw logic_error("PhysicsShape does not support a configurable collision margin.");
+    }
+
+    if (_proxy) {
+        return _proxy->margin();
+    }
+
+    if (_margin) {
+        return *_margin;
+    }
+
+    throw logic_error(
+        "Collision margin is not available until collision geometry is created or an explicit margin is set.");
+}
+
+void PhysicsShape::margin(float margin) {
+    log::t()("margin: {}", margin);
+
+    if (!supportsMargin()) {
+        throw logic_error("PhysicsShape does not support a configurable collision margin.");
+    }
+
+    if (_margin && *_margin == margin) {
+        return;
+    }
+
+    for (auto* body : _bodies) {
+        body->shapeWillUpdate();
+    }
+
+    if (_proxy) {
+        _proxy->margin(margin);
+    }
+
+    _margin = margin;
+
+    for (auto* body : _bodies) {
+        body->shapeDidUpdate();
+    }
+}
+
 // [Internal Member Functions]
 
 bool PhysicsShape::supportsBodyType(PhysicsBody::Type) const {
+    return true;
+}
+
+bool PhysicsShape::supportsMargin() const {
     return true;
 }
 
@@ -145,6 +196,10 @@ void PhysicsShape::checkCreateProxy() {
     if (!_proxy) {
         _proxy = make_unique<BulletShapeProxy>(*this);
 
+        if (_margin) {
+            _proxy->margin(*_margin);
+        }
+
         for (auto body : _bodies) {
             body->shapeDidUpdate();
         }
@@ -153,6 +208,10 @@ void PhysicsShape::checkCreateProxy() {
 
 const unordered_set<PhysicsBody*>& PhysicsShape::bodies() const {
     return _bodies;
+}
+
+const optional<float>& PhysicsShape::marginOverride() const {
+    return _margin;
 }
 
 PhysicsShapeProxy* PhysicsShape::proxy() const {
@@ -164,5 +223,6 @@ PhysicsShapeProxy* PhysicsShape::proxy() const {
 PhysicsShape::PhysicsShape():
     _type {Type::Primitive},
     _proxy {},
+    _margin {},
     _source {},
     _bodies {} {}

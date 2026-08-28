@@ -31,6 +31,9 @@ namespace a3d {
 
         // [Internal Member Functions]
 
+        float                                                 margin() const override;
+        void                                                  margin(float margin) override;
+
         const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
     private:

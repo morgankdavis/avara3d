@@ -43,3 +43,9 @@ PhysicsShape::Type CapsulePhysicsShape::type() const {
 void CapsulePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
 }
+
+// [PhysicsShape Internal Member Functions]
+
+bool CapsulePhysicsShape::supportsMargin() const {
+    return false;
+}

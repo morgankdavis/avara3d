@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <variant>
 
@@ -33,6 +34,11 @@ namespace a3d {
      * does not extend the lifetime of its source object. The source and any mesh
      * geometry used to build the collision shape must remain alive for as long as
      * the PhysicsShape is in use.
+     *
+     * Supported collision shapes expose a configurable collision margin used for
+     * collision detection and contact generation. The effective default margin is
+     * shape-dependent. Changing the margin updates existing PhysicsBody objects
+     * without regenerating the source geometry.
      */
     class PhysicsShape {
 
@@ -110,12 +116,43 @@ namespace a3d {
          */
         virtual void                            type(Type type);
 
+        /**
+         * @brief Returns the collision margin used by this shape.
+         *
+         * If no explicit margin has been set, the effective margin is obtained from
+         * the existing collision geometry. Compound collision geometry must use a
+         * common margin for this function to return a value.
+         *
+         * @throws std::logic_error if this shape does not support a configurable
+         * collision margin, if collision geometry has not yet been created and no
+         * explicit margin has been set, or if the collision components do not use a
+         * common margin.
+         */
+        float                                   margin() const;
+
+        /**
+         * @brief Sets a uniform collision margin for this shape.
+         *
+         * The exact geometric effect of the margin depends on the collision-shape
+         * representation. Existing PhysicsBody objects sharing this shape are updated
+         * immediately without regenerating the source geometry.
+         *
+         * InfinitePlanePhysicsShape, SpherePhysicsShape, and CapsulePhysicsShape do
+         * not support a configurable collision margin.
+         *
+         * @throws std::logic_error if this shape does not support a configurable
+         * collision margin.
+         * @throws std::invalid_argument if @p margin is negative or non-finite.
+         */
+        void                                    margin(float margin);
+
         /** @brief Returns the weak Mesh or Node source, or std::monostate for a source-less primitive shape. */
         Source                                  source() const;
 
         // [Internal Member Functions]
 
         virtual bool                            supportsBodyType(PhysicsBody::Type type) const;
+        virtual bool                            supportsMargin() const;
 
         void                                    attachedToBody(PhysicsBody& body);
         void                                    detachedFromBody(PhysicsBody& body);
@@ -128,6 +165,8 @@ namespace a3d {
         void                                    checkCreateProxy();
 
         const std::unordered_set<PhysicsBody*>& bodies() const;
+
+        const std::optional<float>&             marginOverride() const;
 
         PhysicsShapeProxy*                      proxy() const;
 
@@ -144,6 +183,7 @@ namespace a3d {
     private:
         // [Private Member Variables]
 
+        std::optional<float>             _margin;
         Source                           _source;
         std::unordered_set<PhysicsBody*> _bodies;
     };

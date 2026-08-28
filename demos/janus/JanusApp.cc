@@ -186,78 +186,40 @@ std::unique_ptr<Scene> JanusApp::init() {
             }
         }
 
-
-
-        // janus
         if (auto node = rootNode->childNamed("janus")) {
-            // static auto [mesh, shape] = [] {
-            //     constexpr float HEIGHT = 1.0f;
-            //
-            //     auto visMesh = util::fs::MeshAt("janus/janus.gltf");
-            //     //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
-            //
-            //     const float scaleFactor = HEIGHT / visMesh->localExtent().y;
-            //     const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-            //
-            //     visMesh->burnTransform(transform, true);
-            //     //physMesh->burnTransform(transform, true);
-            //
-            //     //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
-            //     auto shape = PhysicsShape::ConvexHullShape(visMesh);
-            //
-            //     return std::pair {visMesh, shape};
-            // }();
-
-            // auto node = Node::MeshNode(mesh);
-            // node->name("Janus");
-            // node->position({-1.5f, 0.0f, 0.0f});
-            //
-            // auto body = PhysicsBody::DynamicBody(shape);
-
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(10.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
             node->physicsBody()->linearDamping(0.03f);
             node->physicsBody()->angularDamping(0.05f);
-            // node->physicsBody(std::move(body));
-
-            // root->addChild(node);
         }
 
-        // teapot
         if (auto node = rootNode->childNamed("teapot")) {
-            // static auto mesh = [] {
-            //     constexpr float HEIGHT = 0.35f;
-            //     auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
-            //     const float     teapotScale = HEIGHT / mesh->localExtent().y;
-            //     mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            //     return mesh;
-            // }();
-            //
-            // auto node = Node::MeshNode(mesh);
-            // node->name("Teapot");
-            // node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
-
             node->physicsBody(PhysicsBody::DynamicBody());
-            //static auto shape = PhysicsShape::ConvexHullShape(mesh);
-            // auto        body = PhysicsBody::DynamicBody(shape);
             node->physicsBody()->mass(1.5f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
             node->physicsBody()->linearDamping(0.03f);
             node->physicsBody()->angularDamping(0.05f);
-            // node->physicsBody(std::move(body));
-
-            //rootNode->addChild(node);
         }
 
         if (auto node = rootNode->childNamed("plinth1")) {
             node->physicsBody(PhysicsBody::DynamicBody());
+            node->physicsBody()->mass(17.5f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
         }
 
         if (auto node = rootNode->childNamed("plinth2")) {
             node->physicsBody(PhysicsBody::DynamicBody());
+            node->physicsBody()->mass(12.5f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
         }
 
         // create and configure the ground
@@ -925,11 +887,6 @@ bool JanusApp::drawPanel() {
 
         debugToggle("stats", DebugOptions::ShowStatsOverlay);
 
-        bool defaultLighting = visualWorld.defaultLightingEnabled();
-        if (panel.toggle("default lighting", defaultLighting)) {
-            visualWorld.defaultLightingEnabled(defaultLighting);
-        }
-
         debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
         debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
 
@@ -943,6 +900,11 @@ bool JanusApp::drawPanel() {
         debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
         debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
         debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
+
+        bool defaultLighting = visualWorld.defaultLightingEnabled();
+        if (panel.toggle("default lighting", defaultLighting)) {
+            visualWorld.defaultLightingEnabled(defaultLighting);
+        }
     }
 
     return panel.hovered();
@@ -1391,9 +1353,7 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
         }
 
         mesh->burnTransform(util::geom::fit_inside(mesh->localAABB(), boxSize), true);
-
         auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
-
         rocks.push_back({std::move(mesh), std::move(physicsShape)});
     }
 
@@ -1636,6 +1596,7 @@ shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& vel
         transform = math::scale(transform, scaleFactor);
         mesh->burnTransform(transform, true);
         auto shape = PhysicsShape::ConvexHullShape(mesh);
+        // auto shape = PhysicsShape::ConcavePolyhedronShape(mesh);
         return std::pair {mesh, shape};
     }();
 
@@ -1685,7 +1646,8 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
         return std::pair {mesh, shape};
     }();
 
-    auto       node = Node::MeshNode(mesh);
+    auto node = Node::MeshNode(mesh);
+
     static int hulaNum = 0;
     node->name(std::format("Hula {}", ++hulaNum));
     node->position(location);
