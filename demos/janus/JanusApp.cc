@@ -161,7 +161,7 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
                        | Scene::ImportOptions::ImportLights;
-        auto scene = util::fs::SceneAt("evora/evora.gltf", options);
+        auto scene = util::fs::SceneAt("janus/janus.gltf", options);
         scene->visualWorld(std::move(visualWorld));
         scene->physicsWorld(std::move(physicsWorld));
         scene->inputContext(Window::InputContext());
@@ -171,18 +171,18 @@ std::unique_ptr<Scene> JanusApp::init() {
 
             _pickIgnores.push_back({.node = evoraNode});
 
-            auto evoraPhysScene = util::fs::SceneAt("evora/phys.gltf", Scene::ImportOptions::ImportMeshes);
+            auto evoraPhysScene = util::fs::SceneAt("janus/phys.gltf", Scene::ImportOptions::ImportMeshes);
             if (auto physNode = evoraPhysScene->rootNode()->childNamed("evora_phys")) {
+
                 auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-
-                _pickIgnores.push_back({.node = physNode});
-
                 auto body = PhysicsBody::StaticBody(shape);
                 evoraNode->physicsBody(std::move(body));
 
                 physNode->removeFromParent();
                 rootNode->addChild(physNode);
+
                 physNode->hidden(true);
+                _pickIgnores.push_back({.node = physNode});
             }
         }
 
