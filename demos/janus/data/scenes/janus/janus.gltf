@@ -5,11 +5,61 @@
 	},
 	"extensionsUsed":[
 		"KHR_materials_specular",
-		"EXT_texture_webp"
+		"EXT_texture_webp",
+		"KHR_lights_punctual"
 	],
 	"extensionsRequired":[
-		"EXT_texture_webp"
+		"EXT_texture_webp",
+		"KHR_lights_punctual"
 	],
+	"extensions":{
+		"KHR_lights_punctual":{
+			"lights":[
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":2174056.5226352904,
+					"spot":{
+						"innerConeAngle":0.13089969754219055,
+						"outerConeAngle":0.2617993950843811
+					},
+					"type":"spot",
+					"name":"Spot"
+				},
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":1358.7853266470563,
+					"spot":{
+						"innerConeAngle":0.13089969754219055,
+						"outerConeAngle":0.2617993950843811
+					},
+					"type":"spot",
+					"name":"Spot.001"
+				},
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":2717.5706532941126,
+					"spot":{
+						"innerConeAngle":0.13089969754219055,
+						"outerConeAngle":0.2617993950843811
+					},
+					"type":"spot",
+					"name":"Spot.002"
+				}
+			]
+		}
+	},
 	"scene":0,
 	"scenes":[
 		{
@@ -19,7 +69,10 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				5,
+				6,
+				7
 			]
 		}
 	],
@@ -32,9 +85,9 @@
 			"mesh":1,
 			"name":"janus",
 			"translation":[
-				0,
-				1.6617542505264282,
-				0
+				0.010635670274496078,
+				1.6071094274520874,
+				0.028943728655576706
 			]
 		},
 		{
@@ -51,13 +104,70 @@
 			"name":"teapot",
 			"translation":[
 				5.477653980255127,
-				1.3319895267486572,
+				1.2619918584823608,
 				3.8296759128570557
 			]
 		},
 		{
 			"mesh":4,
 			"name":"plinth1"
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":0
+				}
+			},
+			"name":"Spot",
+			"rotation":[
+				-0.030843527987599373,
+				-0.7064337730407715,
+				0.7064338326454163,
+				0.030843596905469894
+			],
+			"translation":[
+				6.466288089752197,
+				0.9181883931159973,
+				3.879281520843506
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":1
+				}
+			},
+			"name":"Spot.001",
+			"rotation":[
+				-0.030843527987599373,
+				-0.7064337730407715,
+				0.7064338326454163,
+				0.030843596905469894
+			],
+			"translation":[
+				6.466288089752197,
+				0.9181883931159973,
+				1.3179025650024414
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":2
+				}
+			},
+			"name":"Spot.002",
+			"rotation":[
+				-0.030843527987599373,
+				-0.7064337730407715,
+				0.7064338326454163,
+				0.030843596905469894
+			],
+			"translation":[
+				6.466288089752197,
+				0.9181883931159973,
+				-1.0035805702209473
+			]
 		}
 	],
 	"materials":[
@@ -936,35 +1046,35 @@
 		{
 			"bufferView":44,
 			"componentType":5126,
-			"count":19369,
+			"count":19370,
 			"max":[
-				0.4462823271751404,
+				0.45662322640419006,
 				1.6106497049331665,
-				0.48183098435401917
+				0.4752143621444702
 			],
 			"min":[
-				-0.48315274715423584,
+				-0.4720902442932129,
 				0.02889728546142578,
-				-0.4259541630744934
+				-0.4123750925064087
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":45,
 			"componentType":5126,
-			"count":19369,
+			"count":19370,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":46,
 			"componentType":5126,
-			"count":19369,
+			"count":19370,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":47,
 			"componentType":5123,
-			"count":61200,
+			"count":70722,
 			"type":"SCALAR"
 		}
 	],
@@ -1235,26 +1345,26 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":232428,
+			"byteLength":232440,
 			"byteOffset":19215808,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":232428,
-			"byteOffset":19448236,
+			"byteLength":232440,
+			"byteOffset":19448248,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":154952,
-			"byteOffset":19680664,
+			"byteLength":154960,
+			"byteOffset":19680688,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":122400,
-			"byteOffset":19835616,
+			"byteLength":141444,
+			"byteOffset":19835648,
 			"target":34963
 		}
 	],
@@ -1266,7 +1376,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":19958016,
+			"byteLength":19977092,
 			"uri":"janus.bin"
 		}
 	]

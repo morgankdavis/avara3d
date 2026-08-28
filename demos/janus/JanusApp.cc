@@ -149,16 +149,11 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
-        // create the scene
+        // load the base scene
 
-        // auto scene =
-        //     make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        // //scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
-        // scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-
-        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
-                       | Scene::ImportOptions::ImportLights;
-        auto scene = util::fs::SceneAt("janus/janus.gltf", options);
+        auto scene = util::fs::SceneAt("janus/janus.gltf", Scene::ImportOptions::ImportMeshes
+                                                               | Scene::ImportOptions::ImportMaterials
+                                                               | Scene::ImportOptions::ImportLights);
         scene->visualWorld(std::move(visualWorld));
         scene->physicsWorld(std::move(physicsWorld));
         scene->inputContext(Window::InputContext());
@@ -176,10 +171,9 @@ std::unique_ptr<Scene> JanusApp::init() {
                 auto body = PhysicsBody::StaticBody(shape);
                 evoraNode->physicsBody(std::move(body));
 
-                rootNode->addChild(physNode, true);
-
                 physNode->hidden(true);
-                //_pickIgnores.push_back({.node = physNode});
+
+                rootNode->addChild(physNode, true);
             }
         }
 
@@ -236,15 +230,15 @@ std::unique_ptr<Scene> JanusApp::init() {
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
-        {
-            auto pointLight = make_shared<PointLight>(Color::White());
-            pointLight->attenuation(Attenuation {
-                .quadratic = 0.05f,
-            });
-            auto pointLightNode = Node::LightNode(pointLight);
-            pointLightNode->position({0.0f, 4.0f, 0.0f});
-            scene->rootNode()->addChild(pointLightNode);
-        }
+        // {
+        //     auto pointLight = make_shared<PointLight>(Color::White());
+        //     pointLight->attenuation(Attenuation {
+        //         .quadratic = 0.05f,
+        //     });
+        //     auto pointLightNode = Node::LightNode(pointLight);
+        //     pointLightNode->position({0.0f, 4.0f, 0.0f});
+        //     scene->rootNode()->addChild(pointLightNode);
+        // }
 
         // setup transient node groups
 
@@ -1334,7 +1328,7 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                     const vector<const Node*>& ignoredNodes,
                                     bool                       elementBoundsOnly) {
 
-    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All,
+    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::Closest,
                                                            .elementBoundsOnly = elementBoundsOnly,
                                                            .ignoredNodes = ignoredNodes});
 
