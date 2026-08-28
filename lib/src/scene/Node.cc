@@ -356,7 +356,7 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
     return worldToTo * (thisWorld * t);
 }
 
-void Node::addChild(const shared_ptr<Node>& node) {
+void Node::addChild(const shared_ptr<Node>& node, bool reparent) {
 
     if (!node) {
         throw invalid_argument("Node::addChild() requires a non-null Node.");
@@ -366,16 +366,20 @@ void Node::addChild(const shared_ptr<Node>& node) {
         throw invalid_argument("A Node cannot be added as a child of itself.");
     }
 
-    if (containsChild(node)) {
-        throw invalid_argument(std::format("Node already exists in tree: {:p}, (\"{}\")",
-                                           static_cast<void*>(node.get()),
-                                           (node->name() ? *node->name() : "(unnamed)")));
-    }
-
     for (auto ancestor = _parent.lock(); ancestor; ancestor = ancestor->_parent.lock()) {
         if (ancestor.get() == node.get()) {
             throw invalid_argument("An ancestor Node cannot be added as a child.");
         }
+    }
+
+    if (reparent && !node->_parent.expired()) {
+        node->removeFromParent();
+    }
+
+    if (containsChild(node)) {
+        throw invalid_argument(std::format("Node already exists in tree: {:p}, (\"{}\")",
+                                           static_cast<void*>(node.get()),
+                                           (node->name() ? *node->name() : "(unnamed)")));
     }
 
     if (!node->_parent.expired()) {
@@ -388,9 +392,21 @@ void Node::addChild(const shared_ptr<Node>& node) {
     node->attachedToParent(*this);
 }
 
-void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
+void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
     for (auto& node : nodes) {
-        addChild(node);
+        addChild(node, reparent);
+    }
+}
+
+void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
+    for (auto& node : nodes) {
+        addChild(node, reparent);
+    }
+}
+
+void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
+    for (auto& node : nodes) {
+        addChild(node, reparent);
     }
 }
 

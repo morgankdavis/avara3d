@@ -97,25 +97,25 @@ namespace a3d {
         // [Public Member Functions]
 
         /** @brief Returns the optional node name. */
-        const std::optional<std::string>&  name() const;
+        const std::optional<std::string>& name() const;
 
         /** @brief Sets the node name. */
-        void                               name(const std::string& name);
+        void                              name(const std::string& name);
 
         /** @brief Returns the light attached to this node, or nullptr if none is attached. */
-        const std::shared_ptr<Light>&      light() const;
+        const std::shared_ptr<Light>&     light() const;
 
         /** @brief Replaces the light attached to this node; nullptr removes it. */
-        void                               light(const std::shared_ptr<Light>& light);
+        void                              light(const std::shared_ptr<Light>& light);
 
         /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
-        const std::shared_ptr<Camera>&     camera() const;
+        const std::shared_ptr<Camera>&    camera() const;
 
         /** @brief Replaces the camera attached to this node; nullptr removes it. */
-        void                               camera(const std::shared_ptr<Camera>& camera);
+        void                              camera(const std::shared_ptr<Camera>& camera);
 
         /** @brief Returns the mesh attached to this node, or nullptr if none is attached. */
-        const std::shared_ptr<Mesh>&       mesh() const;
+        const std::shared_ptr<Mesh>&      mesh() const;
 
         /**
          * @brief Replaces the mesh attached to this node.
@@ -132,13 +132,13 @@ namespace a3d {
          * @throws std::invalid_argument if automatic collision-shape creation is required
          * and @p mesh contains no elements.
          */
-        void                               mesh(const std::shared_ptr<Mesh>& mesh);
+        void                              mesh(const std::shared_ptr<Mesh>& mesh);
 
         /** @brief Returns the node position in parent coordinates. */
-        const math::vec3&                  position() const;
+        const math::vec3&                 position() const;
 
         /** @brief Sets the node position in parent coordinates. */
-        void                               position(const math::vec3& position);
+        void                              position(const math::vec3& position);
 
         /**
          * @brief Returns the node rotation in parent coordinates.
@@ -146,46 +146,46 @@ namespace a3d {
          * @return An axis-angle vector with xyz containing the axis and w containing
          *         the angle in radians.
          */
-        math::vec4                         rotation() const;
+        math::vec4                        rotation() const;
 
         /** @brief Sets the node rotation from @p axis and @p angle in radians. */
-        void                               rotation(const math::vec3& axis, float angle);
+        void                              rotation(const math::vec3& axis, float angle);
 
         /** @brief Returns the node Euler angles in parent coordinates as pitch, yaw, and roll in radians. */
-        math::vec3                         eulerAngles() const;
+        math::vec3                        eulerAngles() const;
 
         /** @brief Sets the node Euler angles as pitch, yaw, and roll in radians. */
-        void                               eulerAngles(const math::vec3& angles);
+        void                              eulerAngles(const math::vec3& angles);
 
         /** @brief Returns the node orientation in parent coordinates as a quaternion. */
-        const math::quat&                  orientation() const;
+        const math::quat&                 orientation() const;
 
         /** @brief Sets the node orientation in parent coordinates. */
-        void                               orientation(const math::quat& orientation);
+        void                              orientation(const math::quat& orientation);
 
         /** @brief Returns the node scale relative to its parent. */
-        const math::vec3&                  scale() const;
+        const math::vec3&                 scale() const;
 
         /** @brief Sets the node scale relative to its parent. */
-        void                               scale(const math::vec3& scale);
+        void                              scale(const math::vec3& scale);
 
         /** @brief Returns the node's local -Z axis expressed in parent coordinates. */
-        math::vec3                         forward() const;
+        math::vec3                        forward() const;
 
         /** @brief Returns the node's local +Y axis expressed in parent coordinates. */
-        math::vec3                         up() const;
+        math::vec3                        up() const;
 
         /** @brief Returns the node's local +X axis expressed in parent coordinates. */
-        math::vec3                         right() const;
+        math::vec3                        right() const;
 
         /** @brief Returns the node transform from local coordinates to parent coordinates. */
-        math::mat4                         transform() const;
+        math::mat4                        transform() const;
 
         /** @brief Sets the node transform from local coordinates to parent coordinates. */
-        void                               transform(const math::mat4& transform);
+        void                              transform(const math::mat4& transform);
 
         /** @brief Returns the node position in world coordinates. */
-        math::vec3                         worldPosition() const;
+        math::vec3                        worldPosition() const;
 
         /**
          * @brief Returns the node world rotation.
@@ -193,66 +193,74 @@ namespace a3d {
          * @return An axis-angle vector with xyz containing the axis and w containing
          *         the angle in radians.
          */
-        math::vec4                         worldRotation() const;
+        math::vec4                        worldRotation() const;
 
         /** @brief Returns the node world Euler angles as pitch, yaw, and roll in radians. */
-        math::vec3                         worldEulerAngles() const;
+        math::vec3                        worldEulerAngles() const;
 
         /** @brief Returns the node orientation in world coordinates. */
-        math::quat                         worldOrientation() const;
+        math::quat                        worldOrientation() const;
 
         /** @brief Returns the effective node scale in world coordinates. */
-        math::vec3                         worldScale() const;
+        math::vec3                        worldScale() const;
 
         /** @brief Returns the node's local -Z axis expressed in world coordinates. */
-        math::vec3                         worldForward() const;
+        math::vec3                        worldForward() const;
 
         /** @brief Returns the node's local +Y axis expressed in world coordinates. */
-        math::vec3                         worldUp() const;
+        math::vec3                        worldUp() const;
 
         /** @brief Returns the node's local +X axis expressed in world coordinates. */
-        math::vec3                         worldRight() const;
+        math::vec3                        worldRight() const;
 
         /** @brief Returns the transform from this node's local coordinates to world coordinates. */
-        math::mat4                         worldTransform() const;
+        math::mat4                        worldTransform() const;
 
         /** @brief Converts @p pos from @p from local coordinates into this node's local coordinates. */
-        math::vec3                         convertFrom(const math::vec3& pos, const Node& from);
+        math::vec3                        convertFrom(const math::vec3& pos, const Node& from);
 
         /** @brief Converts @p pos from this node's local coordinates into @p to local coordinates. */
-        math::vec3                         convertTo(const math::vec3& pos, const Node& to);
+        math::vec3                        convertTo(const math::vec3& pos, const Node& to);
 
         /** @brief Converts @p t from @p from local coordinates into this node's local coordinates. */
-        math::mat4                         convertFrom(const math::mat4& t, const Node& from);
+        math::mat4                        convertFrom(const math::mat4& t, const Node& from);
 
         /** @brief Converts @p t from this node's local coordinates into @p to local coordinates. */
-        math::mat4                         convertTo(const math::mat4& t, const Node& to);
+        math::mat4                        convertTo(const math::mat4& t, const Node& to);
 
         /**
          * @brief Adds @p node as a child of this node.
          *
-         * A node that already has a parent must first be detached with removeFromParent().
+         * If @p reparent is true and @p node already has a parent, it is detached from
+         * that parent before being added. If @p reparent is false, an already-parented
+         * node is rejected.
+         *
+         * @param node node to add.
+         * @param reparent when true, automatically detaches @p node from its current parent.
          *
          * @throws std::invalid_argument if @p node is nullptr, is this node, is an
-         * ancestor of this node, is already contained in this node's subtree, or is
-         * already attached to another parent.
+         * ancestor of this node, is already contained in this node's subtree without
+         * reparenting, or is already attached to another parent when @p reparent is false.
          */
-        void                               addChild(const std::shared_ptr<Node>& node);
+        void                              addChild(const std::shared_ptr<Node>& node, bool reparent = false);
 
         /**
          * @brief Adds each node in @p nodes as a child, in order.
          *
-         * The same validation as addChild() applies to each node. If adding a node
-         * throws, nodes added earlier in @p nodes remain attached.
+         * The same validation and reparenting behavior as addChild() applies to each
+         * node. If adding a node throws, nodes added earlier in @p nodes remain attached.
+         *
+         * @param nodes nodes to add.
+         * @param reparent when true, automatically detaches each node from its current parent.
          *
          * @throws std::invalid_argument if a node is nullptr, is this node, is an
-         * ancestor of this node, is already contained in this node's subtree, or is
-         * already attached to another parent.
+         * ancestor of this node, is already contained in this node's subtree without
+         * reparenting, or is already attached to another parent when @p reparent is false.
          */
-        void                               addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
+        void addChildren(const std::vector<std::shared_ptr<Node>>& nodes, bool reparent = false);
 
         /** @brief Detaches this node from its current parent, if it has one. */
-        void                               removeFromParent();
+        void removeFromParent();
 
         /**
          * @brief Returns this node's children.
