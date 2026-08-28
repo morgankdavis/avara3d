@@ -398,18 +398,6 @@ void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
     }
 }
 
-void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
-    for (auto& node : nodes) {
-        addChild(node, reparent);
-    }
-}
-
-void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
-    for (auto& node : nodes) {
-        addChild(node, reparent);
-    }
-}
-
 //void Node::removeFromParent() {
 //
 //	if (auto parent = _parent.lock()) {

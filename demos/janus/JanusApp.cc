@@ -178,8 +178,7 @@ std::unique_ptr<Scene> JanusApp::init() {
                 auto body = PhysicsBody::StaticBody(shape);
                 evoraNode->physicsBody(std::move(body));
 
-                physNode->removeFromParent();
-                rootNode->addChild(physNode);
+                rootNode->addChild(physNode, true);
 
                 physNode->hidden(true);
                 _pickIgnores.push_back({.node = physNode});
@@ -887,6 +886,11 @@ bool JanusApp::drawPanel() {
 
         debugToggle("stats", DebugOptions::ShowStatsOverlay);
 
+        bool defaultLighting = visualWorld.defaultLightingEnabled();
+        if (panel.toggle("default lighting", defaultLighting)) {
+            visualWorld.defaultLightingEnabled(defaultLighting);
+        }
+
         debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
         debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
 
@@ -900,11 +904,6 @@ bool JanusApp::drawPanel() {
         debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
         debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
         debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
-
-        bool defaultLighting = visualWorld.defaultLightingEnabled();
-        if (panel.toggle("default lighting", defaultLighting)) {
-            visualWorld.defaultLightingEnabled(defaultLighting);
-        }
     }
 
     return panel.hovered();
