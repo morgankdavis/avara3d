@@ -168,9 +168,24 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
         auto rootNode = scene->rootNode();
         if (auto evoraNode = rootNode->childNamed("evora")) {
-            evoraNode->physicsBody(PhysicsBody::StaticBody());
+
             _pickIgnores.push_back({.node = evoraNode});
+
+            auto evoraPhysScene = util::fs::SceneAt("evora/phys.gltf", Scene::ImportOptions::ImportMeshes);
+            if (auto physNode = evoraPhysScene->rootNode()->childNamed("evora_phys")) {
+                auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+
+                _pickIgnores.push_back({.node = physNode});
+
+                auto body = PhysicsBody::StaticBody(shape);
+                evoraNode->physicsBody(std::move(body));
+
+                physNode->removeFromParent();
+                rootNode->addChild(physNode);
+                physNode->hidden(true);
+            }
         }
+
 
 
         // janus
