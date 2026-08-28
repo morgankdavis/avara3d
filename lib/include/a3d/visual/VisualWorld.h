@@ -87,6 +87,7 @@ namespace a3d {
         struct HitTestOptions {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest}; ///< Which matching hits to return.
             bool elementBoundsOnly {false}; ///< Test MeshElement bounds instead of individual triangles.
+            std::vector<const Node*> ignoredNodes {}; ///< Nodes excluded from hit testing.
         };
 
         /** @brief Callback invoked after renderer frame setup and before Scene rendering begins. */
@@ -217,7 +218,9 @@ namespace a3d {
          * @brief Hit-tests visible Scene mesh geometry beneath a logical viewport point.
          *
          * With elementBoundsOnly enabled, MeshElement bounds are tested instead of
-         * triangles and returned hits do not contain a face index.
+         * triangles and returned hits do not contain a face index. Nodes listed in
+         * HitTestOptions::ignoredNodes are excluded from testing; their descendants
+         * remain eligible for hits.
          *
          * @throws std::runtime_error if the Scene, point of view, or viewport cannot
          * produce a valid hit-test ray.

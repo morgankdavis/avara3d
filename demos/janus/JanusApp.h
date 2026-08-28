@@ -9,6 +9,7 @@
 #ifndef AVARA3D_DEMO_JANUSAPP_H
 #define AVARA3D_DEMO_JANUSAPP_H
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -101,19 +102,30 @@ namespace demo::janus {
             a3d::math::vec3          rayDirection;
         };
 
+        enum class PickPurpose : std::uint8_t {
+            Hover = 1 << 0,
+            Select = 1 << 1,
+            Target = 1 << 2,
+            All = UINT8_MAX
+        };
+
         struct PickIgnore {
             std::weak_ptr<a3d::Node> node;
+            PickPurpose              purposes {PickPurpose::All};
             std::optional<double>    remainingTime;
         };
 
         // [Private Member Functions]
 
-        bool                          drawPanel();
-        void                          hover(std::shared_ptr<a3d::Node> node);
-        void                          select(std::optional<PickResult> pickResult);
-        void                          queueAction(const a3d::math::vec2& screenPosition);
-        void                          performAction(const PendingAction& action);
-        std::vector<const a3d::Node*> pickIgnoredNodes() const;
+        bool                      drawPanel();
+        void                      hover(a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
+        void                      hover(std::shared_ptr<a3d::Node> node);
+        void                      select(a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
+        void                      select(std::optional<PickResult> pickResult);
+        std::optional<PickResult> target(a3d::Scene& scene, const a3d::math::vec2& screenPosition) const;
+        void                      queueAction(const a3d::math::vec2& screenPosition);
+        void                      performAction(const PendingAction& action);
+        std::vector<const a3d::Node*> pickIgnoredNodes(PickPurpose purpose) const;
         void                          reset();
 
         // [Private Member Variables]

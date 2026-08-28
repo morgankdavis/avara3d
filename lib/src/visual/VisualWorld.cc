@@ -446,27 +446,32 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptio
 
         const mat4 modelTransform = entry.parentWorld * entry.node->transform();
 
-        if (const auto& mesh = entry.node->mesh()) {
+        const bool ignored = find(options.ignoredNodes.begin(), options.ignoredNodes.end(), entry.node.get())
+                             != options.ignoredNodes.end();
 
-            auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta,
-                                               options.elementBoundsOnly);
+        if (!ignored) {
+            if (const auto& mesh = entry.node->mesh()) {
 
-            if (candidate) {
+                auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta,
+                                                   options.elementBoundsOnly);
 
-                switch (options.searchMode) {
+                if (candidate) {
 
-                    case HitTestSearchMode::Any:
-                        return {std::move(candidate->result)};
+                    switch (options.searchMode) {
 
-                    case HitTestSearchMode::Closest:
-                        if (!closest || candidate->t < closest->t) {
-                            closest = std::move(*candidate);
-                        }
-                        break;
+                        case HitTestSearchMode::Any:
+                            return {std::move(candidate->result)};
 
-                    case HitTestSearchMode::All:
-                        all.push_back(std::move(*candidate));
-                        break;
+                        case HitTestSearchMode::Closest:
+                            if (!closest || candidate->t < closest->t) {
+                                closest = std::move(*candidate);
+                            }
+                            break;
+
+                        case HitTestSearchMode::All:
+                            all.push_back(std::move(*candidate));
+                            break;
+                    }
                 }
             }
         }

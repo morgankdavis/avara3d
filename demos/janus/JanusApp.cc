@@ -37,9 +37,6 @@ static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorl
                                            const vec2&                screenPosition,
                                            const vector<const Node*>& ignoredNodes = {},
                                            bool                       elementBoundsOnly = true);
-static optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene,
-                                                       const vec2&                screenPosition,
-                                                       const vector<const Node*>& ignoredNodes = {});
 static vector<shared_ptr<Node>>       DropRocks(Node&         parent,
                                                 const vec3&   location,
                                                 const vec3&   boxSize,
@@ -58,7 +55,6 @@ static vector<shared_ptr<Node>>       DropBalls(Node&         parent,
 static shared_ptr<Node>               ThrowHammer(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>               ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>               ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 // [Public Lifecycle Functions]
 
@@ -170,7 +166,8 @@ std::unique_ptr<Scene> JanusApp::init() {
         auto rootNode = scene->rootNode();
         if (auto evoraNode = rootNode->childNamed("evora")) {
 
-            _pickIgnores.push_back({.node = evoraNode});
+            _pickIgnores.push_back({.node = evoraNode,
+                                    .purposes = util::bitmask::add(PickPurpose::Hover, PickPurpose::Select)});
 
             auto evoraPhysScene = util::fs::SceneAt("janus/phys.gltf", Scene::ImportOptions::ImportMeshes);
             if (auto physNode = evoraPhysScene->rootNode()->childNamed("evora_phys")) {
@@ -405,8 +402,7 @@ void JanusApp::inputDidUpdate(Runner&       runner,
             queueAction(result.orbitButtonClick->position);
         }
         else {
-            // select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
-            select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, pickIgnoredNodes(), false));
+            select(*scene.visualWorld(), result.orbitButtonClick->position);
         }
     }
 
@@ -477,21 +473,13 @@ void JanusApp::frameDidBegin(Runner&                        runner,
 
         auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
-        // vector<const Node*> ignoredNodes;
-        // ignoredNodes.reserve(_pickIgnores.size() + 1);
-        // if (_cursorMarker) {
-        //     ignoredNodes.push_back(_cursorMarker.get());
-        // }
-        // for (const auto& entry : _pickIgnores) {
-        //     if (auto node = entry.node.lock()) {
-        //         ignoredNodes.push_back(node.get());
-        //     }
-        // }
-        _actionTarget = FindActionTarget(scene, input.mousePosition(), pickIgnoredNodes());
+        const auto screenPosition = input.mousePosition();
+
+        hover(visualWorld, screenPosition);
+
+        _actionTarget = target(scene, screenPosition);
 
         if (_actionTarget) {
-
-            hover(_actionTarget->node.lock());
 
             if (_cursorMarker) {
                 _cursorMarker->position(_actionTarget->hitPosition);
@@ -499,8 +487,6 @@ void JanusApp::frameDidBegin(Runner&                        runner,
             }
         }
         else {
-
-            hover(nullptr);
 
             if (_cursorMarker) {
                 _cursorMarker->hidden(true);
@@ -911,6 +897,18 @@ bool JanusApp::drawPanel() {
     return panel.hovered();
 }
 
+void JanusApp::hover(VisualWorld& visualWorld, const vec2& screenPosition) {
+
+    auto result = Pick(visualWorld, screenPosition, pickIgnoredNodes(PickPurpose::Hover));
+
+    if (result) {
+        hover(result->node.lock());
+    }
+    else {
+        hover(nullptr);
+    }
+}
+
 void JanusApp::hover(shared_ptr<Node> node) {
 
     using DebugOptions = Node::DebugOptions;
@@ -929,6 +927,11 @@ void JanusApp::hover(shared_ptr<Node> node) {
     if (node) {
         node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
     }
+}
+
+void JanusApp::select(VisualWorld& visualWorld, const vec2& screenPosition) {
+
+    select(Pick(visualWorld, screenPosition, pickIgnoredNodes(PickPurpose::Select), false));
 }
 
 void JanusApp::select(optional<PickResult> pickResult) {
@@ -958,16 +961,45 @@ void JanusApp::select(optional<PickResult> pickResult) {
     }
 }
 
+optional<JanusApp::PickResult> JanusApp::target(Scene& scene, const vec2& screenPosition) const {
+
+    auto visualWorld = scene.visualWorld();
+    auto physicsWorld = scene.physicsWorld();
+
+    if (!visualWorld || !physicsWorld) {
+        return {};
+    }
+
+    const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+    const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
+
+    const auto ignoredNodes = pickIgnoredNodes(PickPurpose::Target);
+
+    const auto hits = physicsWorld->rayTest(from, to, {.searchMode = HitTestSearchMode::All});
+
+    for (const auto& hit : hits) {
+
+        auto node = hit.node();
+
+        if (!node || find(ignoredNodes.begin(), ignoredNodes.end(), node.get()) != ignoredNodes.end()) {
+            continue;
+        }
+
+        return PickResult {.node = node, .hitPosition = hit.worldCoordinates(), .hitNormal = hit.worldNormal()};
+    }
+
+    return {};
+}
+
 void JanusApp::queueAction(const vec2& screenPosition) {
 
     auto& scene = JanusApp::scene();
 
-    // auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
-    auto target = FindActionTarget(scene, screenPosition, pickIgnoredNodes());
+    auto actionTarget = target(scene, screenPosition);
 
-    _actionTarget = target;
+    _actionTarget = actionTarget;
 
-    if (!target) {
+    if (!actionTarget) {
 
         if (_cursorMarker) {
             _cursorMarker->hidden(true);
@@ -977,7 +1009,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
     }
 
     if (_cursorMarker) {
-        _cursorMarker->position(target->hitPosition);
+        _cursorMarker->position(actionTarget->hitPosition);
         _cursorMarker->hidden(false);
     }
 
@@ -996,7 +1028,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
     }
 
     PendingAction pendingAction {.action = _action,
-                                 .target = *target,
+                                 .target = *actionTarget,
                                  .simulationRoot = _simulationRoot,
                                  .cameraPosition = _cameraNode->worldPosition(),
                                  .rayDirection = normalize(ray)};
@@ -1139,7 +1171,7 @@ void JanusApp::performAction(const PendingAction& action) {
     }
 }
 
-vector<const Node*> JanusApp::pickIgnoredNodes() const {
+vector<const Node*> JanusApp::pickIgnoredNodes(PickPurpose purpose) const {
 
     vector<const Node*> nodes;
     nodes.reserve(_pickIgnores.size() + 1);
@@ -1149,6 +1181,11 @@ vector<const Node*> JanusApp::pickIgnoredNodes() const {
     }
 
     for (const auto& entry : _pickIgnores) {
+
+        if (!util::bitmask::contains(entry.purposes, purpose)) {
+            continue;
+        }
+
         if (auto node = entry.node.lock()) {
             nodes.push_back(node.get());
         }
@@ -1298,46 +1335,14 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                     bool                       elementBoundsOnly) {
 
     const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All,
-                                                           .elementBoundsOnly = elementBoundsOnly});
+                                                           .elementBoundsOnly = elementBoundsOnly,
+                                                           .ignoredNodes = ignoredNodes});
 
     for (const auto& hit : hits) {
 
         auto node = hit.node();
 
         if (!node) {
-            continue;
-        }
-
-        if (IsIgnored(node, ignoredNodes)) {
-            continue;
-        }
-
-        return JanusApp::PickResult {.node = node,
-                                     .hitPosition = hit.worldCoordinates(),
-                                     .hitNormal = hit.worldNormal()};
-    }
-
-    return {};
-}
-
-optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene,
-                                                const vec2&                screenPosition,
-                                                const vector<const Node*>& ignoredNodes) {
-
-    auto visualWorld = scene.visualWorld();
-
-    if (auto result = Pick(*visualWorld, screenPosition, ignoredNodes)) {
-        return result;
-    }
-
-    const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
-    const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
-
-    for (const auto hits = scene.physicsWorld()->rayTest(from, to); const auto& hit : hits) {
-
-        auto node = hit.node();
-
-        if (IsIgnored(node, ignoredNodes)) {
             continue;
         }
 
@@ -1591,7 +1596,7 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(0.10f);
-                physicsBody->restitution(0.8f);
+                physicsBody->restitution(1.0f);
                 physicsBody->friction(0.4f);
                 physicsBody->rollingFriction(0.01);
                 physicsBody->angularDamping(0.5);
@@ -1759,8 +1764,4 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     parent.addChild(node);
 
     return node;
-}
-
-bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes) {
-    return !node || find(ignoredNodes.begin(), ignoredNodes.end(), node.get()) != ignoredNodes.end();
 }
