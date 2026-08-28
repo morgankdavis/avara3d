@@ -108,12 +108,13 @@ namespace demo::janus {
 
         // [Private Member Functions]
 
-        bool drawPanel();
-        void hover(std::shared_ptr<a3d::Node> node);
-        void select(std::optional<PickResult> pickResult);
-        void queueAction(const a3d::math::vec2& screenPosition);
-        void performAction(const PendingAction& action);
-        void reset();
+        bool                          drawPanel();
+        void                          hover(std::shared_ptr<a3d::Node> node);
+        void                          select(std::optional<PickResult> pickResult);
+        void                          queueAction(const a3d::math::vec2& screenPosition);
+        void                          performAction(const PendingAction& action);
+        std::vector<const a3d::Node*> pickIgnoredNodes() const;
+        void                          reset();
 
         // [Private Member Variables]
 

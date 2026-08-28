@@ -35,7 +35,8 @@ const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 static shared_ptr<Node>               MakeSimulationRoot();
 static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                            const vec2&                screenPosition,
-                                           const vector<const Node*>& ignoredNodes = {});
+                                           const vector<const Node*>& ignoredNodes = {},
+                                           bool                       elementBoundsOnly = true);
 static optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene,
                                                        const vec2&                screenPosition,
                                                        const vector<const Node*>& ignoredNodes = {});
@@ -181,7 +182,7 @@ std::unique_ptr<Scene> JanusApp::init() {
                 rootNode->addChild(physNode, true);
 
                 physNode->hidden(true);
-                _pickIgnores.push_back({.node = physNode});
+                //_pickIgnores.push_back({.node = physNode});
             }
         }
 
@@ -205,7 +206,7 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         if (auto node = rootNode->childNamed("plinth1")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(17.5f);
+            node->physicsBody()->mass(22.5f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
             node->physicsBody()->linearDamping(0.03f);
@@ -214,7 +215,7 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         if (auto node = rootNode->childNamed("plinth2")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(12.5f);
+            node->physicsBody()->mass(17.5f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
             node->physicsBody()->linearDamping(0.03f);
@@ -404,7 +405,8 @@ void JanusApp::inputDidUpdate(Runner&       runner,
             queueAction(result.orbitButtonClick->position);
         }
         else {
-            select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
+            // select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
+            select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, pickIgnoredNodes(), false));
         }
     }
 
@@ -430,8 +432,8 @@ void JanusApp::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo&
         }
     }
 
-    std::erase_if(_pickIgnores, [](const PickIgnore& ignore) {
-        return ignore.remainingTime && (ignore.remainingTime <= 0.0 || ignore.node.expired());
+    erase_if(_pickIgnores, [](const PickIgnore& ignore) {
+        return ignore.node.expired() || (ignore.remainingTime && *ignore.remainingTime <= 0.0);
     });
 }
 
@@ -475,17 +477,17 @@ void JanusApp::frameDidBegin(Runner&                        runner,
 
         auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
-        vector<const Node*> ignoredNodes;
-        ignoredNodes.reserve(_pickIgnores.size() + 1);
-        if (_cursorMarker) {
-            ignoredNodes.push_back(_cursorMarker.get());
-        }
-        for (const auto& entry : _pickIgnores) {
-            if (auto node = entry.node.lock()) {
-                ignoredNodes.push_back(node.get());
-            }
-        }
-        _actionTarget = FindActionTarget(scene, input.mousePosition(), ignoredNodes);
+        // vector<const Node*> ignoredNodes;
+        // ignoredNodes.reserve(_pickIgnores.size() + 1);
+        // if (_cursorMarker) {
+        //     ignoredNodes.push_back(_cursorMarker.get());
+        // }
+        // for (const auto& entry : _pickIgnores) {
+        //     if (auto node = entry.node.lock()) {
+        //         ignoredNodes.push_back(node.get());
+        //     }
+        // }
+        _actionTarget = FindActionTarget(scene, input.mousePosition(), pickIgnoredNodes());
 
         if (_actionTarget) {
 
@@ -960,7 +962,8 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
     auto& scene = JanusApp::scene();
 
-    auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
+    // auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
+    auto target = FindActionTarget(scene, screenPosition, pickIgnoredNodes());
 
     _actionTarget = target;
 
@@ -1136,6 +1139,24 @@ void JanusApp::performAction(const PendingAction& action) {
     }
 }
 
+vector<const Node*> JanusApp::pickIgnoredNodes() const {
+
+    vector<const Node*> nodes;
+    nodes.reserve(_pickIgnores.size() + 1);
+
+    if (_cursorMarker) {
+        nodes.push_back(_cursorMarker.get());
+    }
+
+    for (const auto& entry : _pickIgnores) {
+        if (auto node = entry.node.lock()) {
+            nodes.push_back(node.get());
+        }
+    }
+
+    return nodes;
+}
+
 void JanusApp::reset() {
 
     select({});
@@ -1148,7 +1169,10 @@ void JanusApp::reset() {
 
     _simulationRoot->removeFromParent();
 
-    _pickIgnores.clear();
+    erase_if(_pickIgnores, [](const PickIgnore& ignore) {
+        return ignore.remainingTime.has_value();
+    });
+
     _transients.clear();
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
@@ -1270,10 +1294,11 @@ shared_ptr<Node> MakeSimulationRoot() {
 
 optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                     const vec2&                screenPosition,
-                                    const vector<const Node*>& ignoredNodes) {
+                                    const vector<const Node*>& ignoredNodes,
+                                    bool                       elementBoundsOnly) {
 
-    const auto hits =
-        visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All, .elementBoundsOnly = true});
+    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All,
+                                                           .elementBoundsOnly = elementBoundsOnly});
 
     for (const auto& hit : hits) {
 
