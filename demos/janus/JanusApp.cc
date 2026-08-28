@@ -22,7 +22,7 @@ using namespace std;
 
 const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
-const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
 const float                       TIME_STEP {1.0 / 120.0};
 const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
@@ -32,31 +32,31 @@ const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 // [Private Static Non-Member Prototypes]
 
-static shared_ptr<Node>          MakeSimulationRoot();
+static shared_ptr<Node>               MakeSimulationRoot();
 static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
-                                      const vec2&                screenPosition,
-                                      const vector<const Node*>& ignoredNodes = {});
+                                           const vec2&                screenPosition,
+                                           const vector<const Node*>& ignoredNodes = {});
 static optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene,
-                                                  const vec2&                screenPosition,
-                                                  const vector<const Node*>& ignoredNodes = {});
-static vector<shared_ptr<Node>>  DropRocks(Node&         parent,
-                                           const vec3&   location,
-                                           const vec3&   boxSize,
-                                           const u8vec3& stackSize,
-                                           float         padding);
-static vector<shared_ptr<Node>>  DropCoins(Node&         parent,
-                                           const vec3&   location,
-                                           const vec3&   boxSize,
-                                           const u8vec3& stackSize,
-                                           float         padding);
-static vector<shared_ptr<Node>>  DropBalls(Node&         parent,
-                                           const vec3&   location,
-                                           const vec3&   boxSize,
-                                           const u8vec3& stackSize,
-                                           float         padding);
-static shared_ptr<Node>          ThrowHammer(Node& parent, const vec3& location, const vec3& velocity);
-static shared_ptr<Node>          ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
-static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
+                                                       const vec2&                screenPosition,
+                                                       const vector<const Node*>& ignoredNodes = {});
+static vector<shared_ptr<Node>>       DropRocks(Node&         parent,
+                                                const vec3&   location,
+                                                const vec3&   boxSize,
+                                                const u8vec3& stackSize,
+                                                float         padding);
+static vector<shared_ptr<Node>>       DropCoins(Node&         parent,
+                                                const vec3&   location,
+                                                const vec3&   boxSize,
+                                                const u8vec3& stackSize,
+                                                float         padding);
+static vector<shared_ptr<Node>>       DropBalls(Node&         parent,
+                                                const vec3&   location,
+                                                const vec3&   boxSize,
+                                                const u8vec3& stackSize,
+                                                float         padding);
+static shared_ptr<Node>               ThrowHammer(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>               ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>               ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 // [Public Lifecycle Functions]
@@ -154,10 +154,96 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         // create the scene
 
-        auto scene =
-            make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        //scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
+        // auto scene =
+        //     make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
+        // //scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
+        // scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+
+        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
+                       | Scene::ImportOptions::ImportLights;
+        auto scene = util::fs::SceneAt("evora/evora.gltf", options);
+        scene->visualWorld(std::move(visualWorld));
+        scene->physicsWorld(std::move(physicsWorld));
+        scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        auto rootNode = scene->rootNode();
+        if (auto evoraNode = rootNode->childNamed("evora")) {
+            evoraNode->physicsBody(PhysicsBody::StaticBody());
+            _pickIgnores.push_back({.node = evoraNode});
+        }
+
+
+        // janus
+        if (auto node = rootNode->childNamed("janus")) {
+            // static auto [mesh, shape] = [] {
+            //     constexpr float HEIGHT = 1.0f;
+            //
+            //     auto visMesh = util::fs::MeshAt("janus/janus.gltf");
+            //     //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
+            //
+            //     const float scaleFactor = HEIGHT / visMesh->localExtent().y;
+            //     const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+            //
+            //     visMesh->burnTransform(transform, true);
+            //     //physMesh->burnTransform(transform, true);
+            //
+            //     //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+            //     auto shape = PhysicsShape::ConvexHullShape(visMesh);
+            //
+            //     return std::pair {visMesh, shape};
+            // }();
+
+            // auto node = Node::MeshNode(mesh);
+            // node->name("Janus");
+            // node->position({-1.5f, 0.0f, 0.0f});
+            //
+            // auto body = PhysicsBody::DynamicBody(shape);
+
+            node->physicsBody(PhysicsBody::DynamicBody());
+            node->physicsBody()->mass(10.0f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
+            // node->physicsBody(std::move(body));
+
+            // root->addChild(node);
+        }
+
+        // teapot
+        if (auto node = rootNode->childNamed("teapot")) {
+            // static auto mesh = [] {
+            //     constexpr float HEIGHT = 0.35f;
+            //     auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
+            //     const float     teapotScale = HEIGHT / mesh->localExtent().y;
+            //     mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+            //     return mesh;
+            // }();
+            //
+            // auto node = Node::MeshNode(mesh);
+            // node->name("Teapot");
+            // node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
+
+            node->physicsBody(PhysicsBody::DynamicBody());
+            //static auto shape = PhysicsShape::ConvexHullShape(mesh);
+            // auto        body = PhysicsBody::DynamicBody(shape);
+            node->physicsBody()->mass(1.5f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
+            // node->physicsBody(std::move(body));
+
+            //rootNode->addChild(node);
+        }
+
+        if (auto node = rootNode->childNamed("plinth1")) {
+            node->physicsBody(PhysicsBody::DynamicBody());
+        }
+
+        if (auto node = rootNode->childNamed("plinth2")) {
+            node->physicsBody(PhysicsBody::DynamicBody());
+        }
 
         // create and configure the ground
 
@@ -210,8 +296,8 @@ std::unique_ptr<Scene> JanusApp::init() {
         _cameraController.config(cameraConfig);
 
         _cameraController.view({.target = vec3 {0.0f, 1.0f, 0.0f},
-                                .yaw = radians(35.0f),
-                                .pitch = radians(20.0f),
+                                .yaw = radians(-35.0f),
+                                .pitch = radians(0.0f),
                                 .distance = 20.0f});
 
         // create the resettable simulation root node
@@ -243,7 +329,7 @@ std::unique_ptr<Scene> JanusApp::init() {
         // wandering lights
 
         {
-            const vec3 ORB_GROUP_POSITION {-8.0f, 2.5f, -6.0f};
+            const vec3 ORB_GROUP_POSITION {-4.5f, 10.0f, -2.5f};
 
             const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
             const vec3 ORB_POSITION_MAX {1.0f, 0.5f, 1.0f};
@@ -318,9 +404,9 @@ void JanusApp::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 }
 
 void JanusApp::inputDidUpdate(Runner&       runner,
-                         Scene&        scene,
-                         InputContext& inputContext,
-                         const InputContext::UpdateInfo&) {
+                              Scene&        scene,
+                              InputContext& inputContext,
+                              const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -363,24 +449,26 @@ void JanusApp::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo&
     _transients.update(info);
 
     for (auto& ignore : _pickIgnores) {
-        ignore.remainingTime -= info.deltaTime;
+        if (ignore.remainingTime) {
+            *ignore.remainingTime -= info.deltaTime;
+        }
     }
 
     std::erase_if(_pickIgnores, [](const PickIgnore& ignore) {
-        return ignore.remainingTime <= 0.0 || ignore.node.expired();
+        return ignore.remainingTime && (ignore.remainingTime <= 0.0 || ignore.node.expired());
     });
 }
 
 void JanusApp::frameDidBegin(Runner&                        runner,
-                        Scene&                         scene,
-                        VisualWorld&                   visualWorld,
-                        const VisualWorld::RenderInfo& info) {
+                             Scene&                         scene,
+                             VisualWorld&                   visualWorld,
+                             const VisualWorld::RenderInfo& info) {
 
     if (!runner.simulationPaused()) {
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
     }
 
-    const float BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+    const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 8.0f)};
     const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
     const float angle =
@@ -955,7 +1043,7 @@ void JanusApp::performAction(const PendingAction& action) {
     const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
 
-    const double PROJECTILE_PICK_IGNORE_DURATION {0.5};
+    const double PROJECTILE_PICK_IGNORE_DURATION {1.5};
 
     auto& scene = JanusApp::scene();
 
@@ -1106,107 +1194,107 @@ shared_ptr<Node> MakeSimulationRoot() {
 
     // janus
 
-    {
-        static auto [mesh, shape] = [] {
-            constexpr float HEIGHT = 1.0f;
+    // {
+    //     static auto [mesh, shape] = [] {
+    //         constexpr float HEIGHT = 1.0f;
+    //
+    //         auto visMesh = util::fs::MeshAt("janus/janus.gltf");
+    //         //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
+    //
+    //         const float scaleFactor = HEIGHT / visMesh->localExtent().y;
+    //         const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+    //
+    //         visMesh->burnTransform(transform, true);
+    //         //physMesh->burnTransform(transform, true);
+    //
+    //         //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+    //         auto shape = PhysicsShape::ConvexHullShape(visMesh);
+    //
+    //         return std::pair {visMesh, shape};
+    //     }();
+    //
+    //     auto node = Node::MeshNode(mesh);
+    //     node->name("Janus");
+    //     node->position({-1.5f, 0.0f, 0.0f});
+    //
+    //     auto body = PhysicsBody::DynamicBody(shape);
+    //     body->mass(10.0f);
+    //     body->friction(0.6f);
+    //     body->restitution(0.15f);
+    //     body->linearDamping(0.03f);
+    //     body->angularDamping(0.05f);
+    //     node->physicsBody(std::move(body));
+    //
+    //     root->addChild(node);
+    // }
 
-            auto visMesh = util::fs::MeshAt("janus/janus.gltf");
-            //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
-
-            const float scaleFactor = HEIGHT / visMesh->localExtent().y;
-            const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-
-            visMesh->burnTransform(transform, true);
-            //physMesh->burnTransform(transform, true);
-
-            //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
-            auto shape = PhysicsShape::ConvexHullShape(visMesh);
-
-            return std::pair {visMesh, shape};
-        }();
-
-        auto node = Node::MeshNode(mesh);
-        node->name("Janus");
-        node->position({-1.5f, 0.0f, 0.0f});
-
-        auto body = PhysicsBody::DynamicBody(shape);
-        body->mass(10.0f);
-        body->friction(0.6f);
-        body->restitution(0.15f);
-        body->linearDamping(0.03f);
-        body->angularDamping(0.05f);
-        node->physicsBody(std::move(body));
-
-        root->addChild(node);
-    }
-
-    // angel
-    {
-        static auto [mesh, shape] = [] {
-            constexpr float HEIGHT = 2.0f;
-
-            auto        visMesh = util::fs::MeshAt("aniel/aniel.gltf");
-            static auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
-
-            const float scaleFactor = HEIGHT / visMesh->localExtent().y;
-            const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-
-            visMesh->burnTransform(transform, true);
-            physMesh->burnTransform(transform, true);
-
-            auto shape = PhysicsShape::ConcavePolyhedronShape(physMesh);
-
-            return std::pair {visMesh, shape};
-        }();
-
-        auto node = Node::MeshNode(mesh);
-        node->name("Angel");
-        node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        node->position({0.0f, 0.0f, 0.0f});
-
-        auto body = PhysicsBody::StaticBody(shape);
-        // body->mass(1000.0f);
-        // body->friction(0.65f);
-        // body->rollingFriction(0.02f);
-        // body->restitution(0.03f);
-        node->physicsBody(std::move(body));
-
-        root->addChild(node);
-    }
+    // // angel
+    // {
+    //     static auto [mesh, shape] = [] {
+    //         constexpr float HEIGHT = 2.0f;
+    //
+    //         auto        visMesh = util::fs::MeshAt("aniel/aniel.gltf");
+    //         static auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
+    //
+    //         const float scaleFactor = HEIGHT / visMesh->localExtent().y;
+    //         const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+    //
+    //         visMesh->burnTransform(transform, true);
+    //         physMesh->burnTransform(transform, true);
+    //
+    //         auto shape = PhysicsShape::ConcavePolyhedronShape(physMesh);
+    //
+    //         return std::pair {visMesh, shape};
+    //     }();
+    //
+    //     auto node = Node::MeshNode(mesh);
+    //     node->name("Angel");
+    //     node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+    //     node->position({0.0f, 0.0f, 0.0f});
+    //
+    //     auto body = PhysicsBody::StaticBody(shape);
+    //     // body->mass(1000.0f);
+    //     // body->friction(0.65f);
+    //     // body->rollingFriction(0.02f);
+    //     // body->restitution(0.03f);
+    //     node->physicsBody(std::move(body));
+    //
+    //     root->addChild(node);
+    // }
 
     // teapot
 
-    {
-        static auto mesh = [] {
-            constexpr float HEIGHT = 0.35f;
-            auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
-            const float     teapotScale = HEIGHT / mesh->localExtent().y;
-            mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            return mesh;
-        }();
-
-        auto node = Node::MeshNode(mesh);
-        node->name("Teapot");
-        node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
-
-        static auto shape = PhysicsShape::ConvexHullShape(mesh);
-        auto        body = PhysicsBody::DynamicBody(shape);
-        body->mass(1.5f);
-        body->friction(0.6f);
-        body->restitution(0.15f);
-        body->linearDamping(0.03f);
-        body->angularDamping(0.05f);
-        node->physicsBody(std::move(body));
-
-        root->addChild(node);
-    }
+    // {
+    //     static auto mesh = [] {
+    //         constexpr float HEIGHT = 0.35f;
+    //         auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
+    //         const float     teapotScale = HEIGHT / mesh->localExtent().y;
+    //         mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+    //         return mesh;
+    //     }();
+    //
+    //     auto node = Node::MeshNode(mesh);
+    //     node->name("Teapot");
+    //     node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
+    //
+    //     static auto shape = PhysicsShape::ConvexHullShape(mesh);
+    //     auto        body = PhysicsBody::DynamicBody(shape);
+    //     body->mass(1.5f);
+    //     body->friction(0.6f);
+    //     body->restitution(0.15f);
+    //     body->linearDamping(0.03f);
+    //     body->angularDamping(0.05f);
+    //     node->physicsBody(std::move(body));
+    //
+    //     root->addChild(node);
+    // }
 
     return root;
 }
 
 optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
-                               const vec2&                screenPosition,
-                               const vector<const Node*>& ignoredNodes) {
+                                    const vec2&                screenPosition,
+                                    const vector<const Node*>& ignoredNodes) {
 
     const auto hits =
         visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All, .elementBoundsOnly = true});
@@ -1224,16 +1312,16 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
         }
 
         return JanusApp::PickResult {.node = node,
-                                .hitPosition = hit.worldCoordinates(),
-                                .hitNormal = hit.worldNormal()};
+                                     .hitPosition = hit.worldCoordinates(),
+                                     .hitNormal = hit.worldNormal()};
     }
 
     return {};
 }
 
 optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene,
-                                           const vec2&                screenPosition,
-                                           const vector<const Node*>& ignoredNodes) {
+                                                const vec2&                screenPosition,
+                                                const vector<const Node*>& ignoredNodes) {
 
     auto visualWorld = scene.visualWorld();
 
@@ -1253,8 +1341,8 @@ optional<JanusApp::PickResult> FindActionTarget(Scene&                     scene
         }
 
         return JanusApp::PickResult {.node = node,
-                                .hitPosition = hit.worldCoordinates(),
-                                .hitNormal = hit.worldNormal()};
+                                     .hitPosition = hit.worldCoordinates(),
+                                     .hitNormal = hit.worldNormal()};
     }
 
     return {};
@@ -1507,7 +1595,7 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 physicsBody->restitution(0.8f);
                 physicsBody->friction(0.4f);
                 physicsBody->rollingFriction(0.01);
-                physicsBody->angularDamping(0.6);
+                physicsBody->angularDamping(0.5);
 
                 const float ANGULAR_VARIANCE = radians(30.0f);
                 physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));

@@ -103,7 +103,7 @@ namespace demo::janus {
 
         struct PickIgnore {
             std::weak_ptr<a3d::Node> node;
-            double                   remainingTime;
+            std::optional<double>    remainingTime;
         };
 
         // [Private Member Functions]
