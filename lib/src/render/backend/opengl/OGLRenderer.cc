@@ -100,7 +100,7 @@ static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 struct DirectionalLightGLSLStruct {
     vec4 color;
     vec3 direction_world;
-    f32  _pad_0_;
+    f32  intensity;
 };
 
 static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
@@ -108,11 +108,11 @@ static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 struct PointLightGLSLStruct {
     vec4 color;
     vec3 position_world;
-    f32  _pad_0_;
+    f32  intensity;
     f32  constantAttenuation;
     f32  linearAttenuation;
     f32  quadraticAttenuation;
-    f32  _pad_1_;
+    f32  _pad_0_;
 };
 
 static_assert(sizeof(PointLightGLSLStruct) == 48);
@@ -120,17 +120,17 @@ static_assert(sizeof(PointLightGLSLStruct) == 48);
 struct SpotLightGLSLStruct {
     vec4     color;
     vec3     position_world;
-    f32      _pad_0_;
+    f32      intensity;
     vec3     direction_world;
-    f32      _pad_1_;
+    f32      _pad_0_;
     f32      innerAngleCos;
     f32      outerAngleCos;
     uint32_t featheringMode;
     f32      constantAttenuation;
     f32      linearAttenuation;
     f32      quadraticAttenuation;
+    f32      _pad_1_;
     f32      _pad_2_;
-    f32      _pad_3_;
 };
 
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
@@ -1394,6 +1394,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                 if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
                     DirectionalLightGLSLStruct lightStruct {};
                     lightStruct.color = directionalLight->color().rgba();
+                    lightStruct.intensity = directionalLight->intensity();
                     lightStruct.direction_world = node->worldForward();
                     directionalStructs.push_back(lightStruct);
                 }
@@ -1402,6 +1403,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                 if (pointStructs.size() < MAX_POINT_LIGHTS) {
                     PointLightGLSLStruct lightStruct {};
                     lightStruct.color = pointLight->color().rgba();
+                    lightStruct.intensity = pointLight->intensity();
                     lightStruct.position_world = node->worldPosition();
                     lightStruct.constantAttenuation = pointLight->attenuation().constant;
                     lightStruct.linearAttenuation = pointLight->attenuation().linear;
@@ -1413,6 +1415,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                 if (spotStructs.size() < MAX_SPOT_LIGHTS) {
                     SpotLightGLSLStruct lightStruct {};
                     lightStruct.color = spotLight->color().rgba();
+                    lightStruct.intensity = spotLight->intensity();
                     lightStruct.position_world = node->worldPosition();
                     lightStruct.direction_world = node->worldForward();
                     lightStruct.innerAngleCos = spotLight->innerAngleCos();

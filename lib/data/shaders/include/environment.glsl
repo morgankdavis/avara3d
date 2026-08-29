@@ -26,33 +26,33 @@ struct AmbientLight {
 struct DirectionalLight {
 	vec4  color;
 	vec3  direction_world;
-	float _PAD0_;
+    float intensity;
 };
 
 struct PointLight {
 	vec4  color;
 	vec3  position_world;
-	float _PAD0_;
+    float intensity;
 	float constantAttenuation;
 	float linearAttenuation;
 	float quadraticAttenuation;
-	float _PAD1_;
+	float _PAD0_;
 };
 
 struct SpotLight {
 	vec4  color;
 	vec3  position_world;
-	float _PAD0_;
+    float intensity;
 	vec3  direction_world;
-	float _PAD1_;
+	float _PAD0_;
 	float innerAngleCos;
 	float outerAngleCos;
 	uint  featheringMode;
 	float constantAttenuation;
 	float linearAttenuation;
 	float quadraticAttenuation;
+	float _PAD1_;
 	float _PAD2_;
-	float _PAD3_;
 };
 
 struct Surface {

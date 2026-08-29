@@ -17,35 +17,38 @@ using namespace std;
 // [Public Lifecycle Functions]
 
 PointLight::PointLight():
-    Light() {}
+    Light() {
+    _intensity = 1.0f;
+}
 
 PointLight::PointLight(const string& name):
     PointLight() {
     _name = name;
+    _intensity = 1.0f;
 }
 
 PointLight::PointLight(const Color& color):
     PointLight() {
     _color = color;
+    _intensity = 1.0f;
 }
 
 PointLight::PointLight(const string& name, const Color& color):
     PointLight() {
     _name = name;
     _color = color;
+    _intensity = 1.0f;
 }
 
-//Light::~Light() {
-//
-//	if (_name != nullopt) {
-//		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
-//	}
-//	else {
-//		log::d()("Destroying Light {:p}", static_cast<void*>(this));
-//	}
-//}
-
 // [Public Member Functions]
+
+float PointLight::intensity() const {
+    return _intensity;
+}
+
+void PointLight::intensity(float intensity) {
+    _intensity = intensity;
+}
 
 const Attenuation& PointLight::attenuation() const {
     return _attenuation;

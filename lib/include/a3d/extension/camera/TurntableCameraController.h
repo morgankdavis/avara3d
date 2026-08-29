@@ -86,11 +86,11 @@ namespace a3d::ext {
             float minDistance {0.01f}; ///< Minimum positive target distance in scene units.
             float maxDistance {math::F32_MAX}; ///< Maximum target distance in scene units.
 
-            float orbitSensitivity {0.004f}; ///< Orbit radians per logical pointer unit.
+            float orbitSensitivity {0.003f}; ///< Orbit radians per logical pointer unit.
             float dollySensitivity {0.01f}; ///< Exponential dolly sensitivity for pointer dragging.
-            float scrollDollySensitivity {0.15f}; ///< Exponential dolly sensitivity per scroll unit.
+            float scrollDollySensitivity {0.1f}; ///< Exponential dolly sensitivity per scroll unit.
             float dragThreshold {
-                4.0f}; ///< Pointer displacement required to convert a click candidate into a drag.
+                5.0f}; ///< Pointer displacement required to convert a click candidate into a drag.
             bool     invertPitch {false}; ///< Reverses vertical orbit direction when true.
 
             Controls controls; ///< Pointer-button and modifier bindings.

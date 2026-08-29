@@ -18,40 +18,35 @@ using namespace std;
 // [Public Lifecycle Functions]
 
 DirectionalLight::DirectionalLight():
-    Light() {}
+    Light() {
+    _intensity = 1.0f;
+}
 
 DirectionalLight::DirectionalLight(const string& name):
     DirectionalLight() {
     _name = name;
+    _intensity = 1.0f;
 }
 
 DirectionalLight::DirectionalLight(const Color& color):
     DirectionalLight() {
     _color = color;
+    _intensity = 1.0f;
 }
 
 DirectionalLight::DirectionalLight(const string& name, const Color& color):
     DirectionalLight() {
     _name = name;
     _color = color;
+    _intensity = 1.0f;
 }
-
-//Light::~Light() {
-//
-//	if (_name != nullopt) {
-//		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
-//	}
-//	else {
-//		log::d()("Destroying Light {:p}", static_cast<void*>(this));
-//	}
-//}
 
 // [Public Member Functions]
 
-//const vec3& DirectionalLight::direction() const {
-//	return _direction;
-//}
-//
-//void DirectionalLight::direction(const vec3& direction) {
-//	_direction = direction;
-//}
+float DirectionalLight::intensity() const {
+    return _intensity;
+}
+
+void DirectionalLight::intensity(float intensity) {
+    _intensity = intensity;
+}

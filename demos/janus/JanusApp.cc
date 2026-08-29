@@ -159,6 +159,23 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
         auto rootNode = scene->rootNode();
+
+        // float intensity = .1f;
+        // for (auto n : rootNode->children(true)) {
+        //     if (auto light = n->light()) {
+        //         if (auto spot = dynamic_pointer_cast<SpotLight>(light)) {
+        //             //log::app::i()("INTENSITY: {}", spot->intensity());
+        //             auto c = spot->color();
+        //             // log::app::i()("COLOR: ({}, {}, {}, {})", c.r(), c.g(), c.b(), c.a());
+        //             log::app::i()("OLD INTENSITY: {}", spot->intensity());
+        //             //spot->intensity(intensity);
+        //             spot->intensity(spot->intensity()*2.0f);
+        //             log::app::i()("NEW INTENSITY: {}", spot->intensity());
+        //             // intensity += .1f;
+        //         }
+        //     }
+        // }
+
         if (auto evoraNode = rootNode->childNamed("evora")) {
 
             _pickIgnores.push_back({.node = evoraNode,
@@ -236,14 +253,20 @@ std::unique_ptr<Scene> JanusApp::init() {
         //         .quadratic = 0.05f,
         //     });
         //     auto pointLightNode = Node::LightNode(pointLight);
-        //     pointLightNode->position({0.0f, 4.0f, 0.0f});
+        //     pointLightNode->position({0.0f, 5.0f, 0.0f});
         //     scene->rootNode()->addChild(pointLightNode);
         // }
 
         // setup transient node groups
 
-        _transients.groupPolicy("drop", {.maxCount = (3 * 3 * 3) * 3});
-        _transients.groupPolicy("throw", {.maxCount = 10,
+        _transients.groupPolicy("rock", {.maxCount = (3 * 3 * 3) * 1});
+        _transients.groupPolicy("coin", {.maxCount = (3 * 3 * 4) * 2});
+        _transients.groupPolicy("ball", {.maxCount = (3 * 3 * 3) * 2});
+        _transients.groupPolicy("hammer", {.maxCount = 10,
+                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+        _transients.groupPolicy("hula", {.maxCount = 10,
+                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+        _transients.groupPolicy("duck", {.maxCount = 10,
                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
 
         // create and configure the camera and camera controller
@@ -1034,11 +1057,19 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
 void JanusApp::performAction(const PendingAction& action) {
 
-    const float DROP_HEIGHT {5.0f};
+    const float DROP_HEIGHT {10.0f};
 
-    const vec3   DROP_BOX_SIZE {vec3 {1.0f} * 0.35f};
-    const u8vec3 DROP_STACK_SIZE {3, 3, 3};
-    const float  DROP_PADDING {0.065f};
+    const vec3   BOX_SIZE {vec3 {1.0f} * 0.35f};
+    const u8vec3 BOX_STACK_SIZE {3, 3, 3};
+    const float  BOX_PADDING {0.065f};
+
+    const vec3   COIN_SIZE {vec3 {1.0f} * 0.35f};
+    const u8vec3 COIN_STACK_SIZE {3, 3, 3};
+    const float  COIN_PADDING {0.065f};
+
+    const vec3   BALL_SIZE {vec3 {1.0f} * 0.35f};
+    const u8vec3 BALL_STACK_SIZE {3, 3, 3};
+    const float  BALL_PADDING {0.065f};
 
     const float THROW_SPAWN_DISTANCE {0.5f};
     const float THROW_SPEED {15.0f};
@@ -1068,20 +1099,20 @@ void JanusApp::performAction(const PendingAction& action) {
             switch (_dropAction) {
                 case DropAction::Rocks: {
                     auto rocks =
-                        DropRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
-                    _transients.track(rocks, "drop");
+                        DropRocks(*simulationRoot, spawnLocation, BOX_SIZE, BOX_STACK_SIZE, BOX_PADDING);
+                    _transients.track(rocks, "rock");
                     break;
                 }
                 case DropAction::Coins: {
-                    auto coins = DropCoins(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                           DROP_PADDING + .1);
-                    _transients.track(coins, "drop");
+                    auto coins = DropCoins(*simulationRoot, spawnLocation, COIN_SIZE, COIN_STACK_SIZE,
+                                           COIN_PADDING + .1);
+                    _transients.track(coins, "coin");
                     break;
                 }
                 case DropAction::Balls: {
-                    auto balls = DropBalls(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                           DROP_PADDING + .1);
-                    _transients.track(balls, "drop");
+                    auto balls = DropBalls(*simulationRoot, spawnLocation, BALL_SIZE, BALL_STACK_SIZE,
+                                           BALL_PADDING + .1);
+                    _transients.track(balls, "ball");
                     break;
                 }
             }
@@ -1112,21 +1143,21 @@ void JanusApp::performAction(const PendingAction& action) {
                     auto projectile = ThrowHammer(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "throw");
+                    _transients.track(projectile, "hammer");
                     break;
                 }
                 case ThrowAction::Hula: {
                     auto projectile = ThrowHula(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "throw");
+                    _transients.track(projectile, "hula");
                     break;
                 }
                 case ThrowAction::Duck: {
                     auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "throw");
+                    _transients.track(projectile, "duck");
                     break;
                 }
             }

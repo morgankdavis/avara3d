@@ -20,7 +20,7 @@ namespace a3d {
     /**
      * @brief Omnidirectional light located at its containing Node's world position.
      *
-     * Light intensity is reduced with distance according to the configured
+     * Light contribution is reduced with distance according to the configured
      * Attenuation coefficients.
      */
     class PointLight : public Light {
@@ -48,6 +48,12 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /** @brief Returns the light intensity multiplier. */
+        float              intensity() const;
+
+        /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
+        void               intensity(float intensity);
+
         /** @brief Returns the distance-attenuation coefficients. */
         const Attenuation& attenuation() const;
 
@@ -57,6 +63,7 @@ namespace a3d {
     private:
         // [Private Member Variables]
 
+        float       _intensity;
         Attenuation _attenuation;
     };
 

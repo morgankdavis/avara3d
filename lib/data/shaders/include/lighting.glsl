@@ -59,7 +59,7 @@ vec3 CalcDirectionalLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 sur
 
 		DirectionalLight light = Environment.directionalLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = light.color.rgb * light.intensity;
 		vec3 Id = vec3(0.0);
 		vec3 Is = vec3(0.0);
 
@@ -108,7 +108,7 @@ vec3 CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNo
 
 		PointLight light = Environment.pointLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = light.color.rgb * light.intensity;
 		vec3 Id = vec3(0.0);
 		vec3 Is = vec3(0.0);
 
@@ -152,7 +152,7 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
 
 		SpotLight light = Environment.spotLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = light.color.rgb * light.intensity;
 		vec3 Id = vec3(0.0);
 		vec3 Is = vec3(0.0);
 
@@ -166,25 +166,25 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
 		float theta = dot(surfaceToLightDir_eye, lightDir_eye);
 		float epsilon = light.innerAngleCos - light.outerAngleCos;
 
-		float linearIntensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
+        float linearSpotFactor = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
 
-		if (linearIntensity > 0.0) {
+        if (linearSpotFactor > 0.0) {
 
-			float easedIntensity = linearIntensity;
+            float spotFactor = linearSpotFactor;
 
-			switch (light.featheringMode) {
+            switch (light.featheringMode) {
 
-				case SPOTLIGHT_FEATHERING_MODE_SHARP:
-					easedIntensity = clamp(linearIntensity * (2.0 - linearIntensity), 0.0, 1.0);
-					break;
+                case SPOTLIGHT_FEATHERING_MODE_SHARP:
+                    spotFactor = clamp(linearSpotFactor * (2.0 - linearSpotFactor), 0.0, 1.0);
+                    break;
 
-				case SPOTLIGHT_FEATHERING_MODE_SOFT:
-					easedIntensity = clamp(pow(linearIntensity, 2.0), 0.0, 1.0);
-					break;
+                case SPOTLIGHT_FEATHERING_MODE_SOFT:
+                    spotFactor = clamp(pow(linearSpotFactor, 2.0), 0.0, 1.0);
+                    break;
 
-				default:
-					break;
-			}
+                default:
+                    break;
+            }
 
 			// diffuse
 
@@ -194,7 +194,7 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
 			float attenuation = Attenuate(light.constantAttenuation, light.linearAttenuation,
                     light.quadraticAttenuation, surfaceToLightDist);
 
-			Id = L * Kd * easedIntensity * dotDiffuse * attenuation;
+            Id = L * Kd * spotFactor * dotDiffuse * attenuation;
 
 			// specular
 
@@ -207,7 +207,7 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
 
 				float specularFactor = pow(dotSpecular, surfaceSpecularExponent);
 
-				Is = L * Ks * easedIntensity * specularFactor * attenuation;
+                Is = L * Ks * spotFactor * specularFactor * attenuation;
 			}
 		}
 

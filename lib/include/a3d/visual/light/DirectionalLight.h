@@ -45,6 +45,19 @@ namespace a3d {
 
         DirectionalLight(DirectionalLight&&) noexcept            = default;
         DirectionalLight& operator=(DirectionalLight&&) noexcept = default;
+
+        // [Public Member Functions]
+
+        /** @brief Returns the light intensity multiplier. */
+        float             intensity() const;
+
+        /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
+        void              intensity(float intensity);
+
+    private:
+        // [Private Member Variables]
+
+        float _intensity;
     };
 
 }

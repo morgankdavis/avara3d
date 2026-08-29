@@ -23,33 +23,27 @@ SpotLight::SpotLight():
     innerAngle(math::radians(15.0f));
     outerAngle(math::radians(25.0f));
     _featherMode = FeatheringMode::Linear;
+    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const string& name):
     SpotLight() {
     _name = name;
+    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const Color& color):
     SpotLight() {
     _color = color;
+    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const string& name, const Color& color):
     SpotLight() {
     _name = name;
     _color = color;
+    _intensity = 1.0f;
 }
-
-//Light::~Light() {
-//
-//	if (_name != nullopt) {
-//		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
-//	}
-//	else {
-//		log::d()("Destroying Light {:p}", static_cast<void*>(this));
-//	}
-//}
 
 // [Public Member Functions]
 
@@ -77,6 +71,14 @@ void SpotLight::featheringMode(FeatheringMode mode) {
     _featherMode = mode;
 }
 
+float SpotLight::intensity() const {
+    return _intensity;
+}
+
+void SpotLight::intensity(float intensity) {
+    _intensity = intensity;
+}
+
 const Attenuation& SpotLight::attenuation() const {
     return _attenuation;
 }
@@ -94,9 +96,3 @@ float SpotLight::innerAngleCos() const {
 float SpotLight::outerAngleCos() const {
     return _outerAngleCos;
 }
-
-// [Private Lifecycle Functions]
-
-//SpotLight::SpotLight():
-//		_innerAngle{10.0},
-//		_outerAngle{15.0} {}

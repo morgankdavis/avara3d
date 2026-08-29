@@ -715,6 +715,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<DirectionalLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 _lights[*lightIndex] = a3dLight;
                 return a3dLight;
             }
@@ -722,6 +723,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<PointLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 _lights[*lightIndex] = a3dLight;
                 return a3dLight;
             }
@@ -729,6 +731,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<SpotLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 a3dLight->innerAngle(light.innerConeAngle.value());
                 a3dLight->outerAngle(light.outerConeAngle.value());
                 _lights[*lightIndex] = a3dLight;

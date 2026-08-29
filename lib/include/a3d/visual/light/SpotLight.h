@@ -22,17 +22,17 @@ namespace a3d {
      * @brief Cone-shaped light located and oriented by its containing Node.
      *
      * The light originates at the Node's world position and points along the Node's
-     * world-forward direction. Intensity is reduced by both angular feathering and
-     * distance attenuation.
+     * world-forward direction. Light contribution is reduced by both angular
+     * feathering and distance attenuation.
      */
     class SpotLight : public Light {
 
     public:
         // [Public Types]
 
-        /** @brief Selects the intensity curve between the outer and inner cone angles. */
+        /** @brief Selects the angular falloff curve between the outer and inner cone angles. */
         enum class FeatheringMode : uint8_t {
-            Linear = 0, ///< Uses a linear intensity transition.
+            Linear = 0, ///< Uses a linear angular falloff transition.
             Sharp  = 1, ///< Uses y = x(2-x).
             Soft   = 2  ///< Uses y = x^2.
         };
@@ -78,6 +78,12 @@ namespace a3d {
         /** @brief Sets the angular feathering curve. */
         void               featheringMode(FeatheringMode mode);
 
+        /** @brief Returns the light intensity multiplier. */
+        float              intensity() const;
+
+        /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
+        void               intensity(float intensity);
+
         /** @brief Returns the distance-attenuation coefficients. */
         const Attenuation& attenuation() const;
 
@@ -95,6 +101,7 @@ namespace a3d {
         float          _innerAngleCos;
         float          _outerAngleCos;
         FeatheringMode _featherMode;
+        float          _intensity;
         Attenuation    _attenuation;
     };
 
