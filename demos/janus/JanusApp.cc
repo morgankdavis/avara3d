@@ -112,7 +112,7 @@ std::unique_ptr<Scene> JanusApp::init() {
                                                         .lineWidthPixels = 1.0f,
                                                         .reliefStrength = -0.125f};
 
-        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(), //.color = Color{0.15f},
+        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),//.color = Color{0.15f},
                                               .minor = minor,
                                               .major = major,
                                               .specularIntensity = 0.05f,
@@ -282,14 +282,19 @@ std::unique_ptr<Scene> JanusApp::init() {
         cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
         // cameraConfig.minPitch = math::radians(-2.5f);
         cameraConfig.invertPitch = true;
-        cameraConfig.minDistance = 1.0f;
+        cameraConfig.minDistance = 0.5f;
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        _cameraController.view({.target = vec3 {0.0f, 1.0f, 0.0f},
-                                .yaw = radians(-35.0f),
-                                .pitch = radians(0.0f),
-                                .distance = 20.0f});
+        // _cameraController.view({.target = vec3 {0.0f, 1.0f, 0.0f},
+        //                         .yaw = radians(-35.0f),
+        //                         .pitch = radians(0.0f),
+        //                         .distance = 20.0f});
+
+        _cameraController.view({.target = vec3 {0.125f, 3.75f, 0.005f},
+                        .yaw = radians(-33.0f),
+                        .pitch = radians(-5.5f),
+                        .distance = 15.0f});
 
         // create the resettable simulation root node
 
@@ -526,6 +531,10 @@ bool JanusApp::drawPanel() {
     auto& physicsWorld = *scene.physicsWorld();
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
+
+    // if (panel.button("CAMERA")) {
+    //     log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
+    // }
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
@@ -1621,7 +1630,7 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(0.10f);
-                physicsBody->restitution(1.0f);
+                physicsBody->restitution(0.9f);
                 physicsBody->friction(0.4f);
                 physicsBody->rollingFriction(0.01);
                 physicsBody->angularDamping(0.5);

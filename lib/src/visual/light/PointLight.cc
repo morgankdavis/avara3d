@@ -17,27 +17,23 @@ using namespace std;
 // [Public Lifecycle Functions]
 
 PointLight::PointLight():
-    Light() {
-    _intensity = 1.0f;
-}
+    Light(),
+    _intensity {1.0f} {}
 
 PointLight::PointLight(const string& name):
     PointLight() {
     _name = name;
-    _intensity = 1.0f;
 }
 
 PointLight::PointLight(const Color& color):
     PointLight() {
     _color = color;
-    _intensity = 1.0f;
 }
 
 PointLight::PointLight(const string& name, const Color& color):
     PointLight() {
     _name = name;
     _color = color;
-    _intensity = 1.0f;
 }
 
 // [Public Member Functions]

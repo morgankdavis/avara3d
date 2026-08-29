@@ -54,9 +54,9 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         auto pointLight = make_shared<PointLight>(Color::LightGray());
         auto pointLightNode = Node::LightNode(pointLight);
-        pointLightNode->position({0, 0, 5});
-        auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, Color::White());
-        auto sphere = Sphere::Mesh(0.25f, 12, material);
+        pointLightNode->position({0, 0, 4.5});
+        auto lightMaterial = make_shared<Material>(monostate {}, monostate {}, monostate {}, Color::White());
+        auto sphere = Sphere::Mesh(0.25f, 12, lightMaterial);
         pointLightNode->mesh(sphere);
         auto pointLightPivotNode = Node::NamedNode("point light pivot");
         pointLightPivotNode->addChild(pointLightNode);
@@ -65,9 +65,9 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             node->name("box");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
             node->position(vec3(1.67f, -2.5f, 0.0f));
@@ -75,18 +75,18 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Capsule::Mesh(0.5f, 1.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             node->name("capsule");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(-5.0f, -2.5f, 0.0f));
         }
 
         {
             auto mesh = Cone::Mesh(1.0f, 2.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("cone");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             //node->position(vec3(-5.0f, 0.0f, 0.0f));
             node->position(vec3(-1.67f, -2.5f, 0.0f));
@@ -94,18 +94,18 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Cylinder::Mesh(0.5f, 2.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("cylinder");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(5.0f, -2.5f, 0.0f));
         }
 
         {
             auto mesh = Plane::Mesh(10.0f, 10.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("plane");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
             node->position(vec3(0.0f, -5.0f, 0.0f));
@@ -113,9 +113,9 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("rounded box");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
             node->position(vec3(-3.0f, 2.5f, 0.0f));
@@ -123,18 +123,18 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Sphere::Mesh(1.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("sphere");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(3.0f, 2.5f, 0.0f));
         }
 
         {
             auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("spring");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(0.0f, 3.5f, 0.0f));
             node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
@@ -142,18 +142,18 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Torus::Mesh(0.75f, 1.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("torus");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(4.25f, 0.0f, 0.0f));
         }
 
         {
             auto mesh = TorusKnot::Mesh(2, 3);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("torus knot");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->rotation({0.0f, 1.5f, 0.0f}, radians(45.0f));
             node->position(vec3(0.0f, 0.0f, 0.0f));
@@ -161,18 +161,18 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("tube");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(-4.25f, 0.0f, 0.0f));
         }
 
         {
             auto mesh = Wedge::Mesh(2.0f, 2.0f, 1.0f);
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("wedge");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(2.5f, 5.0f, 0.0f));
             node->rotation({0.0f, 1.0f, 0.0f}, radians(30.0f));
@@ -180,9 +180,9 @@ std::unique_ptr<Scene> GeoPrim::init() {
 
         {
             auto mesh = Dome::Mesh(1.0f, math::radians(60.0), math::radians(90.0), 0, math::radians(180.0));
-            auto node = make_shared<Node>();
+            mesh->addMaterial(Material::DiffuseMaterial(Color::Random()));
+            auto node = Node::MeshNode(mesh);
             mesh->name("dome");
-            node->mesh(mesh);
             scene->rootNode()->addChild(node);
             node->position(vec3(-2.5f, 5.0f, 0.0f));
             node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
@@ -212,9 +212,9 @@ bool GeoPrim::shouldContinue(const Scene& scene) {
 }
 
 void GeoPrim::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+                             Scene&                          scene,
+                             InputContext&                   inputContext,
+                             const InputContext::UpdateInfo& info) {
 
     Window* window = nullptr;
     if (scene.visualWorld()) {

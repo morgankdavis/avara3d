@@ -94,7 +94,6 @@ namespace a3d {
 
         std::optional<std::string> _name;
         Color                      _color;
-
     };
 
 }

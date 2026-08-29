@@ -11,12 +11,12 @@ out vec4 fragColor;
 //const float u_gapSize = 50;
 
 void main() {
-	fragColor = vec4(frag_color, 1.0);
+    fragColor = vec4(frag_color, 1.0);
 
-	// dashed
-	//	vec2  dir  = (vertPos.xy-startPos.xy) * u_resolution/2.0;
-	//	float dist = length(dir);
-	//
-	//	if (fract(dist / (u_dashSize + u_gapSize)) > u_dashSize/(u_dashSize + u_gapSize)) discard;
-	//	fragColor = vec4(color, 1.0);
+    // dashed
+    //	vec2  dir  = (vertPos.xy-startPos.xy) * u_resolution/2.0;
+    //	float dist = length(dir);
+    //
+    //	if (fract(dist / (u_dashSize + u_gapSize)) > u_dashSize/(u_dashSize + u_gapSize)) discard;
+    //	fragColor = vec4(color, 1.0);
 }

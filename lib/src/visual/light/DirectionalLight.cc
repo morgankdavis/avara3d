@@ -18,27 +18,23 @@ using namespace std;
 // [Public Lifecycle Functions]
 
 DirectionalLight::DirectionalLight():
-    Light() {
-    _intensity = 1.0f;
-}
+    Light(),
+    _intensity {1.0f} {}
 
 DirectionalLight::DirectionalLight(const string& name):
     DirectionalLight() {
     _name = name;
-    _intensity = 1.0f;
 }
 
 DirectionalLight::DirectionalLight(const Color& color):
     DirectionalLight() {
     _color = color;
-    _intensity = 1.0f;
 }
 
 DirectionalLight::DirectionalLight(const string& name, const Color& color):
     DirectionalLight() {
     _name = name;
     _color = color;
-    _intensity = 1.0f;
 }
 
 // [Public Member Functions]

@@ -25,88 +25,88 @@ vec4    ApplyGammaCorrection(vec4 fragColor);
 
 void main() {
 
-	fragColor = vec4(0.0);
+    fragColor = vec4(0.0);
 
-	// using default lighting?
-	if (Environment.defaultLightingEnabled > 0u) {
+    // using default lighting?
+    if (Environment.defaultLightingEnabled > 0u) {
 
         fragColor = ApplyDefaultLighting(frag_texCoord);
-	}
-	else {
+    }
+    else {
 
-		// can skip lighting calcs?
-		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+        // can skip lighting calcs?
+        if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
             fragColor = GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, frag_texCoord);
-		}
+        }
 
-		// do lighting calcs...
-		else {
+        // do lighting calcs...
+        else {
 
-			// get base colors
+            // get base colors
 
             vec4 Ka = GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, frag_texCoord);
             vec4 Kd = GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, frag_texCoord);
             vec4 Ks = GetBaseColor(MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, frag_texCoord);
 
-			// lock ambient with diffuse?
+            // lock ambient with diffuse?
 
             if (locksAmbientWithDiffuse && diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
                 Ka = Kd;
             }
 
-			// alpha rejection
+            // alpha rejection
 
-			if (Kd.a < ALPHA_REJECTION_THRESHOLD) {
-				discard;
-			}
+            if (Kd.a < ALPHA_REJECTION_THRESHOLD) {
+                discard;
+            }
 
-			// dynamic lighting
+            // dynamic lighting
 
-			vec3 surfaceNormalEye = normalize(frag_vertNorm_eye);
+            vec3 surfaceNormalEye = normalize(frag_vertNorm_eye);
 
-			fragColor.rgb = CalcAmbientLighting(Ka.rgb);
+            fragColor.rgb = CalcAmbientLighting(Ka.rgb);
 
-			fragColor.rgb += CalcDirectionalLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
+            fragColor.rgb += CalcDirectionalLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
                     viewMat, specularExponent);
 
-			fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
+            fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
                     specularExponent);
 
-			fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
+            fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
                     specularExponent);
 
-			fragColor = vec4(fragColor.rgb, Kd.a);
-		}
-	}
+            fragColor = vec4(fragColor.rgb, Kd.a);
+        }
+    }
 
-	// per-draw tint
+    // per-draw tint
 
-	fragColor.rgb = mix(fragColor.rgb, tint.rgb, clamp(tint.a, 0.0, 1.0));
+    fragColor.rgb = mix(fragColor.rgb, tint.rgb, clamp(tint.a, 0.0, 1.0));
 
-	// fog
+    // fog
 
-	fragColor = ApplyFog(fragColor, length(frag_vertPos_eye));
+    fragColor = ApplyFog(fragColor, length(frag_vertPos_eye));
 
-	// atmosphere
+    // atmosphere
 
-	fragColor.rgb = ApplyAtmosphereHaze(fragColor.rgb, frag_vertPos_world);
+    fragColor.rgb = ApplyAtmosphereHaze(fragColor.rgb, frag_vertPos_world);
 
-	// gamma
+    // gamma
 
-	fragColor = ApplyGammaCorrection(fragColor);
+    fragColor = ApplyGammaCorrection(fragColor);
 }
 
 vec3 LinearToSRGB(vec3 linear) {
-	bvec3 cutoff = lessThanEqual(linear, vec3(0.0031308));
-	vec3 lower = linear * 12.92;
-	vec3 upper = 1.055 * pow(linear, vec3(1.0 / 2.4)) - 0.055;
-	return mix(upper, lower, vec3(cutoff));
+    bvec3 cutoff = lessThanEqual(linear, vec3(0.0031308));
+    vec3 lower = linear * 12.92;
+    vec3 upper = 1.055 * pow(linear, vec3(1.0 / 2.4)) - 0.055;
+    return mix(upper, lower, vec3(cutoff));
 }
 
 vec4 ApplyGammaCorrection(vec4 fragColor) {
 
-	// ! UNIMPLEMENTED !
-	//return vec4(LinearToSRGB(fragColor.rgb), fragColor.a);
-	return fragColor;
+    // ! UNIMPLEMENTED !
+    //return vec4(LinearToSRGB(fragColor.rgb), fragColor.a);
+    return fragColor;
 }

@@ -16,20 +16,20 @@ out vec4 fragColor;
 
 void main() {
 
-	vec3 worldDirection = normalize(frag_texCoord);
+    vec3 worldDirection = normalize(frag_texCoord);
 
-	if (backgroundUsesCubemap) {
+    if (backgroundUsesCubemap) {
 
-		vec3 sampleDirection = backgroundSampleRotation * worldDirection;
-		fragColor = texture(cubeSampler, sampleDirection);
-	}
-	else {
+        vec3 sampleDirection = backgroundSampleRotation * worldDirection;
+        fragColor = texture(cubeSampler, sampleDirection);
+    }
+    else {
 
-		fragColor = backgroundColor;
-	}
+        fragColor = backgroundColor;
+    }
 
-	fragColor.rgb = ApplyAtmosphereToSky(fragColor.rgb, worldDirection);
+    fragColor.rgb = ApplyAtmosphereToSky(fragColor.rgb, worldDirection);
 
-	// gamma correction
-	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
+    // gamma correction
+    //fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

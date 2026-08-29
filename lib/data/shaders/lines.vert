@@ -27,6 +27,6 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 
 void main() {
-	frag_color = vert_vertColor;
-	gl_Position = projMat * viewMat * modelMat * vec4(vert_vertPos, 1.0);
+    frag_color = vert_vertColor;
+    gl_Position = projMat * viewMat * modelMat * vec4(vert_vertPos, 1.0);
 }

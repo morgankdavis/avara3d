@@ -52,9 +52,10 @@ std::unique_ptr<Scene> Import::init() {
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(Window::InputContext());
 
-        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
-                       | Scene::ImportOptions::ImportLights;
-        auto testScene = util::fs::SceneAt("import_test/import_test.gltf", options);
+        auto testScene =
+            util::fs::SceneAt("import_test/import_test.gltf",
+                              Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
+                                  | Scene::ImportOptions::ImportLights | Scene::ImportOptions::ImportCameras);
         auto testSceneNodes = testScene->rootNode()->children();
         auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
         auto importMeshRoot = make_shared<Node>("importMeshRoot");
@@ -63,12 +64,10 @@ std::unique_ptr<Scene> Import::init() {
 
             // NOTE: maybe figure out a better way to handle node reparenting
             if (node->light() || node->camera()) {
-                node->removeFromParent();
-                importLightsCamerasRoot->addChild(node);
+                importLightsCamerasRoot->addChild(node, true);
             }
             else {
-                node->removeFromParent();
-                importMeshRoot->addChild(node);
+                importMeshRoot->addChild(node, true);
             }
         }
 
@@ -93,9 +92,9 @@ bool Import::shouldContinue(const Scene& scene) {
 }
 
 void Import::inputDidUpdate(Runner&       runner,
-                         Scene&        scene,
-                         InputContext& inputContext,
-                         const InputContext::UpdateInfo&) {
+                            Scene&        scene,
+                            InputContext& inputContext,
+                            const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 

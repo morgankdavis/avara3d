@@ -18,31 +18,29 @@ using namespace std;
 // [Public Lifecycle Functions]
 
 SpotLight::SpotLight():
-    Light() {
+    Light(),
+    _featherMode {FeatheringMode::Linear},
+    _intensity {1.0f} {
+
     // see DeVries 16.5
     innerAngle(math::radians(15.0f));
     outerAngle(math::radians(25.0f));
-    _featherMode = FeatheringMode::Linear;
-    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const string& name):
     SpotLight() {
     _name = name;
-    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const Color& color):
     SpotLight() {
     _color = color;
-    _intensity = 1.0f;
 }
 
 SpotLight::SpotLight(const string& name, const Color& color):
     SpotLight() {
     _name = name;
     _color = color;
-    _intensity = 1.0f;
 }
 
 // [Public Member Functions]
