@@ -4,31 +4,17 @@
 		"version":"2.0"
 	},
 	"extensionsUsed":[
+		"KHR_lights_punctual",
 		"KHR_materials_specular",
-		"EXT_texture_webp",
-		"KHR_lights_punctual"
+		"EXT_texture_webp"
 	],
 	"extensionsRequired":[
-		"EXT_texture_webp",
-		"KHR_lights_punctual"
+		"KHR_lights_punctual",
+		"EXT_texture_webp"
 	],
 	"extensions":{
 		"KHR_lights_punctual":{
 			"lights":[
-				{
-					"color":[
-						1,
-						1,
-						1
-					],
-					"intensity":1.9894367886486917,
-					"spot":{
-						"innerConeAngle":0.13089969754219055,
-						"outerConeAngle":0.2617993950843811
-					},
-					"type":"spot",
-					"name":"Spot"
-				},
 				{
 					"color":[
 						1,
@@ -175,16 +161,6 @@
 						1,
 						1
 					],
-					"intensity":1.9894367886486917,
-					"type":"point",
-					"name":"Point"
-				},
-				{
-					"color":[
-						1,
-						1,
-						1
-					],
 					"intensity":1.1936620731892151,
 					"spot":{
 						"innerConeAngle":0.2748893601572622,
@@ -192,6 +168,16 @@
 					},
 					"type":"spot",
 					"name":"Spot.011"
+				},
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":1.9894367886486917,
+					"type":"point",
+					"name":"Point.001"
 				}
 			]
 		}
@@ -201,6 +187,230 @@
 		{
 			"name":"Scene",
 			"nodes":[
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19
+			]
+		}
+	],
+	"nodes":[
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":0
+				}
+			},
+			"name":"Spot.001",
+			"rotation":[
+				-0.01542538870126009,
+				-0.7069385051727295,
+				0.7069385051727295,
+				0.01542544923722744
+			],
+			"translation":[
+				6.5,
+				0,
+				1.3179025650024414
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":1
+				}
+			},
+			"name":"Spot.002",
+			"rotation":[
+				-0.01542538870126009,
+				-0.7069385051727295,
+				0.7069385051727295,
+				0.01542544923722744
+			],
+			"translation":[
+				6.5,
+				0,
+				-1.0035805702209473
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":2
+				}
+			},
+			"name":"Spot.003",
+			"rotation":[
+				-0.01542538870126009,
+				-0.7069385051727295,
+				0.7069385051727295,
+				0.01542544923722744
+			],
+			"translation":[
+				6.5,
+				0,
+				-3.6428143978118896
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":3
+				}
+			},
+			"name":"Spot.004",
+			"rotation":[
+				0.706938624382019,
+				0.015425452031195164,
+				0.01542544923722744,
+				0.7069383859634399
+			],
+			"translation":[
+				-6.549998760223389,
+				0,
+				-3.8376998901367188
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":4
+				}
+			},
+			"name":"Spot.005",
+			"rotation":[
+				0.706938624382019,
+				0.015425452031195164,
+				0.01542544923722744,
+				0.7069383859634399
+			],
+			"translation":[
+				-6.549998760223389,
+				0,
+				-1.2687571048736572
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":5
+				}
+			},
+			"name":"Spot.006",
+			"rotation":[
+				0.4889736771583557,
+				-0.48897358775138855,
+				0.5107885599136353,
+				0.5107884407043457
+			],
+			"translation":[
+				-5.634317398071289,
+				0,
+				-4.349999904632568
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":6
+				}
+			},
+			"name":"Spot.007",
+			"rotation":[
+				0.4889736771583557,
+				-0.48897358775138855,
+				0.5107885599136353,
+				0.5107884407043457
+			],
+			"translation":[
+				-2.764188289642334,
+				0,
+				-4.349999904632568
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":7
+				}
+			},
+			"name":"Spot.008",
+			"rotation":[
+				0.4889736771583557,
+				-0.48897358775138855,
+				0.5107885599136353,
+				0.5107884407043457
+			],
+			"translation":[
+				0.17680788040161133,
+				0,
+				-4.349999904632568
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":8
+				}
+			},
+			"name":"Spot.009",
+			"rotation":[
+				0.4889736771583557,
+				-0.48897358775138855,
+				0.5107885599136353,
+				0.5107884407043457
+			],
+			"translation":[
+				2.9052019119262695,
+				0,
+				-4.349999904632568
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":9
+				}
+			},
+			"name":"Spot.010",
+			"rotation":[
+				0.4889736771583557,
+				-0.48897358775138855,
+				0.5107885599136353,
+				0.5107884407043457
+			],
+			"translation":[
+				5.66903018951416,
+				0,
+				-4.349999904632568
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":10
+				}
+			},
+			"name":"Spot.011",
+			"rotation":[
+				-0.36833375692367554,
+				-0.16896586120128632,
+				-0.06826663017272949,
+				0.9116581082344055
+			],
+			"translation":[
+				-3.0523946285247803,
+				9.370057106018066,
+				7.900763511657715
+			]
+		},
+		{
+			"children":[
 				0,
 				1,
 				2,
@@ -211,18 +421,10 @@
 				7,
 				8,
 				9,
-				10,
-				11,
-				12,
-				13,
-				14,
-				15,
-				16,
-				17
-			]
-		}
-	],
-	"nodes":[
+				10
+			],
+			"name":"lights"
+		},
 		{
 			"mesh":0,
 			"name":"evora"
@@ -241,7 +443,7 @@
 			"name":"plinth2",
 			"translation":[
 				5.463283538818359,
-				0,
+				0.0019930980633944273,
 				3.8449552059173584
 			]
 		},
@@ -250,7 +452,7 @@
 			"name":"teapot",
 			"translation":[
 				5.477653980255127,
-				1.2619918584823608,
+				1.5271981954574585,
 				3.8296759128570557
 			]
 		},
@@ -259,212 +461,27 @@
 			"name":"plinth1"
 		},
 		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":0
-				}
-			},
-			"name":"Spot",
+			"mesh":5,
+			"name":"lion",
 			"rotation":[
-				-0.015425422228872776,
-				-0.7069385051727295,
-				0.7069385051727295,
-				0.0154254836961627
+				0,
+				-0.7071066498756409,
+				-0.70710688829422,
+				3.0908616110991716e-08
 			],
 			"translation":[
-				6.5,
-				0,
-				3.879281520843506
+				4.6767754554748535,
+				0.7114014029502869,
+				-2.4843859672546387
 			]
 		},
 		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":1
-				}
-			},
-			"name":"Spot.001",
-			"rotation":[
-				-0.015425422228872776,
-				-0.7069385051727295,
-				0.7069385051727295,
-				0.0154254836961627
-			],
+			"mesh":6,
+			"name":"diana",
 			"translation":[
-				6.5,
-				0,
-				1.3179025650024414
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":2
-				}
-			},
-			"name":"Spot.002",
-			"rotation":[
-				-0.015425422228872776,
-				-0.7069385051727295,
-				0.7069385051727295,
-				0.0154254836961627
-			],
-			"translation":[
-				6.5,
-				0,
-				-1.0035805702209473
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":3
-				}
-			},
-			"name":"Spot.003",
-			"rotation":[
-				-0.015425422228872776,
-				-0.7069385051727295,
-				0.7069385051727295,
-				0.0154254836961627
-			],
-			"translation":[
-				6.5,
-				0,
-				-3.6428143978118896
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":4
-				}
-			},
-			"name":"Spot.004",
-			"rotation":[
-				0.706938624382019,
-				0.015425452962517738,
-				0.015425450168550014,
-				0.7069383859634399
-			],
-			"translation":[
-				-6.549998760223389,
-				0,
-				-3.8376998901367188
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":5
-				}
-			},
-			"name":"Spot.005",
-			"rotation":[
-				0.706938624382019,
-				0.015425452962517738,
-				0.015425450168550014,
-				0.7069383859634399
-			],
-			"translation":[
-				-6.549998760223389,
-				0,
-				-1.2687571048736572
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":6
-				}
-			},
-			"name":"Spot.006",
-			"rotation":[
-				0.48897361755371094,
-				-0.48897355794906616,
-				0.5107885003089905,
-				0.5107884407043457
-			],
-			"translation":[
-				-5.634317398071289,
-				0,
-				-4.349999904632568
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":7
-				}
-			},
-			"name":"Spot.007",
-			"rotation":[
-				0.48897361755371094,
-				-0.48897355794906616,
-				0.5107885003089905,
-				0.5107884407043457
-			],
-			"translation":[
-				-2.764188289642334,
-				0,
-				-4.349999904632568
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":8
-				}
-			},
-			"name":"Spot.008",
-			"rotation":[
-				0.48897361755371094,
-				-0.48897355794906616,
-				0.5107885003089905,
-				0.5107884407043457
-			],
-			"translation":[
-				0.17680788040161133,
-				0,
-				-4.349999904632568
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":9
-				}
-			},
-			"name":"Spot.009",
-			"rotation":[
-				0.48897361755371094,
-				-0.48897355794906616,
-				0.5107885003089905,
-				0.5107884407043457
-			],
-			"translation":[
-				2.9052019119262695,
-				0,
-				-4.349999904632568
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":10
-				}
-			},
-			"name":"Spot.010",
-			"rotation":[
-				0.48897361755371094,
-				-0.48897355794906616,
-				0.5107885003089905,
-				0.5107884407043457
-			],
-			"translation":[
-				5.66903018951416,
-				0,
-				-4.349999904632568
+				-4.501288414001465,
+				1.4568841457366943,
+				-2.4580516815185547
 			]
 		},
 		{
@@ -482,27 +499,8 @@
 			],
 			"translation":[
 				0,
-				5,
+				7,
 				1
-			]
-		},
-		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":12
-				}
-			},
-			"name":"Spot.011",
-			"rotation":[
-				-0.36833375692367554,
-				-0.16896586120128632,
-				-0.06826663017272949,
-				0.9116581082344055
-			],
-			"translation":[
-				-3.0523946285247803,
-				9.370057106018066,
-				7.900763511657715
 			]
 		}
 	],
@@ -655,6 +653,27 @@
 				"metallicFactor":0,
 				"roughnessFactor":0.8570349812507629
 			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Sketchfab_Model_Material_u1_v1",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":16
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Diana_O_Material_u1_v1",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":17
+				},
+				"metallicFactor":0
+			}
 		}
 	],
 	"meshes":[
@@ -790,6 +809,34 @@
 					"material":11
 				}
 			]
+		},
+		{
+			"name":"Mesh_0",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":48,
+						"NORMAL":49,
+						"TEXCOORD_0":50
+					},
+					"indices":51,
+					"material":12
+				}
+			]
+		},
+		{
+			"name":"Object_0.001",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":52,
+						"NORMAL":53,
+						"TEXCOORD_0":54
+					},
+					"indices":55,
+					"material":13
+				}
+			]
 		}
 	],
 	"textures":[
@@ -920,6 +967,22 @@
 				}
 			},
 			"sampler":0
+		},
+		{
+			"extensions":{
+				"EXT_texture_webp":{
+					"source":16
+				}
+			},
+			"sampler":0
+		},
+		{
+			"extensions":{
+				"EXT_texture_webp":{
+					"source":17
+				}
+			},
+			"sampler":0
 		}
 	],
 	"images":[
@@ -1002,6 +1065,16 @@
 			"mimeType":"image/webp",
 			"name":"material_0_baseColor",
 			"uri":"textures/material_0_baseColor-1.webp"
+		},
+		{
+			"mimeType":"image/webp",
+			"name":"base",
+			"uri":"textures/base-2.webp"
+		},
+		{
+			"mimeType":"image/webp",
+			"name":"Diana_O_Material_u1_v1_baseColor",
+			"uri":"textures/Diana_O_Material_u1_v1_baseColor.webp"
 		}
 	],
 	"accessors":[
@@ -1316,14 +1389,14 @@
 			"componentType":5126,
 			"count":8520,
 			"max":[
-				0.41874977946281433,
-				1.2524495124816895,
-				0.4112718105316162
+				0.5066850781440735,
+				1.515463948249817,
+				0.4976389408111572
 			],
 			"min":[
-				-0.41848522424697876,
-				-0.0021092838142067194,
-				-0.42075467109680176
+				-0.5063649415969849,
+				-0.002552233636379242,
+				-0.5091131925582886
 			],
 			"type":"VEC3"
 		},
@@ -1350,14 +1423,14 @@
 			"componentType":5126,
 			"count":5522,
 			"max":[
-				0.44968706369400024,
-				0.4725000262260437,
-				0.30000007152557373
+				0.5713271498680115,
+				0.6003113389015198,
+				0.38115009665489197
 			],
 			"min":[
-				-0.39627864956855774,
+				-0.5034717917442322,
 				0,
-				-0.30000007152557373
+				-0.38115009665489197
 			],
 			"type":"VEC3"
 		},
@@ -1411,6 +1484,74 @@
 			"bufferView":47,
 			"componentType":5123,
 			"count":70722,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":48,
+			"componentType":5126,
+			"count":69543,
+			"max":[
+				1.0409023761749268,
+				1.40342116355896,
+				3.0162479877471924
+			],
+			"min":[
+				-1.0277074575424194,
+				-1.1873478889465332,
+				-0.7174803018569946
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":49,
+			"componentType":5126,
+			"count":69543,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":50,
+			"componentType":5126,
+			"count":69543,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":51,
+			"componentType":5125,
+			"count":167064,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":52,
+			"componentType":5126,
+			"count":112437,
+			"max":[
+				0.5058872699737549,
+				1.326342225074768,
+				0.4365200400352478
+			],
+			"min":[
+				-0.5354530215263367,
+				-1.4569478034973145,
+				-0.45352697372436523
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":53,
+			"componentType":5126,
+			"count":112437,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":54,
+			"componentType":5126,
+			"count":112437,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":55,
+			"componentType":5125,
+			"count":298107,
 			"type":"SCALAR"
 		}
 	],
@@ -1702,6 +1843,54 @@
 			"byteLength":141444,
 			"byteOffset":19835648,
 			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":834516,
+			"byteOffset":19977092,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":834516,
+			"byteOffset":20811608,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":556344,
+			"byteOffset":21646124,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":668256,
+			"byteOffset":22202468,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":1349244,
+			"byteOffset":22870724,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1349244,
+			"byteOffset":24219968,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":899496,
+			"byteOffset":25569212,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1192428,
+			"byteOffset":26468708,
+			"target":34963
 		}
 	],
 	"samplers":[
@@ -1712,7 +1901,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":19977092,
+			"byteLength":27661136,
 			"uri":"janus.bin"
 		}
 	]

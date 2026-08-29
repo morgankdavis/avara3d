@@ -118,7 +118,7 @@ std::unique_ptr<Scene> JanusApp::init() {
                                               .specularIntensity = 0.05f,
                                               .specularExponent = 8.0f};
 
-        auto radialFade = Ground::RadialFade {.color = {0.01f, 0.01f, 0.01f, 1.0f},
+        auto radialFade = Ground::RadialFade {.color = {0.005f, 0.005f, 0.005f, 1.0f},
                                               .center = {0.0f, 0.0f},
                                               .startDistance = 10.0f,
                                               .endDistance = 100.0f};
@@ -230,6 +230,25 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
+        if (auto node = rootNode->childNamed("diana")) {
+            node->physicsBody(PhysicsBody::DynamicBody());
+            node->physicsBody()->mass(9.0f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
+        }
+
+        if (auto node = rootNode->childNamed("lion")) {
+            auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            node->physicsBody(PhysicsBody::DynamicBody(shape));
+            node->physicsBody()->mass(50.0f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->linearDamping(0.03f);
+            node->physicsBody()->angularDamping(0.05f);
+        }
+
         // create and configure the ground
 
         auto groundNode = Node::NamedNode("Ground");
@@ -291,10 +310,15 @@ std::unique_ptr<Scene> JanusApp::init() {
         //                         .pitch = radians(0.0f),
         //                         .distance = 20.0f});
 
-        _cameraController.view({.target = vec3 {0.125f, 3.75f, 0.005f},
-                        .yaw = radians(-33.0f),
-                        .pitch = radians(-5.5f),
-                        .distance = 15.0f});
+        // _cameraController.view({.target = vec3 {0.125f, 3.75f, 0.005f},
+        //                 .yaw = radians(-33.0f),
+        //                 .pitch = radians(-5.5f),
+        //                 .distance = 15.0f});
+
+        _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
+                .yaw = radians(-33.0f),
+                .pitch = radians(-5.5f),
+                .distance = 15.0f});
 
         // create the resettable simulation root node
 
