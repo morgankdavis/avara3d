@@ -39,19 +39,19 @@ static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorl
                                            bool                       elementBoundsOnly = true);
 static vector<shared_ptr<Node>>       BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
                                                  const vec3&                           location,
-                                                 const vec3&                           boxSize,
+                                                 const vec3&                           cellSize,
                                                  const u8vec3&                         stackSize,
-                                                 float                                 padding);
+                                                 float                                 gap);
 static vector<shared_ptr<Node>>       BuildCoins(const TransientsCache::Entry& cacheEntry,
                                                  const vec3&                   location,
-                                                 const vec3&                   boxSize,
+                                                 const vec3&                   cellSize,
                                                  const u8vec3&                 stackSize,
-                                                 float                         padding);
+                                                 float                         gap);
 static vector<shared_ptr<Node>>       BuildBalls(const TransientsCache::Entry& cacheEntry,
                                                  const vec3&                   location,
-                                                 const vec3&                   boxSize,
+                                                 const vec3&                   cellSize,
                                                  const u8vec3&                 stackSize,
-                                                 float                         padding);
+                                                 float                         gap);
 static shared_ptr<Node>               BuildHammer(const TransientsCache::Entry& cacheEntry,
                                                   const vec3&                   location,
                                                   const vec3&                   velocity);
@@ -1189,17 +1189,17 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const float DROP_HEIGHT {7.5f};
 
-    const vec3   BOX_SIZE {vec3 {1.0f} * 0.35f};
-    const u8vec3 BOX_STACK_SIZE {3, 3, 3};
-    const float  BOX_PADDING {0.065f};
+    const vec3   ROCK_SIZE {vec3 {1.0f} * 0.35f};
+    const u8vec3 ROCK_STACK_SIZE {3, 3, 3};
+    const float  ROCK_GAP {0.065f};
 
     const vec3   COIN_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 COIN_STACK_SIZE {3, 3, 3};
-    const float  COIN_PADDING {0.065f};
+    const float  COIN_GAP {1.065f};
 
     const vec3   BALL_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 BALL_STACK_SIZE {3, 3, 3};
-    const float  BALL_PADDING {0.065f};
+    const float  BALL_GAP {1.065f};
 
     const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
@@ -1227,22 +1227,22 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, BOX_SIZE,
-                                                BOX_STACK_SIZE, BOX_PADDING);
+                    auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_SIZE,
+                                                ROCK_STACK_SIZE, ROCK_GAP);
                     _transientsRoot->addChildren(rockNodes);
                     _transientTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
                     auto coinNodes = BuildCoins(_transientsCache.coin(), spawnLocation, COIN_SIZE,
-                                                COIN_STACK_SIZE, COIN_PADDING + .1);
+                                                COIN_STACK_SIZE, COIN_GAP);
                     _transientsRoot->addChildren(coinNodes);
                     _transientTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
                     auto ballNodes = BuildBalls(_transientsCache.ball(), spawnLocation, BALL_SIZE,
-                                                BALL_STACK_SIZE, BALL_PADDING + .1);
+                                                BALL_STACK_SIZE, BALL_GAP);
                     _transientsRoot->addChildren(ballNodes);
                     _transientTracker.track(ballNodes, "balls");
                     break;
@@ -1523,9 +1523,9 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
 
 vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
                                     const vec3&                           location,
-                                    const vec3&                           boxSize,
+                                    const vec3&                           cellSize,
                                     const u8vec3&                         stackSize,
-                                    float                                 padding) {
+                                    float                                 gap) {
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1534,16 +1534,16 @@ vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheE
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeZ * sizeY);
 
-    const float stepX = boxSize.x + padding;
-    const float stepY = boxSize.y + padding;
-    const float stepZ = boxSize.z + padding;
+    const float stepX = cellSize.x + gap;
+    const float stepY = cellSize.y + gap;
+    const float stepZ = cellSize.z + gap;
 
-    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(sizeZ) + padding * static_cast<float>(sizeZ - 1);
+    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
+    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
 
-    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
-    const float startY = location.y + boxSize.y * 0.5f;
+    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
+    const float startY = location.y + cellSize.y * 0.5f;
 
     size_t rockIndex = 0;
 
@@ -1581,9 +1581,9 @@ vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheE
 
 vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
                                     const vec3&                   location,
-                                    const vec3&                   boxSize,
+                                    const vec3&                   cellSize,
                                     const u8vec3&                 stackSize,
-                                    float                         padding) {
+                                    float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
 
@@ -1594,19 +1594,19 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const float stepX = boxSize.x + padding;
-    const float stepY = boxSize.y + padding;
-    const float stepZ = boxSize.z + padding;
+    const float stepX = cellSize.x + gap;
+    const float stepY = cellSize.y + gap;
+    const float stepZ = cellSize.z + gap;
 
-    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
+    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
+    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
 
-    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
-    const float startY = location.y + boxSize.y * 0.5f;
+    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
+    const float startY = location.y + cellSize.y * 0.5f;
 
-    for (unsigned y = 0; y < sizeZ; ++y) {
-        for (unsigned z = 0; z < sizeY; ++z) {
+    for (unsigned y = 0; y < sizeY; ++y) {
+        for (unsigned z = 0; z < sizeZ; ++z) {
             for (unsigned x = 0; x < sizeX; ++x) {
 
                 auto node = Node::MeshNode(mesh);
@@ -1614,7 +1614,7 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
                 static int boxNum = 0;
                 node->name(std::format("Coin {}", ++boxNum));
 
-                const vec3 positionVariance {padding / 2.0f, padding / 8.0f, padding / 2.0f};
+                const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
                                      startZ + static_cast<float>(z) * stepZ}
@@ -1651,9 +1651,9 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
 
 vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
                                     const vec3&                   location,
-                                    const vec3&                   boxSize,
+                                    const vec3&                   cellSize,
                                     const u8vec3&                 stackSize,
-                                    float                         padding) {
+                                    float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
 
@@ -1664,19 +1664,19 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const float stepX = boxSize.x + padding;
-    const float stepY = boxSize.y + padding;
-    const float stepZ = boxSize.z + padding;
+    const float stepX = cellSize.x + gap;
+    const float stepY = cellSize.y + gap;
+    const float stepZ = cellSize.z + gap;
 
-    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
+    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
+    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
 
-    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
-    const float startY = location.y + boxSize.y * 0.5f;
+    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
+    const float startY = location.y + cellSize.y * 0.5f;
 
-    for (unsigned y = 0; y < sizeZ; ++y) {
-        for (unsigned z = 0; z < sizeY; ++z) {
+    for (unsigned y = 0; y < sizeY; ++y) {
+        for (unsigned z = 0; z < sizeZ; ++z) {
             for (unsigned x = 0; x < sizeX; ++x) {
 
                 auto node = Node::MeshNode(mesh);
@@ -1684,7 +1684,7 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
                 static int boxNum = 0;
                 node->name(std::format("Beachball {}", ++boxNum));
 
-                const vec3 positionVariance {padding / 2.0f, padding / 8.0f, padding / 2.0f};
+                const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
                                      startZ + static_cast<float>(z) * stepZ}
