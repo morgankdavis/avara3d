@@ -28,12 +28,12 @@ static const float DUCK_HEIGHT {0.5f};
 
 // [Public Member Functions]
 
-void TransientsCache::init(Node& transientAssetsRoot) {
+void TransientsCache::init(const Node& transientAssetsRoot) {
 
     initRocks(*transientAssetsRoot.childNamed("rocks"));
     initCoin();
     initBall();
-    initHammer();
+    initHammer(*transientAssetsRoot.childNamed("hammer"));
     initHula();
     initDuck();
 }
@@ -64,7 +64,7 @@ const TransientsCache::Entry& TransientsCache::duck() const {
 
 // [Private Member Functions]
 
-void TransientsCache::initRocks(Node& rocksRoot) {
+void TransientsCache::initRocks(const Node& rocksRoot) {
 
     const auto nodes = rocksRoot.children();
 
@@ -140,11 +140,11 @@ void TransientsCache::initBall() {
     _ball = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
-void TransientsCache::initHammer() {
+void TransientsCache::initHammer(const Node& node) {
 
-    auto mesh = util::fs::MeshAt("hammer/hammer.gltf");
+    auto mesh = node.mesh();
 
-    const float scaleFactor = HAMMER_LENGTH / mesh->localExtent().z;
+    const float scaleFactor = HAMMER_LENGTH / math::max(mesh->localExtent());
     auto        transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
     transform = math::scale(transform, scaleFactor);
     mesh->burnTransform(transform, true);
