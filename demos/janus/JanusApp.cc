@@ -1195,11 +1195,11 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const vec3   COIN_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 COIN_STACK_SIZE {3, 3, 3};
-    const float  COIN_GAP {1.065f};
+    const float  COIN_GAP {0.165f};
 
     const vec3   BALL_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 BALL_STACK_SIZE {3, 3, 3};
-    const float  BALL_GAP {1.065f};
+    const float  BALL_GAP {0.165f};
 
     const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
