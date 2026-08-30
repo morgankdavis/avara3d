@@ -32,7 +32,7 @@ void TransientsCache::init() {
 
     initRocks();
     initCoin();
-    initBeachball();
+    initBall();
     initHammer();
     initHula();
     initDuck();
@@ -46,8 +46,8 @@ const TransientsCache::Entry& TransientsCache::coin() const {
     return _coin;
 }
 
-const TransientsCache::Entry& TransientsCache::beachball() const {
-    return _beachball;
+const TransientsCache::Entry& TransientsCache::ball() const {
+    return _ball;
 }
 
 const TransientsCache::Entry& TransientsCache::hammer() const {
@@ -123,7 +123,7 @@ void TransientsCache::initCoin() {
     _coin = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
-void TransientsCache::initBeachball() {
+void TransientsCache::initBall() {
 
     auto mesh = util::fs::MeshAt("beachball/beachball.gltf");
 
@@ -140,7 +140,7 @@ void TransientsCache::initBeachball() {
     mesh->firstMaterial()->specular(Color::LightGray());
     mesh->firstMaterial()->specularExponent(16.0f);
 
-    _beachball = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
+    _ball = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
 void TransientsCache::initHammer() {

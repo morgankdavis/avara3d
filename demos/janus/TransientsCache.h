@@ -43,7 +43,7 @@ namespace demo::janus {
 
         const std::vector<Entry>& rocks() const;
         const Entry&              coin() const;
-        const Entry&              beachball() const;
+        const Entry&              ball() const;
         const Entry&              hammer() const;
         const Entry&              hula() const;
         const Entry&              duck() const;
@@ -53,7 +53,7 @@ namespace demo::janus {
 
         void initRocks();
         void initCoin();
-        void initBeachball();
+        void initBall();
         void initHammer();
         void initHula();
         void initDuck();
@@ -62,7 +62,7 @@ namespace demo::janus {
 
         std::vector<Entry> _rocks;
         Entry              _coin;
-        Entry              _beachball;
+        Entry              _ball;
         Entry              _hammer;
         Entry              _hula;
         Entry              _duck;

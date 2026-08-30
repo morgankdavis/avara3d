@@ -37,21 +37,21 @@ static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorl
                                            const vec2&                screenPosition,
                                            const vector<const Node*>& ignoredNodes = {},
                                            bool                       elementBoundsOnly = true);
-static vector<shared_ptr<Node>>       DropRocks(Node&         parent,
-                                                const vec3&   location,
-                                                const vec3&   boxSize,
-                                                const u8vec3& stackSize,
-                                                float         padding);
-static vector<shared_ptr<Node>>       DropCoins(Node&         parent,
-                                                const vec3&   location,
-                                                const vec3&   boxSize,
-                                                const u8vec3& stackSize,
-                                                float         padding);
-static vector<shared_ptr<Node>>       DropBalls(Node&         parent,
-                                                const vec3&   location,
-                                                const vec3&   boxSize,
-                                                const u8vec3& stackSize,
-                                                float         padding);
+static vector<shared_ptr<Node>>       BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
+                                                 const vec3&                           location,
+                                                 const vec3&                           boxSize,
+                                                 const u8vec3&                         stackSize,
+                                                 float                                 padding);
+static vector<shared_ptr<Node>>       BuildCoins(const TransientsCache::Entry& cacheEntry,
+                                                 const vec3&                   location,
+                                                 const vec3&                   boxSize,
+                                                 const u8vec3&                 stackSize,
+                                                 float                         padding);
+static vector<shared_ptr<Node>>       BuildBalls(const TransientsCache::Entry& cacheEntry,
+                                                 const vec3&                   location,
+                                                 const vec3&                   boxSize,
+                                                 const u8vec3&                 stackSize,
+                                                 float                         padding);
 static shared_ptr<Node>               BuildHammer(const TransientsCache::Entry& cacheEntry,
                                                   const vec3&                   location,
                                                   const vec3&                   velocity);
@@ -284,15 +284,16 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         // setup transient node groups
 
-        _transients.groupPolicy("rock", {.maxCount = (3 * 3 * 3) * 1});
-        _transients.groupPolicy("coin", {.maxCount = (3 * 3 * 4) * 2});
-        _transients.groupPolicy("ball", {.maxCount = (3 * 3 * 3) * 2});
-        _transients.groupPolicy("hammer", {.maxCount = 10,
-                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
-        _transients.groupPolicy("hula", {.maxCount = 10,
-                                         .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
-        _transients.groupPolicy("duck", {.maxCount = 10,
-                                         .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+        _transients.groupPolicy("rocks", {.maxCount = (3 * 3 * 3) * 1});
+        _transients.groupPolicy("coins", {.maxCount = (3 * 3 * 4) * 2});
+        _transients.groupPolicy("balls", {.maxCount = (3 * 3 * 3) * 2});
+        _transients.groupPolicy("hammers",
+                                {.maxCount = 10,
+                                 .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+        _transients.groupPolicy("hulas", {.maxCount = 10,
+                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+        _transients.groupPolicy("ducks", {.maxCount = 10,
+                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
 
         _transientsCache.init();
 
@@ -1098,7 +1099,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
 void JanusApp::performAction(const PendingAction& action) {
 
-    const float DROP_HEIGHT {10.0f};
+    const float DROP_HEIGHT {7.5f};
 
     const vec3   BOX_SIZE {vec3 {1.0f} * 0.35f};
     const u8vec3 BOX_STACK_SIZE {3, 3, 3};
@@ -1139,21 +1140,24 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rocks =
-                        DropRocks(*simulationRoot, spawnLocation, BOX_SIZE, BOX_STACK_SIZE, BOX_PADDING);
-                    _transients.track(rocks, "rock");
+                    auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, BOX_SIZE,
+                                                BOX_STACK_SIZE, BOX_PADDING);
+                    simulationRoot->addChildren(rockNodes);
+                    _transients.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
-                    auto coins = DropCoins(*simulationRoot, spawnLocation, COIN_SIZE, COIN_STACK_SIZE,
-                                           COIN_PADDING + .1);
-                    _transients.track(coins, "coin");
+                    auto coinNodes = BuildCoins(_transientsCache.coin(), spawnLocation, COIN_SIZE,
+                                                COIN_STACK_SIZE, COIN_PADDING + .1);
+                    simulationRoot->addChildren(coinNodes);
+                    _transients.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
-                    auto balls = DropBalls(*simulationRoot, spawnLocation, BALL_SIZE, BALL_STACK_SIZE,
-                                           BALL_PADDING + .1);
-                    _transients.track(balls, "ball");
+                    auto ballNodes = BuildBalls(_transientsCache.ball(), spawnLocation, BALL_SIZE,
+                                                BALL_STACK_SIZE, BALL_PADDING + .1);
+                    simulationRoot->addChildren(ballNodes);
+                    _transients.track(ballNodes, "balls");
                     break;
                 }
             }
@@ -1181,27 +1185,27 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
-                    auto projectile = BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
-                    simulationRoot->addChild(projectile);
-                    _pickIgnores.push_back({.node = projectile,
+                    auto hammerNode = BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
+                    simulationRoot->addChild(hammerNode);
+                    _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "hammer");
+                    _transients.track(hammerNode, "hammers");
                     break;
                 }
                 case ThrowAction::Hula: {
-                    auto projectile = BuildHula(_transientsCache.hula(), spawnPosition, velocity);
-                    _pickIgnores.push_back({.node = projectile,
+                    auto hulaNode = BuildHula(_transientsCache.hula(), spawnPosition, velocity);
+                    _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    simulationRoot->addChild(projectile);
-                    _transients.track(projectile, "hula");
+                    simulationRoot->addChild(hulaNode);
+                    _transients.track(hulaNode, "hulas");
                     break;
                 }
                 case ThrowAction::Duck: {
-                    auto projectile = BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
-                    simulationRoot->addChild(projectile);
-                    _pickIgnores.push_back({.node = projectile,
+                    auto duckNode = BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
+                    simulationRoot->addChild(duckNode);
+                    _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(projectile, "duck");
+                    _transients.track(duckNode, "ducks");
                     break;
                 }
             }
@@ -1423,37 +1427,11 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
     return {};
 }
 
-vector<shared_ptr<Node>> DropRocks(Node&         parent,
-                                   const vec3&   location,
-                                   const vec3&   boxSize,
-                                   const u8vec3& stackSize,
-                                   float         padding) {
-    // auto rockScene =
-    //     util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
-    //                       Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
-
-    auto rockScene =
-        util::fs::SceneAt("rocks_concave/rocks_concave.gltf",
-                          Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
-
-    struct Rock {
-        shared_ptr<Mesh>         mesh;
-        shared_ptr<PhysicsShape> physicsShape;
-    };
-
-    vector<Rock> rocks;
-
-    for (const auto& node : rockScene->rootNode()->children()) {
-
-        auto mesh = node->mesh();
-        if (!mesh) {
-            continue;
-        }
-
-        mesh->burnTransform(util::geom::fit_inside(mesh->localAABB(), boxSize), true);
-        auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
-        rocks.push_back({std::move(mesh), std::move(physicsShape)});
-    }
+vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
+                                    const vec3&                           location,
+                                    const vec3&                           boxSize,
+                                    const u8vec3&                         stackSize,
+                                    float                                 padding) {
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1479,9 +1457,9 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
         for (unsigned z = 0; z < sizeZ; ++z) {
             for (unsigned x = 0; x < sizeX; ++x) {
 
-                const auto& rock = rocks[rockIndex++ % rocks.size()];
+                const auto& rockEntry = cacheEntries[rockIndex++ % cacheEntries.size()];
 
-                auto node = Node::MeshNode(rock.mesh);
+                auto node = Node::MeshNode(rockEntry.mesh);
 
                 static int rockNum = 0;
                 node->name(std::format("Rock {}", ++rockNum));
@@ -1489,7 +1467,7 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                 node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
                                 startZ + static_cast<float>(z) * stepZ});
 
-                auto physicsBody = PhysicsBody::DynamicBody(rock.physicsShape);
+                auto physicsBody = PhysicsBody::DynamicBody(rockEntry.physicsShape);
                 physicsBody->mass(3.5f);
                 physicsBody->restitution(0.02f);
                 physicsBody->friction(0.8f);
@@ -1500,7 +1478,6 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                 node->physicsBody(std::move(physicsBody));
 
                 added.push_back(node);
-                parent.addChild(node);
             }
         }
     }
@@ -1508,11 +1485,13 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
     return added;
 }
 
-vector<shared_ptr<Node>> DropCoins(Node&         parent,
-                                   const vec3&   location,
-                                   const vec3&   boxSize,
-                                   const u8vec3& stackSize,
-                                   float         padding) {
+vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
+                                    const vec3&                   location,
+                                    const vec3&                   boxSize,
+                                    const u8vec3&                 stackSize,
+                                    float                         padding) {
+
+    auto [mesh, shape] = cacheEntry;
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1520,34 +1499,6 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
 
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
-
-    static auto [mesh, shape] = [] {
-        constexpr float MAX_DIM = 0.35f;
-
-        auto mesh = util::fs::MeshAt("roman_coin/roman_coin.gltf");
-
-        const float scaleFactor = MAX_DIM / math::max(mesh->localExtent());
-
-        auto transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
-
-        transform = math::scale(transform, vec3(scaleFactor));
-
-        mesh->burnTransform(transform, true);
-
-        // after rotation:
-        // X = diameter
-        // Y = thickness
-        // Z = diameter
-        const auto  extent = mesh->localExtent();
-        const float radius = math::max(extent.x, extent.z) * 0.5f;
-        const float height = extent.y;
-        auto        shape = make_shared<CylinderPhysicsShape>(radius, height);
-
-        mesh->firstMaterial()->specular(Color::LightGray());
-        mesh->firstMaterial()->specularExponent(16.0f);
-
-        return std::pair {mesh, shape};
-    }();
 
     const float stepX = boxSize.x + padding;
     const float stepY = boxSize.y + padding;
@@ -1597,7 +1548,6 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 node->physicsBody(std::move(physicsBody));
 
                 added.push_back(node);
-                parent.addChild(node);
             }
         }
     }
@@ -1605,11 +1555,13 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
     return added;
 }
 
-vector<shared_ptr<Node>> DropBalls(Node&         parent,
-                                   const vec3&   location,
-                                   const vec3&   boxSize,
-                                   const u8vec3& stackSize,
-                                   float         padding) {
+vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
+                                    const vec3&                   location,
+                                    const vec3&                   boxSize,
+                                    const u8vec3&                 stackSize,
+                                    float                         padding) {
+
+    auto [mesh, shape] = cacheEntry;
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1617,23 +1569,6 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
 
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
-
-    static auto [mesh, shape] = [] {
-        constexpr float MAX_DIM = 0.45f;
-
-        auto mesh = util::fs::MeshAt("beachball/beachball.gltf");
-
-        const float scaleFactor = MAX_DIM / math::max(mesh->localExtent());
-        const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-        mesh->burnTransform(transform, true);
-
-        auto shape = make_shared<SpherePhysicsShape>(MAX_DIM / 2.0);
-
-        mesh->firstMaterial()->specular(Color::LightGray());
-        mesh->firstMaterial()->specularExponent(16.0f);
-
-        return std::pair {mesh, shape};
-    }();
 
     const float stepX = boxSize.x + padding;
     const float stepY = boxSize.y + padding;
@@ -1676,7 +1611,6 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 node->physicsBody(std::move(physicsBody));
 
                 added.push_back(node);
-                parent.addChild(node);
             }
         }
     }
