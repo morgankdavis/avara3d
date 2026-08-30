@@ -13,6 +13,7 @@ absolute_from_repo() {
         printf '%s/%s\n' "${REPO_ROOT}" "${path}"
     fi
 }
+
 SITE_SOURCE_DIR="${REPO_ROOT}/website"
 DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-janus}"
 WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${1:-build-web-release}}")"
@@ -110,9 +111,9 @@ rm -f -- \
     "${TEMP_DIR}/source-manifest.json"
 mkdir -p -- "${TEMP_DIR}/demo" "${TEMP_DIR}/source"
 
-for source_file in main.cc App.h App.cc; do
-    cp -- "${DEMO_SOURCE_DIR}/${source_file}" "${TEMP_DIR}/source/${source_file}"
-done
+find "${DEMO_SOURCE_DIR}" -maxdepth 1 -type f \
+    \( -name '*.cc' -o -name '*.h' \) \
+    -exec cp -- {} "${TEMP_DIR}/source/" \;
 
 if [[ -d "${DEMO_SOURCE_DIR}/data" ]]; then
     cp -a -- "${DEMO_SOURCE_DIR}/data" "${TEMP_DIR}/source/data"

@@ -122,19 +122,32 @@
     }
 
     function rootFileOrder(name) {
-        if (name === "main.cc") {
-            return 0;
+        return name === "main.cc" ? 0 : 1;
+    }
+
+    function compareSourceFiles(left, right) {
+        const leftStem = left.name.replace(/\.(h|cc)$/, "");
+        const rightStem = right.name.replace(/\.(h|cc)$/, "");
+
+        const stemOrder = leftStem.localeCompare(
+            rightStem,
+            undefined,
+            {numeric: true, sensitivity: "base"},
+        );
+
+        if (stemOrder !== 0) {
+            return stemOrder;
         }
 
-        if (name.endsWith("App.h")) {
+        if (left.name.endsWith(".h") && right.name.endsWith(".cc")) {
+            return -1;
+        }
+
+        if (left.name.endsWith(".cc") && right.name.endsWith(".h")) {
             return 1;
         }
 
-        if (name.endsWith("App.cc")) {
-            return 2;
-        }
-
-        return 3;
+        return compareNames(left, right);
     }
 
     function directoryChildren(directory) {
@@ -182,7 +195,7 @@
                 }
             }
 
-            return compareNames(left, right);
+            return compareSourceFiles(left, right);
         });
 
         return directory ? [...directoryEntries, ...directFiles] : [...directFiles, ...directoryEntries];

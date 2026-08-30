@@ -359,10 +359,15 @@ std::unique_ptr<Scene> JanusApp::init() {
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
-                        .yaw = radians(-21.24f),
-                        .pitch = radians(-6.58f),
-                        .distance = 15.0f});
+        // _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
+        //                 .yaw = radians(-21.24f),
+        //                 .pitch = radians(-6.58f),
+        //                 .distance = 15.0f});
+
+        _cameraController.view({.target = vec3 {-0.1346f, 4.2466f, 0.4131},
+                .yaw = radians(-10.66f),
+                .pitch = radians(-1.89f),
+                .distance = 17.4275f});
 
         // create the resettable simulation root node
 
@@ -532,7 +537,8 @@ void JanusApp::frameDidBegin(Runner&                        runner,
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
     }
 
-    const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 8.0f)};
+    //const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 8.0f)};
+    const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 6.0f)};
     const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
     const float angle =
@@ -600,9 +606,9 @@ bool JanusApp::drawPanel() {
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
-    if (panel.button("CAMERA")) {
-        log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
-    }
+    // if (panel.button("CAMERA")) {
+    //     log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
+    // }
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 

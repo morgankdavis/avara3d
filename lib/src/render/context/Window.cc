@@ -154,6 +154,10 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
                 RenderContext::renderer()->initialize(*this);
                 ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
                 registerGLFWCallbacks();
+
+                log::i()("framebufferSize: ({}, {})", framebufferSize().x, framebufferSize().y);
+                log::i()("viewportLogicalSize: ({}, {})", viewportLogicalSize().x, viewportLogicalSize().y);
+                log::i()("viewportScale: ({}, {})", viewportScale().x, viewportScale().y);
             }
             else {
                 // TODO: move
