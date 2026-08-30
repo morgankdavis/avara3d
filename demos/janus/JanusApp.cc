@@ -39,17 +39,14 @@ static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorl
                                            bool                       elementBoundsOnly = true);
 static vector<shared_ptr<Node>>       BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
                                                  const vec3&                           location,
-                                                 const vec3&                           cellSize,
                                                  const u8vec3&                         stackSize,
                                                  float                                 gap);
 static vector<shared_ptr<Node>>       BuildCoins(const TransientsCache::Entry& cacheEntry,
                                                  const vec3&                   location,
-                                                 const vec3&                   cellSize,
                                                  const u8vec3&                 stackSize,
                                                  float                         gap);
 static vector<shared_ptr<Node>>       BuildBalls(const TransientsCache::Entry& cacheEntry,
                                                  const vec3&                   location,
-                                                 const vec3&                   cellSize,
                                                  const u8vec3&                 stackSize,
                                                  float                         gap);
 static shared_ptr<Node>               BuildHammer(const TransientsCache::Entry& cacheEntry,
@@ -1189,16 +1186,13 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const float DROP_HEIGHT {7.5f};
 
-    const vec3   ROCK_SIZE {vec3 {1.0f} * 0.35f};
-    const u8vec3 ROCK_STACK_SIZE {3, 3, 3};
+    const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
     const float  ROCK_GAP {0.065f};
 
-    const vec3   COIN_SIZE {vec3 {1.0f} * 0.35f};
-    const u8vec3 COIN_STACK_SIZE {3, 3, 3};
+    const u8vec3 COIN_GRID_SIZE {3, 3, 3};
     const float  COIN_GAP {0.165f};
 
-    const vec3   BALL_SIZE {vec3 {1.0f} * 0.35f};
-    const u8vec3 BALL_STACK_SIZE {3, 3, 3};
+    const u8vec3 BALL_GRID_SIZE {3, 3, 3};
     const float  BALL_GAP {0.165f};
 
     const float POKE_IMPULSE_SOFT = 2.5f;
@@ -1227,22 +1221,22 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_SIZE,
-                                                ROCK_STACK_SIZE, ROCK_GAP);
+                    auto rockNodes =
+                        BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_GRID_SIZE, ROCK_GAP);
                     _transientsRoot->addChildren(rockNodes);
                     _transientTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
-                    auto coinNodes = BuildCoins(_transientsCache.coin(), spawnLocation, COIN_SIZE,
-                                                COIN_STACK_SIZE, COIN_GAP);
+                    auto coinNodes =
+                        BuildCoins(_transientsCache.coin(), spawnLocation, COIN_GRID_SIZE, COIN_GAP);
                     _transientsRoot->addChildren(coinNodes);
                     _transientTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
-                    auto ballNodes = BuildBalls(_transientsCache.ball(), spawnLocation, BALL_SIZE,
-                                                BALL_STACK_SIZE, BALL_GAP);
+                    auto ballNodes =
+                        BuildBalls(_transientsCache.ball(), spawnLocation, BALL_GRID_SIZE, BALL_GAP);
                     _transientsRoot->addChildren(ballNodes);
                     _transientTracker.track(ballNodes, "balls");
                     break;
@@ -1523,9 +1517,15 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
 
 vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
                                     const vec3&                           location,
-                                    const vec3&                           cellSize,
                                     const u8vec3&                         stackSize,
                                     float                                 gap) {
+
+    float maxDimension = 0.0f;
+    for (const auto& entry : cacheEntries) {
+        maxDimension = std::max(maxDimension, math::max(entry.mesh->localExtent()));
+    }
+
+    const vec3 cellSize {maxDimension};
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1581,11 +1581,11 @@ vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheE
 
 vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
                                     const vec3&                   location,
-                                    const vec3&                   cellSize,
                                     const u8vec3&                 stackSize,
                                     float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
+    const vec3 cellSize {math::max(mesh->localExtent())};
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1611,8 +1611,8 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
 
                 auto node = Node::MeshNode(mesh);
 
-                static int boxNum = 0;
-                node->name(std::format("Coin {}", ++boxNum));
+                static int coinNum = 0;
+                node->name(std::format("Coin {}", ++coinNum));
 
                 const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
@@ -1651,11 +1651,11 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
 
 vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
                                     const vec3&                   location,
-                                    const vec3&                   cellSize,
                                     const u8vec3&                 stackSize,
                                     float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
+    const vec3 cellSize {math::max(mesh->localExtent())};
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1681,8 +1681,8 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
 
                 auto node = Node::MeshNode(mesh);
 
-                static int boxNum = 0;
-                node->name(std::format("Beachball {}", ++boxNum));
+                static int ballNum = 0;
+                node->name(std::format("Beachball {}", ++ballNum));
 
                 const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
                 node->position(vec3 {startX + static_cast<float>(x) * stepX,
