@@ -1,8 +1,10 @@
 a3d_add_demo(
 		SOURCES
-		JanusApp.cc
-		JanusApp.h
 		main.cc
+		JanusApp.h
+		JanusApp.cc
+		TransientsCache.h
+		TransientsCache.cc
 
 		DATA_DIRECTORY
 		"${CMAKE_CURRENT_SOURCE_DIR}/data"

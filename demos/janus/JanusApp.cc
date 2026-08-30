@@ -52,9 +52,15 @@ static vector<shared_ptr<Node>>       DropBalls(Node&         parent,
                                                 const vec3&   boxSize,
                                                 const u8vec3& stackSize,
                                                 float         padding);
-static shared_ptr<Node>               ThrowHammer(Node& parent, const vec3& location, const vec3& velocity);
-static shared_ptr<Node>               ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
-static shared_ptr<Node>               ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>               BuildHammer(const TransientsCache::Entry& cacheEntry,
+                                                  const vec3&                   location,
+                                                  const vec3&                   velocity);
+static shared_ptr<Node>               BuildHula(const TransientsCache::Entry& cacheEntry,
+                                                const vec3&                   location,
+                                                const vec3&                   velocity);
+static shared_ptr<Node>               BuildDuck(const TransientsCache::Entry& cacheEntry,
+                                                const vec3&                   location,
+                                                const vec3&                   velocity);
 
 // [Public Lifecycle Functions]
 
@@ -112,7 +118,7 @@ std::unique_ptr<Scene> JanusApp::init() {
                                                         .lineWidthPixels = 1.0f,
                                                         .reliefStrength = -0.125f};
 
-        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),//.color = Color{0.15f},
+        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(), //.color = Color{0.15f},
                                               .minor = minor,
                                               .major = major,
                                               .specularIntensity = 0.05f,
@@ -282,11 +288,13 @@ std::unique_ptr<Scene> JanusApp::init() {
         _transients.groupPolicy("coin", {.maxCount = (3 * 3 * 4) * 2});
         _transients.groupPolicy("ball", {.maxCount = (3 * 3 * 3) * 2});
         _transients.groupPolicy("hammer", {.maxCount = 10,
-                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
         _transients.groupPolicy("hula", {.maxCount = 10,
-                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+                                         .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
         _transients.groupPolicy("duck", {.maxCount = 10,
-                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+                                         .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+
+        _transientsCache.init();
 
         // create and configure the camera and camera controller
 
@@ -316,9 +324,9 @@ std::unique_ptr<Scene> JanusApp::init() {
         //                 .distance = 15.0f});
 
         _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
-                .yaw = radians(-33.0f),
-                .pitch = radians(-5.5f),
-                .distance = 15.0f});
+                                .yaw = radians(-33.0f),
+                                .pitch = radians(-5.5f),
+                                .distance = 15.0f});
 
         // create the resettable simulation root node
 
@@ -1173,21 +1181,24 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
-                    auto projectile = ThrowHammer(*simulationRoot, spawnPosition, velocity);
+                    auto projectile = BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
+                    simulationRoot->addChild(projectile);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transients.track(projectile, "hammer");
                     break;
                 }
                 case ThrowAction::Hula: {
-                    auto projectile = ThrowHula(*simulationRoot, spawnPosition, velocity);
+                    auto projectile = BuildHula(_transientsCache.hula(), spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
+                    simulationRoot->addChild(projectile);
                     _transients.track(projectile, "hula");
                     break;
                 }
                 case ThrowAction::Duck: {
-                    auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
+                    auto projectile = BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
+                    simulationRoot->addChild(projectile);
                     _pickIgnores.push_back({.node = projectile,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transients.track(projectile, "duck");
@@ -1673,19 +1684,11 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
     return added;
 }
 
-shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& velocity) {
+shared_ptr<Node> BuildHammer(const TransientsCache::Entry& cacheEntry,
+                             const vec3&                   location,
+                             const vec3&                   velocity) {
 
-    static auto [mesh, shape] = [] {
-        constexpr float LENGTH = 1.0f;
-        auto            mesh = util::fs::MeshAt("hammer/hammer.gltf");
-        const float     scaleFactor = LENGTH / mesh->localExtent().z;
-        auto            transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
-        transform = math::scale(transform, scaleFactor);
-        mesh->burnTransform(transform, true);
-        auto shape = PhysicsShape::ConvexHullShape(mesh);
-        // auto shape = PhysicsShape::ConcavePolyhedronShape(mesh);
-        return std::pair {mesh, shape};
-    }();
+    auto [mesh, shape] = cacheEntry;
 
     auto       node = Node::MeshNode(mesh);
     static int hammerNum = 0;
@@ -1717,21 +1720,14 @@ shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& vel
 
     node->physicsBody(std::move(physicsBody));
 
-    parent.addChild(node);
-
     return node;
 }
 
-shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& velocity) {
+shared_ptr<Node> BuildHula(const TransientsCache::Entry& cacheEntry,
+                           const vec3&                   location,
+                           const vec3&                   velocity) {
 
-    static auto [mesh, shape] = [] {
-        constexpr float DIAMETER = 1.1f;
-        auto            mesh = util::fs::MeshAt("hula/hula.gltf");
-        const float     scaleFactor = DIAMETER / mesh->localExtent().y;
-        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(mesh);
-        return std::pair {mesh, shape};
-    }();
+    auto [mesh, shape] = cacheEntry;
 
     auto node = Node::MeshNode(mesh);
 
@@ -1776,21 +1772,14 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
 
     node->physicsBody(std::move(physicsBody));
 
-    parent.addChild(node);
-
     return node;
 }
 
-shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
+shared_ptr<Node> BuildDuck(const TransientsCache::Entry& cacheEntry,
+                           const vec3&                   location,
+                           const vec3&                   velocity) {
 
-    static auto [mesh, shape] = [] {
-        constexpr float HEIGHT = 0.5f;
-        auto            mesh = util::fs::MeshAt("duck/duck.gltf");
-        const float     scaleFactor = HEIGHT / mesh->localExtent().y;
-        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto shape = PhysicsShape::ConvexHullShape(mesh);
-        return std::pair {mesh, shape};
-    }();
+    auto [mesh, shape] = cacheEntry;
 
     auto       node = Node::MeshNode(mesh);
     static int quackNum = 0;
@@ -1818,8 +1807,6 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     physicsBody->linearVelocity(velocity);
 
     node->physicsBody(std::move(physicsBody));
-
-    parent.addChild(node);
 
     return node;
 }

@@ -9,6 +9,8 @@
 #ifndef AVARA3D_DEMO_JANUSAPP_H
 #define AVARA3D_DEMO_JANUSAPP_H
 
+#include "TransientsCache.h"
+
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -19,6 +21,8 @@
 #include "a3d/extension/Transients.h"
 #include "a3d/extension/Wanderer.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
+
+#include "TransientsCache.h"
 
 namespace a3d {
 
@@ -143,6 +147,7 @@ namespace demo::janus {
         ThrowAction                         _throwAction;
         Pokiness                            _pokiness;
         a3d::ext::Transients                _transients;
+        TransientsCache                     _transientsCache;
         double                              _backgroundRotationTime;
         std::vector<a3d::ext::Wanderer>     _orbWanderers;
         std::vector<PickIgnore>             _pickIgnores;
