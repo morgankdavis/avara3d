@@ -30,7 +30,7 @@ sudo apt install clang git cmake ninja-build libwayland-dev libx11-dev xorg-dev 
 #### Check out this repo
 
 ```sh
-git clone https://gitlab.mkd.net/a3d/avara3d.git
+git clone --depth 1 https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
@@ -68,7 +68,7 @@ brew install cmake ninja
 #### Check out this repo
 
 ```sh
-git clone https://gitlab.mkd.net/a3d/avara3d.git
+git clone --depth 1 https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
@@ -102,7 +102,7 @@ The CMake tools component provides the CMake and Ninja tooling used by Avara3Dâ€
 #### Check out this repo
 
 ```bat
-git clone https://gitlab.mkd.net/a3d/avara3d.git
+git clone --depth 1 https://gitlab.mkd.net/a3d/avara3d.git
 ```
 
 #### Configure and build
