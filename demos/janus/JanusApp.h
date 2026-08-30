@@ -119,6 +119,11 @@ namespace demo::janus {
             std::optional<double>    remainingTime;
         };
 
+        struct NodeTransform {
+            a3d::Node*      node;
+            a3d::math::mat4 transform;
+        };
+
         // [Private Member Functions]
 
         bool                      drawPanel();
@@ -130,6 +135,8 @@ namespace demo::janus {
         void                      queueAction(const a3d::math::vec2& screenPosition);
         void                      performAction(const PendingAction& action);
         std::vector<const a3d::Node*> pickIgnoredNodes(PickPurpose purpose) const;
+        void                          saveDynamicsTransforms();
+        void                          restoreDynamicsTransforms() const;
         void                          reset();
 
         // [Private Member Variables]
@@ -152,6 +159,7 @@ namespace demo::janus {
         double                              _backgroundRotationTime;
         std::vector<a3d::ext::Wanderer>     _orbWanderers;
         std::vector<PickIgnore>             _pickIgnores;
+        std::vector<NodeTransform>          _dynamicsTransforms;
         bool                                _pendingReset;
     };
 

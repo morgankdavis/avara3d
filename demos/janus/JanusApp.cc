@@ -82,6 +82,7 @@ JanusApp::JanusApp(int argc, char* argv[]):
     _backgroundRotationTime {0.0},
     _orbWanderers {},
     _pickIgnores {},
+    _dynamicsTransforms {},
     _pendingReset {false} {}
 
 JanusApp::~JanusApp() = default;
@@ -240,6 +241,8 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->linearDamping(0.03f);
             node->physicsBody()->angularDamping(0.05f);
         }
+
+        saveDynamicsTransforms();
 
         _transientsRoot = Node::NamedNode("transients");
         scene->rootNode()->addChild(_transientsRoot);
@@ -1131,21 +1134,21 @@ void JanusApp::performAction(const PendingAction& action) {
                 case DropAction::Rocks: {
                     auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, BOX_SIZE,
                                                 BOX_STACK_SIZE, BOX_PADDING);
-                    simulationRoot->addChildren(rockNodes);
+                    _transientsRoot->addChildren(rockNodes);
                     _transients.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
                     auto coinNodes = BuildCoins(_transientsCache.coin(), spawnLocation, COIN_SIZE,
                                                 COIN_STACK_SIZE, COIN_PADDING + .1);
-                    simulationRoot->addChildren(coinNodes);
+                    _transientsRoot->addChildren(coinNodes);
                     _transients.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
                     auto ballNodes = BuildBalls(_transientsCache.ball(), spawnLocation, BALL_SIZE,
                                                 BALL_STACK_SIZE, BALL_PADDING + .1);
-                    simulationRoot->addChildren(ballNodes);
+                    _transientsRoot->addChildren(ballNodes);
                     _transients.track(ballNodes, "balls");
                     break;
                 }
@@ -1175,7 +1178,7 @@ void JanusApp::performAction(const PendingAction& action) {
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
                     auto hammerNode = BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
-                    simulationRoot->addChild(hammerNode);
+                    _transientsRoot->addChild(hammerNode);
                     _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transients.track(hammerNode, "hammers");
@@ -1185,13 +1188,13 @@ void JanusApp::performAction(const PendingAction& action) {
                     auto hulaNode = BuildHula(_transientsCache.hula(), spawnPosition, velocity);
                     _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    simulationRoot->addChild(hulaNode);
+                    _transientsRoot->addChild(hulaNode);
                     _transients.track(hulaNode, "hulas");
                     break;
                 }
                 case ThrowAction::Duck: {
                     auto duckNode = BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
-                    simulationRoot->addChild(duckNode);
+                    _transientsRoot->addChild(duckNode);
                     _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transients.track(duckNode, "ducks");
@@ -1256,28 +1259,48 @@ vector<const Node*> JanusApp::pickIgnoredNodes(PickPurpose purpose) const {
     return nodes;
 }
 
+void JanusApp::saveDynamicsTransforms() {
+
+    _dynamicsTransforms.clear();
+
+    for (const auto& node : _dynamicsRoot->children(true)) {
+        _dynamicsTransforms.push_back({.node = node.get(), .transform = node->transform()});
+    }
+}
+
+void JanusApp::restoreDynamicsTransforms() const {
+
+    for (const auto& state : _dynamicsTransforms) {
+        state.node->transform(state.transform);
+    }
+}
+
 void JanusApp::reset() {
 
     select({});
 
     _actionTarget.reset();
 
-    if (_cursorMarker) {
-        _cursorMarker->hidden(true);
-    }
+    _transients.clear();
 
-    _dynamicsRoot->removeFromParent();
+    _transientsRoot->removeFromParent();
+    _transientsRoot = Node::NamedNode("transients");
+    scene().rootNode()->addChild(_transientsRoot);
+
+    restoreDynamicsTransforms();
 
     erase_if(_pickIgnores, [](const PickIgnore& ignore) {
         return ignore.remainingTime.has_value();
     });
 
-    _transients.clear();
+    if (_cursorMarker) {
+        _cursorMarker->hidden(true);
+    }
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
-    _dynamicsRoot = MakeSimulationRoot();
-    scene().rootNode()->addChild(_dynamicsRoot);
+    // _dynamicsRoot = MakeSimulationRoot();
+    // scene().rootNode()->addChild(_dynamicsRoot);
 
     runner().resetSimulation();
 
