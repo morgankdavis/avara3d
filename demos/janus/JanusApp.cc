@@ -61,6 +61,9 @@ static shared_ptr<Node>               BuildHula(const TransientsCache::Entry& ca
 static shared_ptr<Node>               BuildDuck(const TransientsCache::Entry& cacheEntry,
                                                 const vec3&                   location,
                                                 const vec3&                   velocity);
+static pair<vec3, vec3>               CalculateThrowTrajectory(const vec3& cameraPosition,
+                                                               const vec3& targetPosition,
+                                                               const vec3& gravity);
 
 // [Public Lifecycle Functions]
 
@@ -334,13 +337,15 @@ std::unique_ptr<Scene> JanusApp::init() {
         _transientTracker.groupPolicy("rocks", {.maxCount = (3 * 3 * 3) * 1});
         _transientTracker.groupPolicy("coins", {.maxCount = (3 * 3 * 4) * 2});
         _transientTracker.groupPolicy("balls", {.maxCount = (3 * 3 * 3) * 2});
-        _transientTracker.groupPolicy("hammers",
-                                {.maxCount = 10,
-                                 .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+        _transientTracker.groupPolicy("hammers", {.maxCount = 10,
+                                                  .distanceLimit =
+                                                      ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
         _transientTracker.groupPolicy("hulas", {.maxCount = 10,
-                                          .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+                                                .distanceLimit =
+                                                    ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
         _transientTracker.groupPolicy("ducks", {.maxCount = 10,
-                                          .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+                                                .distanceLimit =
+                                                    ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
 
         // create and configure the camera and camera controller
 
@@ -365,9 +370,9 @@ std::unique_ptr<Scene> JanusApp::init() {
         //                 .distance = 15.0f});
 
         _cameraController.view({.target = vec3 {-0.1346f, 4.2466f, 0.4131},
-                .yaw = radians(-10.66f),
-                .pitch = radians(-1.89f),
-                .distance = 17.4275f});
+                                .yaw = radians(-10.66f),
+                                .pitch = radians(-1.89f),
+                                .distance = 17.4275f});
 
         // create the resettable simulation root node
 
@@ -1034,8 +1039,7 @@ void JanusApp::hover(shared_ptr<Node> node) {
     using DebugOptions = Node::DebugOptions;
 
     if (auto previous = _hoveredNode.lock()) {
-        previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
-                                                     DebugOptions::ShowHighlightBox));
+        previous->debugOptions(util::bitmask::remove(previous->debugOptions(), DebugOptions::ShowHighlightBox));
     }
 
     _hoveredNode = node;
@@ -1044,7 +1048,6 @@ void JanusApp::hover(shared_ptr<Node> node) {
         node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
     }
 }
-
 
 void JanusApp::select(VisualWorld& visualWorld, const vec2& screenPosition) {
 
@@ -1084,8 +1087,7 @@ void JanusApp::select(optional<PickResult> pickResult) {
 
     if (_selection) {
         if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::remove(node->debugOptions(),
-                                                     DebugOptions::ShowHighlightTint));
+            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightTint));
         }
     }
 
@@ -1093,8 +1095,7 @@ void JanusApp::select(optional<PickResult> pickResult) {
 
     if (_selection) {
         if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::add(node->debugOptions(),
-                                                  DebugOptions::ShowHighlightTint));
+            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
         }
         else {
             _selection.reset();
@@ -1200,11 +1201,6 @@ void JanusApp::performAction(const PendingAction& action) {
     const u8vec3 BALL_STACK_SIZE {3, 3, 3};
     const float  BALL_PADDING {0.065f};
 
-    const float THROW_SPAWN_DISTANCE {0.5f};
-    const float THROW_SPEED {15.0f};
-    const float THROW_MIN_FLIGHT_TIME {0.25f};
-    const float THROW_MAX_FLIGHT_TIME {1.5f};
-
     const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
 
@@ -1258,21 +1254,9 @@ void JanusApp::performAction(const PendingAction& action) {
 
         case Action::Throw: {
 
-            auto physicsWorld = scene.physicsWorld();
-
-            const vec3  cameraPosition = action.cameraPosition;
-            const vec3  targetPosition = action.target.hitPosition;
-            const vec3  cameraToTarget = targetPosition - cameraPosition;
-            const float targetDistance = length(cameraToTarget);
-
-            const vec3 aimDirection = cameraToTarget / targetDistance;
-            const vec3 spawnPosition =
-                cameraPosition + aimDirection * math::min(THROW_SPAWN_DISTANCE, targetDistance * 0.25f);
-            const vec3  displacement = targetPosition - spawnPosition;
-            const float flightTime =
-                math::clamp(length(displacement) / THROW_SPEED, THROW_MIN_FLIGHT_TIME, THROW_MAX_FLIGHT_TIME);
-            const vec3 gravity = physicsWorld->gravity();
-            const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+            const auto [spawnPosition, velocity] =
+                CalculateThrowTrajectory(action.cameraPosition, action.target.hitPosition,
+                                         scene.physicsWorld()->gravity());
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
@@ -1853,4 +1837,30 @@ shared_ptr<Node> BuildDuck(const TransientsCache::Entry& cacheEntry,
     node->physicsBody(std::move(physicsBody));
 
     return node;
+}
+
+pair<vec3, vec3> CalculateThrowTrajectory(const vec3& cameraPosition,
+                                          const vec3& targetPosition,
+                                          const vec3& gravity) {
+
+    const float SPAWN_DISTANCE {0.5f};
+    const float SPEED {15.0f};
+    const float MIN_FLIGHT_TIME {0.25f};
+    const float MAX_FLIGHT_TIME {1.5f};
+
+    const vec3  cameraToTarget = targetPosition - cameraPosition;
+    const float targetDistance = length(cameraToTarget);
+
+    const vec3 aimDirection = cameraToTarget / targetDistance;
+
+    const vec3 spawnPosition =
+        cameraPosition + aimDirection * math::min(SPAWN_DISTANCE, targetDistance * 0.25f);
+
+    const vec3 displacement = targetPosition - spawnPosition;
+
+    const float flightTime = math::clamp(length(displacement) / SPEED, MIN_FLIGHT_TIME, MAX_FLIGHT_TIME);
+
+    const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+
+    return {spawnPosition, velocity};
 }

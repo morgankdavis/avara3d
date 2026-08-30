@@ -736,9 +736,17 @@ website-publish-localstaging:
             rm build-pages/demo/janus.wasm
             rm build-pages/demo/janus.data
 
+            # Binary source assets are represented by metadata in the source browser
+            # and do not need to be served by Cloudflare Pages.
+            find build-pages/source \
+                -type f \
+                -name '*.bin' \
+                -delete
+
             test -f build-pages/demo/janus.js
             test ! -e build-pages/demo/janus.wasm
             test ! -e build-pages/demo/janus.data
+            test -z "$(find build-pages/source -type f -name '*.bin' -print -quit)"
 
             oversized_file="$(
                 find build-pages \
