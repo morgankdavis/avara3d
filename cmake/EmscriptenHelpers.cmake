@@ -58,7 +58,7 @@ function(a3d_set_emscripten_link_options target)
 			"-sMIN_WEBGL_VERSION=2"
 			"-sMAX_WEBGL_VERSION=2"
 			"-sFULL_ES3=1"
-			"-sASSERTIONS=1"
+#			"-sASSERTIONS=1"
 			"-sALLOW_MEMORY_GROWTH=1"
 			"-sEXIT_RUNTIME=0"
 			"-fexceptions"

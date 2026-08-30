@@ -167,81 +167,141 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
+        // for (auto& node : scene->rootNode()->children(true)) {
+        //     if (node->light()) {
+        //         node->removeFromParent();
+        //     }
+        // }
+
         auto environmentRoot = scene->rootNode()->childNamed("environment");
-        if (auto evoraNode = environmentRoot->childNamed("evora")) {
 
-            _pickIgnores.push_back({.node = evoraNode,
-                                    .purposes = util::bitmask::add(PickPurpose::Hover, PickPurpose::Select)});
+        if (auto node = environmentRoot->childNamed("evora")) {
 
-            auto evoraPhysScene = util::fs::SceneAt("janus/phys.gltf", Scene::ImportOptions::ImportMeshes);
-            if (auto physNode = evoraPhysScene->rootNode()->childNamed("evora_phys")) {
+            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
 
-                auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-                auto body = PhysicsBody::StaticBody(shape);
-                evoraNode->physicsBody(std::move(body));
-
-                physNode->hidden(true);
-
-                environmentRoot->addChild(physNode, true);
-            }
+            auto physNode = environmentRoot->childNamed("evora.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            node->physicsBody(PhysicsBody::StaticBody(shape));
         }
+
+        if (auto lionNode = environmentRoot->childNamed("lion")) {
+
+            _pickIgnores.push_back({.node = lionNode, .purposes = PickPurpose::Hover});
+
+            auto physNode = environmentRoot->childNamed("lion.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            lionNode->physicsBody(PhysicsBody::StaticBody(shape));
+        }
+
+        environmentRoot->childNamed("environment.phys")->hidden(true);
 
         _dynamicsRoot = scene->rootNode()->childNamed("dynamics");
 
         if (auto node = _dynamicsRoot->childNamed("janus")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(10.0f);
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+            node->physicsBody()->mass(20.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
+
+            auto extent = node->mesh()->localExtent();
+            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
+                                              + extent * vec3 {0.0f, -0.15f, 0.0f});
         }
 
         if (auto node = _dynamicsRoot->childNamed("teapot")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(1.5f);
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+            // node->physicsBody()->mass(3.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = _dynamicsRoot->childNamed("plinth1")) {
+        if (auto node = _dynamicsRoot->childNamed("plinth_janus")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(22.5f);
+            node->physicsBody()->mass(40.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = _dynamicsRoot->childNamed("plinth2")) {
+        if (auto node = _dynamicsRoot->childNamed("plinth_teapot")) {
             node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(17.5f);
+            node->physicsBody()->mass(30.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
         }
+
+        // if (auto node = _dynamicsRoot->childNamed("plinth3")) {
+        //     node->physicsBody(PhysicsBody::DynamicBody());
+        //     node->physicsBody()->mass(40.0f);
+        //     node->physicsBody()->friction(0.6f);
+        //     node->physicsBody()->restitution(0.15f);
+        // }
 
         if (auto node = _dynamicsRoot->childNamed("diana")) {
-            node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(9.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
+
+            // auto physNode = _dynamicsRoot->childNamed("diana.phys", true);
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+            //
+            // // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // // node->physicsBody(PhysicsBody::DynamicBody(shape));
+            //
+            // node->physicsBody()->mass(50.0f);
+            // node->physicsBody()->friction(0.6f);
+            // node->physicsBody()->restitution(0.15f);
+            // node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
+            //
+            // auto extent = node->mesh()->localExtent();
+            // node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
+            //                                   + extent * vec3 {0.0f, -0.1f, 0.0f});
+
+            node->hidden(true);
         }
 
-        if (auto node = _dynamicsRoot->childNamed("lion")) {
-            auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+        if (auto node = _dynamicsRoot->childNamed("artemis")) {
+
+            auto physNode = _dynamicsRoot->childNamed("artemis.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             node->physicsBody(PhysicsBody::DynamicBody(shape));
+
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+
+            // node->physicsBody(PhysicsBody::DynamicBody());
+
             node->physicsBody()->mass(50.0f);
             node->physicsBody()->friction(0.6f);
             node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->linearDamping(0.03f);
-            node->physicsBody()->angularDamping(0.05f);
+            node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
+
+            auto extent = node->mesh()->localExtent();
+            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
+                                              + extent * vec3 {0.0f, -0.15f, 0.0f});
         }
+
+        if (auto node = _dynamicsRoot->childNamed("augustus")) {
+
+            auto physNode = _dynamicsRoot->childNamed("augustus.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            node->physicsBody(PhysicsBody::DynamicBody(shape));
+
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+
+            node->physicsBody()->mass(55.0f);
+            node->physicsBody()->friction(0.6f);
+            node->physicsBody()->restitution(0.15f);
+            node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
+
+            auto extent = node->mesh()->localExtent();
+            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
+                                              + extent * vec3 {0.0f, -0.1f, 0.0f});
+        }
+
+        _dynamicsRoot->childNamed("dynamics.phys")->hidden(true);
 
         saveDynamicsTransforms();
 
@@ -268,16 +328,6 @@ std::unique_ptr<Scene> JanusApp::init() {
         auto ambientLight = make_shared<AmbientLight>(Color {0.15f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
-
-        // {
-        //     auto pointLight = make_shared<PointLight>(Color::White());
-        //     pointLight->attenuation(Attenuation {
-        //         .quadratic = 0.05f,
-        //     });
-        //     auto pointLightNode = Node::LightNode(pointLight);
-        //     pointLightNode->position({0.0f, 5.0f, 0.0f});
-        //     scene->rootNode()->addChild(pointLightNode);
-        // }
 
         // setup transient node groups
 
@@ -309,20 +359,10 @@ std::unique_ptr<Scene> JanusApp::init() {
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        // _cameraController.view({.target = vec3 {0.0f, 1.0f, 0.0f},
-        //                         .yaw = radians(-35.0f),
-        //                         .pitch = radians(0.0f),
-        //                         .distance = 20.0f});
-
-        // _cameraController.view({.target = vec3 {0.125f, 3.75f, 0.005f},
-        //                 .yaw = radians(-33.0f),
-        //                 .pitch = radians(-5.5f),
-        //                 .distance = 15.0f});
-
         _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
-                                .yaw = radians(-33.0f),
-                                .pitch = radians(-5.5f),
-                                .distance = 15.0f});
+                        .yaw = radians(-21.24f),
+                        .pitch = radians(-6.58f),
+                        .distance = 15.0f});
 
         // create the resettable simulation root node
 
@@ -560,9 +600,9 @@ bool JanusApp::drawPanel() {
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
-    // if (panel.button("CAMERA")) {
-    //     log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
-    // }
+    if (panel.button("CAMERA")) {
+        log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
+    }
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
