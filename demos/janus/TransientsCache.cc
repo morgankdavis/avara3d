@@ -28,9 +28,9 @@ static const float DUCK_HEIGHT {0.5f};
 
 // [Public Member Functions]
 
-void TransientsCache::init() {
+void TransientsCache::init(Node& transientAssetsRoot) {
 
-    initRocks();
+    initRocks(*transientAssetsRoot.childNamed("rocks"));
     initCoin();
     initBall();
     initHammer();
@@ -64,12 +64,9 @@ const TransientsCache::Entry& TransientsCache::duck() const {
 
 // [Private Member Functions]
 
-void TransientsCache::initRocks() {
+void TransientsCache::initRocks(Node& rocksRoot) {
 
-    auto scene = util::fs::SceneAt("rocks_concave/rocks_concave.gltf",
-                                   Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
-
-    const auto nodes = scene->rootNode()->children();
+    const auto nodes = rocksRoot.children();
 
     _rocks.clear();
     _rocks.reserve(nodes.size());

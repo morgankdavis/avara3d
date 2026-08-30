@@ -245,6 +245,10 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         saveDynamicsTransforms();
 
+        auto transientAssetsNode = scene->rootNode()->childNamed("transient_assets");
+        _transientsCache.init(*transientAssetsNode);
+        transientAssetsNode->removeFromParent();
+
         _transientsRoot = Node::NamedNode("transients");
         scene->rootNode()->addChild(_transientsRoot);
 
@@ -287,8 +291,6 @@ std::unique_ptr<Scene> JanusApp::init() {
                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
         _transients.groupPolicy("ducks", {.maxCount = 10,
                                           .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
-
-        _transientsCache.init();
 
         // create and configure the camera and camera controller
 

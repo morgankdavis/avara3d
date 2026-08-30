@@ -17,6 +17,7 @@
 namespace a3d {
 
     class Mesh;
+    class Node;
     class PhysicsShape;
 
 }
@@ -39,7 +40,7 @@ namespace demo::janus {
 
         // [Public Member Functions]
 
-        void init();
+        void init(a3d::Node& transientAssetsRoot);
 
         const std::vector<Entry>& rocks() const;
         const Entry&              coin() const;
@@ -51,7 +52,7 @@ namespace demo::janus {
     private:
         // [Private Member Functions]
 
-        void initRocks();
+        void initRocks(a3d::Node& rocksRoot);
         void initCoin();
         void initBall();
         void initHammer();
