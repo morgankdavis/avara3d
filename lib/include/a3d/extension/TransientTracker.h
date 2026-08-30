@@ -1,13 +1,13 @@
 //
-//  Transients.h
+//  TransientTracker.h
 //  avara3d
 //
 //  Created by Morgan Davis on 8/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_EXTENSION_TRANSIENTS_H
-#define AVARA3D_EXTENSION_TRANSIENTS_H
+#ifndef AVARA3D_EXTENSION_TRANSIENTTRACKER_H
+#define AVARA3D_EXTENSION_TRANSIENTTRACKER_H
 
 #include <cstddef>
 #include <cstdint>
@@ -39,7 +39,7 @@ namespace a3d::ext {
      * Functions that may remove nodes must be called only from a point where scene mutation
      * is safe, such as after a physics simulation step has completed.
      */
-    class Transients {
+    class TransientTracker {
 
     public:
         // [Public Types]
@@ -135,16 +135,16 @@ namespace a3d::ext {
          *
          * @throws std::invalid_argument if sweepPolicy is invalid.
          */
-        explicit Transients(SweepPolicy sweepPolicy = SweepPolicy::EveryUpdate());
+        explicit TransientTracker(SweepPolicy sweepPolicy = SweepPolicy::EveryUpdate());
 
-        Transients(const Transients&)            = delete;
-        Transients& operator=(const Transients&) = delete;
+        TransientTracker(const TransientTracker&)            = delete;
+        TransientTracker& operator=(const TransientTracker&) = delete;
 
-        Transients(Transients&&)            = delete;
-        Transients& operator=(Transients&&) = delete;
+        TransientTracker(TransientTracker&&)            = delete;
+        TransientTracker& operator=(TransientTracker&&) = delete;
 
         /** @brief Destroys the registry without removing tracked nodes. */
-        ~Transients() = default;
+        ~TransientTracker() = default;
 
         // [Public Member Functions]
 
@@ -303,4 +303,4 @@ namespace a3d::ext {
 
 }
 
-#endif // AVARA3D_EXTENSION_TRANSIENTS_H
+#endif // AVARA3D_EXTENSION_TRANSIENTTRACKER_H

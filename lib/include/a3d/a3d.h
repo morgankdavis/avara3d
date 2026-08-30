@@ -25,7 +25,7 @@
 #include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/input/InputContext.h"
 #include "a3d/input/DesktopInputContext.h"
-#include "a3d/extension/Transients.h"
+#include "a3d/extension/TransientTracker.h"
 #include "a3d/extension/Wanderer.h"
 #include "a3d/extension/WanderRotator.h"
 #include "a3d/extension/camera/FlyCameraController.h"

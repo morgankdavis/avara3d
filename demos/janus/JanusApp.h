@@ -18,7 +18,7 @@
 
 #include "a3d/Application.h"
 #include "a3d/Math.h"
-#include "a3d/extension/Transients.h"
+#include "a3d/extension/TransientTracker.h"
 #include "a3d/extension/Wanderer.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
@@ -155,7 +155,7 @@ namespace demo::janus {
         DropAction                          _dropAction;
         ThrowAction                         _throwAction;
         Pokiness                            _pokiness;
-        a3d::ext::Transients                _transients;
+        a3d::ext::TransientTracker          _transientTracker;
         TransientsCache                     _transientsCache;
         double                              _backgroundRotationTime;
         std::vector<a3d::ext::Wanderer>     _orbWanderers;

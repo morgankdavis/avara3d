@@ -78,7 +78,7 @@ JanusApp::JanusApp(int argc, char* argv[]):
     _dropAction {DropAction::Rocks},
     _throwAction {ThrowAction::Hammer},
     _pokiness {Pokiness::Soft},
-    _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
+    _transientTracker {ext::TransientTracker::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanderers {},
     _pickIgnores {},
@@ -331,16 +331,16 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         // setup transient node groups
 
-        _transients.groupPolicy("rocks", {.maxCount = (3 * 3 * 3) * 1});
-        _transients.groupPolicy("coins", {.maxCount = (3 * 3 * 4) * 2});
-        _transients.groupPolicy("balls", {.maxCount = (3 * 3 * 3) * 2});
-        _transients.groupPolicy("hammers",
+        _transientTracker.groupPolicy("rocks", {.maxCount = (3 * 3 * 3) * 1});
+        _transientTracker.groupPolicy("coins", {.maxCount = (3 * 3 * 4) * 2});
+        _transientTracker.groupPolicy("balls", {.maxCount = (3 * 3 * 3) * 2});
+        _transientTracker.groupPolicy("hammers",
                                 {.maxCount = 10,
-                                 .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
-        _transients.groupPolicy("hulas", {.maxCount = 10,
-                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
-        _transients.groupPolicy("ducks", {.maxCount = 10,
-                                          .distanceLimit = ext::Transients::DistanceLimit {.radius = 100.0f}});
+                                 .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+        _transientTracker.groupPolicy("hulas", {.maxCount = 10,
+                                          .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+        _transientTracker.groupPolicy("ducks", {.maxCount = 10,
+                                          .distanceLimit = ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
 
         // create and configure the camera and camera controller
 
@@ -515,7 +515,7 @@ void JanusApp::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo
 
 void JanusApp::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    _transients.update(info);
+    _transientTracker.update(info);
 
     for (auto& ignore : _pickIgnores) {
         if (ignore.remainingTime) {
@@ -1009,30 +1009,74 @@ void JanusApp::hover(VisualWorld& visualWorld, const vec2& screenPosition) {
     }
 }
 
+// void JanusApp::hover(shared_ptr<Node> node) {
+//
+//     using DebugOptions = Node::DebugOptions;
+//
+//     if (auto previous = _hoveredNode.lock()) {
+//
+//         const bool selected = _selection && _selection->node.lock() == previous;
+//         if (!selected) {
+//             previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
+//                                                          DebugOptions::ShowHighlightTint));
+//         }
+//     }
+//
+//     _hoveredNode = node;
+//
+//     if (node) {
+//         node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+//     }
+// }
+
 void JanusApp::hover(shared_ptr<Node> node) {
 
     using DebugOptions = Node::DebugOptions;
 
     if (auto previous = _hoveredNode.lock()) {
-
-        const bool selected = _selection && _selection->node.lock() == previous;
-        if (!selected) {
-            previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
-                                                         DebugOptions::ShowHighlightTint));
-        }
+        previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
+                                                     DebugOptions::ShowHighlightBox));
     }
 
     _hoveredNode = node;
 
     if (node) {
-        node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+        node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
     }
 }
+
 
 void JanusApp::select(VisualWorld& visualWorld, const vec2& screenPosition) {
 
     select(Pick(visualWorld, screenPosition, pickIgnoredNodes(PickPurpose::Select), false));
 }
+
+// void JanusApp::select(optional<PickResult> pickResult) {
+//
+//     using DebugOptions = Node::DebugOptions;
+//
+//     if (_selection) {
+//         if (auto node = _selection->node.lock()) {
+//             node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
+//
+//             if (_hoveredNode.lock() != node) {
+//                 node->debugOptions(util::bitmask::remove(node->debugOptions(),
+//                                                          DebugOptions::ShowHighlightTint));
+//             }
+//         }
+//     }
+//
+//     _selection = std::move(pickResult);
+//     if (_selection) {
+//         if (auto node = _selection->node.lock()) {
+//             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
+//             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+//         }
+//         else {
+//             _selection.reset();
+//         }
+//     }
+// }
 
 void JanusApp::select(optional<PickResult> pickResult) {
 
@@ -1040,20 +1084,17 @@ void JanusApp::select(optional<PickResult> pickResult) {
 
     if (_selection) {
         if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
-
-            if (_hoveredNode.lock() != node) {
-                node->debugOptions(util::bitmask::remove(node->debugOptions(),
-                                                         DebugOptions::ShowHighlightTint));
-            }
+            node->debugOptions(util::bitmask::remove(node->debugOptions(),
+                                                     DebugOptions::ShowHighlightTint));
         }
     }
 
     _selection = std::move(pickResult);
+
     if (_selection) {
         if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
-            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+            node->debugOptions(util::bitmask::add(node->debugOptions(),
+                                                  DebugOptions::ShowHighlightTint));
         }
         else {
             _selection.reset();
@@ -1189,21 +1230,21 @@ void JanusApp::performAction(const PendingAction& action) {
                     auto rockNodes = BuildRocks(_transientsCache.rocks(), spawnLocation, BOX_SIZE,
                                                 BOX_STACK_SIZE, BOX_PADDING);
                     _transientsRoot->addChildren(rockNodes);
-                    _transients.track(rockNodes, "rocks");
+                    _transientTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
                     auto coinNodes = BuildCoins(_transientsCache.coin(), spawnLocation, COIN_SIZE,
                                                 COIN_STACK_SIZE, COIN_PADDING + .1);
                     _transientsRoot->addChildren(coinNodes);
-                    _transients.track(coinNodes, "coins");
+                    _transientTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
                     auto ballNodes = BuildBalls(_transientsCache.ball(), spawnLocation, BALL_SIZE,
                                                 BALL_STACK_SIZE, BALL_PADDING + .1);
                     _transientsRoot->addChildren(ballNodes);
-                    _transients.track(ballNodes, "balls");
+                    _transientTracker.track(ballNodes, "balls");
                     break;
                 }
             }
@@ -1235,7 +1276,7 @@ void JanusApp::performAction(const PendingAction& action) {
                     _transientsRoot->addChild(hammerNode);
                     _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(hammerNode, "hammers");
+                    _transientTracker.track(hammerNode, "hammers");
                     break;
                 }
                 case ThrowAction::Hula: {
@@ -1243,7 +1284,7 @@ void JanusApp::performAction(const PendingAction& action) {
                     _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transientsRoot->addChild(hulaNode);
-                    _transients.track(hulaNode, "hulas");
+                    _transientTracker.track(hulaNode, "hulas");
                     break;
                 }
                 case ThrowAction::Duck: {
@@ -1251,7 +1292,7 @@ void JanusApp::performAction(const PendingAction& action) {
                     _transientsRoot->addChild(duckNode);
                     _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transients.track(duckNode, "ducks");
+                    _transientTracker.track(duckNode, "ducks");
                     break;
                 }
             }
@@ -1333,7 +1374,7 @@ void JanusApp::reset() {
 
     select({});
 
-    _transients.clear();
+    _transientTracker.clear();
 
     _transientsRoot->removeFromParent();
     _transientsRoot = Node::NamedNode("transients");
