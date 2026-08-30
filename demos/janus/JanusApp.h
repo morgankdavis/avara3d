@@ -135,7 +135,8 @@ namespace demo::janus {
         // [Private Member Variables]
 
         std::unique_ptr<a3d::Window>        _window;
-        std::shared_ptr<a3d::Node>          _simulationRoot;
+        std::shared_ptr<a3d::Node>          _dynamicsRoot;
+        std::shared_ptr<a3d::Node>          _transientsRoot;
         std::shared_ptr<a3d::Node>          _cameraNode;
         a3d::ext::TurntableCameraController _cameraController;
         std::weak_ptr<a3d::Node>            _hoveredNode;

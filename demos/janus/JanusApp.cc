@@ -67,7 +67,7 @@ static shared_ptr<Node>               BuildDuck(const TransientsCache::Entry& ca
 JanusApp::JanusApp(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _window {nullptr},
-    _simulationRoot {nullptr},
+    _dynamicsRoot {nullptr},
     _cameraNode {nullptr},
     _cameraController {},
     _hoveredNode {},
@@ -164,25 +164,9 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->physicsWorld(std::move(physicsWorld));
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-        auto rootNode = scene->rootNode();
 
-        // float intensity = .1f;
-        // for (auto n : rootNode->children(true)) {
-        //     if (auto light = n->light()) {
-        //         if (auto spot = dynamic_pointer_cast<SpotLight>(light)) {
-        //             //log::app::i()("INTENSITY: {}", spot->intensity());
-        //             auto c = spot->color();
-        //             // log::app::i()("COLOR: ({}, {}, {}, {})", c.r(), c.g(), c.b(), c.a());
-        //             log::app::i()("OLD INTENSITY: {}", spot->intensity());
-        //             //spot->intensity(intensity);
-        //             spot->intensity(spot->intensity()*2.0f);
-        //             log::app::i()("NEW INTENSITY: {}", spot->intensity());
-        //             // intensity += .1f;
-        //         }
-        //     }
-        // }
-
-        if (auto evoraNode = rootNode->childNamed("evora")) {
+        auto environmentRoot = scene->rootNode()->childNamed("environment");
+        if (auto evoraNode = environmentRoot->childNamed("evora")) {
 
             _pickIgnores.push_back({.node = evoraNode,
                                     .purposes = util::bitmask::add(PickPurpose::Hover, PickPurpose::Select)});
@@ -196,11 +180,13 @@ std::unique_ptr<Scene> JanusApp::init() {
 
                 physNode->hidden(true);
 
-                rootNode->addChild(physNode, true);
+                environmentRoot->addChild(physNode, true);
             }
         }
 
-        if (auto node = rootNode->childNamed("janus")) {
+        _dynamicsRoot = scene->rootNode()->childNamed("dynamics");
+
+        if (auto node = _dynamicsRoot->childNamed("janus")) {
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(10.0f);
             node->physicsBody()->friction(0.6f);
@@ -209,7 +195,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = rootNode->childNamed("teapot")) {
+        if (auto node = _dynamicsRoot->childNamed("teapot")) {
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(1.5f);
             node->physicsBody()->friction(0.6f);
@@ -218,7 +204,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = rootNode->childNamed("plinth1")) {
+        if (auto node = _dynamicsRoot->childNamed("plinth1")) {
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(22.5f);
             node->physicsBody()->friction(0.6f);
@@ -227,7 +213,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = rootNode->childNamed("plinth2")) {
+        if (auto node = _dynamicsRoot->childNamed("plinth2")) {
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(17.5f);
             node->physicsBody()->friction(0.6f);
@@ -236,7 +222,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = rootNode->childNamed("diana")) {
+        if (auto node = _dynamicsRoot->childNamed("diana")) {
             node->physicsBody(PhysicsBody::DynamicBody());
             node->physicsBody()->mass(9.0f);
             node->physicsBody()->friction(0.6f);
@@ -245,7 +231,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->angularDamping(0.05f);
         }
 
-        if (auto node = rootNode->childNamed("lion")) {
+        if (auto node = _dynamicsRoot->childNamed("lion")) {
             auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
             node->physicsBody(PhysicsBody::DynamicBody(shape));
             node->physicsBody()->mass(50.0f);
@@ -254,6 +240,9 @@ std::unique_ptr<Scene> JanusApp::init() {
             node->physicsBody()->linearDamping(0.03f);
             node->physicsBody()->angularDamping(0.05f);
         }
+
+        _transientsRoot = Node::NamedNode("transients");
+        scene->rootNode()->addChild(_transientsRoot);
 
         // create and configure the ground
 
@@ -331,8 +320,8 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         // create the resettable simulation root node
 
-        _simulationRoot = MakeSimulationRoot();
-        scene->rootNode()->addChild(_simulationRoot);
+        _dynamicsRoot = MakeSimulationRoot();
+        scene->rootNode()->addChild(_dynamicsRoot);
 
         // create the action target marker
         {
@@ -1074,7 +1063,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
     auto visualWorld = scene.visualWorld();
 
-    if (!visualWorld || !_cameraNode || !_simulationRoot) {
+    if (!visualWorld || !_cameraNode || !_dynamicsRoot) {
         return;
     }
 
@@ -1088,7 +1077,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
     PendingAction pendingAction {.action = _action,
                                  .target = *actionTarget,
-                                 .simulationRoot = _simulationRoot,
+                                 .simulationRoot = _dynamicsRoot,
                                  .cameraPosition = _cameraNode->worldPosition(),
                                  .rayDirection = normalize(ray)};
 
@@ -1128,7 +1117,7 @@ void JanusApp::performAction(const PendingAction& action) {
     auto simulationRoot = action.simulationRoot.lock();
 
     // simulation may have been reset while this action was waiting for a step boundary
-    if (!simulationRoot || simulationRoot != _simulationRoot) {
+    if (!simulationRoot || simulationRoot != _dynamicsRoot) {
         return;
     }
 
@@ -1277,7 +1266,7 @@ void JanusApp::reset() {
         _cursorMarker->hidden(true);
     }
 
-    _simulationRoot->removeFromParent();
+    _dynamicsRoot->removeFromParent();
 
     erase_if(_pickIgnores, [](const PickIgnore& ignore) {
         return ignore.remainingTime.has_value();
@@ -1287,8 +1276,8 @@ void JanusApp::reset() {
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
-    _simulationRoot = MakeSimulationRoot();
-    scene().rootNode()->addChild(_simulationRoot);
+    _dynamicsRoot = MakeSimulationRoot();
+    scene().rootNode()->addChild(_dynamicsRoot);
 
     runner().resetSimulation();
 
