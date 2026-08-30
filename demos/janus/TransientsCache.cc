@@ -31,11 +31,11 @@ static const float DUCK_HEIGHT {0.5f};
 void TransientsCache::init(const Node& transientAssetsRoot) {
 
     initRocks(*transientAssetsRoot.childNamed("rocks"));
-    initCoin();
-    initBall();
+    initCoin(*transientAssetsRoot.childNamed("coin"));
+    initBall(*transientAssetsRoot.childNamed("ball"));
     initHammer(*transientAssetsRoot.childNamed("hammer"));
-    initHula();
-    initDuck();
+    initHula(*transientAssetsRoot.childNamed("hula"));
+    initDuck(*transientAssetsRoot.childNamed("quack"));
 }
 
 const vector<TransientsCache::Entry>& TransientsCache::rocks() const {
@@ -82,7 +82,7 @@ void TransientsCache::initRocks(const Node& rocksRoot) {
 
         auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
 
-        { // force collision geometry creation now
+        { // force shape backend creation now
             auto body = PhysicsBody::DynamicBody(physicsShape);
         }
 
@@ -90,9 +90,9 @@ void TransientsCache::initRocks(const Node& rocksRoot) {
     }
 }
 
-void TransientsCache::initCoin() {
+void TransientsCache::initCoin(const Node& node) {
 
-    auto mesh = util::fs::MeshAt("roman_coin/roman_coin.gltf");
+    auto mesh = node.mesh();
 
     const float scaleFactor = COIN_MAX_DIM / math::max(mesh->localExtent());
 
@@ -110,7 +110,7 @@ void TransientsCache::initCoin() {
     const float height = extent.y;
     auto        physicsShape = make_shared<CylinderPhysicsShape>(radius, height);
 
-    { // force collision geometry creation now
+    { // force shape backend creation now
         auto body = PhysicsBody::DynamicBody(physicsShape);
     }
 
@@ -120,9 +120,9 @@ void TransientsCache::initCoin() {
     _coin = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
-void TransientsCache::initBall() {
+void TransientsCache::initBall(const Node& node) {
 
-    auto mesh = util::fs::MeshAt("beachball/beachball.gltf");
+    auto mesh = node.mesh();
 
     const float scaleFactor = BEACHBALL_MAX_DIM / math::max(mesh->localExtent());
     const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
@@ -130,7 +130,7 @@ void TransientsCache::initBall() {
 
     auto physicsShape = make_shared<SpherePhysicsShape>(BEACHBALL_MAX_DIM / 2.0f);
 
-    { // force collision geometry creation now
+    { // force shape backend creation now
         auto body = PhysicsBody::DynamicBody(physicsShape);
     }
 
@@ -151,39 +151,39 @@ void TransientsCache::initHammer(const Node& node) {
 
     auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
 
-    { // force collision geometry creation now
+    { // force shape backend creation now
         auto body = PhysicsBody::DynamicBody(physicsShape);
     }
 
     _hammer = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
-void TransientsCache::initHula() {
+void TransientsCache::initHula(const Node& node) {
 
-    auto mesh = util::fs::MeshAt("hula/hula.gltf");
+    auto mesh = node.mesh();
 
     const float scaleFactor = HULA_DIAMETER / mesh->localExtent().y;
     mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
 
     auto physicsShape = PhysicsShape::ConcavePolyhedronShape(mesh);
 
-    { // force collision geometry creation now
+    { // force shape backend creation now
         auto body = PhysicsBody::DynamicBody(physicsShape);
     }
 
     _hula = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
 
-void TransientsCache::initDuck() {
+void TransientsCache::initDuck(const Node& node) {
 
-    auto mesh = util::fs::MeshAt("duck/duck.gltf");
+    auto mesh = node.mesh();
 
     const float scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
     mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
 
     auto physicsShape = PhysicsShape::ConvexHullShape(mesh);
 
-    { // force collision geometry creation now
+    { // force shape backend creation now
         auto body = PhysicsBody::DynamicBody(physicsShape);
     }
 

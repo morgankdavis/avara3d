@@ -101,7 +101,7 @@ namespace demo::janus {
         struct PendingAction {
             Action                   action;
             PickResult               target;
-            unsigned                 simulationGeneration;
+            unsigned                 generation;
             std::weak_ptr<a3d::Node> dynamicsRoot;
             a3d::math::vec3          cameraPosition;
             a3d::math::vec3          rayDirection;

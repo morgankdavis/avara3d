@@ -53,11 +53,11 @@ namespace demo::janus {
         // [Private Member Functions]
 
         void initRocks(const a3d::Node& rocksRoot);
-        void initCoin();
-        void initBall();
+        void initCoin(const a3d::Node& node);
+        void initBall(const a3d::Node& node);
         void initHammer(const a3d::Node& node);
-        void initHula();
-        void initDuck();
+        void initHula(const a3d::Node& node);
+        void initDuck(const a3d::Node& node);
 
         // [Private Member Variables]
 

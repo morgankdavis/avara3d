@@ -363,7 +363,7 @@ std::unique_ptr<Scene> JanusApp::init() {
 
             auto orbGroup = Node::NamedNode("Orbs");
             orbGroup->position(ORB_GROUP_POSITION);
-            scene->rootNode()->addChild(orbGroup);
+            scene->rootNode()->childNamed("environment")->addChild(orbGroup);
 
             auto orbMaterial = Material::EmissionMaterial(Color::White());
             auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
@@ -1083,7 +1083,7 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
     PendingAction pendingAction {.action = _action,
                                  .target = *actionTarget,
-                                 .simulationGeneration = _simulationGeneration,
+                                 .generation = _simulationGeneration,
                                  .dynamicsRoot = _dynamicsRoot,
                                  .cameraPosition = _cameraNode->worldPosition(),
                                  .rayDirection = normalize(ray)};
@@ -1119,7 +1119,7 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const double PROJECTILE_PICK_IGNORE_DURATION {1.5};
 
-    if (action.simulationGeneration != _simulationGeneration) {
+    if (action.generation != _simulationGeneration) {
         return;
     }
 
