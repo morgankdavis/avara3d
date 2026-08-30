@@ -1134,6 +1134,10 @@ optional<JanusApp::PickResult> JanusApp::target(Scene& scene, const vec2& screen
 
 void JanusApp::queueAction(const vec2& screenPosition) {
 
+    if (runner().simulationPaused()) {
+        return;
+    }
+
     auto& scene = JanusApp::scene();
 
     auto actionTarget = target(scene, screenPosition);

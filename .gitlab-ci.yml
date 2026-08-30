@@ -3,427 +3,427 @@ stages:
     - deploy
 
 variables:
-  EMSDK_ROOT: "/home/gitlab/.emsdk-6.0.3"
+    EMSDK_ROOT: "/home/gitlab/.emsdk-6.0.3"
 
 linux-debug:
-  stage: build
-  tags:
-    - ubuntu-23
-  except:
-    - testing
-    - stable
-  script:
-    - echo "Starting Linux debug build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Debug"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -G"Ninja"
-      -DCMAKE_C_COMPILER=/usr/bin/clang
-      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - /usr/bin/cmake --build . --target a3d-tests -j4
-    - /usr/bin/ctest --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "Linux debug build complete."
-  artifacts:
-    name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "linux-debug"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - ubuntu-23
+    except:
+        - testing
+        - stable
+    script:
+        - echo "Starting Linux debug build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Debug"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -G"Ninja"
+            -DCMAKE_C_COMPILER=/usr/bin/clang
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - /usr/bin/cmake --build . --target a3d-tests -j4
+        - /usr/bin/ctest --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "Linux debug build complete."
+    artifacts:
+        name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "linux-debug"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 macos-debug:
-  stage: build
-  tags:
-    - macos-15
-  except:
-    - testing
-    - stable
-  script:
-    - echo "Starting macOS debug build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Debug"
-      -DA3D_BUILD_AUTOMATED_TESTS=OFF
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -DA3D_MACOS_UNIVERSAL=ON
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/local/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - cd ..
-    - mkdir gitlab-build-tests
-    - cd gitlab-build-tests
-    - /usr/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Debug"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=OFF
-      -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_DEMOS=OFF
-      -DA3D_BUILD_DOCUMENTATION=OFF
-      -G"Ninja"
-      ..
-    - /usr/local/bin/cmake --build . --target a3d-tests -j4
-    - /usr/local/bin/ctest --output-on-failure
-    - cd ..
-    - echo "macOS debug build complete."
-  artifacts:
-    name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "macos-debug"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - macos-15
+    except:
+        - testing
+        - stable
+    script:
+        - echo "Starting macOS debug build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/local/bin/cmake
+            -DCMAKE_BUILD_TYPE="Debug"
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -DA3D_MACOS_UNIVERSAL=ON
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/local/bin/cmake --build . --target install -j4
+        - mv packaged/avara3d ../
+        - cd ..
+        - mkdir gitlab-build-tests
+        - cd gitlab-build-tests
+        - /usr/local/bin/cmake
+            -DCMAKE_BUILD_TYPE="Debug"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=OFF
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_DEMOS=OFF
+            -DA3D_BUILD_DOCUMENTATION=OFF
+            -G"Ninja"
+            ..
+        - /usr/local/bin/cmake --build . --target a3d-tests -j4
+        - /usr/local/bin/ctest --output-on-failure
+        - cd ..
+        - echo "macOS debug build complete."
+    artifacts:
+        name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "macos-debug"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 windows-debug:
-  stage: build
-  tags:
-    - windows-10
-  except:
-    - testing
-    - stable
-  script:
-    - echo "Starting Windows debug build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - cmake
-      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64;C:/Users/gitlab/vcpkg/installed/x64-windows"
-      -DCMAKE_BUILD_TYPE="Debug"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -T"ClangCL"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - cmake --build . --config Debug --target install --parallel 8
-    - cmake --build . --config Debug --target a3d-tests --parallel 8
-    - ctest -C Debug --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "Windows debug build complete."
-  artifacts:
-    name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "windows-debug"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - windows-10
+    except:
+        - testing
+        - stable
+    script:
+        - echo "Starting Windows debug build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - cmake
+            -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64;C:/Users/gitlab/vcpkg/installed/x64-windows"
+            -DCMAKE_BUILD_TYPE="Debug"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -T"ClangCL"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - cmake --build . --config Debug --target install --parallel 8
+        - cmake --build . --config Debug --target a3d-tests --parallel 8
+        - ctest -C Debug --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "Windows debug build complete."
+    artifacts:
+        name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "windows-debug"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 web-debug:
     stage: build
     tags:
-      - ubuntu-23
+        - ubuntu-23
     except:
-      - testing
-      - stable
+        - testing
+        - stable
     script:
-      - echo "Starting Web debug build..."
-      - source "${EMSDK_ROOT}/emsdk_env.sh"
-      - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-      - emcc --version
-      - mkdir gitlab-build
-      - cd gitlab-build
-      - emcmake /usr/bin/cmake
-        -DCMAKE_BUILD_TYPE="Debug"
-        -DA3D_BUILD_EDITOR=OFF
-        -DA3D_BUILD_AUTOMATED_TESTS=OFF
-        -DA3D_BUILD_SANDBOX_TESTS=ON
-        -DA3D_BUILD_DEMOS=ON
-        -DA3D_BUILD_DOCUMENTATION=OFF
-        -DA3D_WEB_GENERATE_HTML=ON
-        -G"Ninja"
-        -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-        -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-        ..
-      - /usr/bin/cmake --build . --target install -j4
-      - mv packaged/avara3d ../
-      - echo "Web debug build complete."
+        - echo "Starting Web debug build..."
+        - source "${EMSDK_ROOT}/emsdk_env.sh"
+        - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+        - emcc --version
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - emcmake /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Debug"
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -DA3D_BUILD_DEMOS=ON
+            -DA3D_BUILD_DOCUMENTATION=OFF
+            -DA3D_WEB_GENERATE_HTML=ON
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - mv packaged/avara3d ../
+        - echo "Web debug build complete."
     artifacts:
-      name: "avara3d-web-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-      expose_as: "web-debug"
-      paths:
-        - avara3d
-      expire_in: 2 days
+        name: "avara3d-web-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "web-debug"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 linux-release:
-  stage: build
-  tags:
-    - ubuntu-23
-  only:
-    - testing
-    - stable
-  script:
-    - echo "Starting Linux release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -G"Ninja"
-      -DCMAKE_C_COMPILER=/usr/bin/clang
-      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - /usr/bin/cmake --build . --target a3d-tests -j4
-    - /usr/bin/ctest --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "Linux release build complete."
-  artifacts:
-    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "linux-release"
-    paths:
-      - avara3d
-    expire_in: 1 week
+    stage: build
+    tags:
+        - ubuntu-23
+    only:
+        - testing
+        - stable
+    script:
+        - echo "Starting Linux release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -G"Ninja"
+            -DCMAKE_C_COMPILER=/usr/bin/clang
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - /usr/bin/cmake --build . --target a3d-tests -j4
+        - /usr/bin/ctest --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "Linux release build complete."
+    artifacts:
+        name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "linux-release"
+        paths:
+            - avara3d
+        expire_in: 1 week
 
 macos-release:
-  stage: build
-  tags:
-    - macos-15
-  only:
-    - testing
-    - stable
-  script:
-    - echo "Starting macOS release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_AUTOMATED_TESTS=OFF
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -DA3D_MACOS_UNIVERSAL=ON
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/local/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - cd ..
-    - mkdir gitlab-build-tests
-    - cd gitlab-build-tests
-    - /usr/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=OFF
-      -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_DEMOS=OFF
-      -DA3D_BUILD_DOCUMENTATION=OFF
-      -G"Ninja"
-      ..
-    - /usr/local/bin/cmake --build . --target a3d-tests -j4
-    - /usr/local/bin/ctest --output-on-failure
-    - cd ..
-    - echo "macOS release build complete."
-  artifacts:
-    name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "macos-release"
-    paths:
-      - avara3d
-    expire_in: 1 week
+    stage: build
+    tags:
+        - macos-15
+    only:
+        - testing
+        - stable
+    script:
+        - echo "Starting macOS release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/local/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -DA3D_MACOS_UNIVERSAL=ON
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/local/bin/cmake --build . --target install -j4
+        - mv packaged/avara3d ../
+        - cd ..
+        - mkdir gitlab-build-tests
+        - cd gitlab-build-tests
+        - /usr/local/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=OFF
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_DEMOS=OFF
+            -DA3D_BUILD_DOCUMENTATION=OFF
+            -G"Ninja"
+            ..
+        - /usr/local/bin/cmake --build . --target a3d-tests -j4
+        - /usr/local/bin/ctest --output-on-failure
+        - cd ..
+        - echo "macOS release build complete."
+    artifacts:
+        name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "macos-release"
+        paths:
+            - avara3d
+        expire_in: 1 week
 
 windows-release:
-  stage: build
-  tags:
-    - windows-10
-  only:
-    - testing
-    - stable
-  script:
-    - echo "Starting Windows release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -T"ClangCL"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - cmake --build . --config Release --target install --parallel 8
-    - cmake --build . --config Release --target a3d-tests --parallel 8
-    - ctest -C Release --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "Windows release build complete."
-  artifacts:
-    name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "windows-release"
-    paths:
-      - avara3d
-    expire_in: 1 week
+    stage: build
+    tags:
+        - windows-10
+    only:
+        - testing
+        - stable
+    script:
+        - echo "Starting Windows release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -T"ClangCL"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - cmake --build . --config Release --target install --parallel 8
+        - cmake --build . --config Release --target a3d-tests --parallel 8
+        - ctest -C Release --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "Windows release build complete."
+    artifacts:
+        name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "windows-release"
+        paths:
+            - avara3d
+        expire_in: 1 week
 
 web-release:
-  stage: build
-  tags:
-    - ubuntu-23
-  only:
-    - testing
-    - stable
-  script:
-    - echo "Starting Web release build..."
-    - source "${EMSDK_ROOT}/emsdk_env.sh"
-    - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-    - emcc --version
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - emcmake /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_AUTOMATED_TESTS=OFF
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -DA3D_BUILD_DEMOS=ON
-      -DA3D_BUILD_DOCUMENTATION=OFF
-      -DA3D_WEB_GENERATE_HTML=OFF
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - echo "Web release build complete."
-  artifacts:
-    name: "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "web-release"
-    paths:
-      - avara3d
-    expire_in: 1 week
+    stage: build
+    tags:
+        - ubuntu-23
+    only:
+        - testing
+        - stable
+    script:
+        - echo "Starting Web release build..."
+        - source "${EMSDK_ROOT}/emsdk_env.sh"
+        - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+        - emcc --version
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - emcmake /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -DA3D_BUILD_DEMOS=ON
+            -DA3D_BUILD_DOCUMENTATION=OFF
+            -DA3D_WEB_GENERATE_HTML=OFF
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - mv packaged/avara3d ../
+        - echo "Web release build complete."
+    artifacts:
+        name: "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "web-release"
+        paths:
+            - avara3d
+        expire_in: 1 week
 
 linux-release-manual:
-  stage: build
-  tags:
-    - ubuntu-23
-  when: manual
-  script:
-    - echo "Starting Linux release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -G"Ninja"
-      -DCMAKE_C_COMPILER=/usr/bin/clang
-      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - /usr/bin/cmake --build . --target a3d-tests -j4
-    - /usr/bin/ctest --output-on-failure
-    - mv packaged/avara3d ../
-    - cd ../
-    - echo "Linux release build complete."
-  artifacts:
-    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "linux-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - ubuntu-23
+    when: manual
+    script:
+        - echo "Starting Linux release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -G"Ninja"
+            -DCMAKE_C_COMPILER=/usr/bin/clang
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - /usr/bin/cmake --build . --target a3d-tests -j4
+        - /usr/bin/ctest --output-on-failure
+        - mv packaged/avara3d ../
+        - cd ../
+        - echo "Linux release build complete."
+    artifacts:
+        name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "linux-release"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 macos-release-manual:
-  stage: build
-  tags:
-    - macos-15
-  when: manual
-  script:
-    - echo "Starting macOS release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/local/bin/cmake --build . --target install -j4
-    - /usr/local/bin/cmake --build . --target a3d-tests -j4
-    - /usr/local/bin/ctest --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "macOS release build complete."
-  artifacts:
-    name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "macos-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - macos-15
+    when: manual
+    script:
+        - echo "Starting macOS release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - /usr/local/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/local/bin/cmake --build . --target install -j4
+        - /usr/local/bin/cmake --build . --target a3d-tests -j4
+        - /usr/local/bin/ctest --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "macOS release build complete."
+    artifacts:
+        name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "macos-release"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 windows-release-manual:
-  stage: build
-  tags:
-    - windows-10
-  when: manual
-  script:
-    - echo "Starting Windows release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
-      -DA3D_BUILD_AUTOMATED_TESTS=ON
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -T"ClangCL"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - cmake --build . --config Release --target install -j8
-    - cmake --build . --config Release --target a3d-tests -j8
-    - ctest -C Release --output-on-failure
-    - mv packaged/avara3d ../
-    - echo "Windows release build complete."
-  artifacts:
-    name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "windows-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
+    stage: build
+    tags:
+        - windows-10
+    when: manual
+    script:
+        - echo "Starting Windows release build..."
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
+            -DA3D_BUILD_AUTOMATED_TESTS=ON
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -T"ClangCL"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - cmake --build . --config Release --target install -j8
+        - cmake --build . --config Release --target a3d-tests -j8
+        - ctest -C Release --output-on-failure
+        - mv packaged/avara3d ../
+        - echo "Windows release build complete."
+    artifacts:
+        name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "windows-release"
+        paths:
+            - avara3d
+        expire_in: 2 days
 
 web-release-manual:
-  stage: build
-  tags:
-    - ubuntu-23
-  when: manual
-  script:
-    - echo "Starting Web release build..."
-    - source "${EMSDK_ROOT}/emsdk_env.sh"
-    - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-    - emcc --version
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - emcmake /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_AUTOMATED_TESTS=OFF
-      -DA3D_BUILD_SANDBOX_TESTS=ON
-      -DA3D_BUILD_DEMOS=ON
-      -DA3D_BUILD_DOCUMENTATION=OFF
-      -DA3D_WEB_GENERATE_HTML=OFF
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - cd ../
-    - tar -czf
-      "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
-      avara3d
-    - echo "Web release build complete."
-  artifacts:
-    expose_as: "web-release"
-    paths:
-      - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
-    expire_in: 2 days
+    stage: build
+    tags:
+        - ubuntu-23
+    when: manual
+    script:
+        - echo "Starting Web release build..."
+        - source "${EMSDK_ROOT}/emsdk_env.sh"
+        - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+        - emcc --version
+        - mkdir gitlab-build
+        - cd gitlab-build
+        - emcmake /usr/bin/cmake
+            -DCMAKE_BUILD_TYPE="Release"
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=ON
+            -DA3D_BUILD_DEMOS=ON
+            -DA3D_BUILD_DOCUMENTATION=OFF
+            -DA3D_WEB_GENERATE_HTML=OFF
+            -G"Ninja"
+            -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+            -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            ..
+        - /usr/bin/cmake --build . --target install -j4
+        - mv packaged/avara3d ../
+        - cd ../
+        - tar -czf
+            "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
+            avara3d
+        - echo "Web release build complete."
+    artifacts:
+        expose_as: "web-release"
+        paths:
+            - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
+        expire_in: 2 days
 
 documentation:
     stage: build
@@ -457,708 +457,733 @@ documentation:
         expire_in: 1 week
 
 .website-publish:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs:
-    - job: documentation
-      artifacts: true
-  # never allow two website deployments to run simultaneously.
-  resource_group: avara3d-website-deployment
-  script:
-    - |
-      set -euo pipefail
-      echo "Preparing website deployment..."
-      echo "Branch: ${CI_COMMIT_BRANCH}"
-      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
-      echo "Environment: ${CI_ENVIRONMENT_NAME}"
-      : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
-      : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
-      : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
-      test -f "${SSH_PRIVATE_KEY}"
-      test -f "${SSH_KNOWN_HOSTS}"
-      chmod 600 "${SSH_PRIVATE_KEY}"
-      chmod 644 "${SSH_KNOWN_HOSTS}"
-      echo
-      echo "Building fresh WebAssembly release..."
-      source "${EMSDK_ROOT}/emsdk_env.sh"
-      export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-      emcc --version
-      rm -rf gitlab-build-website build-website
-      emcmake /usr/bin/cmake \
-          -S . \
-          -B gitlab-build-website \
-          -G Ninja \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DA3D_BUILD_EDITOR=OFF \
-          -DA3D_BUILD_AUTOMATED_TESTS=OFF \
-          -DA3D_BUILD_SANDBOX_TESTS=OFF \
-          -DA3D_BUILD_DEMOS=ON \
-          -DA3D_BUILD_DOCUMENTATION=OFF \
-          -DA3D_WEB_GENERATE_HTML=OFF \
-          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
-          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      /usr/bin/cmake \
-          --build gitlab-build-website \
-          --target install \
-          -j4
-      echo
-      echo "Assembling website bundle..."
-      A3D_WEB_BUILD_DIR=gitlab-build-website \
-      A3D_REQUIRE_WEB_DEMO=1 \
-      A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
-      A3D_REQUIRE_DOCUMENTATION=1 \
-      A3D_WEBSITE_OUTPUT_DIR=build-website \
-          ./tools/website/assemble.sh
-      echo
-      echo "Verifying website bundle..."
-      test -f build-website/index.html
-      test -f build-website/assets/css/site.css
-      test -f build-website/demo/janus.js
-      test -f build-website/demo/janus.wasm
-      test -f build-website/demo/janus.data
-      test -f build-website/source/main.cc
-      test -f build-website/source/App.h
-      test -f build-website/source/App.cc
-      test -f build-website/build-info.json
-      test -f build-website/api/index.html
-      test -f build-website/api/doxygen-awesome.css
-      test -f build-website/api/avara3d.css
-      du -sh build-website
-      echo
-      echo "Checking deployment destination..."
-      ssh \
-          -i "${SSH_PRIVATE_KEY}" \
-          -o IdentitiesOnly=yes \
-          -o StrictHostKeyChecking=yes \
-          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
-          "test -d '${A3D_DEPLOY_PATH}' &&
-           test -w '${A3D_DEPLOY_PATH}'"
-      echo
-      echo "Publishing website to ${CI_ENVIRONMENT_NAME}..."
-      export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
-      rsync \
-          -rltvz \
-          --delete \
-          --omit-dir-times \
-          --exclude='.well-known/' \
-          --exclude='downloads/' \
-          --itemize-changes \
-          --rsync-path="umask 0002 && rsync" \
-          build-website/ \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
-      echo
-      echo "Verifying deployed files..."
-      ssh \
-          -i "${SSH_PRIVATE_KEY}" \
-          -o IdentitiesOnly=yes \
-          -o StrictHostKeyChecking=yes \
-          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
-          "test -f '${A3D_DEPLOY_PATH}/index.html' &&
-           test -f '${A3D_DEPLOY_PATH}/demo/janus.js' &&
-           test -f '${A3D_DEPLOY_PATH}/demo/janus.wasm' &&
-           test -f '${A3D_DEPLOY_PATH}/api/index.html'"
-      echo
-      echo "Website deployment completed successfully."
-  artifacts:
-    name: "avara3d-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
-    expose_as: "assembled-website"
-    paths:
-      - build-website/
-    expire_in: 1 week
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs:
+        -   job: documentation
+            artifacts: true
+    # never allow two website deployments to run simultaneously.
+    resource_group: avara3d-website-deployment
+    script:
+        - |
+            set -euo pipefail
+            echo "Preparing website deployment..."
+            echo "Branch: ${CI_COMMIT_BRANCH}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Environment: ${CI_ENVIRONMENT_NAME}"
+            : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
+            : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
+            : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+            test -f "${SSH_PRIVATE_KEY}"
+            test -f "${SSH_KNOWN_HOSTS}"
+            chmod 600 "${SSH_PRIVATE_KEY}"
+            chmod 644 "${SSH_KNOWN_HOSTS}"
+            echo
+            echo "Building fresh WebAssembly release..."
+            source "${EMSDK_ROOT}/emsdk_env.sh"
+            export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+            emcc --version
+            rm -rf gitlab-build-website build-website
+            emcmake /usr/bin/cmake \
+                -S . \
+                -B gitlab-build-website \
+                -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DA3D_BUILD_EDITOR=OFF \
+                -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+                -DA3D_BUILD_SANDBOX_TESTS=OFF \
+                -DA3D_BUILD_DEMOS=ON \
+                -DA3D_BUILD_DOCUMENTATION=OFF \
+                -DA3D_WEB_GENERATE_HTML=OFF \
+                -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+                -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            /usr/bin/cmake \
+                --build gitlab-build-website \
+                --target install \
+                -j4
+            echo
+            echo "Assembling website bundle..."
+            A3D_WEB_BUILD_DIR=gitlab-build-website \
+            A3D_REQUIRE_WEB_DEMO=1 \
+            A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
+            A3D_REQUIRE_DOCUMENTATION=1 \
+            A3D_WEBSITE_OUTPUT_DIR=build-website \
+                ./tools/website/assemble.sh
+            echo
+            echo "Verifying website bundle..."
+            test -f build-website/index.html
+            test -f build-website/assets/css/site.css
+            test -f build-website/demo/janus.js
+            test -f build-website/demo/janus.wasm
+            test -f build-website/demo/janus.data
+            test -f build-website/source/main.cc
+            test -f build-website/source-manifest.json
+
+            python3 - <<'PY'
+            import json
+            from pathlib import Path
+
+            root = Path("build-website")
+            manifest = json.loads((root / "source-manifest.json").read_text())
+
+            for entry in manifest["files"]:
+                path = root / "source" / entry["path"]
+
+                if not path.is_file():
+                    raise SystemExit(f"missing source file: {path}")
+            PY
+            test -f build-website/build-info.json
+            test -f build-website/api/index.html
+            test -f build-website/api/doxygen-awesome.css
+            test -f build-website/api/avara3d.css
+            du -sh build-website
+            echo
+            echo "Checking deployment destination..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
+                "test -d '${A3D_DEPLOY_PATH}' &&
+                 test -w '${A3D_DEPLOY_PATH}'"
+            echo
+            echo "Publishing website to ${CI_ENVIRONMENT_NAME}..."
+            export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+            rsync \
+                -rltvz \
+                --delete \
+                --omit-dir-times \
+                --exclude='.well-known/' \
+                --exclude='downloads/' \
+                --itemize-changes \
+                --rsync-path="umask 0002 && rsync" \
+                build-website/ \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
+            echo
+            echo "Verifying deployed files..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
+                "test -f '${A3D_DEPLOY_PATH}/index.html' &&
+                 test -f '${A3D_DEPLOY_PATH}/demo/janus.js' &&
+                 test -f '${A3D_DEPLOY_PATH}/demo/janus.wasm' &&
+                 test -f '${A3D_DEPLOY_PATH}/api/index.html'"
+            echo
+            echo "Website deployment completed successfully."
+    artifacts:
+        name: "avara3d-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
+        expose_as: "assembled-website"
+        paths:
+            - build-website/
+        expire_in: 1 week
 
 website-publish-localstaging:
-  extends: .website-publish
-  variables:
-    A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
-  environment:
-    name: localstaging
-    url: https://localstaging.avara3d.net/
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-publish
+    variables:
+        A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
+    environment:
+        name: localstaging
+        url: https://localstaging.avara3d.net/
+    rules:
+        -   if: '$CI_COMMIT_BRANCH'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 .website-publish-cloudflare:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs:
-    - job: documentation
-      artifacts: true
-  resource_group: avara3d-website-deployment
-  script:
-    - |
-      set -euo pipefail
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs:
+        -   job: documentation
+            artifacts: true
+    resource_group: avara3d-website-deployment
+    script:
+        - |
+            set -euo pipefail
 
-      echo "Preparing Cloudflare website deployment..."
-      echo "Branch: ${CI_COMMIT_BRANCH}"
-      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
-      echo "Environment: ${CI_ENVIRONMENT_NAME}"
+            echo "Preparing Cloudflare website deployment..."
+            echo "Branch: ${CI_COMMIT_BRANCH}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Environment: ${CI_ENVIRONMENT_NAME}"
 
-      : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
-      : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
-      : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is not set}"
-      : "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is not set}"
-      : "${A3D_CLOUDFLARE_PAGES_PROJECT:?A3D_CLOUDFLARE_PAGES_PROJECT is not set}"
-      : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
+            : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
+            : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
+            : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is not set}"
+            : "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is not set}"
+            : "${A3D_CLOUDFLARE_PAGES_PROJECT:?A3D_CLOUDFLARE_PAGES_PROJECT is not set}"
+            : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
 
-      echo
-      echo "Building fresh WebAssembly release..."
-      source "${EMSDK_ROOT}/emsdk_env.sh"
-      export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-      emcc --version
+            echo
+            echo "Building fresh WebAssembly release..."
+            source "${EMSDK_ROOT}/emsdk_env.sh"
+            export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+            emcc --version
 
-      rm -rf gitlab-build-website build-website build-pages
+            rm -rf gitlab-build-website build-website build-pages
 
-      emcmake /usr/bin/cmake \
-          -S . \
-          -B gitlab-build-website \
-          -G Ninja \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DA3D_BUILD_EDITOR=OFF \
-          -DA3D_BUILD_AUTOMATED_TESTS=OFF \
-          -DA3D_BUILD_SANDBOX_TESTS=OFF \
-          -DA3D_BUILD_DEMOS=ON \
-          -DA3D_BUILD_DOCUMENTATION=OFF \
-          -DA3D_WEB_GENERATE_HTML=OFF \
-          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
-          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+            emcmake /usr/bin/cmake \
+                -S . \
+                -B gitlab-build-website \
+                -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DA3D_BUILD_EDITOR=OFF \
+                -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+                -DA3D_BUILD_SANDBOX_TESTS=OFF \
+                -DA3D_BUILD_DEMOS=ON \
+                -DA3D_BUILD_DOCUMENTATION=OFF \
+                -DA3D_WEB_GENERATE_HTML=OFF \
+                -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+                -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
 
-      /usr/bin/cmake \
-          --build gitlab-build-website \
-          --target install \
-          -j4
+            /usr/bin/cmake \
+                --build gitlab-build-website \
+                --target install \
+                -j4
 
-      echo
-      echo "Assembling website bundle..."
-      A3D_WEB_BUILD_DIR=gitlab-build-website \
-      A3D_REQUIRE_WEB_DEMO=1 \
-      A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
-      A3D_REQUIRE_DOCUMENTATION=1 \
-      A3D_WEBSITE_OUTPUT_DIR=build-website \
-          ./tools/website/assemble.sh
+            echo
+            echo "Assembling website bundle..."
+            A3D_WEB_BUILD_DIR=gitlab-build-website \
+            A3D_REQUIRE_WEB_DEMO=1 \
+            A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
+            A3D_REQUIRE_DOCUMENTATION=1 \
+            A3D_WEBSITE_OUTPUT_DIR=build-website \
+                ./tools/website/assemble.sh
 
-      echo
-      echo "Verifying website bundle..."
-      test -f build-website/index.html
-      test -f build-website/assets/css/site.css
-      test -f build-website/demo/janus.js
-      test -f build-website/demo/janus.wasm
-      test -f build-website/demo/janus.data
-      test -f build-website/source/main.cc
-      test -f build-website/source/App.h
-      test -f build-website/source/App.cc
-      test -f build-website/build-info.json
-      test -f build-website/api/index.html
-      test -f build-website/api/doxygen-awesome.css
-      test -f build-website/api/avara3d.css
-      du -sh build-website
+            echo
+            echo "Verifying website bundle..."
+            test -f build-website/index.html
+            test -f build-website/assets/css/site.css
+            test -f build-website/demo/janus.js
+            test -f build-website/demo/janus.wasm
+            test -f build-website/demo/janus.data
+            test -f build-website/source/main.cc
+            test -f build-website/source-manifest.json
 
-      echo
-      echo "Configuring R2 client..."
-      umask 077
-      RCLONE_CONFIG_FILE="$(mktemp)"
-      trap 'rm -f "${RCLONE_CONFIG_FILE}"' EXIT
+            python3 - <<'PY'
+            import json
+            from pathlib import Path
 
-      cat > "${RCLONE_CONFIG_FILE}" <<EOF
-      [r2]
-      type = s3
-      provider = Cloudflare
-      access_key_id = ${R2_ACCESS_KEY_ID}
-      secret_access_key = ${R2_SECRET_ACCESS_KEY}
-      endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
-      acl = private
-      no_check_bucket = true
-      EOF
+            root = Path("build-website")
+            manifest = json.loads((root / "source-manifest.json").read_text())
 
-      echo
-      echo "Uploading Janus runtime payload to R2..."
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          copyto \
-          build-website/demo/janus.wasm \
-          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.wasm"
+            for entry in manifest["files"]:
+                path = root / "source" / entry["path"]
 
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          copyto \
-          build-website/demo/janus.data \
-          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.data"
+                if not path.is_file():
+                    raise SystemExit(f"missing source file: {path}")
+            PY
+            test -f build-website/build-info.json
+            test -f build-website/api/index.html
+            test -f build-website/api/doxygen-awesome.css
+            test -f build-website/api/avara3d.css
+            du -sh build-website
 
-      echo
-      echo "Verifying R2 runtime payload..."
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          lsl \
-          "r2:avara3d-public/${A3D_R2_PREFIX}/demo/"
+            echo
+            echo "Configuring R2 client..."
+            umask 077
+            RCLONE_CONFIG_FILE="$(mktemp)"
+            trap 'rm -f "${RCLONE_CONFIG_FILE}"' EXIT
 
-      curl -fsSI \
-          "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.wasm" \
-          | grep -qi '^content-type: application/wasm'
+            cat > "${RCLONE_CONFIG_FILE}" <<EOF
+            [r2]
+            type = s3
+            provider = Cloudflare
+            access_key_id = ${R2_ACCESS_KEY_ID}
+            secret_access_key = ${R2_SECRET_ACCESS_KEY}
+            endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+            acl = private
+            no_check_bucket = true
+            EOF
 
-      curl -fsSI \
-          "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.data" \
-          | grep -qi '^content-type: application/octet-stream'
+            echo
+            echo "Uploading Janus runtime payload to R2..."
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                copyto \
+                build-website/demo/janus.wasm \
+                "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.wasm"
 
-      echo
-      echo "Preparing Cloudflare Pages payload..."
-      cp -a build-website build-pages
-      rm build-pages/demo/janus.wasm
-      rm build-pages/demo/janus.data
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                copyto \
+                build-website/demo/janus.data \
+                "r2:avara3d-public/${A3D_R2_PREFIX}/demo/janus.data"
 
-      test -f build-pages/demo/janus.js
-      test ! -e build-pages/demo/janus.wasm
-      test ! -e build-pages/demo/janus.data
+            echo
+            echo "Verifying R2 runtime payload..."
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                lsl \
+                "r2:avara3d-public/${A3D_R2_PREFIX}/demo/"
 
-      oversized_file="$(
-          find build-pages \
-              -type f \
-              -size +25M \
-              -print \
-              -quit
-      )"
+            curl -fsSI \
+                "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.wasm" \
+                | grep -qi '^content-type: application/wasm'
 
-      if [[ -n "${oversized_file}" ]]; then
-          echo "Cloudflare Pages payload contains a file larger than 25 MiB:" >&2
-          echo "  ${oversized_file}" >&2
-          exit 1
-      fi
+            curl -fsSI \
+                "https://cdn.avara3d.net/${A3D_R2_PREFIX}/demo/janus.data" \
+                | grep -qi '^content-type: application/octet-stream'
 
-      echo
-      echo "Publishing website to Cloudflare Pages..."
-      npx --yes wrangler@4.125.0 pages deploy \
-          build-pages \
-          --project-name="${A3D_CLOUDFLARE_PAGES_PROJECT}" \
-          --branch=main \
-          --commit-dirty=true
+            echo
+            echo "Preparing Cloudflare Pages payload..."
+            cp -a build-website build-pages
+            rm build-pages/demo/janus.wasm
+            rm build-pages/demo/janus.data
 
-      echo
-      echo "Cloudflare website deployment completed successfully."
-  artifacts:
-    name: "avara3d-cloudflare-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
-    expose_as: "assembled-website"
-    paths:
-      - build-website/
-    expire_in: 1 week
+            test -f build-pages/demo/janus.js
+            test ! -e build-pages/demo/janus.wasm
+            test ! -e build-pages/demo/janus.data
+
+            oversized_file="$(
+                find build-pages \
+                    -type f \
+                    -size +25M \
+                    -print \
+                    -quit
+            )"
+
+            if [[ -n "${oversized_file}" ]]; then
+                echo "Cloudflare Pages payload contains a file larger than 25 MiB:" >&2
+                echo "  ${oversized_file}" >&2
+                exit 1
+            fi
+
+            echo
+            echo "Publishing website to Cloudflare Pages..."
+            npx --yes wrangler@4.125.0 pages deploy \
+                build-pages \
+                --project-name="${A3D_CLOUDFLARE_PAGES_PROJECT}" \
+                --branch=main \
+                --commit-dirty=true
+
+            echo
+            echo "Cloudflare website deployment completed successfully."
+    artifacts:
+        name: "avara3d-cloudflare-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
+        expose_as: "assembled-website"
+        paths:
+            - build-website/
+        expire_in: 1 week
 
 website-publish-staging:
-  extends: .website-publish-cloudflare
-  variables:
-    A3D_CLOUDFLARE_PAGES_PROJECT: avara3d-staging
-    A3D_R2_PREFIX: staging
-  environment:
-    name: staging
-    url: https://staging.avara3d.net/
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-publish-cloudflare
+    variables:
+        A3D_CLOUDFLARE_PAGES_PROJECT: avara3d-staging
+        A3D_R2_PREFIX: staging
+    environment:
+        name: staging
+        url: https://staging.avara3d.net/
+    rules:
+        -   if: '$CI_COMMIT_BRANCH'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 website-publish-production:
-  extends: .website-publish-cloudflare
-  variables:
-    A3D_CLOUDFLARE_PAGES_PROJECT: avara3d
-    A3D_R2_PREFIX: production
-  environment:
-    name: production
-    url: https://avara3d.net/
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-publish-cloudflare
+    variables:
+        A3D_CLOUDFLARE_PAGES_PROJECT: avara3d
+        A3D_R2_PREFIX: production
+    environment:
+        name: production
+        url: https://avara3d.net/
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 website-restore-production-redirect:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs: []
-  resource_group: avara3d-website-deployment
-  script:
-    - |
-      set -euo pipefail
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs: [ ]
+    resource_group: avara3d-website-deployment
+    script:
+        - |
+            set -euo pipefail
 
-      : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
-      : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
+            : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
+            : "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
 
-      source "${EMSDK_ROOT}/emsdk_env.sh"
+            source "${EMSDK_ROOT}/emsdk_env.sh"
 
-      rm -rf build-production-redirect
-      mkdir -p build-production-redirect
+            rm -rf build-production-redirect
+            mkdir -p build-production-redirect
 
-      cat > build-production-redirect/index.html <<'EOF'
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta http-equiv="refresh" content="1; url='https://gitlab.mkd.net/a3d/avara3d'" />
-        </head>
-        <body>
-          <p>Going to GitLab...</p>
-        </body>
-      </html>
-      EOF
+            cat > build-production-redirect/index.html <<'EOF'
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta http-equiv="refresh" content="1; url='https://gitlab.mkd.net/a3d/avara3d'" />
+              </head>
+              <body>
+                <p>Going to GitLab...</p>
+              </body>
+            </html>
+            EOF
 
-      npx --yes wrangler@4.125.0 pages deploy \
-          build-production-redirect \
-          --project-name=avara3d \
-          --branch=main \
-          --commit-dirty=true
+            npx --yes wrangler@4.125.0 pages deploy \
+                build-production-redirect \
+                --project-name=avara3d \
+                --branch=main \
+                --commit-dirty=true
 
-      echo "Production redirect deployed successfully."
-  environment:
-    name: production
-    url: https://avara3d.net/
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
-      when: manual
-      allow_failure: true
-    - when: never
-    
+            echo "Production redirect deployed successfully."
+    environment:
+        name: production
+        url: https://avara3d.net/
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
+            when: manual
+            allow_failure: true
+        -   when: never
+
 .website-downloads-publish:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs:
-    - job: linux-release
-      artifacts: true
-    - job: macos-release
-      artifacts: true
-    - job: windows-release
-      artifacts: true
-  # serialize downloads deployments so two pipelines cannot replace
-  # a channel at the same time.
-  resource_group: avara3d-downloads-deployment
-  script:
-    - |
-      set -euo pipefail
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs:
+        -   job: linux-release
+            artifacts: true
+        -   job: macos-release
+            artifacts: true
+        -   job: windows-release
+            artifacts: true
+    # serialize downloads deployments so two pipelines cannot replace
+    # a channel at the same time.
+    resource_group: avara3d-downloads-deployment
+    script:
+        - |
+            set -euo pipefail
 
-      echo "Preparing downloads deployment..."
-      echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
-      echo "Destination: ${A3D_DOWNLOAD_DESTINATION}"
-      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
-      echo "Pipeline: ${CI_PIPELINE_IID}"
+            echo "Preparing downloads deployment..."
+            echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
+            echo "Destination: ${A3D_DOWNLOAD_DESTINATION}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Pipeline: ${CI_PIPELINE_IID}"
 
-      : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
-      : "${A3D_DOWNLOAD_DESTINATION:?A3D_DOWNLOAD_DESTINATION is not set}"
-      : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
-      : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
-      : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+            : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
+            : "${A3D_DOWNLOAD_DESTINATION:?A3D_DOWNLOAD_DESTINATION is not set}"
+            : "${LOCALSTAGING_DEPLOY_HOST:?LOCALSTAGING_DEPLOY_HOST is not set}"
+            : "${LOCALSTAGING_DEPLOY_USER:?LOCALSTAGING_DEPLOY_USER is not set}"
+            : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
 
-      case "${A3D_DOWNLOAD_CHANNEL}" in
-          stable|testing)
-              ;;
-          *)
-              echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
-              exit 1
-              ;;
-      esac
+            case "${A3D_DOWNLOAD_CHANNEL}" in
+                stable|testing)
+                    ;;
+                *)
+                    echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
+                    exit 1
+                    ;;
+            esac
 
-      case "${A3D_DOWNLOAD_DESTINATION}" in
-          localstaging|production)
-              ;;
-          *)
-              echo "Invalid download destination: ${A3D_DOWNLOAD_DESTINATION}" >&2
-              exit 1
-              ;;
-      esac
+            case "${A3D_DOWNLOAD_DESTINATION}" in
+                localstaging|production)
+                    ;;
+                *)
+                    echo "Invalid download destination: ${A3D_DOWNLOAD_DESTINATION}" >&2
+                    exit 1
+                    ;;
+            esac
 
-      test -f "${SSH_PRIVATE_KEY}"
-      test -f "${SSH_KNOWN_HOSTS}"
-      chmod 600 "${SSH_PRIVATE_KEY}"
-      chmod 644 "${SSH_KNOWN_HOSTS}"
+            test -f "${SSH_PRIVATE_KEY}"
+            test -f "${SSH_KNOWN_HOSTS}"
+            chmod 600 "${SSH_PRIVATE_KEY}"
+            chmod 644 "${SSH_KNOWN_HOSTS}"
 
-      echo
-      echo "Verifying downloaded build artifacts..."
-      test -d avara3d/linux/release
-      test -d avara3d/macos/release
-      test -d avara3d/windows/release
+            echo
+            echo "Verifying downloaded build artifacts..."
+            test -d avara3d/linux/release
+            test -d avara3d/macos/release
+            test -d avara3d/windows/release
 
-      echo
-      echo "Assembling public downloads bundle..."
-      rm -rf build-downloads
-      A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
-          ./tools/website/assemble-downloads.sh
+            echo
+            echo "Assembling public downloads bundle..."
+            rm -rf build-downloads
+            A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
+                ./tools/website/assemble-downloads.sh
 
-      linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
-      macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
-      windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
+            macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
 
-      test -f "${linux_package}"
-      test -f "${macos_package}"
-      test -f "${windows_package}"
-      test -f build-downloads/manifest.json
-      test -f build-downloads/SHA256SUMS
-      test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
-      python3 -m json.tool build-downloads/manifest.json >/dev/null
+            test -f "${linux_package}"
+            test -f "${macos_package}"
+            test -f "${windows_package}"
+            test -f build-downloads/manifest.json
+            test -f build-downloads/SHA256SUMS
+            test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
+            python3 -m json.tool build-downloads/manifest.json >/dev/null
 
-      echo
-      echo "Downloads bundle:"
-      ls -lh build-downloads
+            echo
+            echo "Downloads bundle:"
+            ls -lh build-downloads
 
-      remote_channel_dir="${A3D_DEPLOY_PATH}/downloads/${A3D_DOWNLOAD_CHANNEL}"
+            remote_channel_dir="${A3D_DEPLOY_PATH}/downloads/${A3D_DOWNLOAD_CHANNEL}"
 
-      echo
-      echo "Checking remote channel directory..."
-      ssh \
-          -i "${SSH_PRIVATE_KEY}" \
-          -o IdentitiesOnly=yes \
-          -o StrictHostKeyChecking=yes \
-          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
-          "test -d '${remote_channel_dir}' &&
-           test -w '${remote_channel_dir}'"
+            echo
+            echo "Checking remote channel directory..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
+                "test -d '${remote_channel_dir}' &&
+                 test -w '${remote_channel_dir}'"
 
-      echo
-      echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${A3D_DOWNLOAD_DESTINATION}..."
-      export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+            echo
+            echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${A3D_DOWNLOAD_DESTINATION}..."
+            export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
 
-      rsync \
-          -rltvz \
-          --delete \
-          --omit-dir-times \
-          --itemize-changes \
-          --rsync-path="umask 0002 && rsync" \
-          build-downloads/ \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${remote_channel_dir}/"
+            rsync \
+                -rltvz \
+                --delete \
+                --omit-dir-times \
+                --itemize-changes \
+                --rsync-path="umask 0002 && rsync" \
+                build-downloads/ \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}:${remote_channel_dir}/"
 
-      echo
-      echo "Verifying deployed packages and checksums..."
-      ssh \
-          -i "${SSH_PRIVATE_KEY}" \
-          -o IdentitiesOnly=yes \
-          -o StrictHostKeyChecking=yes \
-          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-          "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
-          "cd '${remote_channel_dir}' &&
-           test -f manifest.json &&
-           test -f SHA256SUMS &&
-           sha256sum -c SHA256SUMS"
+            echo
+            echo "Verifying deployed packages and checksums..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${LOCALSTAGING_DEPLOY_USER}@${LOCALSTAGING_DEPLOY_HOST}" \
+                "cd '${remote_channel_dir}' &&
+                 test -f manifest.json &&
+                 test -f SHA256SUMS &&
+                 sha256sum -c SHA256SUMS"
 
-      echo
-      echo "Downloads deployment completed successfully."
+            echo
+            echo "Downloads deployment completed successfully."
 
 
 .website-downloads-publish-cloudflare:
-  stage: deploy
-  tags:
-    - ubuntu-23
-  needs:
-    - job: linux-release
-      artifacts: true
-    - job: macos-release
-      artifacts: true
-    - job: windows-release
-      artifacts: true
-  resource_group: avara3d-downloads-deployment
-  script:
-    - |
-      set -euo pipefail
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs:
+        -   job: linux-release
+            artifacts: true
+        -   job: macos-release
+            artifacts: true
+        -   job: windows-release
+            artifacts: true
+    resource_group: avara3d-downloads-deployment
+    script:
+        - |
+            set -euo pipefail
 
-      echo "Preparing Cloudflare downloads deployment..."
-      echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
-      echo "R2 prefix: ${A3D_R2_PREFIX}"
-      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
-      echo "Pipeline: ${CI_PIPELINE_IID}"
+            echo "Preparing Cloudflare downloads deployment..."
+            echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
+            echo "R2 prefix: ${A3D_R2_PREFIX}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Pipeline: ${CI_PIPELINE_IID}"
 
-      : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
-      : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
-      : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
-      : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is not set}"
-      : "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is not set}"
+            : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
+            : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
+            : "${CLOUDFLARE_ACCOUNT_ID:?CLOUDFLARE_ACCOUNT_ID is not set}"
+            : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is not set}"
+            : "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is not set}"
 
-      case "${A3D_DOWNLOAD_CHANNEL}" in
-          stable|testing)
-              ;;
-          *)
-              echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
-              exit 1
-              ;;
-      esac
+            case "${A3D_DOWNLOAD_CHANNEL}" in
+                stable|testing)
+                    ;;
+                *)
+                    echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
+                    exit 1
+                    ;;
+            esac
 
-      case "${A3D_R2_PREFIX}" in
-          staging|production)
-              ;;
-          *)
-              echo "Invalid R2 prefix: ${A3D_R2_PREFIX}" >&2
-              exit 1
-              ;;
-      esac
+            case "${A3D_R2_PREFIX}" in
+                staging|production)
+                    ;;
+                *)
+                    echo "Invalid R2 prefix: ${A3D_R2_PREFIX}" >&2
+                    exit 1
+                    ;;
+            esac
 
-      echo
-      echo "Verifying downloaded build artifacts..."
-      test -d avara3d/linux/release
-      test -d avara3d/macos/release
-      test -d avara3d/windows/release
+            echo
+            echo "Verifying downloaded build artifacts..."
+            test -d avara3d/linux/release
+            test -d avara3d/macos/release
+            test -d avara3d/windows/release
 
-      echo
-      echo "Assembling public downloads bundle..."
-      rm -rf build-downloads
-      A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
-          ./tools/website/assemble-downloads.sh
+            echo
+            echo "Assembling public downloads bundle..."
+            rm -rf build-downloads
+            A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
+                ./tools/website/assemble-downloads.sh
 
-      linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
-      macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
-      windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
+            macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
 
-      test -f "${linux_package}"
-      test -f "${macos_package}"
-      test -f "${windows_package}"
-      test -f build-downloads/manifest.json
-      test -f build-downloads/SHA256SUMS
-      test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
-      python3 -m json.tool build-downloads/manifest.json >/dev/null
+            test -f "${linux_package}"
+            test -f "${macos_package}"
+            test -f "${windows_package}"
+            test -f build-downloads/manifest.json
+            test -f build-downloads/SHA256SUMS
+            test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
+            python3 -m json.tool build-downloads/manifest.json >/dev/null
 
-      echo
-      echo "Downloads bundle:"
-      ls -lh build-downloads
+            echo
+            echo "Downloads bundle:"
+            ls -lh build-downloads
 
-      echo
-      echo "Configuring R2 client..."
-      umask 077
-      RCLONE_CONFIG_FILE="$(mktemp)"
-      trap 'rm -f "${RCLONE_CONFIG_FILE}"' EXIT
+            echo
+            echo "Configuring R2 client..."
+            umask 077
+            RCLONE_CONFIG_FILE="$(mktemp)"
+            trap 'rm -f "${RCLONE_CONFIG_FILE}"' EXIT
 
-      cat > "${RCLONE_CONFIG_FILE}" <<EOF
-      [r2]
-      type = s3
-      provider = Cloudflare
-      access_key_id = ${R2_ACCESS_KEY_ID}
-      secret_access_key = ${R2_SECRET_ACCESS_KEY}
-      endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
-      acl = private
-      no_check_bucket = true
-      EOF
+            cat > "${RCLONE_CONFIG_FILE}" <<EOF
+            [r2]
+            type = s3
+            provider = Cloudflare
+            access_key_id = ${R2_ACCESS_KEY_ID}
+            secret_access_key = ${R2_SECRET_ACCESS_KEY}
+            endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+            acl = private
+            no_check_bucket = true
+            EOF
 
-      r2_channel="r2:avara3d-public/${A3D_R2_PREFIX}/downloads/${A3D_DOWNLOAD_CHANNEL}"
+            r2_channel="r2:avara3d-public/${A3D_R2_PREFIX}/downloads/${A3D_DOWNLOAD_CHANNEL}"
 
-      echo
-      echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${r2_channel}..."
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          sync \
-          build-downloads/ \
-          "${r2_channel}/"
+            echo
+            echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${r2_channel}..."
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                sync \
+                build-downloads/ \
+                "${r2_channel}/"
 
-      echo
-      echo "Verifying R2 downloads..."
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          lsl \
-          "${r2_channel}/"
+            echo
+            echo "Verifying R2 downloads..."
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                lsl \
+                "${r2_channel}/"
 
-      rclone \
-          --config "${RCLONE_CONFIG_FILE}" \
-          check \
-          build-downloads/ \
-          "${r2_channel}/" \
-          --size-only
+            rclone \
+                --config "${RCLONE_CONFIG_FILE}" \
+                check \
+                build-downloads/ \
+                "${r2_channel}/" \
+                --size-only
 
-      public_base="https://cdn.avara3d.net/${A3D_R2_PREFIX}/downloads/${A3D_DOWNLOAD_CHANNEL}"
+            public_base="https://cdn.avara3d.net/${A3D_R2_PREFIX}/downloads/${A3D_DOWNLOAD_CHANNEL}"
 
-      curl -fsS "${public_base}/manifest.json" \
-          | python3 -m json.tool \
-          >/dev/null
+            curl -fsS "${public_base}/manifest.json" \
+                | python3 -m json.tool \
+                >/dev/null
 
-      curl -fsS "${public_base}/SHA256SUMS" \
-          >/dev/null
+            curl -fsS "${public_base}/SHA256SUMS" \
+                >/dev/null
 
-      echo
-      echo "Cloudflare downloads deployment completed successfully."
+            echo
+            echo "Cloudflare downloads deployment completed successfully."
 
 
 website-downloads-publish-stable-localstaging:
-  extends: .website-downloads-publish
-  variables:
-    A3D_DOWNLOAD_CHANNEL: stable
-    A3D_DOWNLOAD_DESTINATION: localstaging
-    A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
-  environment:
-    name: downloads/stable/localstaging
-    url: https://localstaging.avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "stable"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: stable
+        A3D_DOWNLOAD_DESTINATION: localstaging
+        A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
+    environment:
+        name: downloads/stable/localstaging
+        url: https://localstaging.avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "stable"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 
 website-downloads-publish-testing-localstaging:
-  extends: .website-downloads-publish
-  variables:
-    A3D_DOWNLOAD_CHANNEL: testing
-    A3D_DOWNLOAD_DESTINATION: localstaging
-    A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
-  environment:
-    name: downloads/testing/localstaging
-    url: https://localstaging.avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "testing"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: testing
+        A3D_DOWNLOAD_DESTINATION: localstaging
+        A3D_DEPLOY_PATH: /var/www/localstaging.avara3d.net/html
+    environment:
+        name: downloads/testing/localstaging
+        url: https://localstaging.avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "testing"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 
 website-downloads-publish-stable-staging:
-  extends: .website-downloads-publish-cloudflare
-  variables:
-    A3D_DOWNLOAD_CHANNEL: stable
-    A3D_R2_PREFIX: staging
-  environment:
-    name: downloads/stable/staging
-    url: https://staging.avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "stable"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-downloads-publish-cloudflare
+    variables:
+        A3D_DOWNLOAD_CHANNEL: stable
+        A3D_R2_PREFIX: staging
+    environment:
+        name: downloads/stable/staging
+        url: https://staging.avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "stable"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 
 website-downloads-publish-testing-staging:
-  extends: .website-downloads-publish-cloudflare
-  variables:
-    A3D_DOWNLOAD_CHANNEL: testing
-    A3D_R2_PREFIX: staging
-  environment:
-    name: downloads/testing/staging
-    url: https://staging.avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "testing"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-downloads-publish-cloudflare
+    variables:
+        A3D_DOWNLOAD_CHANNEL: testing
+        A3D_R2_PREFIX: staging
+    environment:
+        name: downloads/testing/staging
+        url: https://staging.avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "testing"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 
 website-downloads-publish-stable-production:
-  extends: .website-downloads-publish-cloudflare
-  variables:
-    A3D_DOWNLOAD_CHANNEL: stable
-    A3D_R2_PREFIX: production
-  environment:
-    name: downloads/stable/production
-    url: https://avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "stable"'
-      when: manual
-      allow_failure: true
-    - when: never
+    extends: .website-downloads-publish-cloudflare
+    variables:
+        A3D_DOWNLOAD_CHANNEL: stable
+        A3D_R2_PREFIX: production
+    environment:
+        name: downloads/stable/production
+        url: https://avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "stable"'
+            when: manual
+            allow_failure: true
+        -   when: never
 
 
 website-downloads-publish-testing-production:
-  extends: .website-downloads-publish-cloudflare
-  variables:
-    A3D_DOWNLOAD_CHANNEL: testing
-    A3D_R2_PREFIX: production
-  environment:
-    name: downloads/testing/production
-    url: https://avara3d.net/downloads.html
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "testing"'
-      when: manual
-      allow_failure: true
-    - when: never
-  
+    extends: .website-downloads-publish-cloudflare
+    variables:
+        A3D_DOWNLOAD_CHANNEL: testing
+        A3D_R2_PREFIX: production
+    environment:
+        name: downloads/testing/production
+        url: https://avara3d.net/downloads.html
+    rules:
+        -   if: '$CI_COMMIT_BRANCH == "testing"'
+            when: manual
+            allow_failure: true
+        -   when: never
