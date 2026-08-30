@@ -101,7 +101,8 @@ namespace demo::janus {
         struct PendingAction {
             Action                   action;
             PickResult               target;
-            std::weak_ptr<a3d::Node> simulationRoot;
+            unsigned                 simulationGeneration;
+            std::weak_ptr<a3d::Node> dynamicsRoot;
             a3d::math::vec3          cameraPosition;
             a3d::math::vec3          rayDirection;
         };
@@ -160,6 +161,7 @@ namespace demo::janus {
         std::vector<a3d::ext::Wanderer>     _orbWanderers;
         std::vector<PickIgnore>             _pickIgnores;
         std::vector<NodeTransform>          _dynamicsTransforms;
+        unsigned                            _simulationGeneration;
         bool                                _pendingReset;
     };
 

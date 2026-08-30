@@ -83,6 +83,7 @@ JanusApp::JanusApp(int argc, char* argv[]):
     _orbWanderers {},
     _pickIgnores {},
     _dynamicsTransforms {},
+    _simulationGeneration {0},
     _pendingReset {false} {}
 
 JanusApp::~JanusApp() = default;
@@ -1080,7 +1081,8 @@ void JanusApp::queueAction(const vec2& screenPosition) {
 
     PendingAction pendingAction {.action = _action,
                                  .target = *actionTarget,
-                                 .simulationRoot = _dynamicsRoot,
+                                 .simulationGeneration = _simulationGeneration,
+                                 .dynamicsRoot = _dynamicsRoot,
                                  .cameraPosition = _cameraNode->worldPosition(),
                                  .rayDirection = normalize(ray)};
 
@@ -1115,9 +1117,13 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const double PROJECTILE_PICK_IGNORE_DURATION {1.5};
 
+    if (action.simulationGeneration != _simulationGeneration) {
+        return;
+    }
+
     auto& scene = JanusApp::scene();
 
-    auto simulationRoot = action.simulationRoot.lock();
+    auto simulationRoot = action.dynamicsRoot.lock();
 
     // simulation may have been reset while this action was waiting for a step boundary
     if (!simulationRoot || simulationRoot != _dynamicsRoot) {
@@ -1279,8 +1285,6 @@ void JanusApp::reset() {
 
     select({});
 
-    _actionTarget.reset();
-
     _transients.clear();
 
     _transientsRoot->removeFromParent();
@@ -1288,6 +1292,8 @@ void JanusApp::reset() {
     scene().rootNode()->addChild(_transientsRoot);
 
     restoreDynamicsTransforms();
+
+    _actionTarget.reset();
 
     erase_if(_pickIgnores, [](const PickIgnore& ignore) {
         return ignore.remainingTime.has_value();
@@ -1299,14 +1305,13 @@ void JanusApp::reset() {
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
-    // _dynamicsRoot = MakeSimulationRoot();
-    // scene().rootNode()->addChild(_dynamicsRoot);
-
     runner().resetSimulation();
 
     if (runner().simulationPaused()) {
         runner().simulationPaused(false);
     }
+
+    ++_simulationGeneration;
 }
 
 // [Private Static Non-Member Functions]
