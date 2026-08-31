@@ -1,13 +1,13 @@
 //
-//  JanusApp.h
+//  App.h
 //  janus
 //
 //  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DEMO_JANUSAPP_H
-#define AVARA3D_DEMO_JANUSAPP_H
+#ifndef AVARA3D_DEMO_JANUS_APP_H
+#define AVARA3D_DEMO_JANUS_APP_H
 
 #include "TransientsCache.h"
 
@@ -33,7 +33,7 @@ namespace a3d {
 
 namespace demo::janus {
 
-    class JanusApp : public a3d::Application {
+    class App : public a3d::Application {
 
     public:
         // [Public Types]
@@ -46,8 +46,8 @@ namespace demo::janus {
 
         // [Public Lifecycle Functions]
 
-        JanusApp(int argc, char* argv[]);
-        ~JanusApp() override;
+        App(int argc, char* argv[]);
+        ~App() override;
 
     protected:
         // [Application Protected Member Functions]
@@ -167,4 +167,4 @@ namespace demo::janus {
 
 }
 
-#endif // AVARA3D_DEMO_JANUSAPP_H
+#endif // AVARA3D_DEMO_JANUS_APP_H

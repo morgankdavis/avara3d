@@ -1238,7 +1238,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Sketchfab_Model_Material_u1_v1",
+			"name":"lion_material",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":8
@@ -1248,7 +1248,7 @@
 			}
 		},
 		{
-			"name":"Texture",
+			"name":"artemis_material",
 			"occlusionTexture":{
 				"index":9
 			},
@@ -1260,7 +1260,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Material.005",
+			"name":"augustus_material",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":11
@@ -1271,7 +1271,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Material.007",
+			"name":"janus_material",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":12
@@ -1282,7 +1282,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"material_0.004",
+			"name":"plinth_janus_material",
 			"normalTexture":{
 				"index":13
 			},
@@ -1296,7 +1296,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Scene_-_Root",
+			"name":"plinth_teapot_material",
 			"normalTexture":{
 				"index":15
 			},
@@ -1319,7 +1319,7 @@
 					}
 				}
 			},
-			"name":"Material.003",
+			"name":"teapot_material",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":19
@@ -1558,7 +1558,7 @@
 			]
 		},
 		{
-			"name":"Mesh.001",
+			"name":"artemis",
 			"primitives":[
 				{
 					"attributes":{
@@ -1572,7 +1572,7 @@
 			]
 		},
 		{
-			"name":"Mesh_0.001",
+			"name":"augustus",
 			"primitives":[
 				{
 					"attributes":{
@@ -1586,7 +1586,7 @@
 			]
 		},
 		{
-			"name":"Mesh.002",
+			"name":"artemis.phys",
 			"primitives":[
 				{
 					"attributes":{
@@ -1599,7 +1599,7 @@
 			]
 		},
 		{
-			"name":"Mesh_0.002",
+			"name":"augustus.phys",
 			"primitives":[
 				{
 					"attributes":{
@@ -1612,7 +1612,7 @@
 			]
 		},
 		{
-			"name":"Object_0.003",
+			"name":"diana.phys",
 			"primitives":[
 				{
 					"attributes":{
@@ -1625,7 +1625,7 @@
 			]
 		},
 		{
-			"name":"model_0",
+			"name":"janus",
 			"primitives":[
 				{
 					"attributes":{
@@ -1639,7 +1639,7 @@
 			]
 		},
 		{
-			"name":"Object_2.003",
+			"name":"plinth_janus",
 			"primitives":[
 				{
 					"attributes":{
@@ -1653,7 +1653,7 @@
 			]
 		},
 		{
-			"name":"Aset_stone_carved_M_tfyhdeyfa_LOD0__0",
+			"name":"plinth_teapot",
 			"primitives":[
 				{
 					"attributes":{
@@ -1667,7 +1667,7 @@
 			]
 		},
 		{
-			"name":"Utah Teapot.001",
+			"name":"teapot",
 			"primitives":[
 				{
 					"attributes":{

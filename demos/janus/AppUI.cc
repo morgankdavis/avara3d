@@ -1,12 +1,12 @@
 //
-//  JanusAppUI.cc
+//  AppUI.cc
 //  janus
 //
 //  Created by Morgan Davis on 8/30/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "JanusApp.h"
+#include "App.h"
 #include "Constants.h"
 
 #include "a3d/a3d.h"
@@ -15,14 +15,14 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace demo::janus;
 
-// [JanusApp Private Member Functions]
+// [App Private Member Functions]
 
-bool JanusApp::drawPanel() {
+bool App::drawPanel() {
 
     const float PANEL_WIDTH {180.0f};
 
-    auto& runner = JanusApp::runner();
-    auto& scene = JanusApp::scene();
+    auto& runner = App::runner();
+    auto& scene = App::scene();
     auto& visualWorld = *scene.visualWorld();
     auto& physicsWorld = *scene.physicsWorld();
 

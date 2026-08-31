@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DEMO_TRANSIENTSCACHE_H
-#define AVARA3D_DEMO_TRANSIENTSCACHE_H
+#ifndef AVARA3D_DEMO_JANUS_TRANSIENTSCACHE_H
+#define AVARA3D_DEMO_JANUS_TRANSIENTSCACHE_H
 
 #include <memory>
 #include <vector>
@@ -71,4 +71,4 @@ namespace demo::janus {
 
 }
 
-#endif // AVARA3D_DEMO_TRANSIENTSCACHE_H
+#endif // AVARA3D_DEMO_JANUS_TRANSIENTSCACHE_H

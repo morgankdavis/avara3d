@@ -1,10 +1,10 @@
 a3d_add_demo(
 		SOURCES
 		main.cc
-		JanusApp.h
-		JanusApp.cc
+		App.h
+		App.cc
+		AppUI.cc
 		Constants.h
-		JanusAppUI.cc
 		TransientsBuilder.h
 		TransientsBuilder.cc
 		TransientsCache.h
