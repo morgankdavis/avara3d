@@ -20,6 +20,7 @@
 #include <bullet/btBulletCollisionCommon.h>
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h>
+#include <bullet/BulletCollision/CollisionDispatch/btManifoldResult.h>
 #include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 #include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
 #include <bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h>
@@ -115,6 +116,18 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     _debugDrawMode {0} {
 
     log::i()("Bullet Physics version: {}", btGetVersion());
+
+    // TODO: add an API for this
+    gCalculateCombinedRestitutionCallback = [](const btCollisionObject* body0,
+                                               const btCollisionObject* body1) -> btScalar {
+        return btMax(body0->getRestitution(), body1->getRestitution());
+    };
+
+    // TODO: add an API for this
+    gCalculateCombinedFrictionCallback =
+        [](const btCollisionObject* body0, const btCollisionObject* body1) -> btScalar {
+            return btSqrt(body0->getFriction() * body1->getFriction());
+    };
 
 //	_btScheduler = btGetOpenMPTaskScheduler();
 //	if (!_btScheduler) _btScheduler = btGetTBBTaskScheduler();

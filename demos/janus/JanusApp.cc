@@ -7,6 +7,8 @@
 //
 
 #include "JanusApp.h"
+#include "Constants.h"
+#include "TransientsBuilder.h"
 
 #include <algorithm>
 #include <cmath>
@@ -26,46 +28,16 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const float                       TIME_STEP {1.0 / 120.0};
 const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
-const vec3 GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
-const vec3 GRAVITY_MOON {0.0f, -1.62f, 0.0f};
-const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
-
 const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
 const u8vec3 COIN_GRID_SIZE {3, 3, 3};
 const u8vec3 BALL_GRID_SIZE {3, 3, 3};
 
 // [Private Static Non-Member Prototypes]
 
-static shared_ptr<Node>               MakeSimulationRoot();
 static optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                            const vec2&                screenPosition,
                                            const vector<const Node*>& ignoredNodes = {},
                                            bool                       elementBoundsOnly = true);
-static vector<shared_ptr<Node>>       BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
-                                                 const vec3&                           location,
-                                                 const u8vec3&                         stackSize,
-                                                 float                                 gap);
-static vector<shared_ptr<Node>>       BuildCoins(const TransientsCache::Entry& cacheEntry,
-                                                 const vec3&                   location,
-                                                 const u8vec3&                 stackSize,
-                                                 float                         gap);
-static vector<shared_ptr<Node>>       BuildBalls(const TransientsCache::Entry& cacheEntry,
-                                                 const vec3&                   location,
-                                                 const u8vec3&                 stackSize,
-                                                 float                         gap);
-static shared_ptr<Node>               BuildHammer(const TransientsCache::Entry& cacheEntry,
-                                                  const vec3&                   location,
-                                                  const vec3&                   velocity);
-static shared_ptr<Node>               BuildHula(const TransientsCache::Entry& cacheEntry,
-                                                const vec3&                   location,
-                                                const vec3&                   velocity);
-static shared_ptr<Node>               BuildDuck(const TransientsCache::Entry& cacheEntry,
-                                                const vec3&                   location,
-                                                const vec3&                   velocity);
-static pair<vec3, vec3>               CalculateGridLayout(const vec3&   location,
-                                                          const vec3&   cellSize,
-                                                          const u8vec3& gridSize,
-                                                          float         gap);
 static pair<vec3, vec3>               CalculateThrowTrajectory(const vec3& cameraPosition,
                                                                const vec3& targetPosition,
                                                                const vec3& gravity);
@@ -175,11 +147,34 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        // for (auto& node : scene->rootNode()->children(true)) {
-        //     if (node->light()) {
-        //         node->removeFromParent();
-        //     }
-        // }
+        /*  root
+                environment
+                    environment.phys
+                        evora.phys
+                        lion.phys
+                    evora
+                    lights
+                        ...
+                    lion
+                dynamics
+                    dynamics.phys
+                        augustus.phys
+                        diana.phys
+                    augustus
+                    diana
+                    janus
+                    plinth_janus
+                    plinth_teapot
+                    teapot
+                transient_assets
+                    ball
+                    coin
+                    hammer
+                    hula
+                    quack
+                    rocks
+                        ...
+         */
 
         auto environmentRoot = scene->rootNode()->childNamed("environment");
 
@@ -189,16 +184,22 @@ std::unique_ptr<Scene> JanusApp::init() {
 
             auto physNode = environmentRoot->childNamed("evora.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            node->physicsBody(PhysicsBody::StaticBody(shape));
+            auto body = PhysicsBody::StaticBody(shape);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            node->physicsBody(std::move(body));
         }
 
-        if (auto lionNode = environmentRoot->childNamed("lion")) {
+        if (auto node = environmentRoot->childNamed("lion")) {
 
-            _pickIgnores.push_back({.node = lionNode, .purposes = PickPurpose::Hover});
+            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
 
             auto physNode = environmentRoot->childNamed("lion.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            lionNode->physicsBody(PhysicsBody::StaticBody(shape));
+            auto body = PhysicsBody::StaticBody(shape);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            node->physicsBody(std::move(body));
         }
 
         environmentRoot->childNamed("environment.phys")->hidden(true);
@@ -206,39 +207,86 @@ std::unique_ptr<Scene> JanusApp::init() {
         _dynamicsRoot = scene->rootNode()->childNamed("dynamics");
 
         if (auto node = _dynamicsRoot->childNamed("janus")) {
-            node->physicsBody(PhysicsBody::DynamicBody());
+
+            auto body = PhysicsBody::DynamicBody();
             // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
             // node->physicsBody(PhysicsBody::DynamicBody(shape));
-            node->physicsBody()->mass(20.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
+            body->mass(20.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
 
             auto extent = node->mesh()->localExtent();
-            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
-                                              + extent * vec3 {0.0f, -0.15f, 0.0f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+
+            node->physicsBody(std::move(body));
         }
 
         if (auto node = _dynamicsRoot->childNamed("teapot")) {
-            node->physicsBody(PhysicsBody::DynamicBody());
+
+            auto body = PhysicsBody::DynamicBody();
             // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
             // node->physicsBody(PhysicsBody::DynamicBody(shape));
             // node->physicsBody()->mass(3.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
+            body->friction(0.5f);
+            body->restitution(0.2f);
+            body->rollingFriction(0.1f);
+            body->spinningFriction(0.05);
+            body->angularSleepingThreshold(0.1f);
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.1f, 0.0f, 0.0f});
+
+            // const auto moi = body->momentOfInertia();
+            // log::i()("Teapot MOI: {}, {}, {}", moi.x, moi.y, moi.z);
+
+            // body->autocalculatesMomentOfInertia(false);
+            // body->momentOfInertia(body->momentOfInertia() * 1.5f);
+
+
+            const auto moi = body->momentOfInertia();
+
+            log::i()("Teapot auto MOI: {}, {}, {}", moi.x, moi.y, moi.z);
+
+            body->autocalculatesMomentOfInertia(false);
+            body->momentOfInertia(moi * 1.5f);
+
+            const auto manualMoi = body->momentOfInertia();
+
+            log::i()("Teapot manual MOI: {}, {}, {}",
+                     manualMoi.x,
+                     manualMoi.y,
+                     manualMoi.z);
+
+
+
+
+            // body->rollingFriction(0.15f);
+            // body->spinningFriction(0.1);
+            // body->angularDamping(0.4f);
+
+
+            // body->angularDamping(0.05f);
+            node->physicsBody(std::move(body));
         }
 
         if (auto node = _dynamicsRoot->childNamed("plinth_janus")) {
-            node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(40.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
+
+            auto body = PhysicsBody::DynamicBody();
+            // node->physicsBody(PhysicsBody::DynamicBody());
+            body->mass(40.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            node->physicsBody(std::move(body));
         }
 
         if (auto node = _dynamicsRoot->childNamed("plinth_teapot")) {
-            node->physicsBody(PhysicsBody::DynamicBody());
-            node->physicsBody()->mass(30.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
+
+            auto body = PhysicsBody::DynamicBody();
+            // node->physicsBody(PhysicsBody::DynamicBody());
+            body->mass(30.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            node->physicsBody(std::move(body));
         }
 
         // if (auto node = _dynamicsRoot->childNamed("plinth3")) {
@@ -258,8 +306,8 @@ std::unique_ptr<Scene> JanusApp::init() {
             // // node->physicsBody(PhysicsBody::DynamicBody(shape));
             //
             // node->physicsBody()->mass(50.0f);
-            // node->physicsBody()->friction(0.6f);
-            // node->physicsBody()->restitution(0.15f);
+            // node->physicsBody()->friction(STONE_FRICTION);
+            // node->physicsBody()->restitution(STONE_RESTITUTION);
             // node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
             //
             // auto extent = node->mesh()->localExtent();
@@ -273,40 +321,44 @@ std::unique_ptr<Scene> JanusApp::init() {
 
             auto physNode = _dynamicsRoot->childNamed("artemis.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            node->physicsBody(PhysicsBody::DynamicBody(shape));
+            auto body = PhysicsBody::DynamicBody(shape);
+            //node->physicsBody(PhysicsBody::DynamicBody(shape));
 
             // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
             // node->physicsBody(PhysicsBody::DynamicBody(shape));
 
             // node->physicsBody(PhysicsBody::DynamicBody());
 
-            node->physicsBody()->mass(50.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
+            body->mass(50.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25); // default = 1
 
             auto extent = node->mesh()->localExtent();
-            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
-                                              + extent * vec3 {0.0f, -0.15f, 0.0f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+
+            node->physicsBody(std::move(body));
         }
 
         if (auto node = _dynamicsRoot->childNamed("augustus")) {
 
             auto physNode = _dynamicsRoot->childNamed("augustus.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            node->physicsBody(PhysicsBody::DynamicBody(shape));
+            auto body = PhysicsBody::DynamicBody(shape);
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
 
             // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
             // node->physicsBody(PhysicsBody::DynamicBody(shape));
 
-            node->physicsBody()->mass(55.0f);
-            node->physicsBody()->friction(0.6f);
-            node->physicsBody()->restitution(0.15f);
-            node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
+            body->mass(55.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25); // default = 1
 
             auto extent = node->mesh()->localExtent();
-            node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
-                                              + extent * vec3 {0.0f, -0.1f, 0.0f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
+
+            node->physicsBody(std::move(body));
         }
 
         _dynamicsRoot->childNamed("dynamics.phys")->hidden(true);
@@ -321,15 +373,16 @@ std::unique_ptr<Scene> JanusApp::init() {
         scene->rootNode()->addChild(_transientsRoot);
 
         // create and configure the ground
-
-        auto groundNode = Node::NamedNode("Ground");
-        groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
-        auto groundShape = make_shared<InfinitePlanePhysicsShape>();
-        auto groundBody = PhysicsBody::StaticBody(groundShape);
-        groundBody->friction(1.0f);
-        groundBody->restitution(0.1f);
-        groundNode->physicsBody(std::move(groundBody));
-        scene->rootNode()->addChild(groundNode);
+        {
+            auto node = Node::NamedNode("Ground");
+            node->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
+            auto shape = make_shared<InfinitePlanePhysicsShape>();
+            auto body = PhysicsBody::StaticBody(shape);
+            body->friction(STONE_FRICTION);
+            body->restitution(0.25f);
+            node->physicsBody(std::move(body));
+            scene->rootNode()->addChild(node);
+        }
 
         // setup lighting
 
@@ -375,20 +428,10 @@ std::unique_ptr<Scene> JanusApp::init() {
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        // _cameraController.view({.target = vec3 {0.214, 4.317f, 0.128},
-        //                 .yaw = radians(-21.24f),
-        //                 .pitch = radians(-6.58f),
-        //                 .distance = 15.0f});
-
         _cameraController.view({.target = vec3 {-0.1346f, 4.2466f, 0.4131},
                                 .yaw = radians(-10.66f),
                                 .pitch = radians(-1.89f),
                                 .distance = 17.4275f});
-
-        // create the resettable simulation root node
-
-        _dynamicsRoot = MakeSimulationRoot();
-        scene->rootNode()->addChild(_dynamicsRoot);
 
         // create the action target marker
         {
@@ -411,7 +454,7 @@ std::unique_ptr<Scene> JanusApp::init() {
             }
         }
 
-        // wandering lights
+        // wandering orbs
 
         {
             const vec3 ORB_GROUP_POSITION {-4.5f, 10.0f, -2.5f};
@@ -611,408 +654,6 @@ void JanusApp::frameDidBegin(Runner&                        runner,
 
 // [Private Member Functions]
 
-bool JanusApp::drawPanel() {
-
-    const float PANEL_WIDTH {180.0f};
-
-    auto& runner = JanusApp::runner();
-    auto& scene = JanusApp::scene();
-    auto& visualWorld = *scene.visualWorld();
-    auto& physicsWorld = *scene.physicsWorld();
-
-    ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
-
-    // if (panel.button("CAMERA")) {
-    //     log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
-    // }
-
-    panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
-
-    const bool paused = runner.simulationPaused();
-
-    panel.value("state", paused ? "paused" : "running");
-
-    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
-    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
-        runner.timeStep(1.0 / stepRate);
-    }
-
-    int maxCatchUpSteps = runner.maxCatchUpSteps();
-    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
-        runner.maxCatchUpSteps(maxCatchUpSteps);
-    }
-
-    // panel.row(2);
-
-    float timeScale = runner.timeScale();
-    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
-        runner.timeScale(timeScale);
-    }
-
-    // if (panel.button("1x")) {
-    //     runner.timeScale(1.0f);
-    // }
-
-    panel.row(paused ? 2 : 1);
-
-    if (panel.button(paused ? "Resume" : "Pause")) {
-        runner.simulationPaused(!paused);
-    }
-    if (paused) {
-        if (panel.button("Step")) {
-            runner.requestSimulationStep();
-        }
-    }
-
-    if (panel.button("Reset")) {
-        _pendingReset = true;
-    }
-
-    panel.section("environment");
-
-    const auto gravity = physicsWorld.gravity();
-
-    panel.text("gravity");
-
-    const auto isGravity = [&gravity](const vec3& value) {
-        return length(gravity - value) < 0.001f;
-    };
-
-    panel.row(3);
-
-    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
-        physicsWorld.gravity(GRAVITY_EARTH);
-    }
-
-    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
-        physicsWorld.gravity(GRAVITY_MOON);
-    }
-
-    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
-        physicsWorld.gravity(GRAVITY_ZERO);
-    }
-
-    //panel.spacer(12.0f);
-    panel.section("action");
-
-    panel.row(3);
-    if (panel.option("Drop", _action == Action::Drop)) {
-        _action = Action::Drop;
-    }
-    if (panel.option("Throw", _action == Action::Throw)) {
-        _action = Action::Throw;
-    }
-    if (panel.option("Poke", _action == Action::Poke)) {
-        _action = Action::Poke;
-    }
-
-    switch (_action) {
-        case Action::Drop:
-            panel.row(3);
-            if (panel.subOption("Rocks", _dropAction == DropAction::Rocks)) {
-                _dropAction = DropAction::Rocks;
-            }
-            if (panel.subOption("Coins", _dropAction == DropAction::Coins)) {
-                _dropAction = DropAction::Coins;
-            }
-            if (panel.subOption("Balls", _dropAction == DropAction::Balls)) {
-                _dropAction = DropAction::Balls;
-            }
-            break;
-        case Action::Throw:
-            panel.row(3);
-            if (panel.subOption("Hammer", _throwAction == ThrowAction::Hammer)) {
-                _throwAction = ThrowAction::Hammer;
-            }
-            if (panel.subOption("Hula", _throwAction == ThrowAction::Hula)) {
-                _throwAction = ThrowAction::Hula;
-            }
-            if (panel.subOption("Duck", _throwAction == ThrowAction::Duck)) {
-                _throwAction = ThrowAction::Duck;
-            }
-            break;
-        case Action::Poke:
-            panel.row(3);
-            if (panel.subOption("Soft", _pokiness == Pokiness::Soft)) {
-                _pokiness = Pokiness::Soft;
-            }
-            if (panel.subOption("Hard", _pokiness == Pokiness::Hard)) {
-                _pokiness = Pokiness::Hard;
-            }
-            if (panel.subOption("Flip", _pokiness == Pokiness::Flip)) {
-                _pokiness = Pokiness::Flip;
-            }
-            break;
-    }
-
-    //panel.spacer(12.0f);
-    panel.section("selected node");
-
-    if (!_selection) {
-        panel.text("click to select");
-    }
-    else if (auto node = _selection->node.lock()) {
-
-        // node
-
-        panel.value("name", node->name().value_or("(unnamed)"));
-        // panel.value("position", FormatVec3(node->worldPosition()));
-        // panel.value("rotation", FormatRotation(node->worldEulerAngles()));
-
-        // physics body
-
-        if (auto body = node->physicsBody()) {
-
-            static auto formatVec3 = [](const vec3& value) {
-                return std::format("{:.1f}, {:.1f}, {:.1f}", value.x, value.y, value.z);
-            };
-
-            static auto bodyTypeName = [](PhysicsBody::Type type) -> string_view {
-                switch (type) {
-                    case PhysicsBody::Type::Static:
-                        return "static";
-                    case PhysicsBody::Type::Dynamic:
-                        return "dynamic";
-                    case PhysicsBody::Type::Kinematic:
-                        return "kinematic";
-                }
-
-                return "unknown";
-            };
-
-            static auto shapeTypeName = [](PhysicsShape::Type type) -> string_view {
-                switch (type) {
-                    case PhysicsShape::Type::Primitive:
-                        return "primitive";
-                    case PhysicsShape::Type::BoundingBox:
-                        return "bounding box";
-                    case PhysicsShape::Type::ConvexHull:
-                        return "convex";
-                    case PhysicsShape::Type::ConcavePolyhedron:
-                        return "concave";
-                }
-
-                return "unknown";
-            };
-
-            panel.spacer(6.0f);
-
-            panel.value("body", bodyTypeName(body->type()));
-
-            if (const auto& shape = body->shape()) {
-                panel.value("shape", shapeTypeName(shape->type()));
-            }
-            else {
-                panel.value("shape", "none");
-            }
-
-            panel.spacer(6.0f);
-
-            panel.value("mass", std::format("{:.1f}", body->mass()));
-
-            // panel.value("velocity", formatVec3(body->linearVelocity()));
-            // panel.value("angular", formatVec3(body->angularVelocity()));
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("inertia", FormatVec3(body->momentOfInertia()));
-            // panel.value("COM", FormatVec3(body->centerOfMass()));
-            //
-            // panel.value("linear damping", std::format("{:.3f}", body->linearDamping()));
-            // panel.value("angular damping", std::format("{:.3f}", body->angularDamping()));
-
-            panel.value("friction", std::format("{:.1f}", body->friction()));
-            panel.value("restitution", std::format("{:.1f}", body->restitution()));
-
-            const auto contacts = physicsWorld.contactTest(*body);
-            panel.value("contacts", std::format("{}", contacts.size()));
-
-            panel.value("resting", body->resting() ? "yes" : "no");
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("force", FormatVec3(body->totalForce()));
-            // panel.value("torque", FormatVec3(body->totalTorque()));
-        }
-        else {
-            panel.spacer(6.0f);
-            panel.value("body", "none", {.top = 6.0f} /*{0.0f, 0.0f, 0.0f, 0.0f}*/);
-        }
-
-        // mesh
-
-        if (const auto& mesh = node->mesh()) {
-
-            panel.spacer(6.0f);
-
-            panel.value("mesh", mesh->name().value_or("(unnamed)"));
-            uint64_t polygons = 0;
-            for (const auto& e : mesh->elements()) {
-                polygons += e->indexCount() / 3u;
-            }
-            panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
-            // panel.value("elements", std::format("{}", mesh->elements().size()));
-            panel.value("materials", std::format("{}", mesh->materials().size()));
-        }
-    }
-    else {
-        // the selected node was removed from the scene
-        select({});
-        panel.text("click an object to inspect");
-    }
-
-    //panel.spacer(12.0f);
-    panel.section("debug");
-
-    using DebugOptions = Scene::DebugOptions;
-
-    auto debugOptions = scene.debugOptions();
-
-    // {
-    //     bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-    //     if (panel.toggle("stats", stats)) {
-    //         debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
-    //                              : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
-    //         scene.debugOptions(debugOptions);
-    //     }
-    //
-    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
-    //     if (panel.toggle("default lighting", defaultLighting)) {
-    //         visualWorld.defaultLightingEnabled(defaultLighting);
-    //     }
-    //
-    //     bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshBounds);
-    //     if (panel.toggle("mesh bounds", meshBounds)) {
-    //         scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
-    //     }
-    //
-    //     bool meshFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshFrames);
-    //     if (panel.toggle("mesh frames", meshFrames)) {
-    //         scene.debugOptions(meshFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshFrames)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshFrames));
-    //     }
-    //
-    //     if (visualWorld.capabilities().wireframeRendering) {
-    //         bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
-    //         if (panel.toggle("mesh wireframes", meshWireframes)) {
-    //             scene.debugOptions(meshWireframes
-    //                                    ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes)
-    //                                    : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
-    //         }
-    //     }
-    //     else {
-    //         panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    //     }
-    //
-    //     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBounds);
-    //     if (panel.toggle("physics bounds", physBounds)) {
-    //         scene.debugOptions(physBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
-    //     }
-    //
-    //     bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);
-    //     if (panel.toggle("physics frames", physFrames)) {
-    //         scene.debugOptions(physFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsFrames)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsFrames));
-    //     }
-    //
-    //     bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
-    //     if (panel.toggle("physics wireframes", physWireframes)) {
-    //         scene.debugOptions(physWireframes
-    //                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
-    //                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
-    //     }
-    // }
-
-    // {
-    //     struct DebugToggle {
-    //         const char*  title;
-    //         DebugOptions option;
-    //         bool         available {true};
-    //     };
-    //
-    //     const std::array debugToggles {
-    //         DebugToggle {"stats", DebugOptions::ShowStatsOverlay},
-    //         DebugToggle {"mesh bounds", DebugOptions::ShowMeshBounds},
-    //         DebugToggle {"mesh frames", DebugOptions::ShowMeshFrames},
-    //         DebugToggle {"mesh wireframes", DebugOptions::ShowMeshWireframes,
-    //                      visualWorld.capabilities().wireframeRendering},
-    //         DebugToggle {"physics bounds", DebugOptions::ShowPhysicsBounds},
-    //         DebugToggle {"physics frames", DebugOptions::ShowPhysicsFrames},
-    //         DebugToggle {"physics wireframes", DebugOptions::ShowPhysicsWireframes},
-    //     };
-    //
-    //     bool debugOptionsChanged = false;
-    //
-    //     for (const auto& toggle : debugToggles) {
-    //
-    //         if (!toggle.available) {
-    //             panel.value(toggle.title, "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    //             continue;
-    //         }
-    //
-    //         bool enabled = util::bitmask::contains(debugOptions, toggle.option);
-    //         if (panel.toggle(toggle.title, enabled)) {
-    //             if (enabled) {
-    //                 util::bitmask::add_inplace(debugOptions, toggle.option);
-    //             }
-    //             else {
-    //                 util::bitmask::remove_inplace(debugOptions, toggle.option);
-    //             }
-    //             debugOptionsChanged = true;
-    //         }
-    //     }
-    //
-    //     if (debugOptionsChanged) {
-    //         scene.debugOptions(debugOptions);
-    //     }
-    //
-    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
-    //     if (panel.toggle("default lighting", defaultLighting)) {
-    //         visualWorld.defaultLightingEnabled(defaultLighting);
-    //     }
-    // }
-
-    {
-        auto debugToggle = [&](const char* title, DebugOptions option) {
-            bool enabled = util::bitmask::contains(debugOptions, option);
-            if (panel.toggle(title, enabled)) {
-                if (enabled) {
-                    util::bitmask::add_inplace(debugOptions, option);
-                }
-                else {
-                    util::bitmask::remove_inplace(debugOptions, option);
-                }
-                scene.debugOptions(debugOptions);
-            }
-        };
-
-        debugToggle("stats", DebugOptions::ShowStatsOverlay);
-
-        bool defaultLighting = visualWorld.defaultLightingEnabled();
-        if (panel.toggle("default lighting", defaultLighting)) {
-            visualWorld.defaultLightingEnabled(defaultLighting);
-        }
-
-        debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
-        debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
-
-        if (visualWorld.capabilities().wireframeRendering) {
-            debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
-        }
-        else {
-            panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-        }
-
-        debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
-        debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
-        debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
-    }
-
-    return panel.hovered();
-}
-
 void JanusApp::hover(VisualWorld& visualWorld, const vec2& screenPosition) {
 
     auto result = Pick(visualWorld, screenPosition, pickIgnoredNodes(PickPurpose::Hover));
@@ -1024,26 +665,6 @@ void JanusApp::hover(VisualWorld& visualWorld, const vec2& screenPosition) {
         hover(nullptr);
     }
 }
-
-// void JanusApp::hover(shared_ptr<Node> node) {
-//
-//     using DebugOptions = Node::DebugOptions;
-//
-//     if (auto previous = _hoveredNode.lock()) {
-//
-//         const bool selected = _selection && _selection->node.lock() == previous;
-//         if (!selected) {
-//             previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
-//                                                          DebugOptions::ShowHighlightTint));
-//         }
-//     }
-//
-//     _hoveredNode = node;
-//
-//     if (node) {
-//         node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
-//     }
-// }
 
 void JanusApp::hover(shared_ptr<Node> node) {
 
@@ -1064,33 +685,6 @@ void JanusApp::select(VisualWorld& visualWorld, const vec2& screenPosition) {
 
     select(Pick(visualWorld, screenPosition, pickIgnoredNodes(PickPurpose::Select), false));
 }
-
-// void JanusApp::select(optional<PickResult> pickResult) {
-//
-//     using DebugOptions = Node::DebugOptions;
-//
-//     if (_selection) {
-//         if (auto node = _selection->node.lock()) {
-//             node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
-//
-//             if (_hoveredNode.lock() != node) {
-//                 node->debugOptions(util::bitmask::remove(node->debugOptions(),
-//                                                          DebugOptions::ShowHighlightTint));
-//             }
-//         }
-//     }
-//
-//     _selection = std::move(pickResult);
-//     if (_selection) {
-//         if (auto node = _selection->node.lock()) {
-//             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
-//             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
-//         }
-//         else {
-//             _selection.reset();
-//         }
-//     }
-// }
 
 void JanusApp::select(optional<PickResult> pickResult) {
 
@@ -1231,21 +825,21 @@ void JanusApp::performAction(const PendingAction& action) {
             switch (_dropAction) {
                 case DropAction::Rocks: {
                     auto rockNodes =
-                        BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_GRID_SIZE, ROCK_GAP);
+                        TransientsBuilder::BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_GRID_SIZE, ROCK_GAP);
                     _transientsRoot->addChildren(rockNodes);
                     _transientTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
                     auto coinNodes =
-                        BuildCoins(_transientsCache.coin(), spawnLocation, COIN_GRID_SIZE, COIN_GAP);
+                        TransientsBuilder::BuildCoins(_transientsCache.coin(), spawnLocation, COIN_GRID_SIZE, COIN_GAP);
                     _transientsRoot->addChildren(coinNodes);
                     _transientTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
                     auto ballNodes =
-                        BuildBalls(_transientsCache.ball(), spawnLocation, BALL_GRID_SIZE, BALL_GAP);
+                        TransientsBuilder::BuildBalls(_transientsCache.ball(), spawnLocation, BALL_GRID_SIZE, BALL_GAP);
                     _transientsRoot->addChildren(ballNodes);
                     _transientTracker.track(ballNodes, "balls");
                     break;
@@ -1263,7 +857,7 @@ void JanusApp::performAction(const PendingAction& action) {
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
-                    auto hammerNode = BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
+                    auto hammerNode = TransientsBuilder::BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
                     _transientsRoot->addChild(hammerNode);
                     _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
@@ -1271,7 +865,7 @@ void JanusApp::performAction(const PendingAction& action) {
                     break;
                 }
                 case ThrowAction::Hula: {
-                    auto hulaNode = BuildHula(_transientsCache.hula(), spawnPosition, velocity);
+                    auto hulaNode = TransientsBuilder::BuildHula(_transientsCache.hula(), spawnPosition, velocity);
                     _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transientsRoot->addChild(hulaNode);
@@ -1279,7 +873,7 @@ void JanusApp::performAction(const PendingAction& action) {
                     break;
                 }
                 case ThrowAction::Duck: {
-                    auto duckNode = BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
+                    auto duckNode = TransientsBuilder::BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
                     _transientsRoot->addChild(duckNode);
                     _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
@@ -1396,109 +990,6 @@ void JanusApp::reset() {
 
 // [Private Static Non-Member Functions]
 
-shared_ptr<Node> MakeSimulationRoot() {
-    auto root = Node::NamedNode("Simulation root");
-
-    // janus
-
-    // {
-    //     static auto [mesh, shape] = [] {
-    //         constexpr float HEIGHT = 1.0f;
-    //
-    //         auto visMesh = util::fs::MeshAt("janus/janus.gltf");
-    //         //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
-    //
-    //         const float scaleFactor = HEIGHT / visMesh->localExtent().y;
-    //         const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-    //
-    //         visMesh->burnTransform(transform, true);
-    //         //physMesh->burnTransform(transform, true);
-    //
-    //         //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
-    //         auto shape = PhysicsShape::ConvexHullShape(visMesh);
-    //
-    //         return std::pair {visMesh, shape};
-    //     }();
-    //
-    //     auto node = Node::MeshNode(mesh);
-    //     node->name("Janus");
-    //     node->position({-1.5f, 0.0f, 0.0f});
-    //
-    //     auto body = PhysicsBody::DynamicBody(shape);
-    //     body->mass(10.0f);
-    //     body->friction(0.6f);
-    //     body->restitution(0.15f);
-    //     body->linearDamping(0.03f);
-    //     body->angularDamping(0.05f);
-    //     node->physicsBody(std::move(body));
-    //
-    //     root->addChild(node);
-    // }
-
-    // // angel
-    // {
-    //     static auto [mesh, shape] = [] {
-    //         constexpr float HEIGHT = 2.0f;
-    //
-    //         auto        visMesh = util::fs::MeshAt("aniel/aniel.gltf");
-    //         static auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
-    //
-    //         const float scaleFactor = HEIGHT / visMesh->localExtent().y;
-    //         const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
-    //
-    //         visMesh->burnTransform(transform, true);
-    //         physMesh->burnTransform(transform, true);
-    //
-    //         auto shape = PhysicsShape::ConcavePolyhedronShape(physMesh);
-    //
-    //         return std::pair {visMesh, shape};
-    //     }();
-    //
-    //     auto node = Node::MeshNode(mesh);
-    //     node->name("Angel");
-    //     node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-    //     node->position({0.0f, 0.0f, 0.0f});
-    //
-    //     auto body = PhysicsBody::StaticBody(shape);
-    //     // body->mass(1000.0f);
-    //     // body->friction(0.65f);
-    //     // body->rollingFriction(0.02f);
-    //     // body->restitution(0.03f);
-    //     node->physicsBody(std::move(body));
-    //
-    //     root->addChild(node);
-    // }
-
-    // teapot
-
-    // {
-    //     static auto mesh = [] {
-    //         constexpr float HEIGHT = 0.35f;
-    //         auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
-    //         const float     teapotScale = HEIGHT / mesh->localExtent().y;
-    //         mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-    //         return mesh;
-    //     }();
-    //
-    //     auto node = Node::MeshNode(mesh);
-    //     node->name("Teapot");
-    //     node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
-    //
-    //     static auto shape = PhysicsShape::ConvexHullShape(mesh);
-    //     auto        body = PhysicsBody::DynamicBody(shape);
-    //     body->mass(1.5f);
-    //     body->friction(0.6f);
-    //     body->restitution(0.15f);
-    //     body->linearDamping(0.03f);
-    //     body->angularDamping(0.05f);
-    //     node->physicsBody(std::move(body));
-    //
-    //     root->addChild(node);
-    // }
-
-    return root;
-}
-
 optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
                                     const vec2&                screenPosition,
                                     const vector<const Node*>& ignoredNodes,
@@ -1522,321 +1013,6 @@ optional<JanusApp::PickResult> Pick(VisualWorld&               visualWorld,
     }
 
     return {};
-}
-
-vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
-                                    const vec3&                           location,
-                                    const u8vec3&                         stackSize,
-                                    float                                 gap) {
-
-    float maxDimension = 0.0f;
-    for (const auto& entry : cacheEntries) {
-        maxDimension = std::max(maxDimension, math::max(entry.mesh->localExtent()));
-    }
-
-    const vec3 cellSize {maxDimension};
-
-    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
-
-    const unsigned sizeX = stackSize.x;
-    const unsigned sizeY = stackSize.y;
-    const unsigned sizeZ = stackSize.z;
-
-    vector<shared_ptr<Node>> added;
-    added.reserve(sizeX * sizeY * sizeZ);
-
-    size_t rockIndex = 0;
-
-    for (unsigned y = 0; y < sizeY; ++y) {
-        for (unsigned z = 0; z < sizeZ; ++z) {
-            for (unsigned x = 0; x < sizeX; ++x) {
-
-                const auto& rockEntry = cacheEntries[rockIndex++ % cacheEntries.size()];
-
-                auto node = Node::MeshNode(rockEntry.mesh);
-
-                static int rockNum = 0;
-                node->name(std::format("Rock {}", ++rockNum));
-
-                node->position(startPosition
-                               + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                                       static_cast<float>(z) * step.z});
-
-                auto physicsBody = PhysicsBody::DynamicBody(rockEntry.physicsShape);
-                physicsBody->mass(3.5f);
-                physicsBody->restitution(0.02f);
-                physicsBody->friction(0.8f);
-
-                const float ANGULAR_VARIANCE = radians(30.0f);
-                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
-
-                node->physicsBody(std::move(physicsBody));
-
-                added.push_back(node);
-            }
-        }
-    }
-
-    return added;
-}
-
-vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
-                                    const vec3&                   location,
-                                    const u8vec3&                 stackSize,
-                                    float                         gap) {
-
-    auto [mesh, shape] = cacheEntry;
-
-    const vec3 cellSize {math::max(mesh->localExtent())};
-    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
-
-    const unsigned sizeX = stackSize.x;
-    const unsigned sizeY = stackSize.y;
-    const unsigned sizeZ = stackSize.z;
-
-    vector<shared_ptr<Node>> added;
-    added.reserve(sizeX * sizeY * sizeZ);
-
-    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
-
-    for (unsigned y = 0; y < sizeY; ++y) {
-        for (unsigned z = 0; z < sizeZ; ++z) {
-            for (unsigned x = 0; x < sizeX; ++x) {
-
-                auto node = Node::MeshNode(mesh);
-
-                static int coinNum = 0;
-                node->name(std::format("Coin {}", ++coinNum));
-
-                const vec3 position = startPosition
-                                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                                              static_cast<float>(z) * step.z};
-
-                node->position(position + uniform_linear(-positionVariance, positionVariance));
-                node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
-
-                auto physicsBody = PhysicsBody::DynamicBody(shape);
-                physicsBody->mass(20.0f);
-                physicsBody->restitution(0.25f);
-                physicsBody->friction(0.5f);
-                physicsBody->rollingFriction(0.15f);
-                physicsBody->spinningFriction(0.10f);
-                physicsBody->angularDamping(0.08f);
-
-                // const auto extent = mesh->localExtent();
-                // const float minExtent = math::min(extent);
-                // physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-                // physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
-                // physicsBody->ccdEnabled(true);
-
-                const float ANGULAR_VARIANCE = radians(180.0f);
-                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
-
-                node->physicsBody(std::move(physicsBody));
-
-                added.push_back(node);
-            }
-        }
-    }
-
-    return added;
-}
-
-vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
-                                    const vec3&                   location,
-                                    const u8vec3&                 stackSize,
-                                    float                         gap) {
-
-    auto [mesh, shape] = cacheEntry;
-
-    const vec3 cellSize {math::max(mesh->localExtent())};
-    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
-
-    const unsigned sizeX = stackSize.x;
-    const unsigned sizeY = stackSize.y;
-    const unsigned sizeZ = stackSize.z;
-
-    vector<shared_ptr<Node>> added;
-    added.reserve(sizeX * sizeY * sizeZ);
-
-    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
-
-    for (unsigned y = 0; y < sizeY; ++y) {
-        for (unsigned z = 0; z < sizeZ; ++z) {
-            for (unsigned x = 0; x < sizeX; ++x) {
-
-                auto node = Node::MeshNode(mesh);
-
-                static int ballNum = 0;
-                node->name(std::format("Beachball {}", ++ballNum));
-
-                const vec3 position = startPosition
-                                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                                              static_cast<float>(z) * step.z};
-
-                node->position(position + uniform_linear(-positionVariance, positionVariance));
-                node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
-
-                auto physicsBody = PhysicsBody::DynamicBody(shape);
-                physicsBody->mass(0.10f);
-                physicsBody->restitution(1.0f);
-                physicsBody->friction(0.4f);
-                physicsBody->rollingFriction(0.01);
-                physicsBody->angularDamping(0.4);
-
-                const float ANGULAR_VARIANCE = radians(30.0f);
-                physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
-
-                node->physicsBody(std::move(physicsBody));
-
-                added.push_back(node);
-            }
-        }
-    }
-
-    return added;
-}
-
-shared_ptr<Node> BuildHammer(const TransientsCache::Entry& cacheEntry,
-                             const vec3&                   location,
-                             const vec3&                   velocity) {
-
-    auto [mesh, shape] = cacheEntry;
-
-    auto       node = Node::MeshNode(mesh);
-    static int hammerNum = 0;
-    node->name(std::format("Hammer {}", ++hammerNum));
-    node->position(location);
-
-    auto physicsBody = PhysicsBody::DynamicBody(shape);
-    physicsBody->mass(5.0f);
-    physicsBody->restitution(0.15f);
-    physicsBody->friction(0.8f);
-
-    static const auto extent = mesh->localExtent();
-    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, 0.3f, 0.0f});
-
-    const vec3 throwForward = math::normalize(vec3 {velocity.x, 0.0f, velocity.z});
-    // node forward is -Z, so yaw -Z toward the horizontal throw direction.
-    const float        yaw = math::atan2(-throwForward.x, -throwForward.z);
-    static const float START_PITCH = radians(20.0f);
-    static const float START_PITCH_VARIANCE = radians(10.0f);
-    static const float SIDE_TILT_VARIANCE = radians(8.0f);
-    node->eulerAngles({START_PITCH + uniform_linear(-START_PITCH_VARIANCE, START_PITCH_VARIANCE), yaw,
-                       uniform_linear(-SIDE_TILT_VARIANCE, SIDE_TILT_VARIANCE)});
-    static const float SPIN_RATE = radians(540.0f);
-    static const float SPIN_RATE_VARIANCE = radians(90.0f);
-    const float        spinRate = SPIN_RATE + uniform_linear(-SPIN_RATE_VARIANCE, SPIN_RATE_VARIANCE);
-    physicsBody->angularVelocity(-node->right() * spinRate);
-
-    physicsBody->linearVelocity(velocity);
-
-    node->physicsBody(std::move(physicsBody));
-
-    return node;
-}
-
-shared_ptr<Node> BuildHula(const TransientsCache::Entry& cacheEntry,
-                           const vec3&                   location,
-                           const vec3&                   velocity) {
-
-    auto [mesh, shape] = cacheEntry;
-
-    auto node = Node::MeshNode(mesh);
-
-    static int hulaNum = 0;
-    node->name(std::format("Hula {}", ++hulaNum));
-    node->position(location);
-
-    auto physicsBody = PhysicsBody::DynamicBody(shape);
-
-    physicsBody->mass(1.0f);
-    physicsBody->restitution(0.15f);
-    physicsBody->friction(0.7f);
-
-    static const auto extent = mesh->localExtent();
-    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
-
-    static const float minExtent = math::min(extent);
-    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-    physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
-    physicsBody->ccdEnabled(true);
-
-    const vec3 up {0.0f, 1.0f, 0.0f};
-    vec3       forward {0.0f, 0.0f, -1.0f};
-    const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
-    if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
-        forward = normalize(horizontalVelocity);
-    }
-    const vec3  right = normalize(cross(forward, up));
-    const float tilt = radians(uniform_linear(10.0f, 20.0f));
-    const float bank = radians(uniform_linear(-5.0f, 5.0f));
-    const auto  flatOrientation = quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f));
-    const auto  tiltOrientation = quaternion(right, tilt);
-    const auto  bankOrientation = quaternion(forward, bank);
-    const auto  orientation = bankOrientation * tiltOrientation * flatOrientation;
-    node->orientation(orientation);
-
-    const vec3  spinAxis = -normalize(orientation * vec3 {0.0f, 0.0f, 1.0f});
-    const float SPIN_RATE = radians(360.0f * 1.5f);
-    physicsBody->angularVelocity(spinAxis * SPIN_RATE);
-
-    physicsBody->linearVelocity(velocity);
-
-    node->physicsBody(std::move(physicsBody));
-
-    return node;
-}
-
-shared_ptr<Node> BuildDuck(const TransientsCache::Entry& cacheEntry,
-                           const vec3&                   location,
-                           const vec3&                   velocity) {
-
-    auto [mesh, shape] = cacheEntry;
-
-    auto       node = Node::MeshNode(mesh);
-    static int quackNum = 0;
-    node->name(std::format("Quack {}", ++quackNum));
-    node->position(location);
-
-    auto physicsBody = PhysicsBody::DynamicBody(shape);
-    physicsBody->mass(1.0f);
-    physicsBody->restitution(0.35f);
-    physicsBody->friction(0.8f);
-
-    static const auto extent = mesh->localExtent();
-    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
-
-    static const float minExtent = math::min(extent);
-    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-    physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
-    physicsBody->ccdEnabled(true);
-
-    node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
-
-    static const float ANGULAR_VARIANCE = radians(360.0f);
-    physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
-
-    physicsBody->linearVelocity(velocity);
-
-    node->physicsBody(std::move(physicsBody));
-
-    return node;
-}
-
-pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
-                                     const vec3&   cellSize,
-                                     const u8vec3& gridSize,
-                                     float         gap) {
-
-    const vec3 step = cellSize + vec3 {gap};
-
-    const float totalX = cellSize.x * static_cast<float>(gridSize.x) + gap * static_cast<float>(gridSize.x - 1);
-    const float totalZ = cellSize.z * static_cast<float>(gridSize.z) + gap * static_cast<float>(gridSize.z - 1);
-
-    return {{location.x - totalX * 0.5f + cellSize.x * 0.5f, location.y + cellSize.y * 0.5f,
-             location.z - totalZ * 0.5f + cellSize.z * 0.5f},
-            step};
 }
 
 pair<vec3, vec3> CalculateThrowTrajectory(const vec3& cameraPosition,

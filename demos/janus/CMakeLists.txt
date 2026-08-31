@@ -3,6 +3,10 @@ a3d_add_demo(
 		main.cc
 		JanusApp.h
 		JanusApp.cc
+		Constants.h
+		JanusAppUI.cc
+		TransientsBuilder.h
+		TransientsBuilder.cc
 		TransientsCache.h
 		TransientsCache.cc
 
