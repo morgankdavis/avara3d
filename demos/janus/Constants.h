@@ -9,7 +9,7 @@
 #ifndef AVARA3D_DEMO_JANUS_CONSTANTS_H
 #define AVARA3D_DEMO_JANUS_CONSTANTS_H
 
-#import "a3d/Math.h"
+#include "a3d/Math.h"
 
 namespace demo::janus {
 
