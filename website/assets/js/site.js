@@ -31,11 +31,25 @@
             }
 
             const branch = buildInfo.branch && buildInfo.branch !== "HEAD" ? buildInfo.branch : "detached";
-            const summary = `${branch} · ${buildInfo.commit}`;
+            const commit = typeof buildInfo.commit === "string" ? buildInfo.commit : "";
+            const shortCommit = commit.slice(0, 12);
+            const summary = `${branch} · ${shortCommit || "unknown"}`;
 
             document.querySelectorAll("[data-build-summary]").forEach((element) => {
                 element.textContent = summary;
             });
+
+            if (commit && commit !== "unknown") {
+                document.querySelectorAll("[data-source-repository-link]").forEach((element) => {
+                    if (!(element instanceof HTMLAnchorElement)) {
+                        return;
+                    }
+
+                    element.href =
+                        `https://gitlab.mkd.net/a3d/avara3d/-/tree/${encodeURIComponent(commit)}/demos/janus`;
+                    element.title = `View ${branch} @ ${shortCommit} in GitLab`;
+                });
+            }
         })
         .catch(() => {});
 
