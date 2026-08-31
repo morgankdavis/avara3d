@@ -35,12 +35,12 @@ const u8vec3 BALL_GRID_SIZE {3, 3, 3};
 // [Private Static Non-Member Prototypes]
 
 static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
-                                           const vec2&                screenPosition,
-                                           const vector<const Node*>& ignoredNodes = {},
-                                           bool                       elementBoundsOnly = true);
-static pair<vec3, vec3>               CalculateThrowTrajectory(const vec3& cameraPosition,
-                                                               const vec3& targetPosition,
-                                                               const vec3& gravity);
+                                      const vec2&                screenPosition,
+                                      const vector<const Node*>& ignoredNodes = {},
+                                      bool                       elementBoundsOnly = true);
+static pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
+                                                          const vec3& targetPosition,
+                                                          const vec3& gravity);
 
 // [Public Lifecycle Functions]
 
@@ -242,7 +242,6 @@ std::unique_ptr<Scene> App::init() {
             // body->autocalculatesMomentOfInertia(false);
             // body->momentOfInertia(body->momentOfInertia() * 1.5f);
 
-
             const auto moi = body->momentOfInertia();
 
             log::i()("Teapot auto MOI: {}, {}, {}", moi.x, moi.y, moi.z);
@@ -252,18 +251,11 @@ std::unique_ptr<Scene> App::init() {
 
             const auto manualMoi = body->momentOfInertia();
 
-            log::i()("Teapot manual MOI: {}, {}, {}",
-                     manualMoi.x,
-                     manualMoi.y,
-                     manualMoi.z);
-
-
-
+            log::i()("Teapot manual MOI: {}, {}, {}", manualMoi.x, manualMoi.y, manualMoi.z);
 
             // body->rollingFriction(0.15f);
             // body->spinningFriction(0.1);
             // body->angularDamping(0.4f);
-
 
             // body->angularDamping(0.05f);
             node->physicsBody(std::move(body));
@@ -532,9 +524,9 @@ void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 }
 
 void App::inputDidUpdate(Runner&       runner,
-                              Scene&        scene,
-                              InputContext& inputContext,
-                              const InputContext::UpdateInfo&) {
+                         Scene&        scene,
+                         InputContext& inputContext,
+                         const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -588,9 +580,9 @@ void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info
 }
 
 void App::frameDidBegin(Runner&                        runner,
-                             Scene&                         scene,
-                             VisualWorld&                   visualWorld,
-                             const VisualWorld::RenderInfo& info) {
+                        Scene&                         scene,
+                        VisualWorld&                   visualWorld,
+                        const VisualWorld::RenderInfo& info) {
 
     if (!runner.simulationPaused()) {
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
@@ -824,22 +816,22 @@ void App::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rockNodes =
-                        TransientsBuilder::BuildRocks(_transientsCache.rocks(), spawnLocation, ROCK_GRID_SIZE, ROCK_GAP);
+                    auto rockNodes = TransientsBuilder::BuildRocks(_transientsCache.rocks(), spawnLocation,
+                                                                   ROCK_GRID_SIZE, ROCK_GAP);
                     _transientsRoot->addChildren(rockNodes);
                     _transientTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
-                    auto coinNodes =
-                        TransientsBuilder::BuildCoins(_transientsCache.coin(), spawnLocation, COIN_GRID_SIZE, COIN_GAP);
+                    auto coinNodes = TransientsBuilder::BuildCoins(_transientsCache.coin(), spawnLocation,
+                                                                   COIN_GRID_SIZE, COIN_GAP);
                     _transientsRoot->addChildren(coinNodes);
                     _transientTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
-                    auto ballNodes =
-                        TransientsBuilder::BuildBalls(_transientsCache.ball(), spawnLocation, BALL_GRID_SIZE, BALL_GAP);
+                    auto ballNodes = TransientsBuilder::BuildBalls(_transientsCache.ball(), spawnLocation,
+                                                                   BALL_GRID_SIZE, BALL_GAP);
                     _transientsRoot->addChildren(ballNodes);
                     _transientTracker.track(ballNodes, "balls");
                     break;
@@ -857,7 +849,8 @@ void App::performAction(const PendingAction& action) {
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
-                    auto hammerNode = TransientsBuilder::BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
+                    auto hammerNode =
+                        TransientsBuilder::BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
                     _transientsRoot->addChild(hammerNode);
                     _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
@@ -865,7 +858,8 @@ void App::performAction(const PendingAction& action) {
                     break;
                 }
                 case ThrowAction::Hula: {
-                    auto hulaNode = TransientsBuilder::BuildHula(_transientsCache.hula(), spawnPosition, velocity);
+                    auto hulaNode =
+                        TransientsBuilder::BuildHula(_transientsCache.hula(), spawnPosition, velocity);
                     _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transientsRoot->addChild(hulaNode);
@@ -873,7 +867,8 @@ void App::performAction(const PendingAction& action) {
                     break;
                 }
                 case ThrowAction::Duck: {
-                    auto duckNode = TransientsBuilder::BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
+                    auto duckNode =
+                        TransientsBuilder::BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
                     _transientsRoot->addChild(duckNode);
                     _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
@@ -991,9 +986,9 @@ void App::reset() {
 // [Private Static Non-Member Functions]
 
 optional<App::PickResult> Pick(VisualWorld&               visualWorld,
-                                    const vec2&                screenPosition,
-                                    const vector<const Node*>& ignoredNodes,
-                                    bool                       elementBoundsOnly) {
+                               const vec2&                screenPosition,
+                               const vector<const Node*>& ignoredNodes,
+                               bool                       elementBoundsOnly) {
 
     const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::Closest,
                                                            .elementBoundsOnly = elementBoundsOnly,
@@ -1008,8 +1003,8 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
         }
 
         return App::PickResult {.node = node,
-                                     .hitPosition = hit.worldCoordinates(),
-                                     .hitNormal = hit.worldNormal()};
+                                .hitPosition = hit.worldCoordinates(),
+                                .hitNormal = hit.worldNormal()};
     }
 
     return {};
