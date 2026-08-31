@@ -127,8 +127,8 @@ else
     printf '         /api/ will show the tracked placeholder page\n' >&2
 fi
 
-GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD 2>/dev/null || printf 'unknown')"
-GIT_BRANCH="$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
+GIT_COMMIT="${CI_COMMIT_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD 2>/dev/null || printf 'unknown')}"
+GIT_BRANCH="${CI_COMMIT_BRANCH:-$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')}"
 
 cat > "${BUILD_INFO_FILE}" <<JSON
 {
