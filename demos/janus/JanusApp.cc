@@ -30,6 +30,10 @@ const vec3 GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3 GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3 GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
+const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
+const u8vec3 COIN_GRID_SIZE {3, 3, 3};
+const u8vec3 BALL_GRID_SIZE {3, 3, 3};
+
 // [Private Static Non-Member Prototypes]
 
 static shared_ptr<Node>               MakeSimulationRoot();
@@ -58,6 +62,10 @@ static shared_ptr<Node>               BuildHula(const TransientsCache::Entry& ca
 static shared_ptr<Node>               BuildDuck(const TransientsCache::Entry& cacheEntry,
                                                 const vec3&                   location,
                                                 const vec3&                   velocity);
+static pair<vec3, vec3>               CalculateGridLayout(const vec3&   location,
+                                                          const vec3&   cellSize,
+                                                          const u8vec3& gridSize,
+                                                          float         gap);
 static pair<vec3, vec3>               CalculateThrowTrajectory(const vec3& cameraPosition,
                                                                const vec3& targetPosition,
                                                                const vec3& gravity);
@@ -331,9 +339,15 @@ std::unique_ptr<Scene> JanusApp::init() {
 
         // setup transient node groups
 
-        _transientTracker.groupPolicy("rocks", {.maxCount = (3 * 3 * 3) * 1});
-        _transientTracker.groupPolicy("coins", {.maxCount = (3 * 3 * 4) * 2});
-        _transientTracker.groupPolicy("balls", {.maxCount = (3 * 3 * 3) * 2});
+        _transientTracker.groupPolicy("rocks",
+                                      {.maxCount =
+                                           (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
+        _transientTracker.groupPolicy("coins",
+                                      {.maxCount =
+                                           (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
+        _transientTracker.groupPolicy("balls",
+                                      {.maxCount =
+                                           (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
         _transientTracker.groupPolicy("hammers", {.maxCount = 10,
                                                   .distanceLimit =
                                                       ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
@@ -1186,14 +1200,9 @@ void JanusApp::performAction(const PendingAction& action) {
 
     const float DROP_HEIGHT {7.5f};
 
-    const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
-    const float  ROCK_GAP {0.065f};
-
-    const u8vec3 COIN_GRID_SIZE {3, 3, 3};
-    const float  COIN_GAP {0.165f};
-
-    const u8vec3 BALL_GRID_SIZE {3, 3, 3};
-    const float  BALL_GAP {0.165f};
+    const float ROCK_GAP {0.065f};
+    const float COIN_GAP {0.165f};
+    const float BALL_GAP {0.165f};
 
     const float POKE_IMPULSE_SOFT = 2.5f;
     const float POKE_IMPULSE_HARD = 10.0f;
@@ -1527,23 +1536,14 @@ vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheE
 
     const vec3 cellSize {maxDimension};
 
+    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
+
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
     const unsigned sizeZ = stackSize.z;
 
     vector<shared_ptr<Node>> added;
-    added.reserve(sizeX * sizeZ * sizeY);
-
-    const float stepX = cellSize.x + gap;
-    const float stepY = cellSize.y + gap;
-    const float stepZ = cellSize.z + gap;
-
-    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
-    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
-
-    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
-    const float startY = location.y + cellSize.y * 0.5f;
+    added.reserve(sizeX * sizeY * sizeZ);
 
     size_t rockIndex = 0;
 
@@ -1558,8 +1558,9 @@ vector<shared_ptr<Node>> BuildRocks(const vector<TransientsCache::Entry>& cacheE
                 static int rockNum = 0;
                 node->name(std::format("Rock {}", ++rockNum));
 
-                node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
-                                startZ + static_cast<float>(z) * stepZ});
+                node->position(startPosition
+                               + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                                       static_cast<float>(z) * step.z});
 
                 auto physicsBody = PhysicsBody::DynamicBody(rockEntry.physicsShape);
                 physicsBody->mass(3.5f);
@@ -1585,7 +1586,9 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
                                     float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
+
     const vec3 cellSize {math::max(mesh->localExtent())};
+    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1594,16 +1597,7 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const float stepX = cellSize.x + gap;
-    const float stepY = cellSize.y + gap;
-    const float stepZ = cellSize.z + gap;
-
-    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
-    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
-
-    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
-    const float startY = location.y + cellSize.y * 0.5f;
+    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
 
     for (unsigned y = 0; y < sizeY; ++y) {
         for (unsigned z = 0; z < sizeZ; ++z) {
@@ -1614,12 +1608,11 @@ vector<shared_ptr<Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
                 static int coinNum = 0;
                 node->name(std::format("Coin {}", ++coinNum));
 
-                const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
-                node->position(vec3 {startX + static_cast<float>(x) * stepX,
-                                     startY + static_cast<float>(y) * stepY,
-                                     startZ + static_cast<float>(z) * stepZ}
-                               + uniform_linear(-positionVariance, positionVariance));
+                const vec3 position = startPosition
+                                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                                              static_cast<float>(z) * step.z};
 
+                node->position(position + uniform_linear(-positionVariance, positionVariance));
                 node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
@@ -1655,7 +1648,9 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
                                     float                         gap) {
 
     auto [mesh, shape] = cacheEntry;
+
     const vec3 cellSize {math::max(mesh->localExtent())};
+    const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
 
     const unsigned sizeX = stackSize.x;
     const unsigned sizeY = stackSize.y;
@@ -1664,16 +1659,7 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const float stepX = cellSize.x + gap;
-    const float stepY = cellSize.y + gap;
-    const float stepZ = cellSize.z + gap;
-
-    const float totalLength = cellSize.x * static_cast<float>(sizeX) + gap * static_cast<float>(sizeX - 1);
-    const float totalWidth = cellSize.z * static_cast<float>(sizeZ) + gap * static_cast<float>(sizeZ - 1);
-
-    const float startX = location.x - totalLength * 0.5f + cellSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + cellSize.z * 0.5f;
-    const float startY = location.y + cellSize.y * 0.5f;
+    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
 
     for (unsigned y = 0; y < sizeY; ++y) {
         for (unsigned z = 0; z < sizeZ; ++z) {
@@ -1684,20 +1670,19 @@ vector<shared_ptr<Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
                 static int ballNum = 0;
                 node->name(std::format("Beachball {}", ++ballNum));
 
-                const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
-                node->position(vec3 {startX + static_cast<float>(x) * stepX,
-                                     startY + static_cast<float>(y) * stepY,
-                                     startZ + static_cast<float>(z) * stepZ}
-                               + uniform_linear(-positionVariance, positionVariance));
+                const vec3 position = startPosition
+                                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                                              static_cast<float>(z) * step.z};
 
+                node->position(position + uniform_linear(-positionVariance, positionVariance));
                 node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
                 auto physicsBody = PhysicsBody::DynamicBody(shape);
                 physicsBody->mass(0.10f);
-                physicsBody->restitution(0.9f);
+                physicsBody->restitution(1.0f);
                 physicsBody->friction(0.4f);
                 physicsBody->rollingFriction(0.01);
-                physicsBody->angularDamping(0.5);
+                physicsBody->angularDamping(0.4);
 
                 const float ANGULAR_VARIANCE = radians(30.0f);
                 physicsBody->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
@@ -1837,6 +1822,21 @@ shared_ptr<Node> BuildDuck(const TransientsCache::Entry& cacheEntry,
     node->physicsBody(std::move(physicsBody));
 
     return node;
+}
+
+pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
+                                     const vec3&   cellSize,
+                                     const u8vec3& gridSize,
+                                     float         gap) {
+
+    const vec3 step = cellSize + vec3 {gap};
+
+    const float totalX = cellSize.x * static_cast<float>(gridSize.x) + gap * static_cast<float>(gridSize.x - 1);
+    const float totalZ = cellSize.z * static_cast<float>(gridSize.z) + gap * static_cast<float>(gridSize.z - 1);
+
+    return {{location.x - totalX * 0.5f + cellSize.x * 0.5f, location.y + cellSize.y * 0.5f,
+             location.z - totalZ * 0.5f + cellSize.z * 0.5f},
+            step};
 }
 
 pair<vec3, vec3> CalculateThrowTrajectory(const vec3& cameraPosition,
