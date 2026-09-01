@@ -51,7 +51,7 @@ bool App::drawPanel() {
     // panel.row(2);
 
     float timeScale = runner.timeScale();
-    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
+    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.1fx")) {
         runner.timeScale(timeScale);
     }
 

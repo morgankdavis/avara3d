@@ -43,7 +43,7 @@ using namespace std;
 
 // [Private Constants]
 
-const bool USE_HIGHRES_CONVEX_HULL {true};
+const bool USE_HIGHRES_CONVEX_HULL {false};
 
 // [Private Static Non-Member Prototypes]
 

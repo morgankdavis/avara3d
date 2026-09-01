@@ -215,8 +215,8 @@ std::unique_ptr<Scene> App::init() {
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
 
-            auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+            // auto extent = node->mesh()->localExtent();
+            // body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
 
             node->physicsBody(std::move(body));
         }
@@ -233,8 +233,8 @@ std::unique_ptr<Scene> App::init() {
             body->spinningFriction(0.05);
             body->angularSleepingThreshold(0.1f);
 
-            auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.1f, 0.0f, 0.0f});
+            // auto extent = node->mesh()->localExtent();
+            // body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.1f, 0.0f, 0.0f});
 
             // const auto moi = body->momentOfInertia();
             // log::i()("Teapot MOI: {}, {}, {}", moi.x, moi.y, moi.z);
