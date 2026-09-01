@@ -220,7 +220,7 @@ std::unique_ptr<Scene> App::init() {
             body->restitution(STONE_RESTITUTION);
 
             // auto extent = node->mesh()->localExtent();
-            // body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+            // body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
 
             node->physicsBody(std::move(body));
         }
@@ -312,7 +312,7 @@ std::unique_ptr<Scene> App::init() {
             body->angularSleepingThreshold(0.25); // default = 1
 
             auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
 
             node->physicsBody(std::move(body));
         }
@@ -357,7 +357,7 @@ std::unique_ptr<Scene> App::init() {
             body->angularSleepingThreshold(0.25); // default = 1
 
             auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.1f});
 
             node->physicsBody(std::move(body));
         }
