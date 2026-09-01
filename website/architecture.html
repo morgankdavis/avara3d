@@ -76,18 +76,34 @@
                     visual, physics, and input worlds. These systems remain independently configurable and replaceable.</p>
 
             </div>
-            <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">
-                <div class="arch-node primary">Application<small>lifetime root</small></div>
-                <div class="ownership-pair">
-                    <div><span>owns</span><div class="arch-node">Runner<small>scheduling + control</small></div></div>
-                    <div><span>owns</span><div class="arch-node">Scene<small>state + subsystem root</small></div></div>
-                </div>
-                <div class="drives"><code>Runner</code><span>drives through <code>Scene&amp;</code></span><code>Scene</code></div>
-                <div class="scene-owns">Scene owns / retains</div>
-                <div class="ownership-children">
-                    <div class="arch-node compact">VisualWorld</div><div class="arch-node compact">PhysicsWorld</div><div class="arch-node compact">InputContext</div><div class="arch-node compact">Root Node</div>
-                </div>
-            </div>
+
+
+
+
+
+<!--            <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">-->
+<!--                <div class="arch-node primary">Application<small>lifetime root</small></div>-->
+<!--                <div class="ownership-pair">-->
+<!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Runner<small>scheduling + control</small></div></div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Scene<small>state + subsystem root</small></div></div>&ndash;&gt;-->
+<!--                    <div>-->
+<!--                        <div class="arch-node">Runner<small>scheduling + control</small></div>-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        <div class="arch-node">Scene<small>state + subsystem root</small></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--&lt;!&ndash;                <div class="drives"><code>Runner</code><span>drives through <code>Scene&amp;</code></span><code>Scene</code></div>&ndash;&gt;-->
+<!--                <div class="scene-owns">Scene owns / retains</div>-->
+<!--                <div class="ownership-children">-->
+<!--                    <div class="arch-node compact">VisualWorld</div><div class="arch-node compact">PhysicsWorld</div><div class="arch-node compact">InputContext</div><div class="arch-node compact">Root Node</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+
+            <div class="arch-card ownership-v2 placeholder-card" role="img"></div>
+
+
         </section>
 
 

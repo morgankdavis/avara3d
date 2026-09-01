@@ -78,3 +78,25 @@
 /*.architecture-title-accent {*/
 /*    color: color-mix(in srgb, var(--blue) 58%, #252b45);*/
 /*}*/
+
+.architecture-section {
+    align-items: stretch;
+}
+
+.placeholder-card {
+    align-self: stretch;
+    position: relative;
+
+    background: linear-gradient(
+            to top right,
+            transparent calc(50% - 0.5px),
+            #444 50%,
+            transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+            to bottom right,
+            transparent calc(50% - 0.5px),
+            #444 50%,
+            transparent calc(50% + 0.5px)
+    );
+}
