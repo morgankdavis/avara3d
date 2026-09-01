@@ -190,8 +190,8 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
                 body->linearDamping(0.2f);
                 body->angularDamping(0.3f);
 
-                body->autocalculatesMomentOfInertia(false);
-                body->momentOfInertia(body->momentOfInertia() * (5.0f / 3.0f));
+                // body->autocalculatesMomentOfInertia(false);
+                // body->momentOfInertia(body->momentOfInertia() * (5.0f / 3.0f));
 
                 const float ANGULAR_VARIANCE = radians(90.0f);
                 body->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
@@ -270,8 +270,8 @@ shared_ptr<Node> TransientsBuilder::BuildHula(const TransientsCache::Entry& cach
     static const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
 
-    body->autocalculatesMomentOfInertia(false);
-    body->momentOfInertia(body->momentOfInertia() * 2.0f);
+    // body->autocalculatesMomentOfInertia(false);
+    // body->momentOfInertia(body->momentOfInertia() * 2.0f);
 
     static const float minExtent = math::min(extent);
     body->ccdMotionThreshold(minExtent * 0.25f);

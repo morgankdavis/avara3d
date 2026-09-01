@@ -242,16 +242,18 @@ std::unique_ptr<Scene> App::init() {
             // body->autocalculatesMomentOfInertia(false);
             // body->momentOfInertia(body->momentOfInertia() * 1.5f);
 
-            const auto moi = body->momentOfInertia();
 
-            log::i()("Teapot auto MOI: {}, {}, {}", moi.x, moi.y, moi.z);
 
-            body->autocalculatesMomentOfInertia(false);
-            body->momentOfInertia(moi * 1.5f);
-
-            const auto manualMoi = body->momentOfInertia();
-
-            log::i()("Teapot manual MOI: {}, {}, {}", manualMoi.x, manualMoi.y, manualMoi.z);
+            // const auto moi = body->momentOfInertia();
+            //
+            // log::i()("Teapot auto MOI: {}, {}, {}", moi.x, moi.y, moi.z);
+            //
+            // body->autocalculatesMomentOfInertia(false);
+            // body->momentOfInertia(moi * 1.5f);
+            //
+            // const auto manualMoi = body->momentOfInertia();
+            //
+            // log::i()("Teapot manual MOI: {}, {}, {}", manualMoi.x, manualMoi.y, manualMoi.z);
 
             // body->rollingFriction(0.15f);
             // body->spinningFriction(0.1);
