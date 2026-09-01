@@ -670,7 +670,7 @@
 			],
 			"translation":[
 				4.097503185272217,
-				0.019701020792126656,
+				0.038243114948272705,
 				-2.1968228816986084
 			]
 		},
@@ -685,7 +685,7 @@
 			],
 			"translation":[
 				-4.355835437774658,
-				1.5572565793991089,
+				1.570433497428894,
 				-2.380810499191284
 			]
 		},
@@ -741,7 +741,7 @@
 			"name":"janus",
 			"translation":[
 				0.01236879825592041,
-				1.634350299835205,
+				1.6562271118164062,
 				0.003170321462675929
 			]
 		},
@@ -749,8 +749,8 @@
 			"mesh":10,
 			"name":"plinth_janus",
 			"translation":[
-				0.021216318011283875,
-				1.577101230621338,
+				0.0026307059451937675,
+				1.584912896156311,
 				-0.03479626774787903
 			]
 		},
@@ -759,7 +759,7 @@
 			"name":"plinth_teapot",
 			"translation":[
 				5.463283538818359,
-				0.03199309855699539,
+				0.04375418648123741,
 				3.8449552059173584
 			]
 		},
@@ -767,8 +767,8 @@
 			"mesh":12,
 			"name":"teapot",
 			"translation":[
-				5.477653980255127,
-				1.557198166847229,
+				5.468382835388184,
+				1.5753116607666016,
 				3.8296759128570557
 			]
 		},
@@ -2220,14 +2220,6 @@
 		{
 			"extensions":{
 				"EXT_texture_webp":{
-					"source":13
-				}
-			},
-			"sampler":0
-		},
-		{
-			"extensions":{
-				"EXT_texture_webp":{
 					"source":15
 				}
 			},
@@ -2312,6 +2304,14 @@
 				}
 			},
 			"sampler":0
+		},
+		{
+			"extensions":{
+				"EXT_texture_webp":{
+					"source":26
+				}
+			},
+			"sampler":0
 		}
 	],
 	"images":[
@@ -2389,6 +2389,11 @@
 			"mimeType":"image/webp",
 			"name":"plinth_teapot_norm",
 			"uri":"textures/plinth_teapot_norm.webp"
+		},
+		{
+			"mimeType":"image/webp",
+			"name":"plinth_teapot_base",
+			"uri":"textures/plinth_teapot_base.webp"
 		},
 		{
 			"mimeType":"image/webp",

@@ -137,7 +137,7 @@ namespace demo::janus {
         void                      performAction(const PendingAction& action);
         std::vector<const a3d::Node*> pickIgnoredNodes(PickPurpose purpose) const;
         void                          saveDynamicsTransforms();
-        void                          restoreDynamicsTransforms() const;
+        void                          restoreDynamics() const;
         void                          reset();
 
         // [Private Member Variables]

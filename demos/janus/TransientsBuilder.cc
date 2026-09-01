@@ -46,8 +46,9 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    size_t rockIndex = 0;
+    const vec3 positionVariance {gap / 2.0f};
 
+    size_t rockIndex = 0;
     for (unsigned y = 0; y < sizeY; ++y) {
         for (unsigned z = 0; z < sizeZ; ++z) {
             for (unsigned x = 0; x < sizeX; ++x) {
@@ -59,9 +60,14 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
                 static int rockNum = 0;
                 node->name(std::format("pock {}", ++rockNum));
 
-                node->position(startPosition
-                               + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                                       static_cast<float>(z) * step.z});
+                // node->position(startPosition
+                //                + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                //                        static_cast<float>(z) * step.z});
+                const vec3 position = startPosition
+                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                              static_cast<float>(z) * step.z};
+
+                node->position(position + uniform_linear(-positionVariance, positionVariance));
 
                 auto body = PhysicsBody::DynamicBody(rockEntry.physicsShape);
                 body->mass(3.5f);
@@ -102,7 +108,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildCoins(const TransientsCache::En
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
+    const vec3 positionVariance {gap / 2.0f};
 
     for (unsigned y = 0; y < sizeY; ++y) {
         for (unsigned z = 0; z < sizeZ; ++z) {
@@ -164,7 +170,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeY * sizeZ);
 
-    const vec3 positionVariance {gap / 2.0f, gap / 8.0f, gap / 2.0f};
+    const vec3 positionVariance {gap / 2.0f};
 
     for (unsigned y = 0; y < sizeY; ++y) {
         for (unsigned z = 0; z < sizeZ; ++z) {
@@ -180,6 +186,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
                                               static_cast<float>(z) * step.z};
 
                 node->position(position + uniform_linear(-positionVariance, positionVariance));
+
                 node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 
                 auto body = PhysicsBody::DynamicBody(shape);

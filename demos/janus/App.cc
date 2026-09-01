@@ -82,14 +82,6 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
-        //tiles_ceramic_white_diff.jpg
-
-        // auto groundImage = util::fs::ImageAt("white_ceramic_tiles_diff.webp");
-        // auto groundTexture = make_shared<Texture>(std::move(groundImage));
-        // auto groundMaterial = make_shared<Material>(std::monostate {}, groundTexture, Color::Gray());
-        // groundMaterial->specularExponent(16.0f);
-        // groundMaterial->uvScale(5.0f);
-
         auto minor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
                                                         .spacing = 1.0f,
                                                         .lineWidthPixels = 1.0f,
@@ -125,13 +117,6 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->atmosphere(Atmosphere {.scaleHeight = 1.00f,
                                             .haze = atmosphericHaze,
                                             .limbGlow = limbGlow});
-
-        // visualWorld->fog(Fog {
-        //     .color = {0.2f, 0.2f, 0.2f, 0.25f},
-        //     .startDistance = 10.0f,
-        //     .endDistance = 50.0f,
-        //     .transitionExponent = 1.0f,
-        // });
 
         // create the physics world
 
@@ -180,30 +165,28 @@ std::unique_ptr<Scene> App::init() {
 
         if (auto node = environmentRoot->childNamed("evora")) {
 
-            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
-
             auto physNode = environmentRoot->childNamed("evora.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::StaticBody(shape);
+
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             node->physicsBody(std::move(body));
 
-            //physNode->hidden(true);
+            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
         }
 
         if (auto node = environmentRoot->childNamed("lion")) {
 
-            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
-
             auto physNode = environmentRoot->childNamed("lion.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::StaticBody(shape);
+
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             node->physicsBody(std::move(body));
 
-            //physNode->hidden(true);
+            _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
         }
 
         environmentRoot->childNamed("environment.phys")->hidden(true);
@@ -213,8 +196,7 @@ std::unique_ptr<Scene> App::init() {
         if (auto node = _dynamicsRoot->childNamed("janus")) {
 
             auto body = PhysicsBody::DynamicBody();
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+
             body->mass(20.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
@@ -225,12 +207,54 @@ std::unique_ptr<Scene> App::init() {
             node->physicsBody(std::move(body));
         }
 
+        if (auto node = _dynamicsRoot->childNamed("plinth_janus")) {
+
+            auto body = PhysicsBody::DynamicBody();
+
+            body->mass(40.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            node->physicsBody(std::move(body));
+        }
+
+        if (auto node = _dynamicsRoot->childNamed("diana")) {
+
+            auto physNode = _dynamicsRoot->childNamed("diana.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+
+            body->mass(50.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25);
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
+
+            node->physicsBody(std::move(body));
+        }
+
+        if (auto node = _dynamicsRoot->childNamed("augustus")) {
+
+            auto physNode = _dynamicsRoot->childNamed("augustus.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+
+            body->mass(55.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25);
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.1f});
+
+            node->physicsBody(std::move(body));
+        }
+
         if (auto node = _dynamicsRoot->childNamed("teapot")) {
 
             auto body = PhysicsBody::DynamicBody();
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-            // node->physicsBody()->mass(3.0f);
+
             body->friction(0.5f);
             body->restitution(0.2f);
             body->rollingFriction(0.1f);
@@ -245,8 +269,6 @@ std::unique_ptr<Scene> App::init() {
 
             // body->autocalculatesMomentOfInertia(false);
             // body->momentOfInertia(body->momentOfInertia() * 1.5f);
-
-
 
             // const auto moi = body->momentOfInertia();
             //
@@ -267,98 +289,13 @@ std::unique_ptr<Scene> App::init() {
             node->physicsBody(std::move(body));
         }
 
-        if (auto node = _dynamicsRoot->childNamed("plinth_janus")) {
-
-            auto body = PhysicsBody::DynamicBody();
-            // node->physicsBody(PhysicsBody::DynamicBody());
-            body->mass(40.0f);
-            body->friction(STONE_FRICTION);
-            body->restitution(STONE_RESTITUTION);
-            node->physicsBody(std::move(body));
-        }
-
         if (auto node = _dynamicsRoot->childNamed("plinth_teapot")) {
 
             auto body = PhysicsBody::DynamicBody();
-            // node->physicsBody(PhysicsBody::DynamicBody());
+
             body->mass(30.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-            node->physicsBody(std::move(body));
-        }
-
-        // if (auto node = _dynamicsRoot->childNamed("plinth3")) {
-        //     node->physicsBody(PhysicsBody::DynamicBody());
-        //     node->physicsBody()->mass(40.0f);
-        //     node->physicsBody()->friction(0.6f);
-        //     node->physicsBody()->restitution(0.15f);
-        // }
-
-        if (auto node = _dynamicsRoot->childNamed("diana")) {
-
-            auto physNode = _dynamicsRoot->childNamed("diana.phys", true);
-            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            auto body = PhysicsBody::DynamicBody(shape);
-            //node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            // node->physicsBody(PhysicsBody::DynamicBody());
-
-            body->mass(50.0f);
-            body->friction(STONE_FRICTION);
-            body->restitution(STONE_RESTITUTION);
-            body->angularSleepingThreshold(0.25); // default = 1
-
-            auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
-
-            node->physicsBody(std::move(body));
-        }
-
-
-        if (auto node = _dynamicsRoot->childNamed("artemis")) {
-
-            auto physNode = _dynamicsRoot->childNamed("artemis.phys", true);
-            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            auto body = PhysicsBody::DynamicBody(shape);
-            //node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            // node->physicsBody(PhysicsBody::DynamicBody());
-
-            body->mass(50.0f);
-            body->friction(STONE_FRICTION);
-            body->restitution(STONE_RESTITUTION);
-            body->angularSleepingThreshold(0.25); // default = 1
-
-            auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
-
-            node->physicsBody(std::move(body));
-        }
-
-        if (auto node = _dynamicsRoot->childNamed("augustus")) {
-
-            auto physNode = _dynamicsRoot->childNamed("augustus.phys", true);
-            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            auto body = PhysicsBody::DynamicBody(shape);
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-
-            body->mass(55.0f);
-            body->friction(STONE_FRICTION);
-            body->restitution(STONE_RESTITUTION);
-            body->angularSleepingThreshold(0.25); // default = 1
-
-            auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.1f});
-
             node->physicsBody(std::move(body));
         }
 
@@ -952,10 +889,18 @@ void App::saveDynamicsTransforms() {
     }
 }
 
-void App::restoreDynamicsTransforms() const {
+void App::restoreDynamics() const {
 
     for (const auto& state : _dynamicsTransforms) {
+
         state.node->transform(state.transform);
+
+        auto body = state.node->physicsBody();
+        if (body && body->type() == PhysicsBody::Type::Dynamic) {
+            body->linearVelocity(vec3 {0.0f});
+            body->angularVelocity(vec3 {0.0f});
+            body->clearForces();
+        }
     }
 }
 
@@ -969,7 +914,7 @@ void App::reset() {
     _transientsRoot = Node::NamedNode("transients");
     scene().rootNode()->addChild(_transientsRoot);
 
-    restoreDynamicsTransforms();
+    restoreDynamics();
 
     _actionTarget.reset();
 
