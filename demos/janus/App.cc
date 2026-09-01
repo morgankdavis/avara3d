@@ -591,7 +591,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     //const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 8.0f)};
-    const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 6.0f)};
+    const float BACKGROUND_ROTATION_SPEED {radians(1.0 / 4.0f)};
     const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
     const float angle =
