@@ -57,7 +57,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
                 auto node = Node::MeshNode(rockEntry.mesh);
 
                 static int rockNum = 0;
-                node->name(std::format("Rock {}", ++rockNum));
+                node->name(std::format("pock {}", ++rockNum));
 
                 node->position(startPosition
                                + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
@@ -111,7 +111,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildCoins(const TransientsCache::En
                 auto node = Node::MeshNode(mesh);
 
                 static int coinNum = 0;
-                node->name(std::format("Coin {}", ++coinNum));
+                node->name(std::format("coin {}", ++coinNum));
 
                 const vec3 position = startPosition
                                       + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
@@ -173,7 +173,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
                 auto node = Node::MeshNode(mesh);
 
                 static int ballNum = 0;
-                node->name(std::format("Beachball {}", ++ballNum));
+                node->name(std::format("ball {}", ++ballNum));
 
                 const vec3 position = startPosition
                                       + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
@@ -214,7 +214,7 @@ shared_ptr<Node> TransientsBuilder::BuildHammer(const TransientsCache::Entry& ca
 
     auto       node = Node::MeshNode(mesh);
     static int hammerNum = 0;
-    node->name(std::format("Hammer {}", ++hammerNum));
+    node->name(std::format("hammer {}", ++hammerNum));
     node->position(location);
 
     auto body = PhysicsBody::DynamicBody(shape);
@@ -255,7 +255,7 @@ shared_ptr<Node> TransientsBuilder::BuildHula(const TransientsCache::Entry& cach
     auto node = Node::MeshNode(mesh);
 
     static int hulaNum = 0;
-    node->name(std::format("Hula {}", ++hulaNum));
+    node->name(std::format("hula {}", ++hulaNum));
     node->position(location);
 
     auto body = PhysicsBody::DynamicBody(shape);
@@ -312,7 +312,7 @@ shared_ptr<Node> TransientsBuilder::BuildDuck(const TransientsCache::Entry& cach
 
     auto       node = Node::MeshNode(mesh);
     static int quackNum = 0;
-    node->name(std::format("Quack {}", ++quackNum));
+    node->name(std::format("quack {}", ++quackNum));
     node->position(location);
 
     auto body = PhysicsBody::DynamicBody(shape);

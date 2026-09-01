@@ -590,8 +590,8 @@ kbd,
 }
 
 .evidence-strip article {
-    min-height: 205px;
-    padding: 28px;
+    min-height: 186px;
+    padding: 28px 28px;
 }
 
 .evidence-strip article + article {
@@ -1759,4 +1759,21 @@ kbd,
 .downloads-hero h1,
 .downloads-hero > h1 + p {
     max-width: none;
+}
+
+.evidence-strip h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.evidence-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    object-fit: contain;
+}
+
+.evidence-strip h3 span {
+    transform: translateY(-1px);
 }

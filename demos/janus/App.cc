@@ -457,7 +457,7 @@ std::unique_ptr<Scene> App::init() {
             const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
             const size_t ORB_COUNT {4};
 
-            auto orbGroup = Node::NamedNode("Orbs");
+            auto orbGroup = Node::NamedNode("orbs");
             orbGroup->position(ORB_GROUP_POSITION);
             scene->rootNode()->childNamed("environment")->addChild(orbGroup);
 
@@ -474,7 +474,7 @@ std::unique_ptr<Scene> App::init() {
                 light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
 
                 auto orb = Node::LightNode(light);
-                orb->name(std::format("Orb {}", i + 1));
+                orb->name(std::format("orb {}", i + 1));
                 orb->mesh(orbMesh);
 
                 orb->position(math::uniform_linear(ORB_POSITION_MIN, ORB_POSITION_MAX));
