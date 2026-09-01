@@ -44,16 +44,37 @@
             </h1>
             <p>How A3D handles object lifetime, fixed-step simulation, rendering, physics synchronization, and cross-platform execution.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
-                <a href="#ownership">Ownership</a><a href="#simulation">Host + simulation</a><a href="#rendering">Rendering</a><a href="#physics">Physics</a><a href="#details">Other details</a>
+                <a href="#ownership">Ownership</a>
+                <a href="#scheduling">Scheduling</a>
+                <a href="#physics">Physics</a><a
+                    href="#rendering">Rendering</a>
+<!--                <a href="#details">Other details</a>-->
             </nav>
         </header>
 
+
+
+
         <section class="architecture-section" id="ownership" aria-labelledby="ownership-heading">
             <div class="architecture-copy">
-                <p class="arch-overline">Ownership and boundaries</p>
-                <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>
-                <p><code>Application</code> owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>
-                <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>
+                <p class="arch-overline">Ownership</p>
+<!--                <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>-->
+<!--                <p>The <code>Application</code> class owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>-->
+<!--                <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>-->
+<!--                <h2 id="ownership-heading">Separation of ownership and scheduling.</h2>-->
+
+                <h2 id="ownership-heading">Division of responsibilities.</h2>
+
+                <p><code>Application</code> is the top-level owner of an A3D application. It owns the active <code>Scene</code>
+                    and the <code>Runner</code> responsible for driving it.</p>
+
+                <p><code>Runner</code> holds only a non-owning reference to the <code>Scene</code>. This keeps simulation
+                    scheduling—frame-driven updates, fixed-step execution, pausing, and stepping—separate from the lifetime and
+                    contents of the scene itself.</p>
+
+                <p><code>Scene</code> owns the root node hierarchy and the major systems that operate on it, including the
+                    visual, physics, and input worlds. These systems remain independently configurable and replaceable.</p>
+
             </div>
             <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">
                 <div class="arch-node primary">Application<small>lifetime root</small></div>
@@ -69,11 +90,17 @@
             </div>
         </section>
 
-        <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">
+
+
+
+        <section class="architecture-section architecture-section-stacked" id="scheduling" aria-labelledby="simulation-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Host updates and simulation</p>
-                <h2 id="simulation-heading">Host updates are variable-rate. Simulation advances through fixed-duration boundaries.</h2>
-                <p>Each Runner update samples host time, calls variable-rate application work, updates platform and input state, executes zero or more bounded fixed steps, and then renders the completed state.</p>
+                <p class="arch-overline">Scheduling</p>
+                <h2 id="simulation-heading">Fixed simulation, variable rendering.</h2>
+                <p><code>Scene</code> traversal gathers the visible state needed to render a frame into its
+                    <code>VisualWorld</code>, producing an immutable snapshot. That state is resolved to GPU resources,
+                    converted into render packets, and passed to the OpenGL rendering backend for execution.</p>
+
             </div>
 <!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
 <!--                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>-->
@@ -103,15 +130,72 @@
                     <ol class="step-flow" aria-label="Simulation step ordering">
                         <li>Pre-step commands</li><li><code>sceneWillStep</code></li><li>Bullet step + contacts</li><li>Post-step commands</li><li><code>sceneDidStep</code></li>
                     </ol>
-                    <p>Commands originating from input or UI are moved into explicit simulation boundaries. Each queue is exchanged before execution, so work enqueued by a running command waits for a later step.</p>
+                    <p>Commands originating from input or UI are moved into explicit simulation queues. Each queue is exchanged before execution, so work enqueued by a running command waits for a later step.</p>
                 </div>
             </div>
         </section>
 
+
+        <section class="architecture-section architecture-section-stacked" id="physics" aria-labelledby="physics-heading">
+            <div class="architecture-copy architecture-copy-wide">
+                <p class="arch-overline">Physics</p>
+                <h2 id="physics-heading">Physics powered by Bullet.</h2>
+<!--                <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D-->
+<!--                    types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without-->
+<!--                    becoming the public object model.</p>-->
+                <p>A <code>Node</code> owns its <code>PhysicsBody</code>, while bodies may share <code>PhysicsShape</code>
+                    objects. Public A3D types delegate through internal proxy interfaces, allowing Bullet to implement worlds,
+                    bodies, and shapes without becoming part of A3D's public object model.</p>
+            </div>
+            <div class="arch-two-column physics-columns">
+                <div class="arch-card backend-map" role="img"
+                     aria-label="A3D physics classes delegate through proxy classes to Bullet classes.">
+                    <h3>Backend boundary</h3>
+                    <div><code>PhysicsWorld</code><span>→</span><code>PhysicsWorldProxy</code><span>→</span><code>btDynamicsWorld</code>
+                    </div>
+                    <div>
+                        <code>PhysicsBody</code><span>→</span><code>PhysicsBodyProxy</code><span>→</span><code>btRigidBody</code>
+                    </div>
+                    <div><code>PhysicsShape</code><span>→</span><code>PhysicsShapeProxy</code><span>→</span><code>btCollisionShape</code>
+                    </div>
+                </div>
+                <div class="arch-card transform-map" role="img"
+                     aria-label="Node model transform is converted to Bullet center-of-mass transform and dynamic results are converted back.">
+                    <h3>Model origin ↔ center of mass</h3>
+                    <div class="transform-lane">
+                        <div class="arch-node">Node model transform</div>
+                        <span>+ local COM offset →</span>
+                        <div class="arch-node accent">Bullet COM transform</div>
+                    </div>
+                    <div class="transform-lane reverse">
+                        <div class="arch-node">Node model transform</div>
+                        <span>← remove COM offset</span>
+                        <div class="arch-node accent">Bullet COM transform</div>
+                    </div>
+                    <p>Scene edits synchronize position and orientation toward Bullet. Dynamic results return through Bullet's
+                        motion state, with the local COM offset removed before the owning Node is updated.</p>
+                </div>
+            </div>
+            <div class="authority-grid">
+                <article><h3>Static</h3>
+                    <p>Scene placement establishes fixed collision geometry.</p></article>
+                <article><h3>Kinematic</h3>
+                    <p>Application-driven Node transforms move the Bullet body.</p></article>
+                <article><h3>Dynamic</h3>
+                    <p>Bullet simulation updates the Node through the motion-state bridge.</p></article>
+                <article><h3>Collision shape</h3>
+                    <p>Explicit or derived from primitive, convex-hull, or concave scene geometry.</p></article>
+            </div>
+        </section>
+
+
+
+
+
         <section class="architecture-section architecture-section-stacked" id="rendering" aria-labelledby="rendering-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Rendering architecture</p>
-                <h2 id="rendering-heading">Scene representation is extracted before the graphics backend is touched.</h2>
+                <p class="arch-overline">Rendering</p>
+                <h2 id="rendering-heading">Turning a scene into a frame.</h2>
                 <p><code>VisualWorld</code> coordinates the frame, but scene objects are not submitted directly as graphics commands. Gathering extracts visible state, packetization converts it into backend-oriented work, and Renderer owns OpenGL/WebGL execution.</p>
             </div>
             <div class="render-pipeline" role="img" aria-label="Scene graph flows through RenderGatherer, GatherOutput, DrawPacketizer, DrawPacket, Renderer, and OpenGL or WebGL.">
@@ -128,46 +212,29 @@
             </ol>
         </section>
 
-        <section class="architecture-section architecture-section-stacked" id="physics" aria-labelledby="physics-heading">
-            <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Scene and physics integration</p>
-                <h2 id="physics-heading">A3D keeps its scene-facing rigid-body model above Bullet and makes transform authority explicit.</h2>
-                <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without becoming the public object model.</p>
-            </div>
-            <div class="arch-two-column physics-columns">
-                <div class="arch-card backend-map" role="img" aria-label="A3D physics classes delegate through proxy classes to Bullet classes.">
-                    <h3>Backend boundary</h3>
-                    <div><code>PhysicsWorld</code><span>→</span><code>PhysicsWorldProxy</code><span>→</span><code>btDynamicsWorld</code></div>
-                    <div><code>PhysicsBody</code><span>→</span><code>PhysicsBodyProxy</code><span>→</span><code>btRigidBody</code></div>
-                    <div><code>PhysicsShape</code><span>→</span><code>PhysicsShapeProxy</code><span>→</span><code>btCollisionShape</code></div>
-                </div>
-                <div class="arch-card transform-map" role="img" aria-label="Node model transform is converted to Bullet center-of-mass transform and dynamic results are converted back.">
-                    <h3>Model origin ↔ center of mass</h3>
-                    <div class="transform-lane"><div class="arch-node">Node model transform</div><span>+ local COM offset →</span><div class="arch-node accent">Bullet COM transform</div></div>
-                    <div class="transform-lane reverse"><div class="arch-node">Node model transform</div><span>← remove COM offset</span><div class="arch-node accent">Bullet COM transform</div></div>
-                    <p>Scene edits synchronize position and orientation toward Bullet. Dynamic results return through Bullet's motion state, with the local COM offset removed before the owning Node is updated.</p>
-                </div>
-            </div>
-            <div class="authority-grid">
-                <article><h3>Static</h3><p>Scene placement establishes fixed collision geometry.</p></article>
-                <article><h3>Kinematic</h3><p>Application-driven Node transforms move the Bullet body.</p></article>
-                <article><h3>Dynamic</h3><p>Bullet simulation updates the Node through the motion-state bridge.</p></article>
-                <article><h3>Collision shape</h3><p>Explicit or derived from primitive, convex-hull, or concave scene geometry.</p></article>
-            </div>
-        </section>
 
-        <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">
-            <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Other design details</p>
-                <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>
-            </div>
-            <div class="other-detail-grid">
-                <article><p class="detail-label">Native + web</p><h3>One application model, two host loops.</h3><div class="mini-fork"><code>Application::Run</code><span>↓</span><div><code>while (update())</code><code>emscripten main loop</code></div></div><p>Native builds block in the host loop; web builds install the same update path into the browser. Visibility changes suspend the simulation clock so hidden-page time does not become catch-up work.</p></article>
-                <article><p class="detail-label">Runtime instrumentation</p><h3>Timing is built into the frame lifecycle.</h3><div class="metric-cloud"><span>Application</span><span>Physics</span><span>Engine CPU</span><span>Render CPU</span><span>Render GPU</span><span>Frame</span></div><p>Runner also records step counts, simulation time, discarded catch-up time, contacts, body types, and collision-shape inventory for the live statistics overlay.</p></article>
-                <article><p class="detail-label">Hit testing</p><h3>Viewport query → broad phase → exact geometry.</h3><ol class="mini-flow"><li>Logical point</li><li>World segment</li><li>Scene traversal</li><li>Mesh-local segment</li><li>Element AABB</li><li>Triangle test</li></ol><p>Search modes return any, closest, or all near-to-far hits. Bounds-only queries can stop before the two-sided Möller–Trumbore triangle stage.</p></article>
-                <article><p class="detail-label">Scene importing</p><h3>glTF becomes ordinary A3D scene state.</h3><div class="mini-import"><code>glTF / GLB</code><span>→</span><code>fastgltf</code><span>→</span><code>GlTFImporter</code><span>→</span><code>Scene + Nodes</code></div><p>Import options independently select meshes, materials, cameras, and lights. Imported hierarchy and transforms enter the same representation used by programmatically assembled scenes.</p></article>
-            </div>
-        </section>
+
+
+
+
+
+
+
+<!--        <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">-->
+<!--            <div class="architecture-copy architecture-copy-wide">-->
+<!--                <p class="arch-overline">Other design details</p>-->
+<!--                <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>-->
+<!--            </div>-->
+<!--            <div class="other-detail-grid">-->
+<!--                <article><p class="detail-label">Native + web</p><h3>One application model, two host loops.</h3><div class="mini-fork"><code>Application::Run</code><span>↓</span><div><code>while (update())</code><code>emscripten main loop</code></div></div><p>Native builds block in the host loop; web builds install the same update path into the browser. Visibility changes suspend the simulation clock so hidden-page time does not become catch-up work.</p></article>-->
+<!--                <article><p class="detail-label">Runtime instrumentation</p><h3>Timing is built into the frame lifecycle.</h3><div class="metric-cloud"><span>Application</span><span>Physics</span><span>Engine CPU</span><span>Render CPU</span><span>Render GPU</span><span>Frame</span></div><p>Runner also records step counts, simulation time, discarded catch-up time, contacts, body types, and collision-shape inventory for the live statistics overlay.</p></article>-->
+<!--                <article><p class="detail-label">Hit testing</p><h3>Viewport query → broad phase → exact geometry.</h3><ol class="mini-flow"><li>Logical point</li><li>World segment</li><li>Scene traversal</li><li>Mesh-local segment</li><li>Element AABB</li><li>Triangle test</li></ol><p>Search modes return any, closest, or all near-to-far hits. Bounds-only queries can stop before the two-sided Möller–Trumbore triangle stage.</p></article>-->
+<!--                <article><p class="detail-label">Scene importing</p><h3>glTF becomes ordinary A3D scene state.</h3><div class="mini-import"><code>glTF / GLB</code><span>→</span><code>fastgltf</code><span>→</span><code>GlTFImporter</code><span>→</span><code>Scene + Nodes</code></div><p>Import options independently select meshes, materials, cameras, and lights. Imported hierarchy and transforms enter the same representation used by programmatically assembled scenes.</p></article>-->
+<!--            </div>-->
+<!--        </section>-->
+
+
+
 
 <!--        <section class="final-callout architecture-callout">-->
 <!--            <p class="arch-overline">Reference and proof</p>-->
