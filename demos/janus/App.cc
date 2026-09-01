@@ -188,6 +188,8 @@ std::unique_ptr<Scene> App::init() {
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             node->physicsBody(std::move(body));
+
+            //physNode->hidden(true);
         }
 
         if (auto node = environmentRoot->childNamed("lion")) {
@@ -200,6 +202,8 @@ std::unique_ptr<Scene> App::init() {
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             node->physicsBody(std::move(body));
+
+            //physNode->hidden(true);
         }
 
         environmentRoot->childNamed("environment.phys")->hidden(true);
@@ -292,24 +296,27 @@ std::unique_ptr<Scene> App::init() {
 
         if (auto node = _dynamicsRoot->childNamed("diana")) {
 
-            // auto physNode = _dynamicsRoot->childNamed("diana.phys", true);
-            // auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-            // node->physicsBody(PhysicsBody::DynamicBody(shape));
-            //
-            // // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
-            // // node->physicsBody(PhysicsBody::DynamicBody(shape));
-            //
-            // node->physicsBody()->mass(50.0f);
-            // node->physicsBody()->friction(STONE_FRICTION);
-            // node->physicsBody()->restitution(STONE_RESTITUTION);
-            // node->physicsBody()->angularSleepingThreshold(0.25); // default = 1
-            //
-            // auto extent = node->mesh()->localExtent();
-            // node->physicsBody()->centerOfMass(node->physicsBody()->centerOfMass()
-            //                                   + extent * vec3 {0.0f, -0.1f, 0.0f});
+            auto physNode = _dynamicsRoot->childNamed("diana.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+            //node->physicsBody(PhysicsBody::DynamicBody(shape));
 
-            node->hidden(true);
+            // auto shape = PhysicsShape::ConcavePolyhedronShape(node->mesh());
+            // node->physicsBody(PhysicsBody::DynamicBody(shape));
+
+            // node->physicsBody(PhysicsBody::DynamicBody());
+
+            body->mass(50.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25); // default = 1
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.15f, 0.0f});
+
+            node->physicsBody(std::move(body));
         }
+
 
         if (auto node = _dynamicsRoot->childNamed("artemis")) {
 

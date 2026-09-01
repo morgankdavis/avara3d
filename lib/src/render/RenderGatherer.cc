@@ -9,6 +9,7 @@
 #include "a3d/render/RenderGatherer.h"
 
 #include "a3d/Color.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsWorld.h"
@@ -58,6 +59,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     const bool showMeshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshBounds);
     const bool showMeshFrames = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshFrames);
+    auto       visibleMeshAABB = AABB::Invalid();
 
     output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
     if (const auto& background = scene.visualWorld()->background()) {
@@ -143,13 +145,15 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
             if (showMeshBounds) {
 
+                const auto meshAABB = mesh->worldAABB(world, false);
+                visibleMeshAABB |= meshAABB;
+
                 if (!showHighlightBox) {
                     DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
                                                               MESH_OBB_COLOR);
                 }
 
-                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false),
-                                              MESH_AABB_COLOR);
+                DebugLinesBuilder::AppendAABB(output.debugLines, meshAABB, MESH_AABB_COLOR);
             }
 
             if (showMeshFrames) {
@@ -189,9 +193,9 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
         physicsWorld->appendDebugLines(output.debugLines);
     }
 
-    if (showMeshBounds) {
+    if (showMeshBounds && visibleMeshAABB.valid()) {
         // TODO: maybe give this its own debug option
-        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), SCENE_AABB_COLOR);
+        DebugLinesBuilder::AppendAABB(output.debugLines, visibleMeshAABB, SCENE_AABB_COLOR);
     }
 
     return output;
