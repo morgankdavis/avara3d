@@ -21,34 +21,38 @@ using namespace std;
 
 namespace demo::janus {
 
-// [Private Constants]
+namespace {
 
-const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
-const uvec2                       WINDOW_SIZE {1280, 768};
-const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
-const float                       TIME_STEP {1.0 / 120.0};
-const std::uint32_t               MAX_CATCH_UP_STEPS {8};
+    // [Private Constants]
 
-const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
-const u8vec3 COIN_GRID_SIZE {3, 3, 3};
-const u8vec3 BALL_GRID_SIZE {3, 3, 3};
+    const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
+    const uvec2                       WINDOW_SIZE {1280, 768};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
+    const float                       TIME_STEP {1.0 / 120.0};
+    const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
-// [Private Non-Member Prototypes]
+    const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
+    const u8vec3 COIN_GRID_SIZE {3, 3, 3};
+    const u8vec3 BALL_GRID_SIZE {3, 3, 3};
 
-static void                      ConfigureVisualWorld(VisualWorld& world);
-static vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
-static void                      ConfigureDynamicsNodes(const Node& root);
-static shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
-static shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
-static void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
-static shared_ptr<Node>          CreateCursorMarker();
-static optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
-                                      const vec2&                screenPosition,
-                                      const vector<const Node*>& ignoredNodes = {},
-                                      bool                       elementBoundsOnly = true);
-static pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
-                                                          const vec3& targetPosition,
-                                                          const vec3& gravity);
+    // [Private Non-Member Prototypes]
+
+    static void                      ConfigureVisualWorld(VisualWorld& world);
+    static vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
+    static void                      ConfigureDynamicsNodes(const Node& root);
+    static shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
+    static shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
+    static void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
+    static shared_ptr<Node>          CreateCursorMarker();
+    static optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
+                                          const vec2&                screenPosition,
+                                          const vector<const Node*>& ignoredNodes = {},
+                                          bool                       elementBoundsOnly = true);
+    static pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
+                                                              const vec3& targetPosition,
+                                                              const vec3& gravity);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -685,322 +689,334 @@ void App::reset() {
     ++_simulationGeneration;
 }
 
-// [Private Non-Member Functions]
+namespace {
 
-void ConfigureVisualWorld(VisualWorld& world) {
+    // [Private Non-Member Functions]
 
-    world.background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
+    void ConfigureVisualWorld(VisualWorld& world) {
 
-    world.surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
+        world.background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
 
-    auto gridMinor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
-                                                        .spacing = 1.0f,
-                                                        .lineWidthPixels = 1.0f,
-                                                        .reliefStrength = -0.125f};
+        world.surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
-    auto gridMajor = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
-                                                        .spacing = 10.0f,
-                                                        .lineWidthPixels = 1.0f,
-                                                        .reliefStrength = -0.125f};
+        auto gridMinor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
+                                                            .spacing = 1.0f,
+                                                            .lineWidthPixels = 1.0f,
+                                                            .reliefStrength = -0.125f};
 
-    auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),
-                                          .minor = gridMinor,
-                                          .major = gridMajor,
-                                          .specularIntensity = 0.05f,
-                                          .specularExponent = 8.0f};
+        auto gridMajor = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
+                                                            .spacing = 10.0f,
+                                                            .lineWidthPixels = 1.0f,
+                                                            .reliefStrength = -0.125f};
 
-    auto radialFade = Ground::RadialFade {.color = {0.005f, 0.005f, 0.005f, 1.0f},
-                                          .center = {0.0f, 0.0f},
-                                          .startDistance = 10.0f,
-                                          .endDistance = 100.0f};
+        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),
+                                              .minor = gridMinor,
+                                              .major = gridMajor,
+                                              .specularIntensity = 0.05f,
+                                              .specularExponent = 8.0f};
 
-    auto horizonHaze =
-        Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f}, .angularWidth = math::radians(4.0f)};
+        auto radialFade = Ground::RadialFade {.color = {0.005f, 0.005f, 0.005f, 1.0f},
+                                              .center = {0.0f, 0.0f},
+                                              .startDistance = 10.0f,
+                                              .endDistance = 100.0f};
 
-    world.ground(Ground {.fill = Ground::Procedural {.content = grid},
-                         .radialFade = radialFade,
-                         .horizonHaze = horizonHaze});
+        auto horizonHaze =
+            Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f}, .angularWidth = math::radians(4.0f)};
 
-    auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35}; // og
-    //auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.5}, .density = 0.75};
+        world.ground(Ground {.fill = Ground::Procedural {.content = grid},
+                             .radialFade = radialFade,
+                             .horizonHaze = horizonHaze});
 
-    auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35}; // og
+        //auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.5}, .density = 0.75};
 
-    world.atmosphere(Atmosphere {.scaleHeight = 1.00f, .haze = atmosphericHaze, .limbGlow = limbGlow}); // og
-    //world.atmosphere(Atmosphere {.scaleHeight = 0.5f, .haze = atmosphericHaze, .limbGlow = limbGlow});
-}
+        auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
-vector<shared_ptr<Node>> ConfigureEnvironmentNodes(const Node& root) {
-
-    root.childNamed("environment.phys")->hidden(true);
-
-    vector<shared_ptr<Node>> hoverIgnores;
-
-    if (auto node = root.childNamed("evora")) {
-
-        auto physNode = root.childNamed("evora.phys", true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-        auto body = PhysicsBody::StaticBody(shape);
-
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-
-        node->physicsBody(std::move(body));
-
-        hoverIgnores.push_back(node);
+        world.atmosphere(Atmosphere {.scaleHeight = 1.00f,
+                                     .haze = atmosphericHaze,
+                                     .limbGlow = limbGlow}); // og
+        //world.atmosphere(Atmosphere {.scaleHeight = 0.5f, .haze = atmosphericHaze, .limbGlow = limbGlow});
     }
 
-    if (auto node = root.childNamed("lion")) {
+    vector<shared_ptr<Node>> ConfigureEnvironmentNodes(const Node& root) {
 
-        auto physNode = root.childNamed("lion.phys", true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-        auto body = PhysicsBody::StaticBody(shape);
+        root.childNamed("environment.phys")->hidden(true);
 
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
+        vector<shared_ptr<Node>> hoverIgnores;
 
-        node->physicsBody(std::move(body));
+        if (auto node = root.childNamed("evora")) {
 
-        hoverIgnores.push_back(node);
-    }
+            auto physNode = root.childNamed("evora.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::StaticBody(shape);
 
-    return hoverIgnores;
-}
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
 
-void ConfigureDynamicsNodes(const Node& root) {
+            node->physicsBody(std::move(body));
 
-    root.childNamed("dynamics.phys")->hidden(true);
-
-    if (auto node = root.childNamed("janus")) {
-
-        auto body = PhysicsBody::DynamicBody();
-
-        body->mass(20.0f);
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-
-        node->physicsBody(std::move(body));
-    }
-
-    if (auto node = root.childNamed("plinth_janus")) {
-
-        auto body = PhysicsBody::DynamicBody();
-
-        body->mass(40.0f);
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-
-        node->physicsBody(std::move(body));
-    }
-
-    if (auto node = root.childNamed("diana")) {
-
-        auto physNode = root.childNamed("diana.phys", true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-        auto body = PhysicsBody::DynamicBody(shape);
-
-        body->mass(50.0f);
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-        body->angularSleepingThreshold(0.25);
-
-        auto extent = node->mesh()->localExtent();
-        body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
-
-        node->physicsBody(std::move(body));
-    }
-
-    if (auto node = root.childNamed("augustus")) {
-
-        auto physNode = root.childNamed("augustus.phys", true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-        auto body = PhysicsBody::DynamicBody(shape);
-
-        body->mass(55.0f);
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-        body->angularSleepingThreshold(0.25);
-
-        auto extent = node->mesh()->localExtent();
-        body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.15f});
-
-        node->physicsBody(std::move(body));
-    }
-
-    if (auto node = root.childNamed("teapot")) {
-
-        auto physNode = root.childNamed("teapot.phys", true);
-        auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
-        auto body = PhysicsBody::DynamicBody(shape);
-
-        body->friction(0.5f);
-        body->restitution(0.2f);
-        body->rollingFriction(0.05f);
-        body->spinningFriction(0.05);
-        body->angularSleepingThreshold(0.25f);
-
-        node->physicsBody(std::move(body));
-    }
-
-    if (auto node = root.childNamed("plinth_teapot")) {
-
-        auto body = PhysicsBody::DynamicBody();
-
-        body->mass(30.0f);
-        body->friction(STONE_FRICTION);
-        body->restitution(STONE_RESTITUTION);
-
-        body->angularSleepingThreshold(0.25f);
-
-        node->physicsBody(std::move(body));
-    }
-}
-
-shared_ptr<Node> CreateCamera(ext::TurntableCameraController& controller) {
-
-    auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
-    auto cameraNode = Node::CameraNode(camera);
-    cameraNode->name("Camera");
-
-    auto cameraConfig = controller.config();
-    cameraConfig.controls.orbitButton = DesktopInputContext::MouseButton::One;
-    cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
-    cameraConfig.invertPitch = true;
-    cameraConfig.minDistance = 0.5f;
-    cameraConfig.maxDistance = 100.0f;
-    controller.config(cameraConfig);
-
-    controller.view({.target = vec3 {-0.17735787f, 4.7262487f, 0.43490386f},
-                     .yaw = radians(-12.607612f),
-                     .pitch = radians(-4.3214903f),
-                     .distance = 17.4275f});
-
-    return cameraNode;
-}
-
-shared_ptr<Node> CreateOrbWanderers(vector<ext::Wanderer>& wanderers) {
-
-    const vec3 ORB_GROUP_POSITION {-4.5f, 10.0f, -2.5f};
-
-    const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
-    const vec3 ORB_POSITION_MAX {1.0f, 0.5f, 1.0f};
-
-    const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
-    const size_t ORB_COUNT {4};
-
-    auto orbGroup = Node::NamedNode("orbs");
-    orbGroup->position(ORB_GROUP_POSITION);
-
-    auto orbMaterial = Material::EmissionMaterial(Color::White());
-    auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
-
-    wanderers.reserve(ORB_COUNT);
-
-    for (size_t i = 0; i < ORB_COUNT; ++i) {
-        auto light = make_shared<PointLight>(Color::White());
-        // light->attenuation(Attenuation {
-        //     .quadratic = 0.5f
-        // });
-        light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
-
-        auto orb = Node::LightNode(light);
-        orb->name(std::format("orb {}", i + 1));
-        orb->mesh(orbMesh);
-
-        orb->position(math::uniform_linear(ORB_POSITION_MIN, ORB_POSITION_MAX));
-
-        orb->physicsBody(PhysicsBody::KinematicBody());
-
-        orbGroup->addChild(orb);
-
-        ext::Wanderer::Config config {.halfExtents = ORB_WANDER_EXTENTS,
-                                      .segmentDuration = math::uniform_linear(5.0f, 7.0f),
-                                      .seed = 1000u + static_cast<uint32_t>(i)};
-        wanderers.push_back(ext::Wanderer(orb, config));
-    }
-
-    return orbGroup;
-}
-
-void ConfigureTransientsTracker(ext::TransientsTracker& tracker) {
-
-    tracker.groupPolicy("rocks", {.maxCount = (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
-    tracker.groupPolicy("coins", {.maxCount = (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
-    tracker.groupPolicy("balls", {.maxCount = (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
-    tracker.groupPolicy("hammers", {.maxCount = 10,
-                                    .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
-    tracker.groupPolicy("hulas", {.maxCount = 10,
-                                  .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
-    tracker.groupPolicy("ducks", {.maxCount = 10,
-                                  .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
-}
-
-shared_ptr<Node> CreateCursorMarker() {
-
-    const float CURSOR_MARKER_RADIUS {0.1f};
-    auto        material = Material::EmissionMaterial(Color::Yellow());
-    material->depthTestEnabled(false);
-    material->depthWriteEnabled(false);
-
-    auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
-
-    auto marker = Node::MeshNode(mesh);
-    marker->name("marker");
-    marker->renderOrder(100);
-    marker->hidden(true);
-
-    return marker;
-}
-
-optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
-                               const vec2&                screenPosition,
-                               const vector<const Node*>& ignoredNodes,
-                               bool                       elementBoundsOnly) {
-
-    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::Closest,
-                                                           .elementBoundsOnly = elementBoundsOnly,
-                                                           .ignoredNodes = ignoredNodes});
-
-    for (const auto& hit : hits) {
-
-        auto node = hit.node();
-
-        if (!node) {
-            continue;
+            hoverIgnores.push_back(node);
         }
 
-        return App::PickResult {.node = node,
-                                .hitPosition = hit.worldCoordinates(),
-                                .hitNormal = hit.worldNormal()};
+        if (auto node = root.childNamed("lion")) {
+
+            auto physNode = root.childNamed("lion.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::StaticBody(shape);
+
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+
+            node->physicsBody(std::move(body));
+
+            hoverIgnores.push_back(node);
+        }
+
+        return hoverIgnores;
     }
 
-    return {};
-}
+    void ConfigureDynamicsNodes(const Node& root) {
 
-pair<vec3, vec3> CalculateThrowTrajectory(const vec3& cameraPosition,
-                                          const vec3& targetPosition,
-                                          const vec3& gravity) {
+        root.childNamed("dynamics.phys")->hidden(true);
 
-    const float SPAWN_DISTANCE {0.5f};
-    const float SPEED {15.0f};
-    const float MIN_FLIGHT_TIME {0.25f};
-    const float MAX_FLIGHT_TIME {1.5f};
+        if (auto node = root.childNamed("janus")) {
 
-    const vec3  cameraToTarget = targetPosition - cameraPosition;
-    const float targetDistance = length(cameraToTarget);
+            auto body = PhysicsBody::DynamicBody();
 
-    const vec3 aimDirection = cameraToTarget / targetDistance;
+            body->mass(20.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
 
-    const vec3 spawnPosition =
-        cameraPosition + aimDirection * math::min(SPAWN_DISTANCE, targetDistance * 0.25f);
+            node->physicsBody(std::move(body));
+        }
 
-    const vec3 displacement = targetPosition - spawnPosition;
+        if (auto node = root.childNamed("plinth_janus")) {
 
-    const float flightTime = math::clamp(length(displacement) / SPEED, MIN_FLIGHT_TIME, MAX_FLIGHT_TIME);
+            auto body = PhysicsBody::DynamicBody();
 
-    const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+            body->mass(40.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
 
-    return {spawnPosition, velocity};
-}
+            node->physicsBody(std::move(body));
+        }
 
-}
+        if (auto node = root.childNamed("diana")) {
+
+            auto physNode = root.childNamed("diana.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+
+            body->mass(50.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25);
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
+
+            node->physicsBody(std::move(body));
+        }
+
+        if (auto node = root.childNamed("augustus")) {
+
+            auto physNode = root.childNamed("augustus.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+
+            body->mass(55.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25);
+
+            auto extent = node->mesh()->localExtent();
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.15f});
+
+            node->physicsBody(std::move(body));
+        }
+
+        if (auto node = root.childNamed("teapot")) {
+
+            auto physNode = root.childNamed("teapot.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
+
+            body->friction(0.5f);
+            body->restitution(0.2f);
+            body->rollingFriction(0.05f);
+            body->spinningFriction(0.05);
+            body->angularSleepingThreshold(0.25f);
+
+            node->physicsBody(std::move(body));
+        }
+
+        if (auto node = root.childNamed("plinth_teapot")) {
+
+            auto body = PhysicsBody::DynamicBody();
+
+            body->mass(30.0f);
+            body->friction(STONE_FRICTION);
+            body->restitution(STONE_RESTITUTION);
+
+            body->angularSleepingThreshold(0.25f);
+
+            node->physicsBody(std::move(body));
+        }
+    }
+
+    shared_ptr<Node> CreateCamera(ext::TurntableCameraController& controller) {
+
+        auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
+        auto cameraNode = Node::CameraNode(camera);
+        cameraNode->name("Camera");
+
+        auto cameraConfig = controller.config();
+        cameraConfig.controls.orbitButton = DesktopInputContext::MouseButton::One;
+        cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
+        cameraConfig.invertPitch = true;
+        cameraConfig.minDistance = 0.5f;
+        cameraConfig.maxDistance = 100.0f;
+        controller.config(cameraConfig);
+
+        controller.view({.target = vec3 {-0.17735787f, 4.7262487f, 0.43490386f},
+                         .yaw = radians(-12.607612f),
+                         .pitch = radians(-4.3214903f),
+                         .distance = 17.4275f});
+
+        return cameraNode;
+    }
+
+    shared_ptr<Node> CreateOrbWanderers(vector<ext::Wanderer>& wanderers) {
+
+        const vec3 ORB_GROUP_POSITION {-4.5f, 10.0f, -2.5f};
+
+        const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
+        const vec3 ORB_POSITION_MAX {1.0f, 0.5f, 1.0f};
+
+        const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
+        const size_t ORB_COUNT {4};
+
+        auto orbGroup = Node::NamedNode("orbs");
+        orbGroup->position(ORB_GROUP_POSITION);
+
+        auto orbMaterial = Material::EmissionMaterial(Color::White());
+        auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
+
+        wanderers.reserve(ORB_COUNT);
+
+        for (size_t i = 0; i < ORB_COUNT; ++i) {
+            auto light = make_shared<PointLight>(Color::White());
+            // light->attenuation(Attenuation {
+            //     .quadratic = 0.5f
+            // });
+            light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
+
+            auto orb = Node::LightNode(light);
+            orb->name(std::format("orb {}", i + 1));
+            orb->mesh(orbMesh);
+
+            orb->position(math::uniform_linear(ORB_POSITION_MIN, ORB_POSITION_MAX));
+
+            orb->physicsBody(PhysicsBody::KinematicBody());
+
+            orbGroup->addChild(orb);
+
+            ext::Wanderer::Config config {.halfExtents = ORB_WANDER_EXTENTS,
+                                          .segmentDuration = math::uniform_linear(5.0f, 7.0f),
+                                          .seed = 1000u + static_cast<uint32_t>(i)};
+            wanderers.push_back(ext::Wanderer(orb, config));
+        }
+
+        return orbGroup;
+    }
+
+    void ConfigureTransientsTracker(ext::TransientsTracker& tracker) {
+
+        tracker.groupPolicy("rocks",
+                            {.maxCount = (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
+        tracker.groupPolicy("coins",
+                            {.maxCount = (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
+        tracker.groupPolicy("balls",
+                            {.maxCount = (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
+        tracker.groupPolicy("hammers",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+        tracker.groupPolicy("hulas",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+        tracker.groupPolicy("ducks",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+    }
+
+    shared_ptr<Node> CreateCursorMarker() {
+
+        const float CURSOR_MARKER_RADIUS {0.1f};
+        auto        material = Material::EmissionMaterial(Color::Yellow());
+        material->depthTestEnabled(false);
+        material->depthWriteEnabled(false);
+
+        auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
+
+        auto marker = Node::MeshNode(mesh);
+        marker->name("marker");
+        marker->renderOrder(100);
+        marker->hidden(true);
+
+        return marker;
+    }
+
+    optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
+                                   const vec2&                screenPosition,
+                                   const vector<const Node*>& ignoredNodes,
+                                   bool                       elementBoundsOnly) {
+
+        const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::Closest,
+                                                               .elementBoundsOnly = elementBoundsOnly,
+                                                               .ignoredNodes = ignoredNodes});
+
+        for (const auto& hit : hits) {
+
+            auto node = hit.node();
+
+            if (!node) {
+                continue;
+            }
+
+            return App::PickResult {.node = node,
+                                    .hitPosition = hit.worldCoordinates(),
+                                    .hitNormal = hit.worldNormal()};
+        }
+
+        return {};
+    }
+
+    pair<vec3, vec3> CalculateThrowTrajectory(const vec3& cameraPosition,
+                                              const vec3& targetPosition,
+                                              const vec3& gravity) {
+
+        const float SPAWN_DISTANCE {0.5f};
+        const float SPEED {15.0f};
+        const float MIN_FLIGHT_TIME {0.25f};
+        const float MAX_FLIGHT_TIME {1.5f};
+
+        const vec3  cameraToTarget = targetPosition - cameraPosition;
+        const float targetDistance = length(cameraToTarget);
+
+        const vec3 aimDirection = cameraToTarget / targetDistance;
+
+        const vec3 spawnPosition =
+            cameraPosition + aimDirection * math::min(SPAWN_DISTANCE, targetDistance * 0.25f);
+
+        const vec3 displacement = targetPosition - spawnPosition;
+
+        const float flightTime = math::clamp(length(displacement) / SPEED, MIN_FLIGHT_TIME, MAX_FLIGHT_TIME);
+
+        const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+
+        return {spawnPosition, velocity};
+    }
+
+} // namespace
+
+} // namespace demo::janus

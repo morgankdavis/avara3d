@@ -29,7 +29,7 @@ namespace a3d {
 class Node;
 class Window;
 
-}
+} // namespace a3d
 
 namespace demo::janus {
 
@@ -165,6 +165,6 @@ private:
     bool                                _pendingReset;
 };
 
-}
+} // namespace demo::janus
 
 #endif // AVARA3D_DEMO_JANUS_APP_H

@@ -64,10 +64,6 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const shared_ptr<PhysicsShape
     return make_unique<PhysicsBody>(Type::Kinematic, shape);
 }
 
-} // namespace a3d
-
-namespace a3d {
-
 namespace {
 
     // [Private Non-Member Prototypes]

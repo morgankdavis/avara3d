@@ -98,10 +98,6 @@ Color Color::Random() {
     return Color(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
 }
 
-} // namespace a3d
-
-namespace a3d {
-
 namespace {
 
     // [Private Non-Member Prototypes]
