@@ -48,27 +48,27 @@ namespace {
 
     // [Private Search Paths Prototypes]
 
-    static const std::vector<std::filesystem::path>& ResourceSearchPaths();
-    static std::vector<std::filesystem::path>        ShaderSearchPaths();
-    static std::vector<std::filesystem::path>        SceneSearchPaths();
-    static std::vector<std::filesystem::path>        ModelSearchPaths();
-    static std::vector<std::filesystem::path>        ImageSearchPaths();
-    static std::vector<std::filesystem::path>        FontSearchPaths();
-    static std::vector<std::filesystem::path>        AuxiliarySearchPaths();
-    static std::optional<std::filesystem::path> SearchInPaths(const std::filesystem::path& resourcePath,
-                                                              const std::vector<std::filesystem::path>& paths);
+    const vector<filesystem::path>& ResourceSearchPaths();
+    vector<filesystem::path>        ShaderSearchPaths();
+    vector<filesystem::path>        SceneSearchPaths();
+    vector<filesystem::path>        ModelSearchPaths();
+    vector<filesystem::path>        ImageSearchPaths();
+    vector<filesystem::path>        FontSearchPaths();
+    vector<filesystem::path>        AuxiliarySearchPaths();
+    optional<filesystem::path>      SearchInPaths(const filesystem::path&         resourcePath,
+                                                  const vector<filesystem::path>& paths);
 
 } // namespace
 
 // [Process]
 
-std::optional<std::filesystem::path> ExecutablePath() {
+optional<filesystem::path> ExecutablePath() {
 
 #if defined(A3D_MACOS)
     char     path[PATH_MAX];
     uint32_t size = sizeof(path);
     if (_NSGetExecutablePath(path, &size) == 0) {
-        return std::filesystem::path(path);
+        return filesystem::path(path);
     }
 #elif defined(A3D_LINUX)
     char          path[PATH_MAX];
@@ -77,11 +77,11 @@ std::optional<std::filesystem::path> ExecutablePath() {
         return {};
     }
     path[count] = '\0';
-    return std::filesystem::path(path);
+    return filesystem::path(path);
 #elif defined(A3D_WINDOWS)
     char path[PATH_MAX];
     if (GetModuleFileName(NULL, path, PATH_MAX)) {
-        return std::filesystem::path(path);
+        return filesystem::path(path);
     }
 #endif
     return {};
@@ -106,10 +106,10 @@ optional<string> ExecutableName() {
     return nullopt;
 }
 
-std::optional<std::filesystem::path> CurrentWorkingDirectory() {
+optional<filesystem::path> CurrentWorkingDirectory() {
 
-    std::error_code error;
-    auto            path = std::filesystem::current_path(error);
+    error_code error;
+    auto       path = filesystem::current_path(error);
     if (error) {
         return {};
     }
@@ -136,7 +136,7 @@ unique_ptr<CubeImage> CubeImageAt(const filesystem::path& baseFilename) {
                / format("{}_{}{}", baseFilename.stem().string(), face, baseFilename.extension().string());
     };
 
-    return make_unique<CubeImage>(std::array<unique_ptr<Image>, 6> {
+    return make_unique<CubeImage>(array<unique_ptr<Image>, 6> {
         ImageAt(faceFilename("x_pos"), false, true),
         ImageAt(faceFilename("x_neg"), false, true),
         ImageAt(faceFilename("y_pos"), true, false),
@@ -224,9 +224,9 @@ namespace {
     const vector<filesystem::path>& ResourceSearchPaths() {
 
         static const vector<filesystem::path> paths = [] {
-            vector<filesystem::path>        paths;
-            optional<std::filesystem::path> execDir {};
-            optional<string>                execName {};
+            vector<filesystem::path>   paths;
+            optional<filesystem::path> execDir {};
+            optional<string>           execName {};
 
 #ifdef A3D_DESKTOP
 
@@ -295,48 +295,48 @@ namespace {
         return paths;
     }
 
-    vector<std::filesystem::path> ShaderSearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> ShaderSearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "shaders");
         }
         return searchPaths;
     }
 
-    vector<std::filesystem::path> SceneSearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> SceneSearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "scenes");
         }
         return searchPaths;
     }
 
-    vector<std::filesystem::path> ModelSearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> ModelSearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "models");
         }
         return searchPaths;
     }
 
-    vector<std::filesystem::path> ImageSearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> ImageSearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "images");
         }
         return searchPaths;
     }
 
-    vector<std::filesystem::path> FontSearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> FontSearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "fonts");
         }
         return searchPaths;
     }
 
-    vector<std::filesystem::path> AuxiliarySearchPaths() {
-        auto searchPaths = vector<std::filesystem::path>();
+    vector<filesystem::path> AuxiliarySearchPaths() {
+        auto searchPaths = vector<filesystem::path>();
         for (const auto& path : ResourceSearchPaths()) {
             searchPaths.push_back(path / "auxiliary");
         }

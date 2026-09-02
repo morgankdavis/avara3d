@@ -17,9 +17,9 @@ class RenderContext;
 
 namespace a3d::util::snapshot {
 
-    // [Public Functions]
+// [Public Functions]
 
-    /** @brief Attempts to save a timestamped PNG snapshot of @p context beside the current executable. */
+/** @brief Attempts to save a timestamped PNG snapshot of @p context beside the current executable. */
 void SaveSnapshot(RenderContext& context);
 
 } // namespace a3d::util::snapshot

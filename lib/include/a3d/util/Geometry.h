@@ -19,13 +19,13 @@ struct AABB;
 
 namespace a3d::util::geom {
 
-    // [Public Functions]
+// [Public Functions]
 
-    /**
-     * @brief Returns a uniform transform that centers @p source at the origin and fits it inside @p targetSize.
-     *
-     * @throws std::invalid_argument if the source bounds or target size are invalid.
-     */
+/**
+ * @brief Returns a uniform transform that centers @p source at the origin and fits it inside @p targetSize.
+ *
+ * @throws std::invalid_argument if the source bounds or target size are invalid.
+ */
 math::mat4 fit_inside(const AABB& source, const math::vec3& targetSize);
 
 } // namespace a3d::util::geom

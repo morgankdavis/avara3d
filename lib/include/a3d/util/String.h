@@ -26,7 +26,7 @@ std::vector<std::string> Split(const std::string& s, std::string delim);
 std::string              Uppercase(std::string_view s);
 std::string              Lowercase(std::string_view s);
 
-    // put somewhere else?
+// put somewhere else?
 
 std::string              Tree(const Node& root);
 std::string              Timestamp();

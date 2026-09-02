@@ -40,7 +40,7 @@ inline std::size_t callsite_key(std::source_location loc) {
     return h;
 }
 
-    // Per-(State type, TU) map keyed by callsite.
+// Per-(State type, TU) map keyed by callsite.
 template<class State, class... CtorArgs>
 State& state_for(std::source_location loc, CtorArgs&&... ctorArgs) {
     static std::mutex                                              m;
@@ -74,13 +74,13 @@ inline long long clamp_step(long long n) {
 
 namespace a3d::util::flow {
 
-    // [Public Functions]
+// [Public Functions]
 
-    /**
-     * @brief Returns whether @p cond is true and invokes @p on_fail_once only when it first becomes false.
-     *
-     * The failure latch resets after the condition becomes true. State is retained per @p loc.
-     */
+/**
+ * @brief Returns whether @p cond is true and invokes @p on_fail_once only when it first becomes false.
+ *
+ * The failure latch resets after the condition becomes true. State is retained per @p loc.
+ */
 template<class Cond, class FailFn>
 [[nodiscard]] bool edge_guard(Cond&&               cond,
                               FailFn&&             on_fail_once,
@@ -104,7 +104,7 @@ template<class Cond, class FailFn>
     return false;
 }
 
-    /** @brief Invokes @p fn only on the first call for @p loc, caching any non-void result. */
+/** @brief Invokes @p fn only on the first call for @p loc, caching any non-void result. */
 template<class Fn>
 decltype(auto) once(Fn&& fn, std::source_location loc = std::source_location::current()) {
     using R = std::invoke_result_t<Fn&>;
@@ -137,7 +137,7 @@ decltype(auto) once(Fn&& fn, std::source_location loc = std::source_location::cu
     }
 }
 
-    /** @brief Invokes @p then_fn on the first call for @p loc and @p else_fn on subsequent calls. */
+/** @brief Invokes @p then_fn on the first call for @p loc and @p else_fn on subsequent calls. */
 template<class ThenFn, class ElseFn>
 decltype(auto) once_else(ThenFn&&             then_fn,
                          ElseFn&&             else_fn,
@@ -185,12 +185,12 @@ decltype(auto) once_else(ThenFn&&             then_fn,
     }
 }
 
-    /**
-     * @brief Invokes @p fn only on the requested invocation at @p loc.
-     *
-     * The first call fixes the target; values below 1 are treated as 1. Non-void callbacks return their result
-     * in std::optional only when invoked.
-     */
+/**
+ * @brief Invokes @p fn only on the requested invocation at @p loc.
+ *
+ * The first call fixes the target; values below 1 are treated as 1. Non-void callbacks return their result
+ * in std::optional only when invoked.
+ */
 template<class Fn>
 decltype(auto) on(long long invocation, Fn&& fn, std::source_location loc = std::source_location::current()) {
     using R = std::invoke_result_t<Fn&>;
@@ -223,11 +223,11 @@ decltype(auto) on(long long invocation, Fn&& fn, std::source_location loc = std:
     }
 }
 
-    /**
-     * @brief Invokes @p then_fn on the requested invocation at @p loc and @p else_fn on every other call.
-     *
-     * The first call fixes the target; values below 1 are treated as 1.
-     */
+/**
+ * @brief Invokes @p then_fn on the requested invocation at @p loc and @p else_fn on every other call.
+ *
+ * The first call fixes the target; values below 1 are treated as 1.
+ */
 template<class ThenFn, class ElseFn>
 decltype(auto) on_else(long long            invocation,
                        ThenFn&&             then_fn,
@@ -273,12 +273,12 @@ decltype(auto) on_else(long long            invocation,
     }
 }
 
-    /**
-     * @brief Invokes @p fn on every call after @p invocations earlier calls at @p loc.
-     *
-     * The first call fixes the threshold; negative values are treated as zero. Non-void callbacks return an empty
-     * std::optional until invocation begins.
-     */
+/**
+ * @brief Invokes @p fn on every call after @p invocations earlier calls at @p loc.
+ *
+ * The first call fixes the threshold; negative values are treated as zero. Non-void callbacks return an empty
+ * std::optional until invocation begins.
+ */
 template<class Fn>
 decltype(auto) after(long long            invocations,
                      Fn&&                 fn,
@@ -312,11 +312,11 @@ decltype(auto) after(long long            invocations,
     }
 }
 
-    /**
-     * @brief Invokes @p else_fn for the first @p invocations calls at @p loc, then @p then_fn thereafter.
-     *
-     * The first call fixes the threshold; negative values are treated as zero.
-     */
+/**
+ * @brief Invokes @p else_fn for the first @p invocations calls at @p loc, then @p then_fn thereafter.
+ *
+ * The first call fixes the threshold; negative values are treated as zero.
+ */
 template<class ThenFn, class ElseFn>
 decltype(auto) after_else(long long            invocations,
                           ThenFn&&             then_fn,

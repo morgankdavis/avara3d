@@ -21,29 +21,30 @@
 
 #include "QtInputContext.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-using Viewport = qt::QtViewport;
-
 namespace a3d::qt {
 
-/// Public Static Member Functions ///
+namespace {
 
-unique_ptr<qt::QtInputContext> Viewport::InputContext() {
-    return std::make_unique<QtInputContext>();
+    // [Private Types]
+
+    using Viewport = QtViewport;
+
+    // [Private Non-Member Prototypes]
+
+    ImGuiKey ImGuiKeyFromQtKey(int qtKey);
+
+} // namespace
+
+// [Public Static Member Functions]
+
+unique_ptr<QtInputContext> Viewport::InputContext() {
+    return make_unique<QtInputContext>();
 }
 
-} // namespace a3d::qt
-
-/// Private Static Non-Member Prototypes ///
-
-static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
-
-namespace a3d::qt {
-
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
     RenderContext(),
@@ -73,7 +74,7 @@ Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
 //	//ImGui::DestroyContext();
 //}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 bool Viewport::cursorCaptured() const {
     return _cursorCaptured;
@@ -117,13 +118,13 @@ void Viewport::cursorCaptured(bool captured) {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Viewport::inputContext(QtInputContext* inputContext) {
     _inputContext = inputContext;
 }
 
-/// RenderContext Public Member Functions ///
+// [RenderContext Public Member Functions]
 
 bool Viewport::vSyncEnabled() const {
     return true;
@@ -133,11 +134,11 @@ void Viewport::vSyncEnabled(bool enabled) {
     throw std::logic_error("Qt forces vsync.");
 }
 
-/// RenderContext Internal Member Functions ///
+// [RenderContext Internal Member Functions]
 
-void Viewport::beginFrame(const a3d::Scene& scene) {}
+void Viewport::beginFrame(const Scene& scene) {}
 
-void Viewport::endFrame(const a3d::Scene& scene) {}
+void Viewport::endFrame(const Scene& scene) {}
 
 void Viewport::swapBuffers() {}
 
@@ -156,7 +157,7 @@ unsigned Viewport::defaultFramebuffer() const {
     return static_cast<unsigned>(defaultFramebufferObject());
 }
 
-/// QWidget Protected Member Functions ///
+// [QWidget Protected Member Functions]
 
 bool Viewport::event(QEvent* e) {
 
@@ -337,7 +338,7 @@ void Viewport::mouseMoveEvent(QMouseEvent* e) {
     e->accept();
 }
 
-/// QOpenGLWidget Protected Member Functions ///
+// [QOpenGLWidget Protected Member Functions]
 
 void Viewport::initializeGL() {
 
@@ -352,7 +353,7 @@ void Viewport::initializeGL() {
         return reinterpret_cast<void*>(fp);
     };
 
-    if (a3d::OGLRenderer::InitGL(loader)) {
+    if (OGLRenderer::InitGL(loader)) {
         _renderer->initialize(*this);
         emit initialized();
     }
@@ -367,7 +368,7 @@ void Viewport::paintGL() {
     emit renderFrame();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Viewport::centerCursor() {
 
@@ -375,45 +376,49 @@ void Viewport::centerCursor() {
     QCursor::setPos(mapToGlobal(center));
 }
 
-} // namespace a3d::qt
+namespace {
 
-/// Private Static Non-Member Functions ///
+    // [Private Non-Member Functions]
 
-ImGuiKey ImGuiKeyFromQtKey(int qtKey) {
+    ImGuiKey ImGuiKeyFromQtKey(int qtKey) {
 
-    using IK = ImGuiKey;
+        using IK = ImGuiKey;
 
-    switch (qtKey) {
-        case Qt::Key_Backspace:
-            return ImGuiKey_Backspace;
-        case Qt::Key_Delete:
-            return ImGuiKey_Delete;
-        case Qt::Key_Tab:
-            return ImGuiKey_Tab;
-        case Qt::Key_Left:
-            return ImGuiKey_LeftArrow;
-        case Qt::Key_Right:
-            return ImGuiKey_RightArrow;
-        case Qt::Key_Up:
-            return ImGuiKey_UpArrow;
-        case Qt::Key_Down:
-            return ImGuiKey_DownArrow;
-        case Qt::Key_Home:
-            return ImGuiKey_Home;
-        case Qt::Key_End:
-            return ImGuiKey_End;
-        case Qt::Key_PageUp:
-            return ImGuiKey_PageUp;
-        case Qt::Key_PageDown:
-            return ImGuiKey_PageDown;
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
-            return ImGuiKey_Enter;
-        case Qt::Key_Escape:
-            return ImGuiKey_Escape;
-        default:
-            break;
+        switch (qtKey) {
+            case Qt::Key_Backspace:
+                return ImGuiKey_Backspace;
+            case Qt::Key_Delete:
+                return ImGuiKey_Delete;
+            case Qt::Key_Tab:
+                return ImGuiKey_Tab;
+            case Qt::Key_Left:
+                return ImGuiKey_LeftArrow;
+            case Qt::Key_Right:
+                return ImGuiKey_RightArrow;
+            case Qt::Key_Up:
+                return ImGuiKey_UpArrow;
+            case Qt::Key_Down:
+                return ImGuiKey_DownArrow;
+            case Qt::Key_Home:
+                return ImGuiKey_Home;
+            case Qt::Key_End:
+                return ImGuiKey_End;
+            case Qt::Key_PageUp:
+                return ImGuiKey_PageUp;
+            case Qt::Key_PageDown:
+                return ImGuiKey_PageDown;
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+                return ImGuiKey_Enter;
+            case Qt::Key_Escape:
+                return ImGuiKey_Escape;
+            default:
+                break;
+        }
+
+        return ImGuiKey_None;
     }
 
-    return ImGuiKey_None;
-}
+} // namespace
+
+} // namespace a3d::qt

@@ -19,7 +19,7 @@
 namespace a3d::util::enums {
 namespace detail {
 
-        // matches magic_enum's default reflection range.
+    // matches magic_enum's default reflection range.
     static constexpr int ENUM_RANGE_MIN = -128;
     static constexpr int ENUM_RANGE_MAX = 127;
 
@@ -103,8 +103,8 @@ namespace detail {
     #error Unsupported compiler for a3d::util::enums
 #endif
 
-            // unnamed enum values are rendered by the supported compilers as
-            // casts or integer values rather than symbolic enumerator names.
+        // unnamed enum values are rendered by the supported compilers as
+        // casts or integer values rather than symbolic enumerator names.
         if (name.empty() || name.front() == '(' || name.front() == '-'
             || (name.front() >= '0' && name.front() <= '9')) {
             return {};
@@ -133,13 +133,13 @@ namespace detail {
 
 } // namespace detail
 
-    // [Public Functions]
+// [Public Functions]
 
-    /**
-     * @brief Returns the unqualified enumerator name for @p value, or an empty view if unavailable.
-     *
-     * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
-     */
+/**
+ * @brief Returns the unqualified enumerator name for @p value, or an empty view if unavailable.
+ *
+ * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
+ */
 template<typename E>
 constexpr std::string_view enum_name(E value) noexcept {
 
@@ -159,11 +159,11 @@ constexpr std::string_view enum_name(E value) noexcept {
     return names[static_cast<std::size_t>(raw - static_cast<U>(min))];
 }
 
-    /**
-     * @brief Returns the enumerator whose unqualified name matches @p name, or std::nullopt if unavailable.
-     *
-     * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
-     */
+/**
+ * @brief Returns the enumerator whose unqualified name matches @p name, or std::nullopt if unavailable.
+ *
+ * Reflection covers signed values from -128 through 127 and unsigned values from 0 through 127.
+ */
 template<typename E>
 constexpr std::optional<E> enum_cast(std::string_view name) noexcept {
 
@@ -181,7 +181,7 @@ constexpr std::optional<E> enum_cast(std::string_view name) noexcept {
     return {};
 }
 
-    /** @brief Returns the underlying integer value of @p value. */
+/** @brief Returns the underlying integer value of @p value. */
 template<typename E>
 constexpr std::underlying_type_t<E> to_underlying(E value) noexcept {
 

@@ -19,12 +19,20 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
-const uvec2                       WINDOW_SIZE {1280, 768};
-const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
-const bool                        CAPTURE_CURSOR {false};
-
 namespace a3de {
+
+namespace {
+
+    // [Private Constants]
+
+    const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
+    const uvec2                       WINDOW_SIZE {1280, 768};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+    const bool                        CAPTURE_CURSOR {false};
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
@@ -57,6 +65,8 @@ MainWindow::~MainWindow() {
 
     delete _ui;
 }
+
+// [Private Member Functions]
 
 void MainWindow::initA3D() {
 
@@ -129,7 +139,7 @@ void MainWindow::initLog(log::Level level) {
     log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
-/// Runner Callbacks ///
+// [Runner Callbacks]
 
 void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 

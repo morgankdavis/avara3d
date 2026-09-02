@@ -16,37 +16,37 @@
 
 namespace a3d::util {
 
-    /**
-     * @brief Invokes a callback at fixed intervals along a caller-supplied time line.
-     *
-     * update() catches up missed intervals by invoking the callback once for every
-     * elapsed trigger time. Supplying a time earlier than the previous update resets
-     * the schedule automatically.
-     */
+/**
+ * @brief Invokes a callback at fixed intervals along a caller-supplied time line.
+ *
+ * update() catches up missed intervals by invoking the callback once for every
+ * elapsed trigger time. Supplying a time earlier than the previous update resets
+ * the schedule automatically.
+ */
 class PeriodicTrigger {
 
 public:
-        // [Public Lifecycle Functions]
+    // [Public Lifecycle Functions]
 
-        /**
-         * @brief Creates a trigger with @p interval between firings.
-         *
-         * By default, the first update fires immediately. When @p deferFirstFire is
-         * true, the first firing is scheduled one interval after the first update time.
-         *
-         * @throws std::invalid_argument if @p interval is less than or equal to zero.
-         */
+    /**
+     * @brief Creates a trigger with @p interval between firings.
+     *
+     * By default, the first update fires immediately. When @p deferFirstFire is
+     * true, the first firing is scheduled one interval after the first update time.
+     *
+     * @throws std::invalid_argument if @p interval is less than or equal to zero.
+     */
     explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
-        /**
-         * @brief Advances the trigger to @p time and invokes @p function once for each due firing.
-         *
-         * @param time Current caller-defined time in seconds.
-         * @param function Callable invoked for every due interval.
-         * @return Number of callback invocations due at this update.
-         */
+    /**
+     * @brief Advances the trigger to @p time and invokes @p function once for each due firing.
+     *
+     * @param time Current caller-defined time in seconds.
+     * @param function Callable invoked for every due interval.
+     * @return Number of callback invocations due at this update.
+     */
     template<typename Function>
     std::size_t update(double time, Function&& function) {
 
@@ -59,15 +59,15 @@ public:
         return count;
     }
 
-        /** @brief Clears timing history so the next update establishes a new schedule. */
+    /** @brief Clears timing history so the next update establishes a new schedule. */
     void reset() noexcept;
 
 private:
-        // [Private Member Functions]
+    // [Private Member Functions]
 
     std::size_t           dueCount(double time);
 
-        // [Private Member Variables]
+    // [Private Member Variables]
 
     double                _interval;
     bool                  _deferFirstFire;

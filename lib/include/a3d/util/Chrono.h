@@ -13,15 +13,15 @@
 
 namespace a3d::util::chrono {
 
-    // [Public Functions]
+// [Public Functions]
 
-    /** @brief Converts @p duration to fractional seconds. */
+/** @brief Converts @p duration to fractional seconds. */
 template<class Rep, class Period>
 constexpr double Seconds(std::chrono::duration<Rep, Period> duration) noexcept {
     return std::chrono::duration<double>(duration).count();
 }
 
-    /** @brief Converts @p duration to fractional milliseconds. */
+/** @brief Converts @p duration to fractional milliseconds. */
 template<class Rep, class Period>
 constexpr double Milliseconds(std::chrono::duration<Rep, Period> duration) noexcept {
     return std::chrono::duration<double, std::milli>(duration).count();
