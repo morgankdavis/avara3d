@@ -305,7 +305,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup ambient lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color {0.075f});
+        auto ambientLight = make_shared<AmbientLight>(Color {0.1f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
