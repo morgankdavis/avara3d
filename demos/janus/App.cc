@@ -171,6 +171,7 @@ std::unique_ptr<Scene> App::init() {
 
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+
             node->physicsBody(std::move(body));
 
             _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
@@ -184,6 +185,7 @@ std::unique_ptr<Scene> App::init() {
 
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+
             node->physicsBody(std::move(body));
 
             _pickIgnores.push_back({.node = node, .purposes = PickPurpose::Hover});
@@ -214,6 +216,7 @@ std::unique_ptr<Scene> App::init() {
             body->mass(40.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+
             node->physicsBody(std::move(body));
         }
 
@@ -253,16 +256,20 @@ std::unique_ptr<Scene> App::init() {
 
         if (auto node = _dynamicsRoot->childNamed("teapot")) {
 
-            auto body = PhysicsBody::DynamicBody();
+            // auto body = PhysicsBody::DynamicBody();
+
+            auto physNode = _dynamicsRoot->childNamed("teapot.phys", true);
+            auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
+            auto body = PhysicsBody::DynamicBody(shape);
 
             body->friction(0.5f);
             body->restitution(0.2f);
-            body->rollingFriction(0.1f);
+            body->rollingFriction(0.05f);
             body->spinningFriction(0.05);
-            body->angularSleepingThreshold(0.1f);
+            // body->angularSleepingThreshold(0.05f);
 
             // auto extent = node->mesh()->localExtent();
-            // body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.1f, 0.0f, 0.0f});
+            // body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.05f, 0.0f, 0.0f});
 
             // const auto moi = body->momentOfInertia();
             // log::i()("Teapot MOI: {}, {}, {}", moi.x, moi.y, moi.z);
@@ -296,6 +303,9 @@ std::unique_ptr<Scene> App::init() {
             body->mass(30.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+
+            body->angularSleepingThreshold(0.25f);
+
             node->physicsBody(std::move(body));
         }
 
@@ -322,9 +332,9 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(node);
         }
 
-        // setup lighting
+        // setup ambient lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color {0.15f});
+        auto ambientLight = make_shared<AmbientLight>(Color {0.1f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
