@@ -10,8 +10,9 @@
 
 #include <stdexcept>
 
-using namespace a3d::util;
 using namespace std;
+
+namespace a3d::util {
 
 // [Public Member Functions]
 
@@ -50,3 +51,5 @@ double Timer::durationSeconds() const {
 std::int64_t Timer::durationMilliseconds() const {
     return std::chrono::duration_cast<std::chrono::milliseconds>(_duration).count();
 }
+
+} // namespace a3d::util

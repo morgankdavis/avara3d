@@ -16,11 +16,13 @@
 #include "a3d/util/Filesystem.h"
 #include "a3d/util/String.h"
 
-void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
+namespace a3d::util::snapshot {
 
-    auto execDir = a3d::util::fs::ExecutableDirectory();
+void SaveSnapshot(RenderContext& context) {
+
+    auto execDir = fs::ExecutableDirectory();
     if (execDir) {
-        auto filename = std::format("Snapshot_{}.png", a3d::util::string::Timestamp());
+        auto filename = std::format("Snapshot_{}.png", string::Timestamp());
         log::i()("Saving snapshot to '{}'", (*execDir / std::filesystem::path(filename)).string());
         auto image = context.snapshot();
         auto fullPath = *execDir / filename;
@@ -30,3 +32,5 @@ void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
         log::e()("Failed to save snapshot.  Couldn't locate executable directory.");
     }
 }
+
+} // namespace a3d::util::snapshot

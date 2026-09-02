@@ -12,11 +12,12 @@
 
 #include "a3d/mesh/AABB.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-mat4 a3d::util::geom::fit_inside(const AABB& source, const vec3& targetSize) {
+namespace a3d::util::geom {
+
+mat4 fit_inside(const AABB& source, const vec3& targetSize) {
 
     if (!source.valid()) {
         throw invalid_argument("Source bounds must be valid.");
@@ -43,3 +44,5 @@ mat4 a3d::util::geom::fit_inside(const AABB& source, const vec3& targetSize) {
 
     return math::scale(mat4(1.0f), scaleFactor) * math::translate(mat4(1.0f), -center);
 }
+
+} // namespace a3d::util::geom

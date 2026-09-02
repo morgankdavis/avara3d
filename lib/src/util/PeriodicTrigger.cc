@@ -11,8 +11,9 @@
 #include <cmath>
 #include <stdexcept>
 
-using namespace a3d::util;
 using namespace std;
+
+namespace a3d::util {
 
 // [Public Lifecycle Functions]
 
@@ -58,3 +59,5 @@ size_t PeriodicTrigger::dueCount(double time) {
 
     return count;
 }
+
+} // namespace a3d::util
