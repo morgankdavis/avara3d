@@ -15,7 +15,7 @@ using namespace a3d::math;
 using namespace sandbox::matlights;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
@@ -130,9 +130,9 @@ bool MatLights::shouldContinue(const Scene& scene) {
 }
 
 void MatLights::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+                               Scene&                          scene,
+                               InputContext&                   inputContext,
+                               const InputContext::UpdateInfo& info) {
 
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -271,7 +271,7 @@ void MatLights::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const V
     }
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
 

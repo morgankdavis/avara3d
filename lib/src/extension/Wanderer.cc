@@ -17,7 +17,7 @@ using namespace a3d::math;
 using namespace a3d::ext;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static void ValidateConfig(const Wanderer::Config& config);
 static vec3 EvaluateSpline(const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, float t);
@@ -159,7 +159,7 @@ vec3 Wanderer::randomOffset(float scale) {
     return {randomComponent(extent.x), randomComponent(extent.y), randomComponent(extent.z)};
 }
 
-// [Private Static Non-Member Implementations]
+// [Private Non-Member Functions]
 
 static void ValidateConfig(const Wanderer::Config& config) {
 

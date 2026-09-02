@@ -40,7 +40,7 @@ using namespace std;
 static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 #endif
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static bool InitGLFW();
 #ifdef A3D_WEB
@@ -657,7 +657,7 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
     return WindowFromGLFWwindow(glfwWindow)->_inputContext;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 bool InitGLFW() {
 

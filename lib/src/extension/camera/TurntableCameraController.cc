@@ -19,7 +19,7 @@ using namespace a3d::ext;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static void ValidateConfig(const TurntableCameraController::Config& config);
 static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
@@ -427,7 +427,7 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
     }
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 void ValidateConfig(const TurntableCameraController::Config& config) {
 

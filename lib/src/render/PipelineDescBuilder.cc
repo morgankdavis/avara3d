@@ -14,7 +14,7 @@
 using namespace a3d;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
 
@@ -101,7 +101,7 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     return desc;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc {};

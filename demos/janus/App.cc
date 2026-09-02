@@ -32,7 +32,7 @@ const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
 const u8vec3 COIN_GRID_SIZE {3, 3, 3};
 const u8vec3 BALL_GRID_SIZE {3, 3, 3};
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static void                      ConfigureVisualWorld(VisualWorld& world);
 static vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
@@ -684,7 +684,7 @@ void App::reset() {
     ++_simulationGeneration;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 void ConfigureVisualWorld(VisualWorld& world) {
 

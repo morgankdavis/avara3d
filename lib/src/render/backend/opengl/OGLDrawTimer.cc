@@ -20,7 +20,7 @@
 using namespace a3d;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static unsigned MinBufferSize(unsigned bufferedFrames);
 
@@ -218,7 +218,7 @@ void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
     }
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 unsigned MinBufferSize(unsigned bufferedFrames) {
 #if defined(A3D_GL_WEB)

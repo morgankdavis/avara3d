@@ -26,7 +26,7 @@ using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
 
@@ -177,7 +177,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
     return out;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
 

@@ -55,7 +55,7 @@ struct AABBIntersection {
     vec3  normal {};
 };
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 // tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
 // earliest intersection as a normalized segment parameter t in [0, 1] and the local-space entry-face normal,
@@ -712,7 +712,7 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     return cameraNode;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
 

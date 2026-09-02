@@ -23,7 +23,7 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
@@ -184,7 +184,7 @@ void GLFWInputContext::initMouseInput() {
 #endif
 }
 
-// [Private Static Functions]
+// [Private Non-Member Functions]
 
 GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
 

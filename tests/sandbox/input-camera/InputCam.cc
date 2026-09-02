@@ -75,9 +75,9 @@ bool InputCam::shouldContinue(const Scene& scene) {
 }
 
 void InputCam::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+                              Scene&                          scene,
+                              InputContext&                   inputContext,
+                              const InputContext::UpdateInfo& info) {
 
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 

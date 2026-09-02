@@ -36,7 +36,7 @@ static constexpr float SLIDER_GRAB_WIDTH {8.0f};
 static constexpr int PANEL_STYLE_VAR_COUNT {7};
 static constexpr int PANEL_STYLE_COLOR_COUNT {6};
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static float SnapPixel(float value);
 static void  DrawShadowedText(const ImVec2&      position,
@@ -898,7 +898,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
     return pressed;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 float SnapPixel(float value) {
 

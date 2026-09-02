@@ -72,7 +72,7 @@ static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
 static constexpr float PHYSICS_DEBUG_FRAME_MARGIN = 0.1f;
 static constexpr float PHYSICS_DEBUG_FRAME_TIP_MARGIN = 0.1f;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
 static string                       BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes);
@@ -124,9 +124,9 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     };
 
     // TODO: add an API for this
-    gCalculateCombinedFrictionCallback =
-        [](const btCollisionObject* body0, const btCollisionObject* body1) -> btScalar {
-            return btSqrt(body0->getFriction() * body1->getFriction());
+    gCalculateCombinedFrictionCallback = [](const btCollisionObject* body0,
+                                            const btCollisionObject* body1) -> btScalar {
+        return btSqrt(body0->getFriction() * body1->getFriction());
     };
 
 //	_btScheduler = btGetOpenMPTaskScheduler();
@@ -1005,7 +1005,7 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
     };
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
 

@@ -49,7 +49,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
 static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
@@ -782,7 +782,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
     return nullptr;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
 

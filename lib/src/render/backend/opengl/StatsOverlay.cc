@@ -61,7 +61,7 @@ struct ImguiStatsTextLayout {
     float gap; // min gap between label and value
 };
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static void DrawOverlay(const RenderContext&     context,
                         const Scene&             scene,
@@ -212,7 +212,7 @@ void StatsOverlay::draw(const RenderContext&     context,
                 *_bodyImFont);
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 void DrawOverlay(const RenderContext&     context,
                  const Scene&             scene,

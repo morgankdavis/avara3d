@@ -29,7 +29,7 @@
 using namespace a3d;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 #ifdef A3D_WEB
 static void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
@@ -354,7 +354,7 @@ void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const Physic
     contactDidEnd(*_runner, *_scene, physicsWorld, contact);
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 #ifdef A3D_WEB
 

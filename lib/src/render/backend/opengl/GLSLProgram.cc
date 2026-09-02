@@ -22,7 +22,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static optional<string> ShaderSourceAt(const string& name, ShaderType type);
 static optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
@@ -442,7 +442,7 @@ void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 optional<string> ShaderSourceAt(const string& name, ShaderType type) {
 

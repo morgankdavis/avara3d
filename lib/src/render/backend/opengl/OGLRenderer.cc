@@ -241,7 +241,7 @@ struct FBORestore {
     }
 };
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static void LogGLInfo();
 
@@ -1154,7 +1154,7 @@ void OGLRenderer::syncImguiMemoryStats() {
         OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 void LogGLInfo() {
     const GLubyte* vendor = glGetString(GL_VENDOR);

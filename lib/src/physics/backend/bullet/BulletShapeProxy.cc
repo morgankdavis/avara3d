@@ -45,7 +45,7 @@ using namespace std;
 
 const bool USE_HIGHRES_CONVEX_HULL {false};
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                                 mesh,
                                                           PhysicsShape::Type                    shapeType,
@@ -196,14 +196,14 @@ const vector<unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
     return _btShapes;
 }
 
-// [Static Non-Member Functions]
+// [Private Non-Member Functions]
 
-static unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                                 mesh,
-                                                          PhysicsShape::Type                    shapeType,
-                                                          PhysicsBody::Type                     bodyType,
-                                                          vector<unique_ptr<btCollisionShape>>& btShapes,
-                                                          vector<unique_ptr<btTriangleIndexVertexArray>>&
-                                                              btIndexVertexArrays) {
+unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                                 mesh,
+                                                   PhysicsShape::Type                    shapeType,
+                                                   PhysicsBody::Type                     bodyType,
+                                                   vector<unique_ptr<btCollisionShape>>& btShapes,
+                                                   vector<unique_ptr<btTriangleIndexVertexArray>>&
+                                                       btIndexVertexArrays) {
 
     unique_ptr<btCollisionShape> newShape = nullptr;
 
@@ -230,12 +230,12 @@ static unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                 
     return newShape;
 }
 
-static unique_ptr<btCollisionShape> BTShapeFromSourceNode(Node&                                 node,
-                                                          PhysicsShape::Type                    shapeType,
-                                                          PhysicsBody::Type                     bodyType,
-                                                          vector<unique_ptr<btCollisionShape>>& btShapes,
-                                                          vector<unique_ptr<btTriangleIndexVertexArray>>&
-                                                              btIndexVertexArrays) {
+unique_ptr<btCollisionShape> BTShapeFromSourceNode(Node&                                 node,
+                                                   PhysicsShape::Type                    shapeType,
+                                                   PhysicsBody::Type                     bodyType,
+                                                   vector<unique_ptr<btCollisionShape>>& btShapes,
+                                                   vector<unique_ptr<btTriangleIndexVertexArray>>&
+                                                       btIndexVertexArrays) {
 
     // *** won't work for most static, kinematic? ***
     // "adding the following shapes to a btCompoundShape is not supported: btTriangleShape,
@@ -261,7 +261,7 @@ static unique_ptr<btCollisionShape> BTShapeFromSourceNode(Node&                 
     return rootShape;
 }
 
-static unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shape) {
+unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 
     if (auto boxShape = dynamic_cast<BoxPhysicsShape*>(&shape)) {
         return make_unique<btBoxShape>(btVector3((btScalar) boxShape->width() / 2.0f,

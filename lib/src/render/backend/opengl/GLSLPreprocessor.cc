@@ -26,7 +26,7 @@ using namespace std;
 static constexpr string_view HeaderDirective = "#header";
 static constexpr string_view IncludeDirective = "#include";
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static size_t           SkipUtf8Bom(const string& source);
 static string           PlatformShaderHeader();

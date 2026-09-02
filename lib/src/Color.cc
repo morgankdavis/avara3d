@@ -97,7 +97,7 @@ Color Color::Random() {
     return Color(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
 }
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
 static bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
@@ -231,7 +231,7 @@ u8vec4 Color::u8rgba() const {
     return u8vec4 {u8r(), u8g(), u8b(), u8a()};
 }
 
-// [Private Static Non-Members]
+// [Private Non-Member Functions]
 
 bool ParseHexRgb(const char* s, u8vec3& rgb) {
     s = SkipWs(s);

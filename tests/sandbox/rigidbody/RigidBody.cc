@@ -43,7 +43,7 @@ const float TIMESTEP {1.0 / 120.0};
 const chrono::milliseconds DUCK_FRUIT_SPAWN_INTERVAL {100};
 const chrono::milliseconds SLURM_SHOT_INTERVAL {50};
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<RigidBody::DuckFruitDef>& duckFruit);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
@@ -307,9 +307,9 @@ bool RigidBody::shouldContinue(const Scene&) {
 }
 
 void RigidBody::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+                               Scene&                          scene,
+                               InputContext&                   inputContext,
+                               const InputContext::UpdateInfo& info) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -641,7 +641,7 @@ void RigidBody::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInf
     }
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 // small complex physics shapes fall through the floor easily even with aggressive CCD
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<RigidBody::DuckFruitDef>& duckFruit) {

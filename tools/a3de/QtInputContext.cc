@@ -22,7 +22,7 @@ using QtInput = qt::QtInputContext;
 using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
@@ -121,7 +121,7 @@ qt::QtViewport* QtInput::viewport() const {
     return _viewport;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
 

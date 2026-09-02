@@ -63,7 +63,7 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const shared_ptr<PhysicsShape
     return make_unique<PhysicsBody>(Type::Kinematic, shape);
 }
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
 
@@ -697,9 +697,9 @@ void PhysicsBody::checkAddToWorld() {
     }
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
-static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
+shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
 
     if (!mesh || mesh->elements().size() != 1) {
         return nullptr;

@@ -57,7 +57,7 @@ Log& log::MainLog() {
     return main;
 }
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static string TimestampString();
 static string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo);
@@ -328,7 +328,7 @@ bool Log::enabled(log::Level level) const {
            >= static_cast<std::underlying_type_t<log::Level>>(_level);
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 static string TimestampString() {
     constexpr size_t BUF_SIZE = 256;

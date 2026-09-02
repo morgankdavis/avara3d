@@ -31,7 +31,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
 static void SetMassPropsPreservingType(btRigidBody&      body,
@@ -727,7 +727,7 @@ void BulletBodyProxy::syncRollingFrictionAnisotropy() {
     _btBody->setAnisotropicFriction(direction, btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
     flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);

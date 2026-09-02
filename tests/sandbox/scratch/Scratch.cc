@@ -142,9 +142,9 @@ bool Scratch::shouldContinue(const Scene& scene) {
 }
 
 void Scratch::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+                             Scene&                          scene,
+                             InputContext&                   inputContext,
+                             const InputContext::UpdateInfo& info) {
 
     Window* window = nullptr;
     if (scene.visualWorld()) {

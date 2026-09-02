@@ -30,7 +30,7 @@
 using namespace a3d;
 using namespace std;
 
-// [Private Static Non-Member Prototypes]
+// [Private Non-Member Prototypes]
 
 static OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
 static GLenum      GLFilterModeForFilterMode(Sampler::FilterMode mode);
@@ -339,7 +339,7 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
     return it->second;
 }
 
-// [Private Static Non-Member Functions]
+// [Private Non-Member Functions]
 
 OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 

@@ -319,9 +319,9 @@ bool TransientsTracker::shouldRemove(const Entry& entry, const Node& node, doubl
 }
 
 bool TransientsTracker::policyRemoves(const Policy& policy,
-                               const Entry&  entry,
-                               const Node&   node,
-                               double        simulationTime) const {
+                                      const Entry&  entry,
+                                      const Node&   node,
+                                      double        simulationTime) const {
 
     if (policy.maxAge) {
         const double age = simulationTime >= entry.creationTime ? simulationTime - entry.creationTime : 0.0;
