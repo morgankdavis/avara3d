@@ -17,6 +17,7 @@
 using namespace a3d::math;
 
 namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
@@ -62,4 +63,5 @@ mat4 BulletMotionState::modelWorldTransform(const btTransform& centerOfMassWorld
 PhysicsBody* BulletMotionState::body() const {
     return _body;
 }
+
 } // namespace a3d

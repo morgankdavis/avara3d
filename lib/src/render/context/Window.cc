@@ -35,6 +35,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Constants]
 
 #if defined(A3D_WEB)
@@ -55,6 +56,7 @@ namespace {
     void GLFWErrorCallback(int error, const char* description);
     bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
     bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+
 } // namespace
 
 // [Public Static Member Functions]
@@ -184,6 +186,7 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     else {
         throw std::runtime_error("Couldn't initialize GLFW.");
     }
+
 }
 
 Window::~Window() {
@@ -660,6 +663,7 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     bool InitGLFW() {
@@ -888,5 +892,6 @@ namespace {
         // false: monitor is unmodified
         return success;
     }
+
 } // namespace
 } // namespace a3d

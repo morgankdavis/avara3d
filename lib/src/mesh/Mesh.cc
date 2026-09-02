@@ -23,6 +23,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Public Static Member Functions]
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
@@ -234,4 +235,5 @@ Mesh::Mesh():
     _elements {},
     _materials {},
     _dirtyMask {DirtyMask::All} {}
+
 } // namespace a3d

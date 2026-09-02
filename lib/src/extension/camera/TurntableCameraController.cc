@@ -19,10 +19,12 @@ using namespace std;
 
 namespace a3d::ext {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     void ValidateConfig(const TurntableCameraController::Config& config);
     bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
+
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -429,6 +431,7 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     void ValidateConfig(const TurntableCameraController::Config& config) {
@@ -487,5 +490,6 @@ namespace {
 
         return true;
     }
+
 } // namespace
 } // namespace a3d::ext

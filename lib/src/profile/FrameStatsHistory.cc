@@ -11,6 +11,7 @@
 using namespace std;
 
 namespace a3d {
+
 // [Public Static Member Functions]
 
 void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
@@ -80,4 +81,5 @@ void FrameStatsHistory::add(FrameStats stats) {
 const deque<tuple<FrameStatsHistory::SteadyTimePoint, FrameStats>>& FrameStatsHistory::samples() const {
     return _samples;
 }
+
 } // namespace a3d

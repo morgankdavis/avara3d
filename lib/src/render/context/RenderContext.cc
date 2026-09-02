@@ -22,6 +22,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Public Member Functions]
 
 //bool RenderContext::vSyncEnabled() const {
@@ -85,4 +86,5 @@ void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
 Renderer* RenderContext::renderer() const {
     return _renderer.get();
 }
+
 } // namespace a3d

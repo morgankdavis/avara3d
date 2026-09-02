@@ -15,6 +15,7 @@
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
+
 /** @brief Uniform light that contributes independent of position, direction, or distance. */
 class AmbientLight : public Light {
 
@@ -39,6 +40,7 @@ public:
     AmbientLight(AmbientLight&&) noexcept            = default;
     AmbientLight& operator=(AmbientLight&&) noexcept = default;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H

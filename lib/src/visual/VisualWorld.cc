@@ -44,6 +44,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Types]
 
     struct HitTestCandidate {
@@ -83,6 +84,7 @@ namespace {
                                                  bool                    boundingBoxOnly);
 
     bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
+
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -715,6 +717,7 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
@@ -965,5 +968,6 @@ namespace {
 
         return holds_alternative<monostate>(a);
     }
+
 } // namespace
 } // namespace a3d

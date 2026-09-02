@@ -65,6 +65,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Constants]
 
     constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
@@ -272,6 +273,7 @@ namespace {
     GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
     GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
+
 } // namespace
 
 // [Private Static Members]
@@ -1157,6 +1159,7 @@ void OGLRenderer::syncImguiMemoryStats() {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     void LogGLInfo() {
@@ -1598,5 +1601,6 @@ namespace {
                 return GL_MIRRORED_REPEAT;
         }
     }
+
 } // namespace
 } // namespace a3d

@@ -17,6 +17,7 @@
 
 namespace a3d::math {
 namespace {
+
     // [Private Utility Prototypes]
 
     std::mt19937& default_random_gen();
@@ -29,6 +30,7 @@ namespace {
     f32quat       operator-(const f32quat& q);
     f32quat       operator+(const f32quat& a, const f32quat& b);
     f32quat&      operator+=(f32quat& a, const f32quat& b);
+
 } // namespace
 
 // [Types]
@@ -3931,6 +3933,7 @@ void swap(f32& a, f32& b) {
 }
 
 namespace {
+
     // [Private Utilities]
 
     std::mt19937& default_random_gen() {
@@ -4070,5 +4073,6 @@ namespace {
         a.z += b.z;
         return a;
     }
+
 } // namespace
 } // namespace a3d::math

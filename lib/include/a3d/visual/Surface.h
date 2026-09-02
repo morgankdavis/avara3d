@@ -14,6 +14,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 // [Public Types]
 
 /** @brief Infinite planar reference surface used by ground and atmospheric effects. */
@@ -35,6 +36,7 @@ struct SphereSurface {
 
 /** @brief Planar or spherical reference surface used by VisualWorld environment effects. */
 using Surface = std::variant<PlaneSurface, SphereSurface>;
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_SURFACE_H

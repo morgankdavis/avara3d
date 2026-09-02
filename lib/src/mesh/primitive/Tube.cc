@@ -21,6 +21,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Tube::Mesh(float                      innerRadius,
@@ -109,4 +110,5 @@ unsigned Tube::segments() const {
 unsigned Tube::rings() const {
     return _rings;
 }
+
 } // namespace a3d

@@ -24,6 +24,7 @@
 // TODO: summary
 
 namespace a3d::util::flow::detail {
+
 inline std::size_t hash_combine(std::size_t seed, std::size_t v) {
     return seed ^ (v + 0x9e3779b97f4a7c15ull + (seed << 6) + (seed >> 2));
 }
@@ -68,9 +69,11 @@ bool every_tick(typename Clock::time_point& last, typename Clock::duration inter
 inline long long clamp_step(long long n) {
     return (n < 1) ? 1 : n;
 }
+
 } // namespace a3d::util::flow::detail
 
 namespace a3d::util::flow {
+
     // [Public Functions]
 
     /**
@@ -354,6 +357,7 @@ decltype(auto) after_else(long long            invocations,
         return fire ? std::invoke(std::forward<ThenFn>(then_fn)) : std::invoke(std::forward<ElseFn>(else_fn));
     }
 }
+
 } // namespace a3d::util::flow
 
 #endif // AVARA3D_UTIL_FLOW_H

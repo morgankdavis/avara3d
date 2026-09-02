@@ -14,6 +14,7 @@ using namespace std;
 using namespace a3d::math;
 
 namespace a3d {
+
 // [Public Lifecycle Functions]
 
 PerspectiveCamera::PerspectiveCamera():
@@ -77,4 +78,5 @@ mat4 PerspectiveCamera::projection(const uvec2& viewportSize) const {
     const float aspect = float(viewportSize.x) / float(viewportSize.y);
     return perspective(_yFov, aspect, _zNear, _zFar);
 }
+
 } // namespace a3d

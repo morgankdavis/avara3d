@@ -21,6 +21,7 @@
 using namespace std;
 
 namespace a3d {
+
 const VertexAttribDesc* VertexAccess::FindAttrib(const VertexLayoutDesc& desc, VertexSemantic semantic) {
     for (const auto& a : desc.attribs) {
         if (a.semantic == semantic) {
@@ -97,4 +98,5 @@ std::optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& e
 optional<VertexStreamView> VertexAccess::GetPositionStreamView(const MeshElement& element) {
     return GetStreamView(element, VertexSemantic::Position, VertexAttribFormat::F32x3);
 }
+
 } // namespace a3d

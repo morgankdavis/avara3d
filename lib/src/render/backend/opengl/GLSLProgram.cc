@@ -23,10 +23,12 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     optional<string> ShaderSourceAt(const string& name, ShaderType type);
     optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
+
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -445,6 +447,7 @@ void GLSLProgram::isLinked(bool isLinked) {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     optional<string> ShaderSourceAt(const string& name, ShaderType type) {
@@ -467,5 +470,6 @@ namespace {
 
         return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
     }
+
 } // namespace
 } // namespace a3d

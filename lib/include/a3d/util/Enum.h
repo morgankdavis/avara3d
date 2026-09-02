@@ -18,6 +18,7 @@
 
 namespace a3d::util::enums {
 namespace detail {
+
         // matches magic_enum's default reflection range.
     static constexpr int ENUM_RANGE_MIN = -128;
     static constexpr int ENUM_RANGE_MAX = 127;
@@ -129,6 +130,7 @@ namespace detail {
 
         static constexpr auto        names = make_names<E, min>(std::make_index_sequence<count> {});
     };
+
 } // namespace detail
 
     // [Public Functions]
@@ -186,6 +188,7 @@ constexpr std::underlying_type_t<E> to_underlying(E value) noexcept {
     static_assert(std::is_enum_v<E>, "a3d::util::enums::to_underlying() requires an enum type");
     return static_cast<std::underlying_type_t<E>>(value);
 }
+
 } // namespace a3d::util::enums
 
 #endif // AVARA3D_UTIL_ENUM_H

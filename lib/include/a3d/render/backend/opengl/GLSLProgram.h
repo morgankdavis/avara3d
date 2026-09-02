@@ -21,6 +21,7 @@
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
+
 class GLSLProgram {
 
 public:
@@ -92,6 +93,7 @@ private:
     std::string                _vertexShaderSource;
     std::string                _fragmentShaderSource;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLSLPROGRAM_H

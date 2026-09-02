@@ -15,12 +15,15 @@
 #include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
+
 class Node;
 class Scene;
 class Window;
+
 } // namespace a3d
 
 namespace sandbox::scratch {
+
 class Scratch : public a3d::Application {
 
 public:
@@ -50,6 +53,7 @@ private:
     a3d::ext::FlyCameraController _cameraController;
     std::weak_ptr<a3d::Node>      _bananaNode;
 };
+
 } // namespace sandbox::scratch
 
 #endif // AVARA3D_TEST_SANDBOX_SCRATCH_H

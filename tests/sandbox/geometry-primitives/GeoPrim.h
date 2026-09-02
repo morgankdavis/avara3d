@@ -15,13 +15,16 @@
 #include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
+
 class Node;
 class PhysicsShape;
 class Scene;
 class Window;
+
 } // namespace a3d
 
 namespace sandbox::geoprim {
+
 class GeoPrim : public a3d::Application {
 
 public:
@@ -51,6 +54,7 @@ private:
     a3d::ext::FlyCameraController _cameraController;
     std::weak_ptr<a3d::Node>      _pointLightPivotNode;
 };
+
 } // namespace sandbox::geoprim
 
 #endif // AVARA3D_TEST_SANDBOX_GEOPRIM_H

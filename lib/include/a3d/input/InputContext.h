@@ -13,6 +13,7 @@
 #include <functional>
 
 namespace a3d {
+
 class RenderContext;
 class Scene;
 
@@ -78,6 +79,7 @@ private:
 
     DidUpdateCallback _didUpdateCallback;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_INPUT_INPUTCONTEXT_H

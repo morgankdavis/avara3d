@@ -18,12 +18,15 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
+
 class CubeImage;
 class Font;
 class Image;
+
 } // namespace a3d
 
 namespace a3d::util::fs {
+
     // [Process]
 
     /** @brief Returns the path to the current executable, or std::nullopt if unavailable. */
@@ -112,6 +115,7 @@ std::unique_ptr<Font>                FontAt(const std::filesystem::path& resourc
      * resolved directly.
      */
 std::optional<std::filesystem::path> AuxiliaryFileAt(const std::filesystem::path& resourcePath);
+
 } // namespace a3d::util::fs
 
 #endif // AVARA3D_UTIL_FILESYSTEM_H

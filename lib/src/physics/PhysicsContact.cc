@@ -14,6 +14,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Public Member Functions]
 
 weak_ptr<Node> PhysicsContact::nodeA() const {
@@ -60,4 +61,5 @@ PhysicsContact::PhysicsContact(weak_ptr<Node> nodeA,
     _collisionImpulse {collisionImpulse},
     _penetrationDistance {penetrationDistance},
     _sweepTestFraction {sweepTestFraction} {}
+
 } // namespace a3d

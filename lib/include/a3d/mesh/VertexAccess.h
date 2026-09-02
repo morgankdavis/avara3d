@@ -19,6 +19,7 @@
 #include "a3d/mesh/VertexLayoutDesc.h"
 
 namespace a3d {
+
 class MeshElement;
 
 struct VertexStreamView {
@@ -48,6 +49,7 @@ struct VertexAccess {
 
     static std::optional<VertexStreamView> GetPositionStreamView(const MeshElement& element);
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXACCESS_H

@@ -17,10 +17,12 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Constants]
 
     constexpr float CONTACT_POINT_RADIUS = 0.04f;
     constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
+
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -247,4 +249,5 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
 int BulletDebugDrawer::getDebugMode() const {
     return _debugMode;
 }
+
 } // namespace a3d

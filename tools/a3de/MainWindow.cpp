@@ -25,6 +25,7 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const bool                        CAPTURE_CURSOR {false};
 
 namespace a3de {
+
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
@@ -149,4 +150,5 @@ void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         _bananaNode->orientation(rotY * _bananaNode->orientation());
     }
 }
+
 } // namespace a3de

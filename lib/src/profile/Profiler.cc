@@ -13,6 +13,7 @@
 using namespace std;
 
 namespace a3d {
+
 // [Public Member Functions]
 
 void Profiler::add(Tag tag, chrono::nanoseconds ns) noexcept {
@@ -74,4 +75,5 @@ void Profiler::reset() {
     _taggedSamples.clear();
     _keyedSamples.clear();
 }
+
 } // namespace a3d

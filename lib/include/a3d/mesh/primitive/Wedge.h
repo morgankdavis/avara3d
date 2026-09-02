@@ -14,6 +14,7 @@
 #include "a3d/mesh/MeshElement.h"
 
 namespace a3d {
+
 class Mesh;
 class Material;
 
@@ -88,6 +89,7 @@ private:
     unsigned             _widthSegments;
     unsigned             _riseSegments;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_WEDGE_H

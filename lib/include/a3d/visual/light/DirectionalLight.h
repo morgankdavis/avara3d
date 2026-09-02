@@ -15,6 +15,7 @@
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
+
 class Node;
 
 /**
@@ -58,6 +59,7 @@ private:
 
     float _intensity;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H

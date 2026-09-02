@@ -18,6 +18,7 @@
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
+
 class Material;
 class MeshElement;
 class OGLMemoryTracker;
@@ -85,6 +86,7 @@ private:
     std::unordered_map<Material*, OGLMaterial>                     _materialMap;
     std::unordered_map<Texture*, OGLTexture>                       _textureMap;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H

@@ -13,6 +13,7 @@
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
 namespace a3d {
+
 // [Public Lifecycle Functions]
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
@@ -48,4 +49,5 @@ void CapsulePhysicsShape::type(PhysicsShape::Type type) {
 bool CapsulePhysicsShape::supportsMargin() const {
     return false;
 }
+
 } // namespace a3d

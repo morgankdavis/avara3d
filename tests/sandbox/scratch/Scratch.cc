@@ -27,6 +27,7 @@ const double                      TIMESTEP {1.0 / 120.0};
 const bool                        DARK {false};
 
 namespace sandbox::scratch {
+
 // [Public Lifecycle Functions]
 
 Scratch::Scratch(int argc, char* argv[]):
@@ -323,4 +324,5 @@ void Scratch::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo&
         bananaNode->orientation(rotationY * bananaNode->orientation());
     }
 }
+
 } // namespace sandbox::scratch

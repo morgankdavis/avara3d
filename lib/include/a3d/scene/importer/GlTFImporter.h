@@ -19,6 +19,7 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
+
 class Camera;
 class Color;
 class Image;
@@ -78,6 +79,7 @@ private:
     std::map<std::size_t, std::shared_ptr<Texture>>  _textures;
     std::map<std::size_t, std::shared_ptr<Sampler>>  _samplers;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H

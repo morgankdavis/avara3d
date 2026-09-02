@@ -27,6 +27,7 @@ const float                       TIMESTEP {1.0 / 120.0};
 const bool                        DARK {false};
 
 namespace sandbox::geoprim {
+
 // [Public Lifecycle Functions]
 
 GeoPrim::GeoPrim(int argc, char* argv[]):
@@ -267,4 +268,5 @@ void GeoPrim::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo&
         pivot->eulerAngles({0.0f, angles.y - rotation, 0.0f});
     }
 }
+
 } // namespace sandbox::geoprim

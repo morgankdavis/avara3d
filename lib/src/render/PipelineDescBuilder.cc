@@ -15,9 +15,11 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
+
 } // namespace
 
 // [Internal Static Member Functions]
@@ -104,6 +106,7 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
@@ -132,5 +135,6 @@ namespace {
 
         return desc;
     }
+
 } // namespace
 } // namespace a3d

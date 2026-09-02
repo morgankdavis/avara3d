@@ -13,6 +13,7 @@
 #include <cstddef> // std::ptrdiff_t
 
 namespace a3d::gl {
+
 using enum_t     = std::uint32_t;   // GLenum
 using uint_t     = std::uint32_t;   // GLuint
 using int_t      = std::int32_t;    // GLint
@@ -31,6 +32,7 @@ using int64_t  = std::int64_t;    // GLint64
 using uint64_t = std::uint64_t;   // GLuint64
 
 namespace value {
+
     constexpr enum_t false_ = 0u;
     constexpr enum_t true_  = 1u;
 
@@ -41,6 +43,7 @@ namespace value {
 
     constexpr enum_t invalid_index = 0xFFFFFFFFu; // GL_INVALID_INDEX
     constexpr uint_t null_handle   = 0u;          // “0” object name
+
 } // namespace value
 
 enum class index_type : enum_t {
@@ -89,6 +92,7 @@ using vao         = handle<vao_tag>;
 using program     = handle<program_tag>;
 using shader      = handle<shader_tag>;
 using framebuffer = handle<framebuffer_tag>;
+
 } // namespace a3d::gl
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H

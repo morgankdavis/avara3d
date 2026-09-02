@@ -15,6 +15,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 /**
  * @brief Represents a normalized RGBA color.
  *
@@ -172,6 +173,7 @@ private:
 
     math::vec4 _rgba;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_COLOR_H

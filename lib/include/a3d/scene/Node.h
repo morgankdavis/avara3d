@@ -20,6 +20,7 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
+
 class Camera;
 class Light;
 class Mesh;
@@ -395,11 +396,13 @@ private:
 };
 
 namespace util::bitmask {
+
     template<>
     struct enable_ops<Node::DebugOptions> : std::true_type {};
 
     template<>
     struct enable_ops<Node::DirtyMask> : std::true_type {};
+
 } // namespace util::bitmask
 } // namespace a3d
 

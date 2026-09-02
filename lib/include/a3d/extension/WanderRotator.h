@@ -12,10 +12,13 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class Node;
+
 } // namespace a3d
 
 namespace a3d::ext {
+
 /**
  * @brief Applies smoothly varying random rotation to a Node.
  *
@@ -51,6 +54,7 @@ private:
     math::vec3 _angularVelocity {0.0f, 0.0f, 0.0f};
     math::vec3 _targetAngularVelocity {0.0f, 0.0f, 0.0f};
 };
+
 } // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_WANDERROTATOR_H

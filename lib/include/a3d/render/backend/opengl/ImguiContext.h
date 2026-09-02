@@ -16,6 +16,7 @@ struct ImFont;
 struct ImGuiContext;
 
 namespace a3d {
+
 class Font;
 class RenderContext;
 
@@ -63,6 +64,7 @@ private:
     bool                               _frameActive;
     bool                               _started;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_IMGUICONTEXT_H

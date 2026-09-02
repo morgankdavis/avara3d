@@ -15,6 +15,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class Line {
 
 // [Internal Lifecycle Functions]
@@ -53,6 +54,7 @@ private:
     Color      _fromColor;
     Color      _toColor;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_LINE_H

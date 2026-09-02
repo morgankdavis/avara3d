@@ -20,6 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Plane::Mesh(float                      width,
@@ -83,4 +84,5 @@ unsigned Plane::widthSegements() const {
 unsigned Plane::heightSegments() const {
     return _heightSegments;
 }
+
 } // namespace a3d

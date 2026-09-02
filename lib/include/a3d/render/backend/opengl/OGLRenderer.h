@@ -19,6 +19,7 @@
 #include "a3d/render/backend/opengl/StatsOverlay.h"
 
 namespace a3d {
+
 struct LinesPass;
 
 class Color;
@@ -155,6 +156,7 @@ private:
     StatsOverlay                 _statsOverlay;
     OGLDrawTimer                 _drawTimer;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H

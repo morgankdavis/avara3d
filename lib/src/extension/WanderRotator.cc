@@ -13,6 +13,7 @@
 using namespace a3d::math;
 
 namespace a3d::ext {
+
 // [Public Member Functions]
 
 void WanderRotator::update(Node& node, float deltaTime) {
@@ -50,4 +51,5 @@ void WanderRotator::chooseNewTarget() {
     _nextChange = uniform_linear(minInterval, maxInterval);
     _timer = 0.0f;
 }
+
 } // namespace a3d::ext

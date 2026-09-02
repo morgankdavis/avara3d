@@ -15,6 +15,7 @@
 #include "a3d/input/InputContext.h"
 
 namespace a3d {
+
 /**
  * @brief Exposes keyboard, pointer-button, pointer-motion, and scroll state.
  *
@@ -259,6 +260,7 @@ protected:
     math::vec2                      _mouseScrollWheelDelta;
     math::vec2                      _pendingMouseScrollWheelDelta;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_INPUT_DESKTOPINPUTCONTEXT_H

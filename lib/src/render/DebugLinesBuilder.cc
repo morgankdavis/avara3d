@@ -17,9 +17,11 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color);
+
 } // namespace
 
 // [Internal Static Member Functions]
@@ -73,6 +75,7 @@ void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, co
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color) {
@@ -100,5 +103,6 @@ namespace {
         add(2, 6);
         add(3, 7);
     }
+
 } // namespace
 } // namespace a3d

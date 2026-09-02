@@ -15,6 +15,7 @@
 #include <string>
 
 namespace a3d::math {
+
 struct f32vec2;
 struct f32vec3;
 struct f32vec4;
@@ -1044,6 +1045,7 @@ void swap(T2 (&a)[N], T2 (&b)[N]) {
         std::swap(a[i], b[i]);
     }
 }
+
 } // namespace a3d::math
 
 #endif // AVARA3D_MATH_H

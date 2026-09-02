@@ -27,6 +27,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Constants]
 
     const Color     MESH_OBB_COLOR {0.5f, 0.5f, 0.5f, 1.0f};
@@ -35,6 +36,7 @@ namespace {
     const Color     HIGHLIGHT_BOX_COLOR {1.0f, 1.0f, 0.0f, 1.0f};
     const vec4      HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
     constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
+
 } // namespace
 
 // [Internal Static Member Functions]
@@ -202,4 +204,5 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     return output;
 }
+
 } // namespace a3d

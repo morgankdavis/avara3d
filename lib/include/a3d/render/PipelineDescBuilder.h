@@ -13,6 +13,7 @@
 #include "a3d/render/PipelineDesc.h"
 
 namespace a3d {
+
 class Material;
 
 class PipelineDescBuilder {
@@ -28,6 +29,7 @@ public:
     static PipelineDesc MakeWireframeDesc(VertexLayout layout);
     static PipelineDesc MakeLinesDesc();
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_PIPELINEDESCBUILDER_H

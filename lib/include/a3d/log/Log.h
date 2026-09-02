@@ -20,6 +20,7 @@
 #include <vector>
 
 namespace a3d::log {
+
 class Log;
 class LogSink;
 
@@ -280,6 +281,7 @@ inline Log::Entry f(std::source_location where = std::source_location::current()
 /** @} */
 
 namespace app {
+
     // [Public Functions]
 
     /**
@@ -327,6 +329,7 @@ namespace app {
     }
 
     /** @} */
+
 } // namespace app
 } // namespace a3d::log
 

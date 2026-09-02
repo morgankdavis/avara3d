@@ -21,10 +21,13 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
+
 class Node;
+
 } // namespace a3d
 
 namespace a3d::ext {
+
 /**
  * @brief Tracks transient scene nodes and removes them according to configurable policies.
  *
@@ -294,6 +297,7 @@ private:
     std::optional<double>                   _simulationTime;
     std::optional<double>                   _nextSweepTime;
 };
+
 } // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_TRANSIENTTRACKER_H

@@ -13,6 +13,7 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
+
 struct FrameStats;
 struct GatherOutput;
 
@@ -30,6 +31,7 @@ public:
                                const Scene::DebugOptions& debugOptions,
                                FrameStats&                stats);
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_RENDERGATHERER_H

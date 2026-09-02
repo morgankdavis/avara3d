@@ -22,6 +22,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 MeshElement::MeshElement(VertexLayout               layout,
                          std::span<const std::byte> vbytes,
                          uint32_t                   vcount,
@@ -369,4 +370,5 @@ MeshElement::MeshElement():
     _indexCount {0},
     _localAABB {AABB::Invalid()},
     _dirtyMask {DirtyMask::All} {}
+
 } // namespace a3d

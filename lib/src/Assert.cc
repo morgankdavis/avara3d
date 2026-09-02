@@ -16,6 +16,7 @@
 
 namespace a3d::detail {
 namespace {
+
     const char* basename(const char* path) {
         if (!path) {
             return "unknown";
@@ -45,6 +46,7 @@ namespace {
         std::abort();
 #endif
     }
+
 } // namespace
 
 [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func) {
@@ -73,4 +75,5 @@ namespace {
 
     trap_or_abort();
 }
+
 } // namespace a3d::detail

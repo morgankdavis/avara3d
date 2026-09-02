@@ -14,6 +14,7 @@
 #include <vector>
 
 namespace a3d {
+
 /**
  * @brief Container for a contiguous byte buffer.
  *
@@ -72,6 +73,7 @@ private:
     std::unique_ptr<std::byte[]> _data;
     std::size_t                  _size;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_BUFFER_H

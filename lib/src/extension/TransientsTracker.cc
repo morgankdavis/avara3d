@@ -19,6 +19,7 @@
 using namespace std;
 
 namespace a3d::ext {
+
 // [Public Static Member Functions]
 
 TransientsTracker::SweepPolicy TransientsTracker::SweepPolicy::EveryUpdate() {
@@ -413,4 +414,5 @@ void TransientsTracker::resetRuntimeState() {
     _simulationTime.reset();
     _nextSweepTime.reset();
 }
+
 } // namespace a3d::ext

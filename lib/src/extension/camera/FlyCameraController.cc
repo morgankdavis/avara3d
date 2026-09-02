@@ -15,6 +15,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d::ext {
+
 // [Public Lifecycle Functions]
 
 FlyCameraController::FlyCameraController():
@@ -94,4 +95,5 @@ bool FlyCameraController::update(Node& pov, DesktopInputContext& input, double d
 
     return changed;
 }
+
 } // namespace a3d::ext

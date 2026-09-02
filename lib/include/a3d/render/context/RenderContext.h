@@ -14,6 +14,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class Camera;
 class Image;
 class Material;
@@ -104,6 +105,7 @@ protected:
     VisualWorld*              _visualWorld;
     std::unique_ptr<Renderer> _renderer;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_CONTEXT_RENDERCONTEXT_H

@@ -15,6 +15,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 Point::Point(const vec3& location):
@@ -41,4 +42,5 @@ const Color& Point::color() const {
 void Point::color(const Color& color) {
     _color = color;
 }
+
 } // namespace a3d

@@ -18,6 +18,7 @@
 using namespace std;
 
 namespace a3d {
+
 // [Internal Lifescycle]
 
 Renderer::Renderer() {}
@@ -25,4 +26,5 @@ Renderer::Renderer() {}
 Renderer::~Renderer() {
     log::d()("Destroying Renderer {:p}", static_cast<void*>(this));
 }
+
 } // namespace a3d

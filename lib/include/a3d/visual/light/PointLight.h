@@ -16,6 +16,7 @@
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
+
 /**
  * @brief Omnidirectional light located at its containing Node's world position.
  *
@@ -65,6 +66,7 @@ private:
     float       _intensity;
     Attenuation _attenuation;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_POINTLIGHT_H

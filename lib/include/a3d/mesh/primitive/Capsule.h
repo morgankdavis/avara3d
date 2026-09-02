@@ -14,6 +14,7 @@
 #include "a3d/mesh/MeshElement.h"
 
 namespace a3d {
+
 class Mesh;
 class Material;
 
@@ -79,6 +80,7 @@ private:
     unsigned                  _segments;
     unsigned                  _rings;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_CAPSULE_H

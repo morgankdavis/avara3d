@@ -14,12 +14,15 @@
 #include "a3d/Application.h"
 
 namespace a3d {
+
 class Node;
 class Scene;
 class Window;
+
 } // namespace a3d
 
 namespace sandbox::import {
+
 class Import : public a3d::Application {
 
 public:
@@ -44,6 +47,7 @@ private:
 
     std::unique_ptr<a3d::Window> _window;
 };
+
 } // namespace sandbox::import
 
 #endif // AVARA3D_TEST_SANDBOX_IMPORT_H

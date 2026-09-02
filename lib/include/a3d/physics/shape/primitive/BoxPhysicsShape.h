@@ -12,6 +12,7 @@
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
+
 /** @brief Box collision shape centered at the local origin, with width along X, height along Y, and length along Z. */
 class BoxPhysicsShape : public PhysicsShape {
 
@@ -51,6 +52,7 @@ private:
     float _height;
     float _length;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H

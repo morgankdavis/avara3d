@@ -12,6 +12,7 @@
 #include "a3d/physics/PhysicsBody.h"
 
 namespace a3d {
+
 class PhysicsBody;
 class PhysicsShapeProxy;
 
@@ -139,6 +140,7 @@ protected:
     PhysicsBody::CenterOfMassCalculation _centerOfMassCalculation;
     bool                                 _autocalculatesMomentOfInertia;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H

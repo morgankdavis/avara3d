@@ -22,6 +22,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Non-Member Constants]
 
     constexpr string_view HeaderDirective = "#header";
@@ -38,6 +39,7 @@ namespace {
                                     const GLSLPreprocessor::IncludeResolver& includeResolver,
                                     vector<string>&                          includeStack);
     string           IncludeCycleMessage(const vector<string>& includeStack, const string& includeName);
+
 } // namespace
 
 // [Internal Static Functions]
@@ -71,6 +73,7 @@ string GLSLPreprocessor::Process(const string&          source,
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
@@ -243,5 +246,6 @@ namespace {
 
         return output;
     }
+
 } // namespace
 } // namespace a3d

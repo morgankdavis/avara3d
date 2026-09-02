@@ -14,6 +14,7 @@
 #include "a3d/log/Log.h"
 
 namespace a3d::log {
+
 /** @brief Interface for destinations that receive formatted Log output. */
 class LogSink {
 
@@ -30,6 +31,7 @@ public:
     /** @brief Flushes buffered sink output; the base implementation does nothing. */
     virtual void flush();
 };
+
 } // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_LOGSINK_H

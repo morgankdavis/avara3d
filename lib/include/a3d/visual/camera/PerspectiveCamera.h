@@ -13,6 +13,7 @@
 #include "a3d/visual/camera/Camera.h"
 
 namespace a3d {
+
 /** @brief Camera using a perspective projection with a vertical field of view. */
 class PerspectiveCamera : public Camera {
 
@@ -67,6 +68,7 @@ private:
     float _zFar;
     float _yFov;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H

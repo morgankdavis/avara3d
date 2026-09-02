@@ -18,6 +18,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Public Static Member Functions]
 
 shared_ptr<Material> Material::DefaultMaterial() {
@@ -332,4 +333,5 @@ Material::DirtyMask Material::dirtyMask() const {
 void Material::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
 } // namespace a3d

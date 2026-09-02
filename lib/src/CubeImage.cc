@@ -17,6 +17,7 @@
 using namespace std;
 
 namespace a3d {
+
 // [Public Lifecycle Functions]
 
 CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
@@ -71,4 +72,5 @@ unsigned CubeImage::bytesPerPixel() const {
 Image* CubeImage::face(Face face) const {
     return _faces[(size_t) face].get();
 }
+
 } // namespace a3d

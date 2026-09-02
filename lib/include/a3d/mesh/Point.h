@@ -15,6 +15,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class Color;
 
 class Point {
@@ -38,6 +39,7 @@ private:
     math::vec3 _location;
     Color      _color;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_POINT_H

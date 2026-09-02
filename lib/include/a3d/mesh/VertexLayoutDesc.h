@@ -15,6 +15,7 @@
 #include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
+
 enum class VertexAttribFormat : uint8_t {
     F32x2,
     F32x3,
@@ -44,6 +45,7 @@ struct VertexLayoutDesc {
 };
 
 const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout);
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXLAYOUTDESC_H

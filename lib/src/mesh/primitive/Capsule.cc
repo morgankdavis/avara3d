@@ -20,6 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Capsule::Mesh(float                      radius,
@@ -97,4 +98,5 @@ unsigned Capsule::segments() const {
 unsigned Capsule::rings() const {
     return _rings;
 }
+
 } // namespace a3d

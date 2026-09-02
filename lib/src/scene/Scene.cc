@@ -31,6 +31,7 @@ using namespace std;
 using namespace std::filesystem;
 
 namespace a3d {
+
 // [Public Static Member Functions]
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
@@ -312,4 +313,5 @@ void Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
         });
     }
 }
+
 } // namespace a3d

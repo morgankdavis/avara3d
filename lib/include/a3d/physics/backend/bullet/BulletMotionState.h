@@ -14,6 +14,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class PhysicsBody;
 
 class BulletMotionState : public btMotionState {
@@ -41,6 +42,7 @@ private:
 //		btTransform 		_visualWorldTransform;
     PhysicsBody* _body;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H

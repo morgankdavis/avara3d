@@ -41,6 +41,7 @@
 #include "a3d/visual/VisualWorld.h"
 
 namespace a3d::testing {
+
 class ApplicationTestAccess {
 
 public:
@@ -115,9 +116,11 @@ public:
         return runner._simulationTimeAccumulator;
     }
 };
+
 } // namespace a3d::testing
 
 namespace {
+
 using TimePoint = a3d::testing::RunnerTestAccess::TimePoint;
 
 static_assert(!std::is_same_v<a3d::InputContext::UpdateInfo, a3d::Runner::UpdateInfo>);
@@ -2819,6 +2822,7 @@ void PrintAvailableTests() {
         std::cerr << "  " << name << '\n';
     }
 }
+
 } // namespace
 
 int main(int argc, char* argv[]) {

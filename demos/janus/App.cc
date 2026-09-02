@@ -21,6 +21,7 @@ using namespace std;
 
 namespace demo::janus {
 namespace {
+
     // [Private Constants]
 
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
@@ -49,6 +50,7 @@ namespace {
     pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
                                                        const vec3& targetPosition,
                                                        const vec3& gravity);
+
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -687,6 +689,7 @@ void App::reset() {
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     void ConfigureVisualWorld(VisualWorld& world) {
@@ -1012,5 +1015,6 @@ namespace {
 
         return {spawnPosition, velocity};
     }
+
 } // namespace
 } // namespace demo::janus

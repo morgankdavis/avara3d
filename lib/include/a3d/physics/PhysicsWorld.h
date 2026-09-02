@@ -18,6 +18,7 @@
 #include "a3d/scene/HitTestResult.h"
 
 namespace a3d {
+
 class HitTestResult;
 class Line;
 class PhysicsBody;
@@ -216,6 +217,7 @@ private:
     DidContinueContactCallback         _didContinueContactCallback;
     DidEndContactCallback              _didEndContactCallback;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PHYSICSWORLD_H

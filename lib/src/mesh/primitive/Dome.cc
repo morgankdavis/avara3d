@@ -20,6 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Dome::Mesh(float                      radius,
@@ -125,4 +126,5 @@ unsigned Dome::slices() const {
 unsigned Dome::segments() const {
     return _segments;
 }
+
 } // namespace a3d

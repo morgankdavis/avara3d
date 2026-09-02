@@ -12,6 +12,7 @@
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
+
 /**
  * @brief Capsule collision shape centered at the local origin and aligned along Y.
  *
@@ -56,6 +57,7 @@ private:
     float _radius;
     float _height;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CAPSULEPHYSICSSHAPE_H

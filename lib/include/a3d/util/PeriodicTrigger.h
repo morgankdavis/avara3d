@@ -15,6 +15,7 @@
 #include <optional>
 
 namespace a3d::util {
+
     /**
      * @brief Invokes a callback at fixed intervals along a caller-supplied time line.
      *
@@ -73,6 +74,7 @@ private:
     std::optional<double> _nextFireTime;
     std::optional<double> _lastTime;
 };
+
 } // namespace a3d::util
 
 #endif // AVARA3D_UTIL_PERIODICTRIGGER_H

@@ -12,6 +12,7 @@
 #include <type_traits>
 
 namespace a3d::util::bitmask {
+
     // [Internal Types]
 
     // unsigned underlying type used for bitwise ops.
@@ -89,9 +90,11 @@ constexpr bool enable_ops_v = enable_ops<E>::value;
 
 template<typename E>
 concept MaskEnum = std::is_enum_v<E> && enable_ops_v<E>;
+
 } // namespace a3d::util::bitmask
 
 namespace a3d {
+
     // [Public Non-Member Functions]
 
     /** @brief Returns the bitwise OR of two enabled mask-enum values. */
@@ -135,6 +138,7 @@ template<util::bitmask::MaskEnum E>
 constexpr E& operator^=(E& a, E b) noexcept {
     return a = (a ^ b);
 }
+
 } // namespace a3d
 
 #endif // AVARA3D_UTIL_BITMASK_H

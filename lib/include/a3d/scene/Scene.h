@@ -21,6 +21,7 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
+
 struct AABB;
 
 class Color;
@@ -249,11 +250,13 @@ private:
 };
 
 namespace util::bitmask {
+
     template<>
     struct enable_ops<Scene::ImportOptions> : std::true_type {};
 
     template<>
     struct enable_ops<Scene::DebugOptions> : std::true_type {};
+
 } // namespace util::bitmask
 } // namespace a3d
 

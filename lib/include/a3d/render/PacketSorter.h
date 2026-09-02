@@ -12,6 +12,7 @@
 #include <cstdint>
 
 namespace a3d {
+
 struct DrawItem;
 struct DrawPacket;
 
@@ -23,6 +24,7 @@ public:
     static uint64_t MakeBatchKey(const DrawItem& item);
     static void     SortPacket(DrawPacket& packet);
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_PACKETSORTER_H

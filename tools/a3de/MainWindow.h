@@ -19,22 +19,29 @@
 QT_BEGIN_NAMESPACE
 
 namespace Ui {
+
 class MainWindow;
+
 } // namespace Ui
 
 QT_END_NAMESPACE
 
 namespace a3d {
+
 class Mesh;
 class Node;
 class Scene;
+
 } // namespace a3d
 
 namespace a3d::qt {
+
 class QtViewport;
+
 } // namespace a3d::qt
 
 namespace a3de {
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -58,6 +65,7 @@ private:
     std::shared_ptr<a3d::Node>   _pointLightNode;
     std::shared_ptr<a3d::Node>   _bananaNode;
 };
+
 } // namespace a3de
 
 #endif // A3DE_MAINWINDOW_H

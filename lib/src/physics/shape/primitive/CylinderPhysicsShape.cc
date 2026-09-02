@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 namespace a3d {
+
 // [Public Lifecycle Functions]
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
@@ -36,4 +37,5 @@ PhysicsShape::Type CylinderPhysicsShape::type() const {
 void CylinderPhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for CylinderPhysicsShape.");
 }
+
 } // namespace a3d

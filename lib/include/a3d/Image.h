@@ -13,6 +13,7 @@
 #include <memory>
 
 namespace a3d {
+
 class Buffer;
 
 /**
@@ -114,6 +115,7 @@ private:
     unsigned                _bytesPerPixel;
     std::unique_ptr<Buffer> _buffer;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_IMAGE_H

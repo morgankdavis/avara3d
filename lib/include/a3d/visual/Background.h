@@ -13,6 +13,7 @@
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
+
 /** @brief Configures a solid-color or cubemap background for a VisualWorld. */
 struct Background {
 
@@ -27,6 +28,7 @@ struct Background {
         contents {}; ///< Background contents; VisualWorld accepts a Color or a Texture containing a CubeImage.
     math::quat orientation {1.0f}; ///< Orientation applied when sampling a cubemap background.
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_BACKGROUND_H

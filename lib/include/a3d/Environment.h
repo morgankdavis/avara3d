@@ -14,6 +14,7 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
+
 // [Public Types]
 
 /** @brief Identifies individual A3D target platforms and platform groups. */
@@ -32,6 +33,7 @@ enum class Platform : std::uint8_t {
 };
 
 namespace env {
+
     // [Public Constants]
 
     /** @brief Platform selected for the current build. */
@@ -58,13 +60,16 @@ namespace env {
 
         return util::bitmask::any(platform, platforms);
     }
+
 } // namespace env
 
 namespace util::bitmask {
+
     // [Internal Types]
 
     template<>
     struct enable_ops<Platform> : std::true_type {};
+
 } // namespace util::bitmask
 } // namespace a3d
 

@@ -20,6 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Sphere::Mesh(float radius, unsigned segments, const shared_ptr<Material> material) {
@@ -68,4 +69,5 @@ float Sphere::radius() const {
 unsigned Sphere::segments() const {
     return _segments;
 }
+
 } // namespace a3d

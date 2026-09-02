@@ -20,6 +20,7 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
+
 class Line;
 class PhysicsWorld;
 class PhysicsBody;
@@ -83,6 +84,7 @@ public:
 
     virtual void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H

@@ -17,6 +17,7 @@
 #include "a3d/visual/Ground.h"
 
 namespace a3d {
+
 class Material;
 class MeshElement;
 class Node;
@@ -70,6 +71,7 @@ struct DrawPacket {
     LinesPass             linesPass          = {};
     std::vector<Node*>    lightNodes         = {};
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_DRAWPACKET_H

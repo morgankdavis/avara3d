@@ -13,6 +13,7 @@
 #include <cstdint>
 
 namespace a3d {
+
 template<typename IdT>
 struct IdGenerator {
 
@@ -21,6 +22,7 @@ struct IdGenerator {
         return static_cast<IdT>(counter.fetch_add(1, std::memory_order_relaxed));
     }
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_IDGENERATOR_H

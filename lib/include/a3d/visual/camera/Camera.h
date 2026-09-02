@@ -16,6 +16,7 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 /**
  * @brief Base class for camera projection models used by VisualWorld.
  *
@@ -60,6 +61,7 @@ protected:
 
     std::optional<std::string> _name;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_CAMERA_CAMERA_H

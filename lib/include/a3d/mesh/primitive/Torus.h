@@ -14,6 +14,7 @@
 #include "a3d/mesh/MeshElement.h"
 
 namespace a3d {
+
 class Mesh;
 class Material;
 
@@ -69,6 +70,7 @@ private:
     unsigned                  _slices;
     unsigned                  _segments;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_TORUS_H

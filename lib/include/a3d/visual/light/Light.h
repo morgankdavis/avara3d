@@ -16,6 +16,7 @@
 #include <string>
 
 namespace a3d {
+
 class AmbientLight;
 class DirectionalLight;
 class PointLight;
@@ -94,6 +95,7 @@ protected:
     std::optional<std::string> _name;
     Color                      _color;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_LIGHT_H

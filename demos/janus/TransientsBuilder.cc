@@ -17,12 +17,14 @@ using namespace std;
 
 namespace demo::janus {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
                                          const vec3&   cellSize,
                                          const u8vec3& gridSize,
                                          float         gap);
+
 } // namespace
 
 // [Public Member Functions]
@@ -322,7 +324,8 @@ shared_ptr<Node> TransientsBuilder::duck(const vec3& location, const vec3& veloc
 }
 
 namespace {
-// [Private Non-Member Functions]
+
+    // [Private Non-Member Functions]
 
     pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
                                          const vec3&   cellSize,
@@ -340,5 +343,6 @@ namespace {
                  location.z - totalZ * 0.5f + cellSize.z * 0.5f},
                 step};
     }
+
 } // namespace
 } // namespace demo::janus

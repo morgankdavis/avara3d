@@ -17,10 +17,13 @@
 #include "a3d/Math.h"
 
 namespace a3d {
+
 class Node;
+
 } // namespace a3d
 
 namespace demo::janus {
+
 class TransientsBuilder {
 
 public:
@@ -42,10 +45,11 @@ public:
     std::shared_ptr<a3d::Node> duck(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
 
 private:
-    // [Private Static Member Variables]
+    // [Private Member Variables]
 
     TransientsCache _cache;
 };
+
 } // namespace demo::janus
 
 #endif // AVARA3D_DEMO_JANUS_TRANSIENTSBUILDER_H

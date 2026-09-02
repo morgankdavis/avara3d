@@ -19,6 +19,7 @@
 using namespace std;
 
 namespace a3d {
+
 // [Public Static Member Functions]
 
 const BuildInfo& BuildInfo::Info() {
@@ -100,4 +101,5 @@ BuildInfo::BuildInfo() {
     _time.tm_min = m;
     _time.tm_sec = s;
 }
+
 } // namespace a3d

@@ -14,6 +14,7 @@
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
+
 class OGLMemoryTracker {
 
 public:
@@ -83,6 +84,7 @@ private:
     std::unordered_map<AllocationKey, Entry, AllocationKeyHash> _allocations;
     std::uint64_t                                               _peakTotalBytes {0};
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLMEMORYTRACKER_H

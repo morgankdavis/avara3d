@@ -12,6 +12,7 @@
 #include "a3d/Color.h"
 
 namespace a3d {
+
 /** @brief Configures distance-based fog for a VisualWorld. */
 struct Fog {
 
@@ -24,6 +25,7 @@ struct Fog {
     /** @brief Fog transition exponent; must be non-negative. 0 uses color alpha, 1 is linear, and values above/below 1 shift the transition later/earlier. */
     float transitionExponent {1.0f};
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_FOG_H

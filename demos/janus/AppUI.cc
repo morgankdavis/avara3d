@@ -15,6 +15,7 @@ using namespace a3d;
 using namespace a3d::math;
 
 namespace demo::janus {
+
 // [App Private Member Functions]
 
 bool App::drawPanel() {
@@ -401,4 +402,5 @@ bool App::drawPanel() {
 
     return panel.hovered();
 }
+
 } // namespace demo::janus

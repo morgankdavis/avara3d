@@ -17,6 +17,7 @@
 struct GLFWwindow;
 
 namespace a3d {
+
 class Camera;
 class Color;
 class DesktopInputContext;
@@ -197,6 +198,7 @@ private:
     bool                                           _highDPIEnabled;
     DesktopInputContext*                           _inputContext;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_CONTEXT_WINDOW_H

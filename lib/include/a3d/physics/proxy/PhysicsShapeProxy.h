@@ -10,6 +10,7 @@
 #define AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H
 
 namespace a3d {
+
 class PhysicsShape;
 
 class PhysicsShapeProxy {
@@ -32,6 +33,7 @@ public:
     virtual float margin() const       = 0;
     virtual void  margin(float margin) = 0;
 };
+
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H

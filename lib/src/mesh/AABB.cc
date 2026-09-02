@@ -9,6 +9,7 @@
 #include "a3d/mesh/AABB.h"
 
 namespace a3d {
+
 AABB AABB::Zero() {
     return {{0, 0, 0}, {0, 0, 0}};
 }
@@ -64,4 +65,5 @@ AABB operator|(AABB a, const math::vec3& p) {
     a |= p;
     return a;
 }
+
 } // namespace a3d

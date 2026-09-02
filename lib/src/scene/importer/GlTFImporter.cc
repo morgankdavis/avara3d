@@ -50,6 +50,7 @@ using namespace std;
 
 namespace a3d {
 namespace {
+
     // [Private Non-Member Prototypes]
 
     fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
@@ -64,6 +65,7 @@ namespace {
     void                   ReadIndicesU32(const fastgltf::Asset&    asset,
                                           const fastgltf::Accessor& idxAccessor,
                                           vector<uint32_t>&         out);
+
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -785,6 +787,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 }
 
 namespace {
+
     // [Private Non-Member Functions]
 
     fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
@@ -983,5 +986,6 @@ namespace {
                 break;
         }
     }
+
 } // namespace
 } // namespace a3d

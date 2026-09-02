@@ -20,6 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
+
 // [Pubic Static Members]
 
 shared_ptr<Mesh> RoundedBox::Mesh(float                      radius,
@@ -125,4 +126,5 @@ unsigned RoundedBox::widthSegments() const {
 unsigned RoundedBox::heightSegments() const {
     return _heightSegments;
 }
+
 } // namespace a3d

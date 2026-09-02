@@ -13,6 +13,7 @@
 #include <optional>
 
 namespace a3d::util {
+
     /** @brief Manually controlled steady-clock timer that stores its most recently measured duration. */
 class Timer {
 
@@ -49,6 +50,7 @@ private:
     std::optional<std::chrono::steady_clock::time_point> _start;
     std::chrono::nanoseconds                             _duration;
 };
+
 } // namespace a3d::util
 
 #endif // AVARA3D_UTIL_TIMER_H
