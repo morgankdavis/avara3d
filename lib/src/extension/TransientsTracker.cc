@@ -1,12 +1,12 @@
 //
-//  TransientTracker.cc
+//  TransientsTracker.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 8/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/extension/TransientTracker.h"
+#include "a3d/extension/TransientsTracker.h"
 
 #include <algorithm>
 #include <cmath>
@@ -22,11 +22,11 @@ using namespace std;
 
 // [Public Static Member Functions]
 
-TransientTracker::SweepPolicy TransientTracker::SweepPolicy::EveryUpdate() {
+TransientsTracker::SweepPolicy TransientsTracker::SweepPolicy::EveryUpdate() {
     return {.mode = Mode::EveryUpdate, .updateInterval = 1, .timeInterval = 0.0};
 }
 
-TransientTracker::SweepPolicy TransientTracker::SweepPolicy::EveryNUpdates(uint64_t updates) {
+TransientsTracker::SweepPolicy TransientsTracker::SweepPolicy::EveryNUpdates(uint64_t updates) {
 
     if (updates == 0) {
         throw invalid_argument("TransientNodeRegistry sweep update interval must be at least one.");
@@ -35,7 +35,7 @@ TransientTracker::SweepPolicy TransientTracker::SweepPolicy::EveryNUpdates(uint6
     return {.mode = Mode::EveryNUpdates, .updateInterval = updates, .timeInterval = 0.0};
 }
 
-TransientTracker::SweepPolicy TransientTracker::SweepPolicy::EveryInterval(double seconds) {
+TransientsTracker::SweepPolicy TransientsTracker::SweepPolicy::EveryInterval(double seconds) {
 
     if (seconds <= 0.0) {
         throw invalid_argument("TransientNodeRegistry sweep time interval must be positive.");
@@ -46,7 +46,7 @@ TransientTracker::SweepPolicy TransientTracker::SweepPolicy::EveryInterval(doubl
 
 // [Public Lifecycle Functions]
 
-TransientTracker::TransientTracker(SweepPolicy sweepPolicy):
+TransientsTracker::TransientsTracker(SweepPolicy sweepPolicy):
     _entries {},
     _policy {},
     _groupPolicies {},
@@ -60,7 +60,7 @@ TransientTracker::TransientTracker(SweepPolicy sweepPolicy):
 
 // [Public Member Functions]
 
-void TransientTracker::track(const shared_ptr<Node>& node, const string& group) {
+void TransientsTracker::track(const shared_ptr<Node>& node, const string& group) {
 
     if (!node) {
         throw invalid_argument("TransientNodeRegistry cannot track a null Node.");
@@ -88,14 +88,14 @@ void TransientTracker::track(const shared_ptr<Node>& node, const string& group) 
     enforceCountLimits(group);
 }
 
-void TransientTracker::track(const vector<shared_ptr<Node>>& nodes, const string& group) {
+void TransientsTracker::track(const vector<shared_ptr<Node>>& nodes, const string& group) {
 
     for (const auto& node : nodes) {
         track(node, group);
     }
 }
 
-void TransientTracker::untrack(const Node& node) {
+void TransientsTracker::untrack(const Node& node) {
 
     erase_if(_entries, [&node](const Entry& entry) {
         if (auto trackedNode = entry.node.lock()) {
@@ -105,11 +105,11 @@ void TransientTracker::untrack(const Node& node) {
     });
 }
 
-const TransientTracker::Policy& TransientTracker::policy() const {
+const TransientsTracker::Policy& TransientsTracker::policy() const {
     return _policy;
 }
 
-void TransientTracker::policy(const Policy& policy) {
+void TransientsTracker::policy(const Policy& policy) {
 
     validatePolicy(policy);
     _policy = policy;
@@ -121,7 +121,7 @@ void TransientTracker::policy(const Policy& policy) {
     }
 }
 
-void TransientTracker::groupPolicy(const string& group, const Policy& policy) {
+void TransientsTracker::groupPolicy(const string& group, const Policy& policy) {
 
     validatePolicy(policy);
     _groupPolicies[group] = policy;
@@ -137,18 +137,18 @@ void TransientTracker::groupPolicy(const string& group, const Policy& policy) {
     }
 }
 
-const TransientTracker::SweepPolicy& TransientTracker::sweepPolicy() const {
+const TransientsTracker::SweepPolicy& TransientsTracker::sweepPolicy() const {
     return _sweepPolicy;
 }
 
-void TransientTracker::sweepPolicy(const SweepPolicy& policy) {
+void TransientsTracker::sweepPolicy(const SweepPolicy& policy) {
 
     validateSweepPolicy(policy);
     _sweepPolicy = policy;
     resetSweepSchedule();
 }
 
-void TransientTracker::update(const Scene::StepInfo& info) {
+void TransientsTracker::update(const Scene::StepInfo& info) {
 
     observeStepInfo(info);
     ++_updatesSinceSweep;
@@ -171,20 +171,20 @@ void TransientTracker::update(const Scene::StepInfo& info) {
     }
 }
 
-void TransientTracker::sweep(const Scene::StepInfo& info) {
+void TransientsTracker::sweep(const Scene::StepInfo& info) {
 
     observeStepInfo(info);
     performSweep(info.endTime);
     resetSweepSchedule();
 }
 
-void TransientTracker::clear() {
+void TransientsTracker::clear() {
 
     _entries.clear();
     resetRuntimeState();
 }
 
-void TransientTracker::removeAll() {
+void TransientsTracker::removeAll() {
 
     vector<shared_ptr<Node>> nodes;
     nodes.reserve(_entries.size());
@@ -202,7 +202,7 @@ void TransientTracker::removeAll() {
 
 // [Private Static Member Functions]
 
-void TransientTracker::validatePolicy(const Policy& policy) {
+void TransientsTracker::validatePolicy(const Policy& policy) {
 
     if (policy.maxAge && (*policy.maxAge < 0.0)) {
         throw invalid_argument("TransientNodeRegistry maximum age must be non-negative.");
@@ -215,7 +215,7 @@ void TransientTracker::validatePolicy(const Policy& policy) {
     }
 }
 
-void TransientTracker::validateSweepPolicy(const SweepPolicy& policy) {
+void TransientsTracker::validateSweepPolicy(const SweepPolicy& policy) {
 
     switch (policy.mode) {
 
@@ -239,7 +239,7 @@ void TransientTracker::validateSweepPolicy(const SweepPolicy& policy) {
     }
 }
 
-void TransientTracker::detachNodes(const vector<shared_ptr<Node>>& nodes) {
+void TransientsTracker::detachNodes(const vector<shared_ptr<Node>>& nodes) {
 
     for (const auto& node : nodes) {
         if (node && !node->parent().expired()) {
@@ -250,7 +250,7 @@ void TransientTracker::detachNodes(const vector<shared_ptr<Node>>& nodes) {
 
 // [Private Member Functions]
 
-void TransientTracker::observeStepInfo(const Scene::StepInfo& info) {
+void TransientsTracker::observeStepInfo(const Scene::StepInfo& info) {
 
     const bool newTimeline = !_simulationTime || info.endTime < *_simulationTime;
     if (newTimeline) {
@@ -269,7 +269,7 @@ void TransientTracker::observeStepInfo(const Scene::StepInfo& info) {
     }
 }
 
-bool TransientTracker::sweepDue(const Scene::StepInfo& info) const {
+bool TransientsTracker::sweepDue(const Scene::StepInfo& info) const {
 
     switch (_sweepPolicy.mode) {
 
@@ -286,7 +286,7 @@ bool TransientTracker::sweepDue(const Scene::StepInfo& info) const {
     return false;
 }
 
-void TransientTracker::performSweep(double simulationTime) {
+void TransientsTracker::performSweep(double simulationTime) {
 
     vector<shared_ptr<Node>> nodes;
 
@@ -307,7 +307,7 @@ void TransientTracker::performSweep(double simulationTime) {
     detachNodes(nodes);
 }
 
-bool TransientTracker::shouldRemove(const Entry& entry, const Node& node, double simulationTime) const {
+bool TransientsTracker::shouldRemove(const Entry& entry, const Node& node, double simulationTime) const {
 
     if (policyRemoves(_policy, entry, node, simulationTime)) {
         return true;
@@ -318,7 +318,7 @@ bool TransientTracker::shouldRemove(const Entry& entry, const Node& node, double
            && policyRemoves(groupPolicy->second, entry, node, simulationTime);
 }
 
-bool TransientTracker::policyRemoves(const Policy& policy,
+bool TransientsTracker::policyRemoves(const Policy& policy,
                                const Entry&  entry,
                                const Node&   node,
                                double        simulationTime) const {
@@ -345,7 +345,7 @@ bool TransientTracker::policyRemoves(const Policy& policy,
     return false;
 }
 
-void TransientTracker::pruneInactiveEntries() {
+void TransientsTracker::pruneInactiveEntries() {
 
     erase_if(_entries, [](const Entry& entry) {
         if (auto node = entry.node.lock()) {
@@ -355,7 +355,7 @@ void TransientTracker::pruneInactiveEntries() {
     });
 }
 
-void TransientTracker::enforceCountLimits(const string& group) {
+void TransientsTracker::enforceCountLimits(const string& group) {
 
     const auto groupPolicy = _groupPolicies.find(group);
     if (groupPolicy != _groupPolicies.end() && groupPolicy->second.maxCount) {
@@ -367,7 +367,7 @@ void TransientTracker::enforceCountLimits(const string& group) {
     }
 }
 
-void TransientTracker::enforceMaxCount(size_t maxCount, const string* group) {
+void TransientsTracker::enforceMaxCount(size_t maxCount, const string* group) {
 
     const auto matches = [group](const Entry& entry) {
         return !group || entry.group == *group;
@@ -398,7 +398,7 @@ void TransientTracker::enforceMaxCount(size_t maxCount, const string* group) {
     detachNodes(nodes);
 }
 
-void TransientTracker::resetSweepSchedule() {
+void TransientsTracker::resetSweepSchedule() {
 
     _updatesSinceSweep = 0;
     _nextSweepTime.reset();
@@ -408,7 +408,7 @@ void TransientTracker::resetSweepSchedule() {
     }
 }
 
-void TransientTracker::resetRuntimeState() {
+void TransientsTracker::resetRuntimeState() {
 
     _updatesSinceSweep = 0;
     _simulationTime.reset();

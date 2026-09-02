@@ -27,30 +27,27 @@ namespace demo::janus {
     class TransientsBuilder {
 
     public:
-        // [Public Static Member Functions]
+        // [Public Member Functions]
 
-        static std::vector<std::shared_ptr<a3d::Node>> BuildRocks(const std::vector<TransientsCache::Entry>&
-                                                                                           cacheEntries,
-                                                                  const a3d::math::vec3&   location,
-                                                                  const a3d::math::u8vec3& stackSize,
-                                                                  float                    gap);
-        static std::vector<std::shared_ptr<a3d::Node>> BuildCoins(const TransientsCache::Entry& cacheEntry,
-                                                                  const a3d::math::vec3&        location,
-                                                                  const a3d::math::u8vec3&      stackSize,
-                                                                  float                         gap);
-        static std::vector<std::shared_ptr<a3d::Node>> BuildBalls(const TransientsCache::Entry& cacheEntry,
-                                                                  const a3d::math::vec3&        location,
-                                                                  const a3d::math::u8vec3&      stackSize,
-                                                                  float                         gap);
-        static std::shared_ptr<a3d::Node>              BuildHammer(const TransientsCache::Entry& cacheEntry,
-                                                                   const a3d::math::vec3&        location,
-                                                                   const a3d::math::vec3&        velocity);
-        static std::shared_ptr<a3d::Node>              BuildHula(const TransientsCache::Entry& cacheEntry,
-                                                                 const a3d::math::vec3&        location,
-                                                                 const a3d::math::vec3&        velocity);
-        static std::shared_ptr<a3d::Node>              BuildDuck(const TransientsCache::Entry& cacheEntry,
-                                                                 const a3d::math::vec3&        location,
-                                                                 const a3d::math::vec3&        velocity);
+        void init(const a3d::Node& assetsRoot);
+
+        std::vector<std::shared_ptr<a3d::Node>> rocks(const a3d::math::vec3&   location,
+                                                      const a3d::math::u8vec3& stackSize,
+                                                      float                    gap);
+        std::vector<std::shared_ptr<a3d::Node>> coins(const a3d::math::vec3&   location,
+                                                      const a3d::math::u8vec3& stackSize,
+                                                      float                    gap);
+        std::vector<std::shared_ptr<a3d::Node>> balls(const a3d::math::vec3&   location,
+                                                      const a3d::math::u8vec3& stackSize,
+                                                      float                    gap);
+        std::shared_ptr<a3d::Node> hammer(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+        std::shared_ptr<a3d::Node> hula(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+        std::shared_ptr<a3d::Node> duck(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+
+    private:
+        // [Private Static Member Variables]
+
+        TransientsCache _cache;
     };
 
 }

@@ -58,7 +58,8 @@ App::App(int argc, char* argv[]):
     _dropAction {DropAction::Rocks},
     _throwAction {ThrowAction::Hammer},
     _pokiness {Pokiness::Soft},
-    _transientTracker {ext::TransientTracker::SweepPolicy::EveryInterval(1.0)},
+    _transientsBuilder {},
+    _transientsTracker {ext::TransientsTracker::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanderers {},
     _pickIgnores {},
@@ -284,7 +285,7 @@ std::unique_ptr<Scene> App::init() {
         saveDynamicsTransforms();
 
         auto transientAssetsNode = scene->rootNode()->childNamed("transient_assets");
-        _transientsCache.init(*transientAssetsNode);
+        _transientsBuilder.init(*transientAssetsNode);
         transientAssetsNode->removeFromParent();
 
         _transientsRoot = Node::NamedNode("transients");
@@ -310,24 +311,24 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transient node groups
 
-        _transientTracker.groupPolicy("rocks",
-                                      {.maxCount =
-                                           (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
-        _transientTracker.groupPolicy("coins",
-                                      {.maxCount =
-                                           (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
-        _transientTracker.groupPolicy("balls",
-                                      {.maxCount =
-                                           (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
-        _transientTracker.groupPolicy("hammers", {.maxCount = 10,
-                                                  .distanceLimit =
-                                                      ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
-        _transientTracker.groupPolicy("hulas", {.maxCount = 10,
-                                                .distanceLimit =
-                                                    ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
-        _transientTracker.groupPolicy("ducks", {.maxCount = 10,
-                                                .distanceLimit =
-                                                    ext::TransientTracker::DistanceLimit {.radius = 100.0f}});
+        _transientsTracker.groupPolicy("rocks",
+                                       {.maxCount =
+                                            (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
+        _transientsTracker.groupPolicy("coins",
+                                       {.maxCount =
+                                            (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
+        _transientsTracker.groupPolicy("balls",
+                                       {.maxCount =
+                                            (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
+        _transientsTracker.groupPolicy("hammers", {.maxCount = 10,
+                                                   .distanceLimit = ext::TransientsTracker::DistanceLimit {
+                                                       .radius = 100.0f}});
+        _transientsTracker.groupPolicy("hulas", {.maxCount = 10,
+                                                 .distanceLimit =
+                                                     ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+        _transientsTracker.groupPolicy("ducks", {.maxCount = 10,
+                                                 .distanceLimit =
+                                                     ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
 
         // create and configure the camera and camera controller
 
@@ -491,7 +492,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    _transientTracker.update(info);
+    _transientsTracker.update(info);
 
     for (auto& ignore : _pickIgnores) {
         if (ignore.remainingTime) {
@@ -741,24 +742,21 @@ void App::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rockNodes = TransientsBuilder::BuildRocks(_transientsCache.rocks(), spawnLocation,
-                                                                   ROCK_GRID_SIZE, ROCK_GAP);
+                    auto rockNodes = _transientsBuilder.rocks(spawnLocation, ROCK_GRID_SIZE, ROCK_GAP);
                     _transientsRoot->addChildren(rockNodes);
-                    _transientTracker.track(rockNodes, "rocks");
+                    _transientsTracker.track(rockNodes, "rocks");
                     break;
                 }
                 case DropAction::Coins: {
-                    auto coinNodes = TransientsBuilder::BuildCoins(_transientsCache.coin(), spawnLocation,
-                                                                   COIN_GRID_SIZE, COIN_GAP);
+                    auto coinNodes = _transientsBuilder.coins(spawnLocation, COIN_GRID_SIZE, COIN_GAP);
                     _transientsRoot->addChildren(coinNodes);
-                    _transientTracker.track(coinNodes, "coins");
+                    _transientsTracker.track(coinNodes, "coins");
                     break;
                 }
                 case DropAction::Balls: {
-                    auto ballNodes = TransientsBuilder::BuildBalls(_transientsCache.ball(), spawnLocation,
-                                                                   BALL_GRID_SIZE, BALL_GAP);
+                    auto ballNodes = _transientsBuilder.balls(spawnLocation, BALL_GRID_SIZE, BALL_GAP);
                     _transientsRoot->addChildren(ballNodes);
-                    _transientTracker.track(ballNodes, "balls");
+                    _transientsTracker.track(ballNodes, "balls");
                     break;
                 }
             }
@@ -774,30 +772,27 @@ void App::performAction(const PendingAction& action) {
 
             switch (_throwAction) {
                 case ThrowAction::Hammer: {
-                    auto hammerNode =
-                        TransientsBuilder::BuildHammer(_transientsCache.hammer(), spawnPosition, velocity);
+                    auto hammerNode = _transientsBuilder.hammer(spawnPosition, velocity);
                     _transientsRoot->addChild(hammerNode);
                     _pickIgnores.push_back({.node = hammerNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transientTracker.track(hammerNode, "hammers");
+                    _transientsTracker.track(hammerNode, "hammers");
                     break;
                 }
                 case ThrowAction::Hula: {
-                    auto hulaNode =
-                        TransientsBuilder::BuildHula(_transientsCache.hula(), spawnPosition, velocity);
+                    auto hulaNode = _transientsBuilder.hula(spawnPosition, velocity);
                     _pickIgnores.push_back({.node = hulaNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
                     _transientsRoot->addChild(hulaNode);
-                    _transientTracker.track(hulaNode, "hulas");
+                    _transientsTracker.track(hulaNode, "hulas");
                     break;
                 }
                 case ThrowAction::Duck: {
-                    auto duckNode =
-                        TransientsBuilder::BuildDuck(_transientsCache.duck(), spawnPosition, velocity);
+                    auto duckNode = _transientsBuilder.duck(spawnPosition, velocity);
                     _transientsRoot->addChild(duckNode);
                     _pickIgnores.push_back({.node = duckNode,
                                             .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-                    _transientTracker.track(duckNode, "ducks");
+                    _transientsTracker.track(duckNode, "ducks");
                     break;
                 }
             }
@@ -887,7 +882,7 @@ void App::reset() {
 
     select({});
 
-    _transientTracker.clear();
+    _transientsTracker.clear();
 
     _transientsRoot->removeFromParent();
     _transientsRoot = Node::NamedNode("transients");

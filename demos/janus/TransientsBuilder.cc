@@ -23,15 +23,18 @@ static pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
                                             const u8vec3& gridSize,
                                             float         gap);
 
-// [Public Static Member Functions]
+// [Public Member Functions]
 
-vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCache::Entry>& cacheEntries,
-                                                       const vec3&                           location,
-                                                       const u8vec3&                         stackSize,
-                                                       float                                 gap) {
+void TransientsBuilder::init(const Node& assetsRoot) {
+    _cache.init(assetsRoot);
+}
+
+vector<shared_ptr<Node>> TransientsBuilder::rocks(const vec3& location, const u8vec3& stackSize, float gap) {
+
+    auto rocks = _cache.rocks();
 
     float maxDim = 0.0f;
-    for (const auto& entry : cacheEntries) {
+    for (const auto& entry : rocks) {
         maxDim = std::max(maxDim, math::max(entry.mesh->localExtent()));
     }
 
@@ -53,7 +56,7 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
         for (unsigned z = 0; z < sizeZ; ++z) {
             for (unsigned x = 0; x < sizeX; ++x) {
 
-                const auto& rockEntry = cacheEntries[rockIndex++ % cacheEntries.size()];
+                const auto& rockEntry = rocks[rockIndex++ % rocks.size()];
 
                 auto node = Node::MeshNode(rockEntry.mesh);
 
@@ -61,8 +64,8 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
                 node->name(std::format("rock {}", ++rockNum));
 
                 const vec3 position = startPosition
-                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                              static_cast<float>(z) * step.z};
+                                      + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
+                                              static_cast<float>(z) * step.z};
 
                 node->position(position + uniform_linear(-positionVariance, positionVariance));
 
@@ -87,12 +90,9 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
     return added;
 }
 
-vector<shared_ptr<Node>> TransientsBuilder::BuildCoins(const TransientsCache::Entry& cacheEntry,
-                                                       const vec3&                   location,
-                                                       const u8vec3&                 stackSize,
-                                                       float                         gap) {
+vector<shared_ptr<Node>> TransientsBuilder::coins(const vec3& location, const u8vec3& stackSize, float gap) {
 
-    auto [mesh, shape] = cacheEntry;
+    auto [mesh, shape] = _cache.coin();
 
     const vec3 cellSize {math::max(mesh->localExtent())};
     const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
@@ -143,12 +143,9 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildCoins(const TransientsCache::En
     return added;
 }
 
-vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::Entry& cacheEntry,
-                                                       const vec3&                   location,
-                                                       const u8vec3&                 stackSize,
-                                                       float                         gap) {
+vector<shared_ptr<Node>> TransientsBuilder::balls(const vec3& location, const u8vec3& stackSize, float gap) {
 
-    auto [mesh, shape] = cacheEntry;
+    auto [mesh, shape] = _cache.ball();
 
     const vec3 cellSize {math::max(mesh->localExtent())};
     const auto [startPosition, step] = CalculateGridLayout(location, cellSize, stackSize, gap);
@@ -200,13 +197,12 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
     return added;
 }
 
-shared_ptr<Node> TransientsBuilder::BuildHammer(const TransientsCache::Entry& cacheEntry,
-                                                const vec3&                   location,
-                                                const vec3&                   velocity) {
+shared_ptr<Node> TransientsBuilder::hammer(const vec3& location, const vec3& velocity) {
 
-    auto [mesh, shape] = cacheEntry;
+    auto [mesh, shape] = _cache.hammer();
 
-    auto       node = Node::MeshNode(mesh);
+    auto node = Node::MeshNode(mesh);
+
     static int hammerNum = 0;
     node->name(std::format("hammer {}", ++hammerNum));
     node->position(location);
@@ -239,11 +235,9 @@ shared_ptr<Node> TransientsBuilder::BuildHammer(const TransientsCache::Entry& ca
     return node;
 }
 
-shared_ptr<Node> TransientsBuilder::BuildHula(const TransientsCache::Entry& cacheEntry,
-                                              const vec3&                   location,
-                                              const vec3&                   velocity) {
+shared_ptr<Node> TransientsBuilder::hula(const vec3& location, const vec3& velocity) {
 
-    auto [mesh, shape] = cacheEntry;
+    auto [mesh, shape] = _cache.hula();
 
     auto node = Node::MeshNode(mesh);
 
@@ -292,13 +286,12 @@ shared_ptr<Node> TransientsBuilder::BuildHula(const TransientsCache::Entry& cach
     return node;
 }
 
-shared_ptr<Node> TransientsBuilder::BuildDuck(const TransientsCache::Entry& cacheEntry,
-                                              const vec3&                   location,
-                                              const vec3&                   velocity) {
+shared_ptr<Node> TransientsBuilder::duck(const vec3& location, const vec3& velocity) {
 
-    auto [mesh, shape] = cacheEntry;
+    auto [mesh, shape] = _cache.duck();
 
-    auto       node = Node::MeshNode(mesh);
+    auto node = Node::MeshNode(mesh);
+
     static int quackNum = 0;
     node->name(std::format("quack {}", ++quackNum));
     node->position(location);
