@@ -345,10 +345,10 @@ std::unique_ptr<Scene> App::init() {
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        _cameraController.view({.target = vec3 {-0.3356, 4.2463, 0.3752},
-                        .yaw = radians(-10.66f),
-                        .pitch = radians(-1.89f),
-                        .distance = 17.1});
+        _cameraController.view({.target = vec3 {-0.1346f, 4.2466f, 0.4131},
+                                .yaw = radians(-10.66f),
+                                .pitch = radians(-1.89f),
+                                .distance = 17.4275f});
 
         // create the action target marker
         {

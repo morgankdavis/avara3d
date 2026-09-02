@@ -28,10 +28,6 @@ bool App::drawPanel() {
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
-    if (panel.button("CAMERA")) {
-        log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
-    }
-
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
     const bool paused = runner.simulationPaused();
