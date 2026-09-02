@@ -335,7 +335,7 @@ bool Panel::subOption(string_view label, bool selected, Padding padding) {
 
     const auto framePadding = ImGui::GetStyle().FramePadding;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding.x, -.5f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding.x, 0.0f));
 
     if (!selected) {
         // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.135f, 0.135f, 0.135f, 0.94f));
@@ -788,12 +788,12 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
         position.x + padding.left,
         position.y + padding.top,
     };
-    const float contentHeight = ImGui::GetFrameHeight();
-    const float height = padding.top + contentHeight + padding.bottom;
-    const float rounding = ImGui::GetStyle().FrameRounding;
-    const float borderSize = ImGui::GetStyle().FrameBorderSize;
-    const ImU32 borderColor = ImGui::GetColorU32(ImGuiCol_Border);
-    const bool  segmented = _segmentedRow;
+    const float    contentHeight = ImGui::GetFrameHeight();
+    const float    height = padding.top + contentHeight + padding.bottom;
+    const float    rounding = ImGui::GetStyle().FrameRounding;
+    const float    borderSize = ImGui::GetStyle().FrameBorderSize;
+    const ImU32    borderColor = ImGui::GetColorU32(ImGuiCol_Border);
+    const bool     segmented = _segmentedRow;
     const unsigned segmentIndex = segmented ? _rowItemCount - _rowItemsRemaining : 0;
 
     ImGui::BeginGroup();
@@ -809,7 +809,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
                           IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
     }
     else if (segmentIndex == 0) {
-        const float groupWidth = contentWidth + static_cast<float>(_rowItemCount - 1) * _rowItemWidth;
+        const float  groupWidth = contentWidth + static_cast<float>(_rowItemCount - 1) * _rowItemWidth;
         const ImVec2 groupMaximum {
             contentPosition.x + groupWidth,
             contentPosition.y + contentHeight,
@@ -854,14 +854,15 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
         }
 
         const ImGuiCol fillColorIndex = active    ? ImGuiCol_ButtonActive
-                                          : hovered ? ImGuiCol_ButtonHovered
-                                                    : ImGuiCol_Button;
+                                        : hovered ? ImGuiCol_ButtonHovered
+                                                  : ImGuiCol_Button;
 
         drawList->AddRectFilled(contentPosition, segmentMaximum, ImGui::GetColorU32(fillColorIndex), rounding,
                                 cornerFlags);
 
         if (segmentIndex != 0 && borderSize > 0.0f) {
-            drawList->AddLine(contentPosition, ImVec2(contentPosition.x, segmentMaximum.y), borderColor,
+            drawList->AddLine(ImVec2(contentPosition.x, contentPosition.y + borderSize),
+                              ImVec2(contentPosition.x, segmentMaximum.y - borderSize), borderColor,
                               borderSize);
         }
 

@@ -77,23 +77,19 @@ bool App::drawPanel() {
     panel.section("environment");
 
     const auto gravity = physicsWorld.gravity();
-
     panel.text("gravity");
 
     const auto isGravity = [&gravity](const vec3& value) {
         return length(gravity - value) < 0.001f;
     };
 
-    panel.row(3);
-
+    panel.segmentedRow(3);
     if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
         physicsWorld.gravity(GRAVITY_EARTH);
     }
-
     if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
         physicsWorld.gravity(GRAVITY_MOON);
     }
-
     if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
         physicsWorld.gravity(GRAVITY_ZERO);
     }
@@ -114,7 +110,7 @@ bool App::drawPanel() {
 
     switch (_action) {
         case Action::Drop:
-            panel.row(3);
+            panel.segmentedRow(3);
             if (panel.subOption("Rocks", _dropAction == DropAction::Rocks)) {
                 _dropAction = DropAction::Rocks;
             }
@@ -126,7 +122,7 @@ bool App::drawPanel() {
             }
             break;
         case Action::Throw:
-            panel.row(3);
+            panel.segmentedRow(3);
             if (panel.subOption("Hammer", _throwAction == ThrowAction::Hammer)) {
                 _throwAction = ThrowAction::Hammer;
             }
@@ -138,7 +134,7 @@ bool App::drawPanel() {
             }
             break;
         case Action::Poke:
-            panel.row(3);
+            panel.segmentedRow(3);
             if (panel.subOption("Soft", _pokiness == Pokiness::Soft)) {
                 _pokiness = Pokiness::Soft;
             }
