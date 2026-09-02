@@ -87,6 +87,6 @@ private:
     std::unordered_map<Texture*, OGLTexture>                       _textureMap;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H

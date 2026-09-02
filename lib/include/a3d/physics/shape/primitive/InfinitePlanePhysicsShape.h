@@ -44,6 +44,6 @@ public:
     bool supportsMargin() const override;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_INFINITEPLANEPHYSICSSHAPE_H

@@ -26,6 +26,6 @@ decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
     return std::invoke(std::forward<F>(f));
 }
 
-}
+} // namespace a3d::prof
 
 #endif // AVARA3D_PROFILE_PROFILE_H

@@ -29,6 +29,6 @@ struct Background {
     math::quat orientation {1.0f}; ///< Orientation applied when sampling a cubemap background.
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_BACKGROUND_H

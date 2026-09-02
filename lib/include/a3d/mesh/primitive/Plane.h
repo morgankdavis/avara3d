@@ -70,6 +70,6 @@ private:
     unsigned                  _heightSegments;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_PLANE_H

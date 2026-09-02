@@ -52,6 +52,6 @@ struct SimulationConfig {
     double        timeScale {1.0};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_SIMULATIONCONFIG_H

@@ -80,6 +80,6 @@ private:
     unsigned                  _rings;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_CONE_H

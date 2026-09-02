@@ -69,6 +69,6 @@ private:
     float _yFov;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H

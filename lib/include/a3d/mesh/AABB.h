@@ -58,6 +58,6 @@ AABB operator|(AABB a, const AABB& b);
 /** @brief Returns @p a expanded to include @p p. */
 AABB operator|(AABB a, const math::vec3& p);
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_AABB_H

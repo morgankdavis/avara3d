@@ -73,4 +73,4 @@ static const char* basename(const char* path) {
     trap_or_abort();
 }
 
-}
+} // namespace a3d::detail

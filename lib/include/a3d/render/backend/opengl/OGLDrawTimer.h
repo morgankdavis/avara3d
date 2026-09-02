@@ -66,6 +66,6 @@ private:
     bool                     _initialized = false;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PROFILING_OPENGLDRAWTIMER_H

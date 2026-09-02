@@ -60,6 +60,6 @@ private:
     float _intensity;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H

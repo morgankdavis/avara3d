@@ -23,8 +23,6 @@
 #include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
 
-// #include "a3d/TestAccessFwd.h"
-
 namespace a3d {
 
 /**
@@ -281,11 +279,8 @@ private:
     bool                      _didShutdown;
     util::Timer               _startupTimer;
 
-    // [Test Access]
-
-        // friend class testing::ApplicationTestAccess;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_APPLICATION_H

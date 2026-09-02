@@ -4069,4 +4069,4 @@ f32quat& operator+=(f32quat& a, const f32quat& b) {
     return a;
 }
 
-}
+} // namespace a3d::math

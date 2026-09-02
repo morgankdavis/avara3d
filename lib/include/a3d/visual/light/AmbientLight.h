@@ -41,6 +41,6 @@ public:
     AmbientLight& operator=(AmbientLight&&) noexcept = default;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H

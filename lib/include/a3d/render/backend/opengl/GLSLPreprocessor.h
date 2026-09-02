@@ -29,6 +29,6 @@ public:
                                const IncludeResolver& includeResolver);
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLSLPREPROCESSOR_H

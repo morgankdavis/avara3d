@@ -23,7 +23,7 @@ namespace a3d {
     class Font;
     class Image;
 
-}
+} // namespace a3d
 
 namespace a3d::util::fs {
 
@@ -116,6 +116,6 @@ namespace a3d::util::fs {
      */
     std::optional<std::filesystem::path> AuxiliaryFileAt(const std::filesystem::path& resourcePath);
 
-}
+} // namespace a3d::util::fs
 
 #endif // AVARA3D_UTIL_FILESYSTEM_H

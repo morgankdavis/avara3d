@@ -30,6 +30,6 @@ constexpr uint16_t IndexStride(IndexFormat format) {
     }
 }
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_INDEXTYPES_H

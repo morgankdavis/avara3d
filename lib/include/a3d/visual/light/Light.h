@@ -96,6 +96,6 @@ protected:
     Color                      _color;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_LIGHT_H

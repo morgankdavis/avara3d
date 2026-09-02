@@ -209,6 +209,6 @@ private:
     bool        _hovered;
 };
 
-}
+} // namespace a3d::ui
 
 #endif // AVARA3D_UI_PANEL_H

@@ -40,6 +40,6 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> _start;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PROFILE_SCOPETIMER_H

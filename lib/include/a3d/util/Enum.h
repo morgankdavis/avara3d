@@ -132,7 +132,7 @@ namespace a3d::util::enums {
             static constexpr auto        names = make_names<E, min>(std::make_index_sequence<count> {});
         };
 
-    }
+    } // namespace detail
 
     // [Public Functions]
 
@@ -190,6 +190,6 @@ namespace a3d::util::enums {
         return static_cast<std::underlying_type_t<E>>(value);
     }
 
-}
+} // namespace a3d::util::enums
 
 #endif // AVARA3D_UTIL_ENUM_H

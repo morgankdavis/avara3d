@@ -74,6 +74,6 @@ private:
     std::size_t                  _size;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_BUFFER_H

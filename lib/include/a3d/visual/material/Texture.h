@@ -111,7 +111,7 @@ namespace util::bitmask {
     template<>
     struct enable_ops<Texture::DirtyMask> : std::true_type {};
 
-}
-}
+} // namespace util::bitmask
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_MATERIAL_TEXTURE_H

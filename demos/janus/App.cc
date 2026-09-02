@@ -693,19 +693,19 @@ void ConfigureVisualWorld(VisualWorld& world) {
 
     world.surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
-    auto minor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
-                                                    .spacing = 1.0f,
-                                                    .lineWidthPixels = 1.0f,
-                                                    .reliefStrength = -0.125f};
+    auto gridMinor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
+                                                        .spacing = 1.0f,
+                                                        .lineWidthPixels = 1.0f,
+                                                        .reliefStrength = -0.125f};
 
-    auto major = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
-                                                    .spacing = 10.0f,
-                                                    .lineWidthPixels = 1.0f,
-                                                    .reliefStrength = -0.125f};
+    auto gridMajor = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
+                                                        .spacing = 10.0f,
+                                                        .lineWidthPixels = 1.0f,
+                                                        .reliefStrength = -0.125f};
 
-    auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(), //.color = Color{0.15f},
-                                          .minor = minor,
-                                          .major = major,
+    auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),
+                                          .minor = gridMinor,
+                                          .major = gridMajor,
                                           .specularIntensity = 0.05f,
                                           .specularExponent = 8.0f};
 
@@ -721,11 +721,13 @@ void ConfigureVisualWorld(VisualWorld& world) {
                          .radialFade = radialFade,
                          .horizonHaze = horizonHaze});
 
-    auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35};
+    auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35}; // og
+    //auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.5}, .density = 0.75};
 
     auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
-    world.atmosphere(Atmosphere {.scaleHeight = 1.00f, .haze = atmosphericHaze, .limbGlow = limbGlow});
+    world.atmosphere(Atmosphere {.scaleHeight = 1.00f, .haze = atmosphericHaze, .limbGlow = limbGlow}); // og
+    //world.atmosphere(Atmosphere {.scaleHeight = 0.5f, .haze = atmosphericHaze, .limbGlow = limbGlow});
 }
 
 vector<shared_ptr<Node>> ConfigureEnvironmentNodes(const Node& root) {

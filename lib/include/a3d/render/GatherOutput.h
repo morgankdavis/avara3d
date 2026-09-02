@@ -61,6 +61,6 @@ struct GatherOutput {
     std::vector<Line>         debugLines            = {};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_GATHEROUTPUT_H

@@ -26,7 +26,7 @@ using namespace std;
 
 namespace a3d {
 
-// [Pulic Static Members]
+// [Public Static Member Functions]
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
     return make_unique<Node>(name);

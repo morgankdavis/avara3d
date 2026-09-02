@@ -26,18 +26,23 @@
 #include "a3d/util/Chrono.h"
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace std;
 
-// [Private Non-Member Prototypes]
+namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
 
 #ifdef A3D_WEB
-static void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
-static void    UnregisterEmscriptenVisibilityCallbacks();
-static EM_BOOL EmscriptenVisibilityChangeCallback(int,
-                                                  const EmscriptenVisibilityChangeEvent* event,
-                                                  void*                                  userData);
+    void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
+    void    UnregisterEmscriptenVisibilityCallbacks();
+    EM_BOOL EmscriptenVisibilityChangeCallback(int,
+                                               const EmscriptenVisibilityChangeEvent* event,
+                                               void*                                  userData);
 #endif
+
+} // namespace
 
 // [Public Static Member Functions]
 
@@ -354,44 +359,51 @@ void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const Physic
     contactDidEnd(*_runner, *_scene, physicsWorld, contact);
 }
 
-// [Private Non-Member Functions]
+namespace {
+
+    // [Private Non-Member Functions]
 
 #ifdef A3D_WEB
 
-void RegisterEmscriptenVisibilityCallbacks(Runner& runner) {
+    void RegisterEmscriptenVisibilityCallbacks(Runner& runner) {
 
-    const auto result =
-        emscripten_set_visibilitychange_callback(&runner, false, EmscriptenVisibilityChangeCallback);
+        const auto result =
+            emscripten_set_visibilitychange_callback(&runner, false, EmscriptenVisibilityChangeCallback);
 
-    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
-        throw runtime_error("Failed to register Emscripten visibility callback.");
+        if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+            throw runtime_error("Failed to register Emscripten visibility callback.");
+        }
+
+        // handle the unlikely case that we started while already hidden.
+        EmscriptenVisibilityChangeEvent visibility {};
+
+        if (emscripten_get_visibility_status(&visibility) == EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden) {
+            runner.simulationClockSuspended(true);
+        }
     }
 
-    // handle the unlikely case that we started while already hidden.
-    EmscriptenVisibilityChangeEvent visibility {};
+    void UnregisterEmscriptenVisibilityCallbacks() {
 
-    if (emscripten_get_visibility_status(&visibility) == EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden) {
-        runner.simulationClockSuspended(true);
-    }
-}
-
-void UnregisterEmscriptenVisibilityCallbacks() {
-
-    emscripten_set_visibilitychange_callback(nullptr, false, nullptr);
-}
-
-EM_BOOL EmscriptenVisibilityChangeCallback(int, const EmscriptenVisibilityChangeEvent* event, void* userData) {
-
-    auto& runner = *static_cast<Runner*>(userData);
-
-    if (event->hidden) {
-        runner.simulationClockSuspended(true);
-    }
-    else {
-        runner.simulationClockSuspended(false);
+        emscripten_set_visibilitychange_callback(nullptr, false, nullptr);
     }
 
-    return EM_FALSE;
-}
+    EM_BOOL EmscriptenVisibilityChangeCallback(int,
+                                               const EmscriptenVisibilityChangeEvent* event,
+                                               void*                                  userData) {
+
+        auto& runner = *static_cast<Runner*>(userData);
+
+        if (event->hidden) {
+            runner.simulationClockSuspended(true);
+        }
+        else {
+            runner.simulationClockSuspended(false);
+        }
+
+        return EM_FALSE;
+    }
 
 #endif
+
+} // namespace
+} // namespace a3d

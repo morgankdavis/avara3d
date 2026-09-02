@@ -68,6 +68,6 @@ private:
     unsigned                  _segments;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_TORUSKNOT_H

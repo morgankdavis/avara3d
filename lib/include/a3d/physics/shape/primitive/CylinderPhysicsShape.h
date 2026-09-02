@@ -49,6 +49,6 @@ private:
     float _height;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CYLINDERPHYSICSSHAPE_H

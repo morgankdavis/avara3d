@@ -43,6 +43,6 @@ private:
     std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSHAPEPROXY_H

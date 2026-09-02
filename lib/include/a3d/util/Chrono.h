@@ -27,6 +27,6 @@ namespace a3d::util::chrono {
         return std::chrono::duration<double, std::milli>(duration).count();
     }
 
-}
+} // namespace a3d::util::chrono
 
 #endif // AVARA3D_UTIL_CHRONO_H

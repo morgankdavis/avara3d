@@ -44,7 +44,7 @@ namespace value {
     constexpr enum_t invalid_index = 0xFFFFFFFFu; // GL_INVALID_INDEX
     constexpr uint_t null_handle   = 0u;          // “0” object name
 
-}
+} // namespace value
 
 enum class index_type : enum_t {
     u8  = value::unsigned_byte,
@@ -93,6 +93,6 @@ using program     = handle<program_tag>;
 using shader      = handle<shader_tag>;
 using framebuffer = handle<framebuffer_tag>;
 
-}
+} // namespace a3d::gl
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H

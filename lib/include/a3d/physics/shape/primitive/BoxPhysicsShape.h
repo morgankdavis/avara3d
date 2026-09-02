@@ -53,6 +53,6 @@ private:
     float _length;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H

@@ -403,7 +403,7 @@ namespace util::bitmask {
     template<>
     struct enable_ops<Node::DirtyMask> : std::true_type {};
 
-}
-}
+} // namespace util::bitmask
+} // namespace a3d
 
 #endif // AVARA3D_SCENE_NODE_H

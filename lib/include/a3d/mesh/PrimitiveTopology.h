@@ -19,6 +19,6 @@ enum class PrimitiveTopology : uint8_t {
     Points,
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVETOPOLOGY_H

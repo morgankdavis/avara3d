@@ -82,6 +82,6 @@ private:
     unsigned                              _bytesPerPixel;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_CUBEIMAGE_H

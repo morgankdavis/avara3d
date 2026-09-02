@@ -98,6 +98,6 @@ struct FrameStats {
     std::uint32_t            activeContacts {0};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PROFILE_FRAMESTATS_H

@@ -61,7 +61,7 @@ namespace env {
         return util::bitmask::any(platform, platforms);
     }
 
-}
+} // namespace env
 
 namespace util::bitmask {
 
@@ -70,8 +70,8 @@ namespace util::bitmask {
     template<>
     struct enable_ops<Platform> : std::true_type {};
 
-}
+} // namespace util::bitmask
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_ENVIRONMENT_H

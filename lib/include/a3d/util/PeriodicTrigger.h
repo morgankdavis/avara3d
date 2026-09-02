@@ -75,6 +75,6 @@ namespace a3d::util {
         std::optional<double> _lastTime;
     };
 
-}
+} // namespace a3d::util
 
 #endif // AVARA3D_UTIL_PERIODICTRIGGER_H

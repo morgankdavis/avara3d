@@ -80,6 +80,6 @@ private:
     std::map<std::size_t, std::shared_ptr<Sampler>>  _samplers;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H

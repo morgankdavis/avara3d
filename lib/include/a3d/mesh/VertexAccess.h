@@ -50,6 +50,6 @@ struct VertexAccess {
     static std::optional<VertexStreamView> GetPositionStreamView(const MeshElement& element);
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXACCESS_H

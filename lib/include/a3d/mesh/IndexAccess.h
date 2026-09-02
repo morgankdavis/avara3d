@@ -87,6 +87,6 @@ struct IndexAccess {
     }
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_INDEXACCESS_H

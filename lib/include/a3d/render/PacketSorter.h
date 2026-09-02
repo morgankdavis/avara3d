@@ -25,6 +25,6 @@ public:
     static void     SortPacket(DrawPacket& packet);
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_PACKETSORTER_H

@@ -29,6 +29,6 @@ enum class VertexLayout : uint32_t {
     // MorphPNT - multiple position/normal deltas
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXLAYOUT_H

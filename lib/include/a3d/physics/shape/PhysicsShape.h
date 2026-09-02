@@ -188,6 +188,6 @@ private:
     std::unordered_set<PhysicsBody*> _bodies;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PHYSICSSHAPE_H

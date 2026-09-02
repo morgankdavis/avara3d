@@ -147,6 +147,6 @@ protected:
                            const math::mat4&    proj) = 0;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_RENDERER_H

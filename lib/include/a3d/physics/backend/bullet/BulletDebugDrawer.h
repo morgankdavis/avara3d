@@ -158,6 +158,6 @@ private:
     std::vector<Line> _lines;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETDEBUGDRAWER_H

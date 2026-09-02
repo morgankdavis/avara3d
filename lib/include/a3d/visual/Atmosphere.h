@@ -45,6 +45,6 @@ struct Atmosphere {
     std::optional<LimbGlow> limbGlow {}; ///< Optional limb glow; requires a spherical reference Surface.
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_ATMOSPHERE_H

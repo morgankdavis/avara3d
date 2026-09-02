@@ -404,6 +404,6 @@ private:
     PhysicsWorld*                     _world;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PHYSICSBODY_H

@@ -12,7 +12,6 @@
 
 #include "a3d/scene/Node.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace a3d::ext;
 using namespace std;

@@ -34,6 +34,6 @@ public:
     virtual void  margin(float margin) = 0;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H

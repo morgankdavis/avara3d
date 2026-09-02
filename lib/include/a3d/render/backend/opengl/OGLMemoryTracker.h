@@ -85,6 +85,6 @@ private:
     std::uint64_t                                               _peakTotalBytes {0};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLMEMORYTRACKER_H

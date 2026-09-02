@@ -174,6 +174,6 @@ private:
     math::vec4 _rgba;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_COLOR_H

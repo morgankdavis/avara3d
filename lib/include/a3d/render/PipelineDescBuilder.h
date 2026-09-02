@@ -30,6 +30,6 @@ public:
     static PipelineDesc MakeLinesDesc();
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_PIPELINEDESCBUILDER_H

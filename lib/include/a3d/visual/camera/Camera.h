@@ -62,6 +62,6 @@ protected:
     std::optional<std::string> _name;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_CAMERA_CAMERA_H

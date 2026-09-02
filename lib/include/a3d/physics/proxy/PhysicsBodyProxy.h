@@ -141,6 +141,6 @@ protected:
     bool                                 _autocalculatesMomentOfInertia;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H

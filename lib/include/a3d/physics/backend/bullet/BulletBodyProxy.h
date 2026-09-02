@@ -142,6 +142,6 @@ private:
     float                              _ccdSweptSphereRadius;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETBODYPROXY_H

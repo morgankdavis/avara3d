@@ -43,6 +43,6 @@ public:
     void write(const std::string& output, Level level) override;
 };
 
-}
+} // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_STDOUTLOGSINK_H

@@ -36,7 +36,7 @@ namespace {
 
     unique_ptr<Log> _appLog {};
 
-}
+} // namespace
 
 // [Public Functions]
 

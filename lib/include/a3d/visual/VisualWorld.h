@@ -289,6 +289,6 @@ private:
     DidBeginFrameCallback       _didBeginFrameCallback;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_VISUALWORLD_H

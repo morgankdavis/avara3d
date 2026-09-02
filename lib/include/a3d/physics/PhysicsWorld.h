@@ -218,6 +218,6 @@ private:
     DidEndContactCallback              _didEndContactCallback;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PHYSICSWORLD_H

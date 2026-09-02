@@ -55,6 +55,6 @@ private:
     Color      _toColor;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_LINE_H

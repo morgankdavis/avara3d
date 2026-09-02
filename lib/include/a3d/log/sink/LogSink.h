@@ -32,6 +32,6 @@ public:
     virtual void flush();
 };
 
-}
+} // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_LOGSINK_H

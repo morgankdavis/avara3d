@@ -18,6 +18,7 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/util/Chrono.h"
+
 using namespace a3d::math;
 using namespace std;
 

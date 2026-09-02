@@ -74,6 +74,6 @@ struct PipelineDescHash { // for unordered_map
     size_t operator()(const PipelineDesc& desc) const noexcept;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_PIPELINEDESC_H

@@ -90,6 +90,6 @@ private:
     unsigned             _riseSegments;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_WEDGE_H

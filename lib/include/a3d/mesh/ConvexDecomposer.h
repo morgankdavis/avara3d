@@ -59,6 +59,6 @@ private:
     MeshElement* _sourceElement;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_CONVEXDECOMPOSER_H

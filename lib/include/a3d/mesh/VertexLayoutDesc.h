@@ -46,6 +46,6 @@ struct VertexLayoutDesc {
 
 const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout);
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXLAYOUTDESC_H

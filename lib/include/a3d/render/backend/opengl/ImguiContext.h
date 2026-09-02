@@ -65,6 +65,6 @@ private:
     bool                               _started;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_IMGUICONTEXT_H

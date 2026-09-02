@@ -47,6 +47,6 @@ struct OGLDebugLines {
     std::vector<Vertex> cpuVerts    = {};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLDEBUGLINES_H

@@ -282,6 +282,6 @@ private:
     friend class testing::RunnerTestAccess;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RUNNER_H

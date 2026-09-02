@@ -103,6 +103,6 @@ private:
     math::mat4              _modelTransform;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_SCENE_HITTESTRESULT_H

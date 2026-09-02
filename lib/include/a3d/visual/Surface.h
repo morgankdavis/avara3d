@@ -37,6 +37,6 @@ struct SphereSurface {
 /** @brief Planar or spherical reference surface used by VisualWorld environment effects. */
 using Surface = std::variant<PlaneSurface, SphereSurface>;
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_SURFACE_H

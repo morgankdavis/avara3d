@@ -85,6 +85,6 @@ public:
     virtual void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H

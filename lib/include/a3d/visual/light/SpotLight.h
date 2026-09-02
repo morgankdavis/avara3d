@@ -105,6 +105,6 @@ private:
     Attenuation    _attenuation;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H

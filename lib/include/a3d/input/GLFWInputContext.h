@@ -63,6 +63,6 @@ private:
     bool    _hasMousePosition;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_INPUT_GLFWINPUTCONTEXT_H

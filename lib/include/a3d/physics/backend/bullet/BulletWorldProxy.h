@@ -141,6 +141,6 @@ private:
     int                                                    _debugDrawMode;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

@@ -94,6 +94,6 @@ private:
     unsigned             _segments;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_PRIMITIVE_DOME_H

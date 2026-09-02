@@ -72,6 +72,6 @@ struct DrawPacket {
     std::vector<Node*>    lightNodes         = {};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_DRAWPACKET_H

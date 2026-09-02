@@ -106,6 +106,6 @@ protected:
     std::unique_ptr<Renderer> _renderer;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_CONTEXT_RENDERCONTEXT_H

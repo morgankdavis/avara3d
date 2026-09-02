@@ -116,6 +116,6 @@ private:
     std::unique_ptr<Buffer> _buffer;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_IMAGE_H

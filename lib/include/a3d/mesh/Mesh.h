@@ -208,7 +208,7 @@ namespace util::bitmask {
     template<>
     struct enable_ops<Mesh::DirtyMask> : std::true_type {};
 
-}
-}
+} // namespace util::bitmask
+} // namespace a3d
 
 #endif // AVARA3D_MESH_MESH_H

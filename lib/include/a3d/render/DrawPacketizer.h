@@ -22,6 +22,6 @@ public:
     static DrawPacket Packetize(GatherOutput& gatherOutput);
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_DRAWPACKETIZER_H

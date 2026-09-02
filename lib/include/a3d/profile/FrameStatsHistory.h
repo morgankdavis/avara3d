@@ -51,6 +51,6 @@ private:
     std::deque<std::tuple<SteadyTimePoint, FrameStats>> _samples;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PROFILE_FRAMESTATSHISTORY_H

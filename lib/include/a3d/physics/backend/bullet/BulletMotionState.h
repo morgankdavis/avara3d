@@ -43,6 +43,6 @@ private:
     PhysicsBody* _body;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H

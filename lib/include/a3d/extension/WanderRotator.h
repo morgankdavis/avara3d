@@ -15,7 +15,7 @@ namespace a3d {
 
 class Node;
 
-}
+} // namespace a3d
 
 namespace a3d::ext {
 
@@ -55,6 +55,6 @@ private:
     math::vec3 _targetAngularVelocity {0.0f, 0.0f, 0.0f};
 };
 
-}
+} // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_WANDERROTATOR_H

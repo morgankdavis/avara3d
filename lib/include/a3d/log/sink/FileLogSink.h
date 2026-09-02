@@ -92,6 +92,6 @@ private:
     std::shared_ptr<std::ofstream> _fileStream;
 };
 
-}
+} // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_FILELOGSINK_H

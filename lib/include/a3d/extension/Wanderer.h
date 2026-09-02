@@ -19,7 +19,7 @@ namespace a3d {
 
 class Node;
 
-}
+} // namespace a3d
 
 namespace a3d::ext {
 
@@ -110,6 +110,6 @@ private:
     double              _phase {0.0};
 };
 
-}
+} // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_WANDERER_H

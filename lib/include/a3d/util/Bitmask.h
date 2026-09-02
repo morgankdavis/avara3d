@@ -91,7 +91,7 @@ namespace a3d::util::bitmask {
     template<typename E>
     concept MaskEnum = std::is_enum_v<E> && enable_ops_v<E>;
 
-}
+} // namespace a3d::util::bitmask
 
 namespace a3d {
 
@@ -139,6 +139,6 @@ namespace a3d {
         return a = (a ^ b);
     }
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_UTIL_BITMASK_H

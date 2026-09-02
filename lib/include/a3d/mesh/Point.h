@@ -40,6 +40,6 @@ private:
     Color      _color;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_MESH_POINT_H

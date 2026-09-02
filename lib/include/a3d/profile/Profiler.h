@@ -60,6 +60,6 @@ private:
     std::map<std::string, std::chrono::nanoseconds> _keyedSamples;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_PROFILE_PROFILER_H

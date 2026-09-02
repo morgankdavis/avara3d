@@ -1046,6 +1046,6 @@ void swap(T2 (&a)[N], T2 (&b)[N]) {
     }
 }
 
-}
+} // namespace a3d::math
 
 #endif // AVARA3D_MATH_H

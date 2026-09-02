@@ -257,7 +257,7 @@ namespace util::bitmask {
     template<>
     struct enable_ops<Scene::DebugOptions> : std::true_type {};
 
-}
-}
+} // namespace util::bitmask
+} // namespace a3d
 
 #endif // AVARA3D_SCENE_SCENE_H

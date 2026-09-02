@@ -54,6 +54,6 @@ private:
     ImFont* _bodyImFont;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_STATSOVERLAY_H

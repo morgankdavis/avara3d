@@ -105,6 +105,6 @@ private:
     std::tm    _time;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_BUILDINFO_H

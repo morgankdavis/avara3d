@@ -261,6 +261,6 @@ protected:
     math::vec2                      _pendingMouseScrollWheelDelta;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_INPUT_DESKTOPINPUTCONTEXT_H

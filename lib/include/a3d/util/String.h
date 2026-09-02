@@ -17,7 +17,7 @@ namespace a3d {
 
     class Node;
 
-}
+} // namespace a3d
 
 namespace a3d::util::string {
 
@@ -31,6 +31,6 @@ namespace a3d::util::string {
     std::string              Tree(const Node& root);
     std::string              Timestamp();
 
-}
+} // namespace a3d::util::string
 
 #endif // AVARA3D_UTIL_STRING_H

@@ -26,6 +26,6 @@ struct Fog {
     float transitionExponent {1.0f};
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_FOG_H

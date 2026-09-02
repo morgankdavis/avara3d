@@ -94,6 +94,6 @@ private:
     std::string                _fragmentShaderSource;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLSLPROGRAM_H

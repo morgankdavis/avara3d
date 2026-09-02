@@ -71,6 +71,6 @@ private:
     float _ySize;
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H

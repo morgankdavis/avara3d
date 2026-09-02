@@ -38,6 +38,6 @@ struct Attenuation {
     float              quadratic = 0.1f; ///< Squared-distance denominator coefficient.
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_ATTENUATION_H

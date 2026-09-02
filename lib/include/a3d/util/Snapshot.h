@@ -13,7 +13,7 @@ namespace a3d {
 
     class RenderContext;
 
-}
+} // namespace a3d
 
 namespace a3d::util::snapshot {
 
@@ -22,6 +22,6 @@ namespace a3d::util::snapshot {
     /** @brief Attempts to save a timestamped PNG snapshot of @p context beside the current executable. */
     void SaveSnapshot(RenderContext& context);
 
-}
+} // namespace a3d::util::snapshot
 
 #endif // AVARA3D_UTIL_SNAPSHOT_H

@@ -51,6 +51,6 @@ namespace a3d::util {
         std::chrono::nanoseconds                             _duration;
     };
 
-}
+} // namespace a3d::util
 
 #endif // AVARA3D_UTIL_TIMER_H

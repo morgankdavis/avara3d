@@ -15,7 +15,7 @@ namespace a3d {
 
     struct AABB;
 
-}
+} // namespace a3d
 
 namespace a3d::util::geom {
 
@@ -28,6 +28,6 @@ namespace a3d::util::geom {
      */
     math::mat4 fit_inside(const AABB& source, const math::vec3& targetSize);
 
-}
+} // namespace a3d::util::geom
 
 #endif // AVARA3D_UTIL_GEOMETRY_H

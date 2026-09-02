@@ -23,6 +23,6 @@ struct IdGenerator {
     }
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_IDGENERATOR_H

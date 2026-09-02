@@ -43,7 +43,7 @@ namespace a3d::detail {
                                   const char* func,
                                   const char* msg);
 
-}
+} // namespace a3d::detail
 
 // ----------------------------------------------------------------------------
 // Public macros

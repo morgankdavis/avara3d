@@ -95,6 +95,6 @@ struct Ground {
     std::optional<HorizonHaze> horizonHaze {}; ///< Optional haze applied around the ground horizon.
 };
 
-}
+} // namespace a3d
 
 #endif // AVARA3D_VISUAL_GROUND_H
