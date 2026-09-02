@@ -122,6 +122,14 @@ namespace a3d::ui {
         void row(unsigned itemCount);
 
         /**
+         * @brief Arranges the next @p itemCount items as a contiguous horizontal segmented row.
+         *
+         * @throws std::invalid_argument if @p itemCount is zero.
+         * @throws std::logic_error if the previous row is incomplete.
+         */
+        void segmentedRow(unsigned itemCount);
+
+        /**
          * @brief Draws a button and reports activation once.
          *
          * @throws std::invalid_argument if @p label is empty.
@@ -193,8 +201,10 @@ namespace a3d::ui {
 
         std::string _windowName;
         unsigned    _rowItemsRemaining;
+        unsigned    _rowItemCount;
         float       _rowItemWidth;
         float       _rowSpacing;
+        bool        _segmentedRow;
         bool        _visible;
         bool        _hovered;
     };
