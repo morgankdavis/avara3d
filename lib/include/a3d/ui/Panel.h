@@ -201,8 +201,10 @@ namespace a3d::ui {
 
         std::string _windowName;
         unsigned    _rowItemsRemaining;
+        unsigned    _rowItemCount;
         float       _rowItemWidth;
         float       _rowSpacing;
+        bool        _segmentedRow;
         bool        _visible;
         bool        _hovered;
     };

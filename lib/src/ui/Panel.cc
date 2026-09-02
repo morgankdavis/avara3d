@@ -51,8 +51,10 @@ static void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color
 Panel::Panel(string_view id, const Options& options):
     _windowName {},
     _rowItemsRemaining {0},
+    _rowItemCount {0},
     _rowItemWidth {0.0f},
     _rowSpacing {0.0f},
+    _segmentedRow {false},
     _visible {false},
     _hovered {false} {
 
@@ -267,6 +269,8 @@ void Panel::row(unsigned itemCount) {
     }
 
     _rowItemsRemaining = itemCount;
+    _rowItemCount = 0;
+    _segmentedRow = false;
 
     if (!_visible) {
         _rowItemWidth = 0.0f;
@@ -280,6 +284,37 @@ void Panel::row(unsigned itemCount) {
     const float totalSpacing = _rowSpacing * static_cast<float>(itemCount - 1);
 
     _rowItemWidth = (availableWidth - totalSpacing) / static_cast<float>(itemCount);
+
+    if (_rowItemWidth < 1.0f) {
+        _rowItemWidth = 1.0f;
+    }
+}
+
+void Panel::segmentedRow(unsigned itemCount) {
+
+    if (itemCount == 0) {
+        throw invalid_argument("Panel segmented row item count must be greater than zero.");
+    }
+
+    if (_rowItemsRemaining != 0) {
+        throw logic_error("Cannot begin a Panel segmented row before the previous row is complete.");
+    }
+
+    _rowItemsRemaining = itemCount;
+    _rowItemCount = itemCount;
+    _segmentedRow = true;
+
+    if (!_visible) {
+        _rowItemWidth = 0.0f;
+        _rowSpacing = 0.0f;
+        return;
+    }
+
+    _rowSpacing = 0.0f;
+
+    const float availableWidth = ImGui::GetContentRegionAvail().x;
+
+    _rowItemWidth = availableWidth / static_cast<float>(itemCount);
 
     if (_rowItemWidth < 1.0f) {
         _rowItemWidth = 1.0f;
@@ -727,8 +762,10 @@ void Panel::endItem() {
         return;
     }
 
+    _rowItemCount = 0;
     _rowItemWidth = 0.0f;
     _rowSpacing = 0.0f;
+    _segmentedRow = false;
 }
 
 bool Panel::drawButton(string_view label, bool selected, Padding padding) {
@@ -754,16 +791,34 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
     const float contentHeight = ImGui::GetFrameHeight();
     const float height = padding.top + contentHeight + padding.bottom;
     const float rounding = ImGui::GetStyle().FrameRounding;
+    const float borderSize = ImGui::GetStyle().FrameBorderSize;
+    const ImU32 borderColor = ImGui::GetColorU32(ImGuiCol_Border);
+    const bool  segmented = _segmentedRow;
+    const unsigned segmentIndex = segmented ? _rowItemCount - _rowItemsRemaining : 0;
 
     ImGui::BeginGroup();
     ImGui::Dummy(ImVec2(width, height));
     ImGui::SetCursorScreenPos(contentPosition);
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->AddRect(ImVec2(contentPosition.x + SHADOW_OFFSET, contentPosition.y + SHADOW_OFFSET),
-                      ImVec2(contentPosition.x + contentWidth + SHADOW_OFFSET,
-                             contentPosition.y + contentHeight + SHADOW_OFFSET),
-                      IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
+
+    if (!segmented) {
+        drawList->AddRect(ImVec2(contentPosition.x + SHADOW_OFFSET, contentPosition.y + SHADOW_OFFSET),
+                          ImVec2(contentPosition.x + contentWidth + SHADOW_OFFSET,
+                                 contentPosition.y + contentHeight + SHADOW_OFFSET),
+                          IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
+    }
+    else if (segmentIndex == 0) {
+        const float groupWidth = contentWidth + static_cast<float>(_rowItemCount - 1) * _rowItemWidth;
+        const ImVec2 groupMaximum {
+            contentPosition.x + groupWidth,
+            contentPosition.y + contentHeight,
+        };
+
+        drawList->AddRect(ImVec2(contentPosition.x + SHADOW_OFFSET, contentPosition.y + SHADOW_OFFSET),
+                          ImVec2(groupMaximum.x + SHADOW_OFFSET, groupMaximum.y + SHADOW_OFFSET),
+                          IM_COL32(0, 0, 0, 255), rounding, ImDrawFlags_RoundCornersAll, 1.0f);
+    }
 
     if (selected) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
@@ -772,7 +827,64 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
-    const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(contentWidth, contentHeight));
+    bool pressed;
+
+    if (!segmented) {
+        pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(contentWidth, contentHeight));
+    }
+    else {
+        ImGui::PushID(buttonLabel.c_str());
+        pressed = ImGui::InvisibleButton("##segment", ImVec2(contentWidth, contentHeight));
+        const bool hovered = ImGui::IsItemHovered();
+        const bool active = ImGui::IsItemActive();
+        ImGui::PopID();
+
+        const ImVec2 segmentMaximum {
+            contentPosition.x + contentWidth,
+            contentPosition.y + contentHeight,
+        };
+
+        ImDrawFlags cornerFlags = ImDrawFlags_RoundCornersNone;
+
+        if (segmentIndex == 0) {
+            cornerFlags |= ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersBottomLeft;
+        }
+        if (_rowItemsRemaining == 1) {
+            cornerFlags |= ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomRight;
+        }
+
+        const ImGuiCol fillColorIndex = active    ? ImGuiCol_ButtonActive
+                                          : hovered ? ImGuiCol_ButtonHovered
+                                                    : ImGuiCol_Button;
+
+        drawList->AddRectFilled(contentPosition, segmentMaximum, ImGui::GetColorU32(fillColorIndex), rounding,
+                                cornerFlags);
+
+        if (segmentIndex != 0 && borderSize > 0.0f) {
+            drawList->AddLine(contentPosition, ImVec2(contentPosition.x, segmentMaximum.y), borderColor,
+                              borderSize);
+        }
+
+        const ImVec2 textSize = ImGui::CalcTextSize(buttonLabel.c_str());
+        const ImVec2 textPosition {
+            SnapPixel(contentPosition.x + (contentWidth - textSize.x) * 0.5f),
+            SnapPixel(contentPosition.y + (contentHeight - textSize.y) * 0.5f),
+        };
+
+        drawList->PushClipRect(contentPosition, segmentMaximum, true);
+        drawList->AddText(textPosition, ImGui::GetColorU32(ImGuiCol_Text), buttonLabel.c_str());
+        drawList->PopClipRect();
+
+        if (_rowItemsRemaining == 1 && borderSize > 0.0f) {
+            const ImVec2 groupMinimum {
+                contentPosition.x - static_cast<float>(segmentIndex) * _rowItemWidth,
+                contentPosition.y,
+            };
+
+            drawList->AddRect(groupMinimum, segmentMaximum, borderColor, rounding, ImDrawFlags_RoundCornersAll,
+                              borderSize);
+        }
+    }
 
     if (selected) {
         ImGui::PopStyleColor(4);
