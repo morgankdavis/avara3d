@@ -24,7 +24,7 @@
 						1,
 						1
 					],
-					"intensity":0.3978873577297384,
+					"intensity":0.5968310365946076,
 					"spot":{
 						"innerConeAngle":0.1162267223801603,
 						"outerConeAngle":0.4363323152065277
@@ -38,7 +38,7 @@
 						1,
 						1
 					],
-					"intensity":0.3978873577297384,
+					"intensity":0.5968310365946076,
 					"spot":{
 						"innerConeAngle":0.10460405252369576,
 						"outerConeAngle":0.39269909262657166
@@ -206,7 +206,7 @@
 						1,
 						1
 					],
-					"intensity":0.3978873577297384,
+					"intensity":0.5968310365946076,
 					"spot":{
 						"innerConeAngle":0.10460391208355624,
 						"outerConeAngle":0.39269909262657166
@@ -234,7 +234,7 @@
 						1,
 						1
 					],
-					"intensity":1.5915494309189535,
+					"intensity":1.1936620731892151,
 					"type":"point",
 					"name":"middle_point"
 				},
@@ -244,7 +244,7 @@
 						1,
 						1
 					],
-					"intensity":0.3978873577297384,
+					"intensity":0.5968310365946076,
 					"spot":{
 						"innerConeAngle":0.10460391208355624,
 						"outerConeAngle":0.39269909262657166

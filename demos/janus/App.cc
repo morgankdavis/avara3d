@@ -353,7 +353,7 @@ std::unique_ptr<Scene> App::init() {
 
         // create the action target marker
         {
-            const bool ENABLE_CURSOR_MARKER {true};
+            const bool ENABLE_CURSOR_MARKER {false};
             if (ENABLE_CURSOR_MARKER) {
 
                 const float CURSOR_MARKER_RADIUS {0.1f};
@@ -566,7 +566,9 @@ void App::frameDidBegin(Runner&                        runner,
         }
     }
 
-    //_window->cursorHidden(!_cursorMarker->hidden());
+    if (_cursorMarker) {
+        _window->cursorHidden(!_cursorMarker->hidden());
+    }
 }
 
 // [Private Member Functions]
