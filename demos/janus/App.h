@@ -128,11 +128,11 @@ namespace demo::janus {
         // [Private Member Functions]
 
         bool                      drawPanel();
-        void                      hover(a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
-        void                      hover(std::shared_ptr<a3d::Node> node);
-        void                      select(a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
+        void                      hover(const a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
+        void                      hover(const std::shared_ptr<a3d::Node>& node);
+        void                      select(const a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
         void                      select(std::optional<PickResult> pickResult);
-        std::optional<PickResult> target(a3d::Scene& scene, const a3d::math::vec2& screenPosition) const;
+        std::optional<PickResult> target(const a3d::Scene& scene, const a3d::math::vec2& screenPosition) const;
         void                      queueAction(const a3d::math::vec2& screenPosition);
         void                      performAction(const PendingAction& action);
         std::vector<const a3d::Node*> pickIgnoredNodes(PickPurpose purpose) const;
