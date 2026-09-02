@@ -24,6 +24,8 @@ using namespace std;
 
 static unsigned MinBufferSize(unsigned bufferedFrames);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 OGLDrawTimer::OGLDrawTimer(unsigned bufferedFrames):
@@ -217,6 +219,8 @@ void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
         resolveQuery(i);
     }
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

@@ -16,43 +16,43 @@
 
 namespace a3d {
 
-    class Node;
-    class Scene;
-    class Window;
+class Node;
+class Scene;
+class Window;
 
 }
 
 namespace sandbox::scratch {
 
-    class Scratch : public a3d::Application {
+class Scratch : public a3d::Application {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
-        Scratch(int argc, char* argv[]);
-        ~Scratch() override;
+    Scratch(int argc, char* argv[]);
+    ~Scratch() override;
 
-    protected:
-        // [Application Protected Member Functions]
+protected:
+    // [Application Protected Member Functions]
 
-        std::unique_ptr<a3d::Scene> init() override;
-        a3d::SimulationConfig       simulationConfig() const override;
-        bool                        shouldContinue(const a3d::Scene& scene) override;
+    std::unique_ptr<a3d::Scene> init() override;
+    a3d::SimulationConfig       simulationConfig() const override;
+    bool                        shouldContinue(const a3d::Scene& scene) override;
 
-        void inputDidUpdate(a3d::Runner&                         runner,
-                            a3d::Scene&                          scene,
-                            a3d::InputContext&                   inputContext,
-                            const a3d::InputContext::UpdateInfo& info) override;
+    void inputDidUpdate(a3d::Runner&                         runner,
+                        a3d::Scene&                          scene,
+                        a3d::InputContext&                   inputContext,
+                        const a3d::InputContext::UpdateInfo& info) override;
 
-        void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
+    void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::unique_ptr<a3d::Window>  _window;
-        a3d::ext::FlyCameraController _cameraController;
-        std::weak_ptr<a3d::Node>      _bananaNode;
-    };
+    std::unique_ptr<a3d::Window>  _window;
+    a3d::ext::FlyCameraController _cameraController;
+    std::weak_ptr<a3d::Node>      _bananaNode;
+};
 
 }
 

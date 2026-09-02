@@ -30,6 +30,8 @@ using namespace VHACD;
 
 static VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 ConvexDecomposer::ConvexDecomposer(MeshElement& element, Options& options):
@@ -176,6 +178,8 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
     return out;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

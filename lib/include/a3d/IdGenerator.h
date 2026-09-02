@@ -14,14 +14,14 @@
 
 namespace a3d {
 
-    template<typename IdT>
-    struct IdGenerator {
+template<typename IdT>
+struct IdGenerator {
 
-        static IdT next() {
-            static std::atomic<uint32_t> counter {1};
-            return static_cast<IdT>(counter.fetch_add(1, std::memory_order_relaxed));
-        }
-    };
+    static IdT next() {
+        static std::atomic<uint32_t> counter {1};
+        return static_cast<IdT>(counter.fetch_add(1, std::memory_order_relaxed));
+    }
+};
 
 }
 

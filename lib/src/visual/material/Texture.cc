@@ -13,8 +13,9 @@
 #include "a3d/IdGenerator.h"
 #include "a3d/util/Bitmask.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -117,3 +118,5 @@ Texture::DirtyMask Texture::dirtyMask() const {
 void Texture::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

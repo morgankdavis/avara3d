@@ -16,9 +16,10 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Pubic Static Members]
 
@@ -68,3 +69,5 @@ float Sphere::radius() const {
 unsigned Sphere::segments() const {
     return _segments;
 }
+
+} // namespace a3d

@@ -14,17 +14,17 @@
 namespace a3d {
 
     /** @brief Configures distance-based fog for a VisualWorld. */
-    struct Fog {
+struct Fog {
 
-        // [Public Member Variables]
+    // [Public Member Variables]
 
-        Color color {};                       ///< Fog color.
-        float startDistance {0.0f}; ///< Distance where fog begins, in scene units; must be non-negative.
-        float endDistance {
-            1000.0f}; ///< Distance where fog reaches full strength, in scene units; must be greater than startDistance.
-        /** @brief Fog transition exponent; must be non-negative. 0 uses color alpha, 1 is linear, and values above/below 1 shift the transition later/earlier. */
-        float transitionExponent {1.0f};
-    };
+    Color color {};                       ///< Fog color.
+    float startDistance {0.0f}; ///< Distance where fog begins, in scene units; must be non-negative.
+    float endDistance {
+        1000.0f}; ///< Distance where fog reaches full strength, in scene units; must be greater than startDistance.
+    /** @brief Fog transition exponent; must be non-negative. 0 uses color alpha, 1 is linear, and values above/below 1 shift the transition later/earlier. */
+    float transitionExponent {1.0f};
+};
 
 }
 

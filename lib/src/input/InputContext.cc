@@ -10,7 +10,8 @@
 
 #include <utility>
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -28,3 +29,5 @@ InputContext::DidUpdateCallback InputContext::didUpdateCallback() const {
 void InputContext::didUpdateCallback(DidUpdateCallback callback) {
     _didUpdateCallback = std::move(callback);
 }
+
+} // namespace a3d

@@ -108,6 +108,8 @@ struct ContactTestResultCallback : btCollisionWorld::ContactResultCallback {
     vector<RawContactResult> results;
 };
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
@@ -1004,6 +1006,8 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
         },
     };
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

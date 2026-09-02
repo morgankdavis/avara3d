@@ -16,9 +16,10 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Pubic Static Members]
 
@@ -315,3 +316,5 @@ unsigned Wedge::widthSegments() const {
 unsigned Wedge::riseSegments() const {
     return _riseSegments;
 }
+
+} // namespace a3d

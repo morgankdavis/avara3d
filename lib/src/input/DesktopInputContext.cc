@@ -19,6 +19,8 @@ using namespace a3d::math;
 using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
+namespace a3d {
+
 // [Public Lifecycle Functions]
 
 DesktopInputContext::DesktopInputContext():
@@ -155,3 +157,5 @@ void DesktopInputContext::releaseAllInputs() {
 
     rebaseMouseMotion();
 }
+
+} // namespace a3d

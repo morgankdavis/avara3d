@@ -10,9 +10,10 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -80,3 +81,5 @@ mat4 OrthographicCamera::projection(const uvec2& viewportSize) const {
 
     return ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, _zNear, _zFar);
 }
+
+} // namespace a3d

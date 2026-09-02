@@ -18,9 +18,10 @@
 #include "a3d/scene/Node.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Member Functions]
 
@@ -85,3 +86,5 @@ void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
 Renderer* RenderContext::renderer() const {
     return _renderer.get();
 }
+
+} // namespace a3d

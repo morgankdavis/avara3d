@@ -63,6 +63,8 @@ void                     SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node>         ChainmailLink(float minorRadius, float majorRadius);
 void                     SpawnChainMail(Scene& scene);
 
+namespace sandbox::rigidbody {
+
 // [Public Lifecycle Functions]
 
 RigidBody::RigidBody(int argc, char* argv[]):
@@ -640,6 +642,8 @@ void RigidBody::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInf
         _slurmTrigger.reset();
     }
 }
+
+} // namespace sandbox::rigidbody
 
 // [Private Non-Member Functions]
 

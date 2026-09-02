@@ -15,8 +15,9 @@
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Internal Lifescycle]
 
@@ -25,3 +26,5 @@ Renderer::Renderer() {}
 Renderer::~Renderer() {
     log::d()("Destroying Renderer {:p}", static_cast<void*>(this));
 }
+
+} // namespace a3d

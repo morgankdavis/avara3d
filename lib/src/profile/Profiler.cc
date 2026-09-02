@@ -10,8 +10,9 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Member Functions]
 
@@ -74,3 +75,5 @@ void Profiler::reset() {
     _taggedSamples.clear();
     _keyedSamples.clear();
 }
+
+} // namespace a3d

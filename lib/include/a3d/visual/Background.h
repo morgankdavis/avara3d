@@ -15,19 +15,19 @@
 namespace a3d {
 
     /** @brief Configures a solid-color or cubemap background for a VisualWorld. */
-    struct Background {
+struct Background {
 
-        // [Public Lifecycle Functions]
+    // [Public Lifecycle Functions]
 
         /** @brief Creates a background with @p contents. */
-        explicit Background(Material::Property contents);
+    explicit Background(Material::Property contents);
 
-        // [Public Member Variables]
+    // [Public Member Variables]
 
-        Material::Property
-            contents {}; ///< Background contents; VisualWorld accepts a Color or a Texture containing a CubeImage.
-        math::quat orientation {1.0f}; ///< Orientation applied when sampling a cubemap background.
-    };
+    Material::Property
+        contents {}; ///< Background contents; VisualWorld accepts a Color or a Texture containing a CubeImage.
+    math::quat orientation {1.0f}; ///< Orientation applied when sampling a cubemap background.
+};
 
 }
 

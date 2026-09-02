@@ -24,7 +24,9 @@ static constexpr VertexAttribDesc PC_DESC[] = {{VertexSemantic::Position, 0, Ver
                                                {VertexSemantic::Color0, 1, VertexAttribFormat::F32x3,
                                                 (uint16_t) offsetof(VertexPC, color)}};
 
-const VertexLayoutDesc& a3d::GetVertexLayoutDesc(VertexLayout layout) {
+namespace a3d {
+
+const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout) {
     static constexpr VertexLayoutDesc PNT {(uint16_t) sizeof(VertexPNT), PNT_DESC};
     static constexpr VertexLayoutDesc PC {(uint16_t) sizeof(VertexPC), PC_DESC};
     static constexpr VertexLayoutDesc NONE {0, {}};
@@ -38,3 +40,5 @@ const VertexLayoutDesc& a3d::GetVertexLayoutDesc(VertexLayout layout) {
             return NONE;
     }
 }
+
+} // namespace a3d

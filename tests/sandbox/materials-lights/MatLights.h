@@ -16,48 +16,48 @@
 
 namespace a3d {
 
-    class Node;
-    class Scene;
-    class Window;
+class Node;
+class Scene;
+class Window;
 
 }
 
 namespace sandbox::matlights {
 
-    class MatLights : public a3d::Application {
+class MatLights : public a3d::Application {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
-        MatLights(int argc, char* argv[]);
-        ~MatLights() override;
+    MatLights(int argc, char* argv[]);
+    ~MatLights() override;
 
-    protected:
-        // [Application Protected Member Functions]
+protected:
+    // [Application Protected Member Functions]
 
-        std::unique_ptr<a3d::Scene> init() override;
-        bool                        shouldContinue(const a3d::Scene& scene) override;
+    std::unique_ptr<a3d::Scene> init() override;
+    bool                        shouldContinue(const a3d::Scene& scene) override;
 
-        void inputDidUpdate(a3d::Runner&                         runner,
-                            a3d::Scene&                          scene,
-                            a3d::InputContext&                   inputContext,
-                            const a3d::InputContext::UpdateInfo& info) override;
+    void inputDidUpdate(a3d::Runner&                         runner,
+                        a3d::Scene&                          scene,
+                        a3d::InputContext&                   inputContext,
+                        const a3d::InputContext::UpdateInfo& info) override;
 
-        void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
+    void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
-        void frameDidBegin(a3d::Runner&                        runner,
-                           a3d::Scene&                         scene,
-                           a3d::VisualWorld&                   visualWorld,
-                           const a3d::VisualWorld::RenderInfo& info) override;
+    void frameDidBegin(a3d::Runner&                        runner,
+                       a3d::Scene&                         scene,
+                       a3d::VisualWorld&                   visualWorld,
+                       const a3d::VisualWorld::RenderInfo& info) override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::unique_ptr<a3d::Window>  _window;
-        a3d::ext::FlyCameraController _cameraController;
-        std::weak_ptr<a3d::Node>      _pointLightNode;
-        float                         _pointLightOrbitRadius;
-    };
+    std::unique_ptr<a3d::Window>  _window;
+    a3d::ext::FlyCameraController _cameraController;
+    std::weak_ptr<a3d::Node>      _pointLightNode;
+    float                         _pointLightOrbitRadius;
+};
 
 }
 

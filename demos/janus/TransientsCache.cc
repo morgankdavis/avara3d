@@ -14,7 +14,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace demo::janus;
 using namespace std;
 
 // [Private Constants]
@@ -25,6 +24,8 @@ static const float BEACHBALL_MAX_DIM {0.45f};
 static const float HAMMER_LENGTH {1.0f};
 static const float HULA_DIAMETER {1.1f};
 static const float DUCK_HEIGHT {0.5f};
+
+namespace demo::janus {
 
 // [Public Member Functions]
 
@@ -189,3 +190,5 @@ void TransientsCache::initDuck(const Node& node) {
 
     _duck = Entry {.mesh = std::move(mesh), .physicsShape = std::move(physicsShape)};
 }
+
+} // namespace demo::janus

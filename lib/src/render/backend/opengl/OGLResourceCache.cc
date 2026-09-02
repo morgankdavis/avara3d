@@ -47,6 +47,8 @@ static GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
 static uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
 static uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 OGLResourceCache::OGLResourceCache(OGLMemoryTracker& memoryTracker):
@@ -338,6 +340,8 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
     return it->second;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

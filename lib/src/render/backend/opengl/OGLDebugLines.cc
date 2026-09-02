@@ -11,7 +11,8 @@
 #include "a3d/render/backend/opengl/gl.h"
 #include "a3d/render/backend/opengl/OGLMemoryTracker.h"
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
@@ -97,3 +98,5 @@ void OGLDebugLines::destroy() {
     vertexCount = 0;
     cpuVerts.clear();
 }
+
+} // namespace a3d

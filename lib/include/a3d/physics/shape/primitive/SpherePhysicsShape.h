@@ -14,40 +14,40 @@
 namespace a3d {
 
     /** @brief Spherical collision shape centered at the local origin. */
-    class SpherePhysicsShape : public PhysicsShape {
+class SpherePhysicsShape : public PhysicsShape {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
         /** @brief Creates a spherical collision shape with @p radius. */
-        explicit SpherePhysicsShape(float radius);
+    explicit SpherePhysicsShape(float radius);
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
         /** @brief Returns the configured sphere radius. */
-        float radius() const;
+    float radius() const;
 
-        // [Public PhysicsShape Member Functions]
+    // [Public PhysicsShape Member Functions]
 
         /** @brief Returns PhysicsShape::Type::Primitive. */
-        Type  type() const override;
+    Type  type() const override;
 
         /**
-         * @brief Rejects attempts to change the fixed primitive shape type.
-         *
-         * @throws std::logic_error always; SpherePhysicsShape has a fixed type.
-         */
-        void  type(Type type) override;
+     * @brief Rejects attempts to change the fixed primitive shape type.
+     *
+     * @throws std::logic_error always; SpherePhysicsShape has a fixed type.
+     */
+    void  type(Type type) override;
 
-        // [PhysicsShape Internal Member Functions]
+    // [PhysicsShape Internal Member Functions]
 
-        bool  supportsMargin() const override;
+    bool  supportsMargin() const override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        float _radius;
-    };
+    float _radius;
+};
 
 }
 

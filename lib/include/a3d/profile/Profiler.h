@@ -15,50 +15,50 @@
 
 namespace a3d {
 
-    class Profiler {
+class Profiler {
 
-    public:
-        // [Internal Types]
+public:
+    // [Internal Types]
 
-        enum class Tag {
-            Frame,
-            EngineCpu,
-            RenderCpu,
-            RenderGpu,
-            Physics,
-            Application
-        };
+    enum class Tag {
+        Frame,
+        EngineCpu,
+        RenderCpu,
+        RenderGpu,
+        Physics,
+        Application
+    };
 
-        // [Internal Lifecycle Functions]
+    // [Internal Lifecycle Functions]
 
-        Profiler() = default;
+    Profiler() = default;
 
-        Profiler(const Profiler&)            = delete;
-        Profiler& operator=(const Profiler&) = delete;
+    Profiler(const Profiler&)            = delete;
+    Profiler& operator=(const Profiler&) = delete;
 
-        Profiler(Profiler&&)            = delete;
-        Profiler& operator=(Profiler&&) = delete;
+    Profiler(Profiler&&)                           = delete;
+    Profiler&                operator=(Profiler&&) = delete;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        void      add(Tag tag, std::chrono::nanoseconds ns) noexcept;
-        void      add(const std::string& key, std::chrono::nanoseconds ns) noexcept; // ! untested
+    void                     add(Tag tag, std::chrono::nanoseconds ns) noexcept;
+    void                     add(const std::string& key, std::chrono::nanoseconds ns) noexcept; // ! untested
 
         // ! TEMPORARY !
 //		void subtract(Tag tag, std::chrono::nanoseconds ns); // ! untested
 //		void subtract(const std::string& key, std::chrono::nanoseconds ns); // ! untested
 
-        std::chrono::nanoseconds time(Tag tag);
-        std::chrono::nanoseconds time(const std::string& key); // ! untested
+    std::chrono::nanoseconds time(Tag tag);
+    std::chrono::nanoseconds time(const std::string& key); // ! untested
 
-        void                     reset();
+    void                     reset();
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::map<Tag, std::chrono::nanoseconds>         _taggedSamples;
-        std::map<std::string, std::chrono::nanoseconds> _keyedSamples;
-    };
+    std::map<Tag, std::chrono::nanoseconds>         _taggedSamples;
+    std::map<std::string, std::chrono::nanoseconds> _keyedSamples;
+};
 
 }
 

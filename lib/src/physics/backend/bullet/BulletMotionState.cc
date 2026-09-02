@@ -14,8 +14,9 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
@@ -62,3 +63,5 @@ mat4 BulletMotionState::modelWorldTransform(const btTransform& centerOfMassWorld
 PhysicsBody* BulletMotionState::body() const {
     return _body;
 }
+
+} // namespace a3d

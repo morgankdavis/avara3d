@@ -15,60 +15,60 @@
 
 namespace a3d {
 
-    class Mesh;
-    class Material;
+class Mesh;
+class Material;
 
     /**
-     * @brief Rectangular grid mesh element centered at the origin in the XY plane.
-     *
-     * Width spans X, height spans Y, and generated normals point along +Z.
-     */
-    class Plane : public MeshElement {
+ * @brief Rectangular grid mesh element centered at the origin in the XY plane.
+ *
+ * Width spans X, height spans Y, and generated normals point along +Z.
+ */
+class Plane : public MeshElement {
 
-    public:
-        // [Public Static Member Functions]
+public:
+    // [Public Static Member Functions]
 
         /** @brief Creates a Mesh containing a Plane and optional @p material. */
-        static std::shared_ptr<Mesh> Mesh(float                     width, // x
-                                          float                     height, // y
-                                          unsigned                  widthSegements = DEFAULT_SEGMENTS,
-                                          unsigned                  heightSegments = DEFAULT_SEGMENTS,
-                                          std::shared_ptr<Material> material       = nullptr);
+    static std::shared_ptr<Mesh> Mesh(float                     width, // x
+                                      float                     height, // y
+                                      unsigned                  widthSegements = DEFAULT_SEGMENTS,
+                                      unsigned                  heightSegments = DEFAULT_SEGMENTS,
+                                      std::shared_ptr<Material> material       = nullptr);
 
-        // [Public Lifecycle Functions]
+    // [Public Lifecycle Functions]
 
         /** @brief Generates plane geometry with the supplied dimensions and subdivision counts. */
-        Plane(float    width,
-              float    height,
-              unsigned widthSegements = DEFAULT_SEGMENTS,
-              unsigned heightSegments = DEFAULT_SEGMENTS);
+    Plane(float    width,
+          float    height,
+          unsigned widthSegements = DEFAULT_SEGMENTS,
+          unsigned heightSegments = DEFAULT_SEGMENTS);
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
         /** @brief Returns the configured plane width along X. */
-        float    width() const;
+    float    width() const;
 
         /** @brief Returns the configured plane height along Y. */
-        float    height() const;
+    float    height() const;
 
         /** @brief Returns the width subdivision count. */
-        unsigned widthSegements() const;
+    unsigned widthSegements() const;
 
         /** @brief Returns the height subdivision count. */
-        unsigned heightSegments() const;
+    unsigned heightSegments() const;
 
-    private:
-        // [Private Constants]
+private:
+    // [Private Constants]
 
-        static constexpr unsigned DEFAULT_SEGMENTS = 8;
+    static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
-        // [Private Member Variables]
+    // [Private Member Variables]
 
-        float                     _width;
-        float                     _height;
-        unsigned                  _widthSegements;
-        unsigned                  _heightSegments;
-    };
+    float                     _width;
+    float                     _height;
+    unsigned                  _widthSegements;
+    unsigned                  _heightSegments;
+};
 
 }
 

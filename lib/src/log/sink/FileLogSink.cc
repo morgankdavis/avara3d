@@ -13,9 +13,9 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
-using namespace a3d::log;
 using namespace std;
+
+namespace a3d::log {
 
 // [Public Lifecycle Functions]
 
@@ -189,3 +189,5 @@ void FileLogSink::rotate() {
 
     openStream();
 }
+
+} // namespace a3d::log

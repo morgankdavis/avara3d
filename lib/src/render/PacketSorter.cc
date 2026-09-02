@@ -24,6 +24,8 @@ static uint16_t PtrHash16(const void* p);
 static uint32_t FoldHash32(size_t h);
 static void     SortItems(vector<DrawItem>& items);
 
+namespace a3d {
+
 // [Internal Static Member Functions]
 
 uint64_t PacketSorter::MakeBatchKey(const DrawItem& item) {
@@ -49,6 +51,8 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
     SortItems(packet.mainPassItems);
     SortItems(packet.wireframePassItems);
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

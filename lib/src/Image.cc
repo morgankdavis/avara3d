@@ -20,8 +20,9 @@
 #include "a3d/Buffer.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -287,3 +288,5 @@ void Image::flipHorizontal() { // "mirror"
         }
     }
 }
+
+} // namespace a3d

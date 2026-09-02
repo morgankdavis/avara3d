@@ -14,8 +14,9 @@
 
 #include "a3d/Image.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -71,3 +72,5 @@ unsigned CubeImage::bytesPerPixel() const {
 Image* CubeImage::face(Face face) const {
     return _faces[(size_t) face].get();
 }
+
+} // namespace a3d

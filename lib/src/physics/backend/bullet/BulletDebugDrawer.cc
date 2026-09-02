@@ -12,7 +12,6 @@
 #include "a3d/log/Log.h"
 #include "a3d/physics/backend/bullet/BulletUtilities.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
@@ -20,6 +19,8 @@ using namespace std;
 
 static constexpr float CONTACT_POINT_RADIUS = 0.04f;
 static constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -245,3 +246,5 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
 int BulletDebugDrawer::getDebugMode() const {
     return _debugMode;
 }
+
+} // namespace a3d

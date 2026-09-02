@@ -13,45 +13,45 @@
 
 namespace a3d {
 
-    /** @brief Box collision shape centered at the local origin, with width along X, height along Y, and length along Z. */
-    class BoxPhysicsShape : public PhysicsShape {
+/** @brief Box collision shape centered at the local origin, with width along X, height along Y, and length along Z. */
+class BoxPhysicsShape : public PhysicsShape {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
-        /** @brief Creates a box collision shape with the supplied full dimensions. */
-        BoxPhysicsShape(float width, float height, float length);
+    /** @brief Creates a box collision shape with the supplied full dimensions. */
+    BoxPhysicsShape(float width, float height, float length);
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
-        /** @brief Returns the configured full width along X. */
-        float width() const;
+    /** @brief Returns the configured full width along X. */
+    float width() const;
 
-        /** @brief Returns the configured full height along Y. */
-        float height() const;
+    /** @brief Returns the configured full height along Y. */
+    float height() const;
 
-        /** @brief Returns the configured full length along Z. */
-        float length() const;
+    /** @brief Returns the configured full length along Z. */
+    float length() const;
 
-        // [Public PhysicsShape Member Functions]
+    // [Public PhysicsShape Member Functions]
 
-        /** @brief Returns PhysicsShape::Type::Primitive. */
-        Type  type() const override;
+    /** @brief Returns PhysicsShape::Type::Primitive. */
+    Type  type() const override;
 
-        /**
-         * @brief Rejects attempts to change the fixed primitive shape type.
-         *
-         * @throws std::logic_error always; BoxPhysicsShape has a fixed type.
-         */
-        void  type(Type type) override;
+    /**
+     * @brief Rejects attempts to change the fixed primitive shape type.
+     *
+     * @throws std::logic_error always; BoxPhysicsShape has a fixed type.
+     */
+    void  type(Type type) override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        float _width;
-        float _height;
-        float _length;
-    };
+    float _width;
+    float _height;
+    float _length;
+};
 
 }
 

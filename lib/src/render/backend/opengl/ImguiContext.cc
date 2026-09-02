@@ -23,12 +23,13 @@
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace std;
 
 // [Private Constants]
 
 static const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
@@ -281,3 +282,5 @@ void ImguiContext::rebuildDeviceObjects() {
 
     _fontAtlasDirty = false;
 }
+
+} // namespace a3d

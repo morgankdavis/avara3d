@@ -8,7 +8,8 @@
 
 #include "a3d/visual/light/Attenuation.h"
 
-using namespace a3d;
+
+namespace a3d {
 
 Attenuation Attenuation::FromRange(float range, float p) {
 
@@ -31,3 +32,5 @@ Attenuation Attenuation::FromRange(float range, float p) {
 
     return a;
 }
+
+} // namespace a3d

@@ -16,39 +16,39 @@
 
 namespace a3d {
 
-    class PhysicsShape;
-    class Scene;
-    class Window;
+class PhysicsShape;
+class Scene;
+class Window;
 
 }
 
 namespace sandbox::inputcam {
 
-    class InputCam : public a3d::Application {
+class InputCam : public a3d::Application {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
-        InputCam(int argc, char* argv[]);
-        ~InputCam() override;
+    InputCam(int argc, char* argv[]);
+    ~InputCam() override;
 
-    protected:
-        // [Application Protected Member Functions]
+protected:
+    // [Application Protected Member Functions]
 
-        std::unique_ptr<a3d::Scene> init() override;
-        bool                        shouldContinue(const a3d::Scene& scene) override;
+    std::unique_ptr<a3d::Scene> init() override;
+    bool                        shouldContinue(const a3d::Scene& scene) override;
 
-        void inputDidUpdate(a3d::Runner&                         runner,
-                            a3d::Scene&                          scene,
-                            a3d::InputContext&                   inputContext,
-                            const a3d::InputContext::UpdateInfo& info) override;
+    void inputDidUpdate(a3d::Runner&                         runner,
+                        a3d::Scene&                          scene,
+                        a3d::InputContext&                   inputContext,
+                        const a3d::InputContext::UpdateInfo& info) override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::unique_ptr<a3d::Window>  _window;
-        a3d::ext::FlyCameraController _cameraController;
-    };
+    std::unique_ptr<a3d::Window>  _window;
+    a3d::ext::FlyCameraController _cameraController;
+};
 
 }
 

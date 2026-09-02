@@ -14,9 +14,10 @@
 #include "a3d/IdGenerator.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -332,3 +333,5 @@ Material::DirtyMask Material::dirtyMask() const {
 void Material::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

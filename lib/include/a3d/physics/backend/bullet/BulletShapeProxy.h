@@ -21,27 +21,27 @@ class btTriangleIndexVertexArray;
 
 namespace a3d {
 
-    class BulletShapeProxy : public PhysicsShapeProxy {
+class BulletShapeProxy : public PhysicsShapeProxy {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        explicit BulletShapeProxy(PhysicsShape& shape);
-        ~BulletShapeProxy() override;
+    explicit BulletShapeProxy(PhysicsShape& shape);
+    ~BulletShapeProxy() override;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        float                                                 margin() const override;
-        void                                                  margin(float margin) override;
+    float                                                 margin() const override;
+    void                                                  margin(float margin) override;
 
-        const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
+    const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
-        std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
-    };
+    std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
+    std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
+};
 
 }
 

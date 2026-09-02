@@ -17,8 +17,9 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -123,3 +124,5 @@ byte* Buffer::operator*() const {
 byte Buffer::operator[](size_t idx) const {
     return _data[idx];
 }
+
+} // namespace a3d

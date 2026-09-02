@@ -83,6 +83,8 @@ static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node
 
 static bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
 
+namespace a3d {
+
 // [Public Lifecycle Functions]
 
 VisualWorld::VisualWorld(RenderContext& context):
@@ -711,6 +713,8 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 
     return cameraNode;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

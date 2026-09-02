@@ -11,9 +11,10 @@
 #include "a3d/Color.h"
 #include "a3d/Math.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
@@ -41,3 +42,5 @@ const Color& Point::color() const {
 void Point::color(const Color& color) {
     _color = color;
 }
+
+} // namespace a3d

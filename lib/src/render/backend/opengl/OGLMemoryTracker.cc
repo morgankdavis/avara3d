@@ -8,8 +8,9 @@
 #include <functional>
 #include <utility>
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Internal Member Functions]
 
@@ -109,3 +110,5 @@ size_t OGLMemoryTracker::AllocationKeyHash::operator()(const AllocationKey& key)
     const size_t idHash = hash<gl::uint_t> {}(key.id);
     return typeHash ^ idHash;
 }
+
+} // namespace a3d

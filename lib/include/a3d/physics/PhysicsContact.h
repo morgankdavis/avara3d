@@ -15,64 +15,64 @@
 
 namespace a3d {
 
-    class Node;
+class Node;
 
     /**
-     * @brief Describes a contact between two physics bodies.
-     *
-     * The participating nodes are retained weakly. When a body pair has multiple
-     * underlying contact points, PhysicsContact represents the point with the
-     * greatest collision impulse, using deepest penetration as a tie-breaker.
-     * Contact persistence may keep a logical contact active across very small
-     * separations used to maintain stable simulation contact.
-     */
-    class PhysicsContact {
+ * @brief Describes a contact between two physics bodies.
+ *
+ * The participating nodes are retained weakly. When a body pair has multiple
+ * underlying contact points, PhysicsContact represents the point with the
+ * greatest collision impulse, using deepest penetration as a tie-breaker.
+ * Contact persistence may keep a logical contact active across very small
+ * separations used to maintain stable simulation contact.
+ */
+class PhysicsContact {
 
-    public:
-        // [Public Member Functions]
+public:
+    // [Public Member Functions]
 
         /** @brief Returns the first contact node as a weak reference. */
-        std::weak_ptr<Node> nodeA() const;
+    std::weak_ptr<Node> nodeA() const;
 
         /** @brief Returns the second contact node as a weak reference. */
-        std::weak_ptr<Node> nodeB() const;
+    std::weak_ptr<Node> nodeB() const;
 
         /** @brief Returns the world-space midpoint between the two body contact points. */
-        const math::vec3&   contactPoint() const;
+    const math::vec3&   contactPoint() const;
 
         /** @brief Returns the world-space contact normal pointing from nodeB() toward nodeA(). */
-        const math::vec3&   contactNormal() const;
+    const math::vec3&   contactNormal() const;
 
         /** @brief Returns the collision impulse associated with the represented contact point. */
-        float               collisionImpulse() const;
+    float               collisionImpulse() const;
 
-        /** @brief Returns the penetration depth, where zero indicates no penetration and positive values indicate overlap. */
-        float               penetrationDistance() const;
+    /** @brief Returns the penetration depth, where zero indicates no penetration and positive values indicate overlap. */
+    float               penetrationDistance() const;
 
-        /** @brief Returns the sweep-test fraction associated with this contact; ordinary contact results use zero. */
-        float               sweepTestFraction() const;
+    /** @brief Returns the sweep-test fraction associated with this contact; ordinary contact results use zero. */
+    float               sweepTestFraction() const;
 
-        // [Internal Lifecycle Functions]
+    // [Internal Lifecycle Functions]
 
-        PhysicsContact(std::weak_ptr<Node> nodeA,
-                       std::weak_ptr<Node> nodeB,
-                       const math::vec3&   contactPoint,
-                       const math::vec3&   contactNormal,
-                       float               collisionImpulse,
-                       float               penetrationDistance,
-                       float               sweepTestFraction);
+    PhysicsContact(std::weak_ptr<Node> nodeA,
+                   std::weak_ptr<Node> nodeB,
+                   const math::vec3&   contactPoint,
+                   const math::vec3&   contactNormal,
+                   float               collisionImpulse,
+                   float               penetrationDistance,
+                   float               sweepTestFraction);
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::weak_ptr<Node> _nodeA;
-        std::weak_ptr<Node> _nodeB;
-        math::vec3          _contactPoint;
-        math::vec3          _contactNormal;
-        float               _collisionImpulse;
-        float               _penetrationDistance;
-        float               _sweepTestFraction;
-    };
+    std::weak_ptr<Node> _nodeA;
+    std::weak_ptr<Node> _nodeB;
+    math::vec3          _contactPoint;
+    math::vec3          _contactNormal;
+    float               _collisionImpulse;
+    float               _penetrationDistance;
+    float               _sweepTestFraction;
+};
 
 }
 

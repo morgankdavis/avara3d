@@ -15,30 +15,30 @@
 
 namespace a3d {
 
-    class Profiler;
+class Profiler;
 
-    class ScopeTimer {
+class ScopeTimer {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        ScopeTimer(Profiler& profiler, Profiler::Tag tag);
+    ScopeTimer(Profiler& profiler, Profiler::Tag tag);
 
-        ScopeTimer(const ScopeTimer&)            = delete;
-        ScopeTimer& operator=(const ScopeTimer&) = delete;
+    ScopeTimer(const ScopeTimer&)            = delete;
+    ScopeTimer& operator=(const ScopeTimer&) = delete;
 
-        ScopeTimer(ScopeTimer&&)            = delete;
-        ScopeTimer& operator=(ScopeTimer&&) = delete;
+    ScopeTimer(ScopeTimer&&)            = delete;
+    ScopeTimer& operator=(ScopeTimer&&) = delete;
 
-        ~ScopeTimer();
+    ~ScopeTimer();
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        Profiler*                                          _profiler;
-        Profiler::Tag                                      _tag;
-        std::chrono::time_point<std::chrono::steady_clock> _start;
-    };
+    Profiler*                                          _profiler;
+    Profiler::Tag                                      _tag;
+    std::chrono::time_point<std::chrono::steady_clock> _start;
+};
 
 }
 

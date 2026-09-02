@@ -15,59 +15,59 @@
 namespace a3d {
 
     /** @brief Camera using a perspective projection with a vertical field of view. */
-    class PerspectiveCamera : public Camera {
+class PerspectiveCamera : public Camera {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed camera with a 0.1 near plane, 1000 far plane, and 45-degree vertical FOV. */
-        PerspectiveCamera();
+    /** @brief Creates an unnamed camera with a 0.1 near plane, 1000 far plane, and 45-degree vertical FOV. */
+    PerspectiveCamera();
 
-        /** @brief Creates an unnamed perspective camera with the supplied clipping distances and vertical FOV. */
-        PerspectiveCamera(float zNear, float zFar, float yFov);
+    /** @brief Creates an unnamed perspective camera with the supplied clipping distances and vertical FOV. */
+    PerspectiveCamera(float zNear, float zFar, float yFov);
 
-        /** @brief Creates a named perspective camera with the supplied clipping distances and vertical FOV. */
-        PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
+    /** @brief Creates a named perspective camera with the supplied clipping distances and vertical FOV. */
+    PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 
-        PerspectiveCamera(const PerspectiveCamera&)            = default;
-        PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
+    PerspectiveCamera(const PerspectiveCamera&)            = default;
+    PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
 
-        PerspectiveCamera(PerspectiveCamera&&) noexcept            = default;
-        PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
+    PerspectiveCamera(PerspectiveCamera&&) noexcept            = default;
+    PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
 
-        ~PerspectiveCamera() override;
+    ~PerspectiveCamera() override;
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
-        /** @brief Returns the near clipping distance. */
-        float      zNear() const;
+    /** @brief Returns the near clipping distance. */
+    float      zNear() const;
 
-        /** @brief Sets the near clipping distance. */
-        void       zNear(float zNear);
+    /** @brief Sets the near clipping distance. */
+    void       zNear(float zNear);
 
-        /** @brief Returns the far clipping distance. */
-        float      zFar() const;
+    /** @brief Returns the far clipping distance. */
+    float      zFar() const;
 
-        /** @brief Sets the far clipping distance. */
-        void       zFar(float zFar);
+    /** @brief Sets the far clipping distance. */
+    void       zFar(float zFar);
 
-        /** @brief Returns the vertical field of view in radians. */
-        float      yFov() const;
+    /** @brief Returns the vertical field of view in radians. */
+    float      yFov() const;
 
-        /** @brief Sets the vertical field of view in radians. */
-        void       yFov(float fov);
+    /** @brief Sets the vertical field of view in radians. */
+    void       yFov(float fov);
 
-        // [Camera Internal Member Functions]
+    // [Camera Internal Member Functions]
 
-        math::mat4 projection(const math::uvec2& framebufferSize) const override;
+    math::mat4 projection(const math::uvec2& framebufferSize) const override;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        float _zNear;
-        float _zFar;
-        float _yFov;
-    };
+    float _zNear;
+    float _zFar;
+    float _yFov;
+};
 
 }
 

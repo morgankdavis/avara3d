@@ -18,49 +18,49 @@
 namespace a3d {
 
     /**
-     * @brief Base class for camera projection models used by VisualWorld.
-     *
-     * A Camera is attached to a Node; the Node's world transform supplies the
-     * camera pose while the concrete Camera supplies the projection.
-     */
-    class Camera {
+ * @brief Base class for camera projection models used by VisualWorld.
+ *
+ * A Camera is attached to a Node; the Node's world transform supplies the
+ * camera pose while the concrete Camera supplies the projection.
+ */
+class Camera {
 
-    public:
-        // [Public Lifecycle Functions]
+public:
+    // [Public Lifecycle Functions]
 
         /** @brief Creates an unnamed Camera. */
-        Camera();
+    Camera();
 
         /** @brief Creates a Camera with @p name. */
-        explicit Camera(const std::string& name);
+    explicit Camera(const std::string& name);
 
-        virtual ~Camera() = 0;
+    virtual ~Camera() = 0;
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
         /** @brief Returns the optional camera name. */
-        const std::optional<std::string>& name() const;
+    const std::optional<std::string>& name() const;
 
         /** @brief Sets the camera name. */
-        void                              name(const std::string& name);
+    void                              name(const std::string& name);
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        virtual math::mat4                projection(const math::uvec2& viewportSize) const = 0;
+    virtual math::mat4                projection(const math::uvec2& viewportSize) const = 0;
 
-    protected:
-        // [Protected Lifecycle Functions]
+protected:
+    // [Protected Lifecycle Functions]
 
-        Camera(const Camera&)            = default;
-        Camera& operator=(const Camera&) = default;
+    Camera(const Camera&)            = default;
+    Camera& operator=(const Camera&) = default;
 
-        Camera(Camera&&) noexcept                               = default;
-        Camera&                    operator=(Camera&&) noexcept = default;
+    Camera(Camera&&) noexcept                               = default;
+    Camera&                    operator=(Camera&&) noexcept = default;
 
-        // [Protected Member Variables]
+    // [Protected Member Variables]
 
-        std::optional<std::string> _name;
-    };
+    std::optional<std::string> _name;
+};
 
 }
 

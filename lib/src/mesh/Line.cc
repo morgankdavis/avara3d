@@ -10,9 +10,10 @@
 
 #include "a3d/Color.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
@@ -67,3 +68,5 @@ const Color& Line::toColor() const {
 void Line::toColor(const Color& color) {
     _toColor = color;
 }
+
+} // namespace a3d

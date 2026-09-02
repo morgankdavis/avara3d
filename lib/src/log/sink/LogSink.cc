@@ -8,13 +8,15 @@
 
 #include "a3d/log/sink/LogSink.h"
 
-using namespace a3d;
-using namespace a3d::log;
+
+namespace a3d::log {
 
 // [Public Lifecycle Functions]
 
-log::LogSink::~LogSink() {}
+LogSink::~LogSink() {}
 
 // [Public Member Functions]
 
-void log::LogSink::flush() {}
+void LogSink::flush() {}
+
+} // namespace a3d::log

@@ -19,8 +19,9 @@
 #include "a3d/scene/Node.h"
 #include "a3d/util/Enum.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -226,3 +227,5 @@ PhysicsShape::PhysicsShape():
     _margin {},
     _source {},
     _bodies {} {}
+
+} // namespace a3d

@@ -26,10 +26,11 @@
 #include "a3d/util/Timer.h"
 #include "a3d/visual/VisualWorld.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::filesystem;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -312,3 +313,5 @@ void Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
         });
     }
 }
+
+} // namespace a3d

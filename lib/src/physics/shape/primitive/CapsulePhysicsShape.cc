@@ -12,7 +12,8 @@
 
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -49,3 +50,5 @@ void CapsulePhysicsShape::type(PhysicsShape::Type type) {
 bool CapsulePhysicsShape::supportsMargin() const {
     return false;
 }
+
+} // namespace a3d

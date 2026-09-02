@@ -24,9 +24,10 @@
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Flow.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -213,3 +214,5 @@ void PhysicsWorld::appendDebugLines(vector<Line>& out) const {
 PhysicsWorldProxy* PhysicsWorld::proxy() const {
     return _proxy.get();
 }
+
+} // namespace a3d

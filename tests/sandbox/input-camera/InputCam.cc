@@ -18,7 +18,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace sandbox::inputcam;
 using namespace std;
 
 // [Private Constants]
@@ -30,6 +29,8 @@ const bool                        ENABLE_HIGH_DPI {true};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
+
+namespace sandbox::inputcam {
 
 // [Public Lifecycle Functions]
 
@@ -99,3 +100,5 @@ void InputCam::inputDidUpdate(Runner&                         runner,
         _cameraController.update(*pov, *input, info.deltaTime);
     }
 }
+
+} // namespace sandbox::inputcam

@@ -18,9 +18,10 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/util/Chrono.h"
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -233,3 +234,5 @@ Mesh::Mesh():
     _elements {},
     _materials {},
     _dirtyMask {DirtyMask::All} {}
+
+} // namespace a3d

@@ -8,8 +8,9 @@
 
 #include "a3d/profile/FrameStatsHistory.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -80,3 +81,5 @@ void FrameStatsHistory::add(FrameStats stats) {
 const deque<tuple<FrameStatsHistory::SteadyTimePoint, FrameStats>>& FrameStatsHistory::samples() const {
     return _samples;
 }
+
+} // namespace a3d

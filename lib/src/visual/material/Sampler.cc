@@ -12,8 +12,9 @@
 
 #include "a3d/IdGenerator.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -159,3 +160,5 @@ Sampler::DirtyMask Sampler::dirtyMask() const {
 void Sampler::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

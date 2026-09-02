@@ -55,6 +55,8 @@ static void GLFWErrorCallback(int error, const char* description);
 static bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 static bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
+namespace a3d {
+
 // [Public Static Member Functions]
 
 unique_ptr<DesktopInputContext> Window::InputContext() {
@@ -656,6 +658,8 @@ Window* Window::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
 DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
     return WindowFromGLFWwindow(glfwWindow)->_inputContext;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

@@ -11,16 +11,16 @@
 
 namespace a3d {
 
-    struct DrawPacket;
-    struct GatherOutput;
+struct DrawPacket;
+struct GatherOutput;
 
-    class DrawPacketizer {
+class DrawPacketizer {
 
-    public:
-        // [Internal Static Member Functions]
+public:
+    // [Internal Static Member Functions]
 
-        static DrawPacket Packetize(GatherOutput& gatherOutput);
-    };
+    static DrawPacket Packetize(GatherOutput& gatherOutput);
+};
 
 }
 

@@ -27,6 +27,8 @@ using namespace std;
 static optional<string> ShaderSourceAt(const string& name, ShaderType type);
 static optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 GLSLProgram::GLSLProgram(const string& name):
@@ -441,6 +443,8 @@ void GLSLProgram::glID(GLuint glID) {
 void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

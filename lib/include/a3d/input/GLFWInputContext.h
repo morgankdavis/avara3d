@@ -18,50 +18,50 @@ struct GLFWwindow;
 
 namespace a3d {
 
-    class Window;
+class Window;
 
-    class GLFWInputContext : public DesktopInputContext {
+class GLFWInputContext : public DesktopInputContext {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        GLFWInputContext();
-        ~GLFWInputContext() override;
+    GLFWInputContext();
+    ~GLFWInputContext() override;
 
-        GLFWInputContext(const InputContext& other)            = delete;
-        GLFWInputContext& operator=(const InputContext& other) = delete;
+    GLFWInputContext(const InputContext& other)            = delete;
+    GLFWInputContext& operator=(const InputContext& other) = delete;
 
-        // [InputContext Internal Member Functions]
+    // [InputContext Internal Member Functions]
 
-        void              attachedToScene(Scene& scene) override;
-        void              visualWorldAttachedToScene(Scene& scene) override;
+    void              attachedToScene(Scene& scene) override;
+    void              visualWorldAttachedToScene(Scene& scene) override;
 
-        // [DesktopInputContext Internal Member Functions]
+    // [DesktopInputContext Internal Member Functions]
 
-        void              rebaseMouseMotion() override;
+    void              rebaseMouseMotion() override;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        void              glfwCursorPositionEvent(double xPos, double yPos);
-        void              glfwMouseButtonEvent(int button, int action, int mods);
-        void              glfwScrollEvent(double xOffset, double yOffset);
-        void              glfwKeyEvent(int key, int scanCode, int action, int mods);
+    void              glfwCursorPositionEvent(double xPos, double yPos);
+    void              glfwMouseButtonEvent(int button, int action, int mods);
+    void              glfwScrollEvent(double xOffset, double yOffset);
+    void              glfwKeyEvent(int key, int scanCode, int action, int mods);
 
-        void              detachedFromWindow(Window& window);
+    void              detachedFromWindow(Window& window);
 
-    private:
-        // [Private Member Functions]
+private:
+    // [Private Member Functions]
 
-        void    window(Window* window);
-        Window* window() const;
+    void    window(Window* window);
+    Window* window() const;
 
-        void    initMouseInput();
+    void    initMouseInput();
 
-        // [Private Member Variables]
+    // [Private Member Variables]
 
-        Window* _window;
-        bool    _hasMousePosition;
-    };
+    Window* _window;
+    bool    _hasMousePosition;
+};
 
 }
 

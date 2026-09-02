@@ -173,6 +173,8 @@ static void ImguiDrawPlot(float        x,
 
 static string FormatMemorySize(uint64_t bytes);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 StatsOverlay::StatsOverlay():
@@ -211,6 +213,8 @@ void StatsOverlay::draw(const RenderContext&     context,
     DrawOverlay(context, scene, stats, statsHistory, debugOptions, gpuTimingAvailable, *_titleImFont,
                 *_bodyImFont);
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

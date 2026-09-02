@@ -17,35 +17,35 @@
 
 namespace a3d {
 
-    class OGLMemoryTracker;
+class OGLMemoryTracker;
 
-    struct OGLDebugLines {
+struct OGLDebugLines {
 
-        // [Internal Types]
+    // [Internal Types]
 
-        struct Vertex {
-            math::vec3 pos;
-            math::vec3 color;
-        };
-
-        // [Internal Lifecycle Functions]
-
-        explicit OGLDebugLines(OGLMemoryTracker& memoryTracker);
-
-        // [Internal Member Functions]
-
-        void                ensureBuffers();
-        void                upload(const std::vector<Line>& lines);
-        void                destroy();
-
-        // [Internal Member Variables]
-
-        OGLMemoryTracker&   memoryTracker;
-        gl::uint_t          vbo         = 0;
-        gl::uint_t          vao         = 0;
-        gl::sizei_t         vertexCount = 0;
-        std::vector<Vertex> cpuVerts    = {};
+    struct Vertex {
+        math::vec3 pos;
+        math::vec3 color;
     };
+
+    // [Internal Lifecycle Functions]
+
+    explicit OGLDebugLines(OGLMemoryTracker& memoryTracker);
+
+    // [Internal Member Functions]
+
+    void                ensureBuffers();
+    void                upload(const std::vector<Line>& lines);
+    void                destroy();
+
+    // [Internal Member Variables]
+
+    OGLMemoryTracker&   memoryTracker;
+    gl::uint_t          vbo         = 0;
+    gl::uint_t          vao         = 0;
+    gl::sizei_t         vertexCount = 0;
+    std::vector<Vertex> cpuVerts    = {};
+};
 
 }
 

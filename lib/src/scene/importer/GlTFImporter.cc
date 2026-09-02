@@ -64,6 +64,8 @@ static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
                                              const fastgltf::Accessor& idxAccessor,
                                              vector<uint32_t>&         out);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 GlTFImporter::GlTFImporter(const filesystem::path& path, Scene::ImportOptions options):
@@ -781,6 +783,8 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
     return nullptr;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

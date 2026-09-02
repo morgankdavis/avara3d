@@ -15,8 +15,9 @@
 #include "a3d/visual/light/PointLight.h"
 #include "a3d/visual/light/SpotLight.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -104,3 +105,5 @@ const Color& Light::color() const {
 void Light::color(const Color& color) {
     _color = color;
 }
+
+} // namespace a3d

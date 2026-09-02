@@ -8,10 +8,13 @@
 
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Internal Lifecycle Functions]
 
 PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape& shape) {}
 
 PhysicsShapeProxy::~PhysicsShapeProxy() {}
+
+} // namespace a3d

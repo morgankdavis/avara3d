@@ -18,59 +18,59 @@
 
 namespace a3d {
 
-    class Material;
-    class MeshElement;
-    class Node;
+class Material;
+class MeshElement;
+class Node;
 
-    // [Internal Types]
+// [Internal Types]
 
-    struct BackgroundPass {
-        PipelineId                pipelineId  = INVALID_PIPELINE_ID;
-        PipelineDesc              desc        = {};
-        std::shared_ptr<Material> material    = nullptr; // gross
-        math::quat                orientation = math::quat(1.0f);
-    };
+struct BackgroundPass {
+    PipelineId                pipelineId  = INVALID_PIPELINE_ID;
+    PipelineDesc              desc        = {};
+    std::shared_ptr<Material> material    = nullptr; // gross
+    math::quat                orientation = math::quat(1.0f);
+};
 
-    struct GroundPass {
-        PipelineId            pipelineId = INVALID_PIPELINE_ID;
-        PipelineDesc          desc       = {};
-        std::optional<Ground> ground     = {};
-    };
+struct GroundPass {
+    PipelineId            pipelineId = INVALID_PIPELINE_ID;
+    PipelineDesc          desc       = {};
+    std::optional<Ground> ground     = {};
+};
 
-    struct LinesPass {
-        PipelineId        pipelineId = INVALID_PIPELINE_ID;
-        PipelineDesc      desc       = {};
-        math::mat4        model      = math::mat4(1.0f); // identity for world-space lines
-        std::vector<Line> lines      = {};
-    };
+struct LinesPass {
+    PipelineId        pipelineId = INVALID_PIPELINE_ID;
+    PipelineDesc      desc       = {};
+    math::mat4        model      = math::mat4(1.0f); // identity for world-space lines
+    std::vector<Line> lines      = {};
+};
 
-    struct DrawItem {
-        PassKind     pass         = PassKind::MainOpaque;
-        PipelineId   pipelineId   = INVALID_PIPELINE_ID;
-        PipelineDesc desc         = {};
-        uint32_t     elementIndex = 0;
-        MeshElement* element      = nullptr;
-        Material*    material     = nullptr;
-        math::vec4   tint         = math::vec4(0.0f); // RGB color, a blend strength
-        math::mat4   model        = math::mat4(1.0);
-        float        depth        = 0.0f;
-        int          renderOrder  = 0;
-        uint64_t     batchKey     = 0;
-        uint32_t     sequence     = 0;
-        bool         transparent  = false;
-    };
+struct DrawItem {
+    PassKind     pass         = PassKind::MainOpaque;
+    PipelineId   pipelineId   = INVALID_PIPELINE_ID;
+    PipelineDesc desc         = {};
+    uint32_t     elementIndex = 0;
+    MeshElement* element      = nullptr;
+    Material*    material     = nullptr;
+    math::vec4   tint         = math::vec4(0.0f); // RGB color, a blend strength
+    math::mat4   model        = math::mat4(1.0);
+    float        depth        = 0.0f;
+    int          renderOrder  = 0;
+    uint64_t     batchKey     = 0;
+    uint32_t     sequence     = 0;
+    bool         transparent  = false;
+};
 
-    struct DrawPacket {
-        BackgroundPass        backgroundPass = {};
-        GroundPass            groundPass     = {};
-        std::vector<DrawItem> mainPassItems  = {};
+struct DrawPacket {
+    BackgroundPass        backgroundPass = {};
+    GroundPass            groundPass     = {};
+    std::vector<DrawItem> mainPassItems  = {};
         // opaqueItems
         // maskItems
         // transparentItems
-        std::vector<DrawItem> wireframePassItems = {};
-        LinesPass             linesPass          = {};
-        std::vector<Node*>    lightNodes         = {};
-    };
+    std::vector<DrawItem> wireframePassItems = {};
+    LinesPass             linesPass          = {};
+    std::vector<Node*>    lightNodes         = {};
+};
 
 }
 

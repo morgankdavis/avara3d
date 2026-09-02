@@ -10,9 +10,10 @@
 
 #include <utility>
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Member Functions]
 
@@ -60,3 +61,5 @@ PhysicsContact::PhysicsContact(weak_ptr<Node> nodeA,
     _collisionImpulse {collisionImpulse},
     _penetrationDistance {penetrationDistance},
     _sweepTestFraction {sweepTestFraction} {}
+
+} // namespace a3d

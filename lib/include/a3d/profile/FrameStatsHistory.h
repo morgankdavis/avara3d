@@ -17,39 +17,39 @@
 
 namespace a3d {
 
-    class FrameStatsHistory {
+class FrameStatsHistory {
 
-    public:
-        // [Internal Types]
+public:
+    // [Internal Types]
 
-        using SteadyTimePoint = std::chrono::time_point<std::chrono::steady_clock>;
+    using SteadyTimePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
-        // [Internal Static Member Functions]
+    // [Internal Static Member Functions]
 
-        static void GetAverages(const FrameStatsHistory&  history,
-                                std::chrono::nanoseconds& frame,
-                                std::chrono::nanoseconds& engineCpu,
-                                std::chrono::nanoseconds& renderCpu,
-                                std::chrono::nanoseconds& renderGpu,
-                                std::chrono::nanoseconds& physics,
-                                std::chrono::nanoseconds& appCpu,
-                                std::chrono::milliseconds averagingDuration);
-        // [Internal Lifecycle Functions]
+    static void GetAverages(const FrameStatsHistory&  history,
+                            std::chrono::nanoseconds& frame,
+                            std::chrono::nanoseconds& engineCpu,
+                            std::chrono::nanoseconds& renderCpu,
+                            std::chrono::nanoseconds& renderGpu,
+                            std::chrono::nanoseconds& physics,
+                            std::chrono::nanoseconds& appCpu,
+                            std::chrono::milliseconds averagingDuration);
+    // [Internal Lifecycle Functions]
 
-        explicit FrameStatsHistory(std::chrono::milliseconds historyTime);
+    explicit FrameStatsHistory(std::chrono::milliseconds historyTime);
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        void                                                       add(FrameStats stats);
+    void                                                       add(FrameStats stats);
 
-        const std::deque<std::tuple<SteadyTimePoint, FrameStats>>& samples() const;
+    const std::deque<std::tuple<SteadyTimePoint, FrameStats>>& samples() const;
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        std::chrono::milliseconds                           _historyTime;
-        std::deque<std::tuple<SteadyTimePoint, FrameStats>> _samples;
-    };
+    std::chrono::milliseconds                           _historyTime;
+    std::deque<std::tuple<SteadyTimePoint, FrameStats>> _samples;
+};
 
 }
 

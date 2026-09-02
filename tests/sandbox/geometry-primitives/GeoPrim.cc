@@ -12,7 +12,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace sandbox::geoprim;
 using namespace std;
 
 // [Private Constants]
@@ -26,6 +25,8 @@ const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 const float                       TIMESTEP {1.0 / 120.0};
 const bool                        DARK {false};
+
+namespace sandbox::geoprim {
 
 // [Public Lifecycle Functions]
 
@@ -267,3 +268,5 @@ void GeoPrim::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo&
         pivot->eulerAngles({0.0f, angles.y - rotation, 0.0f});
     }
 }
+
+} // namespace sandbox::geoprim

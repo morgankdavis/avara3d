@@ -35,6 +35,8 @@ const Color            HIGHLIGHT_BOX_COLOR {1.0f, 1.0f, 0.0f, 1.0f};
 const vec4             HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
 static constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
 
+namespace a3d {
+
 // [Internal Static Member Functions]
 
 // "gather / collect / cull"
@@ -200,3 +202,5 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     return output;
 }
+
+} // namespace a3d

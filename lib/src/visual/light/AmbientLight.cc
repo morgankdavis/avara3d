@@ -10,8 +10,9 @@
 
 #include "a3d/Color.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -43,3 +44,5 @@ AmbientLight::AmbientLight(const string& name, const Color& color):
 //		log::d()("Destroying Light {:p}", static_cast<void*>(this));
 //	}
 //}
+
+} // namespace a3d

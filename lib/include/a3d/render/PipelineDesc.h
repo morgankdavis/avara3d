@@ -17,62 +17,62 @@
 
 namespace a3d {
 
-    // [Internal Types]
+// [Internal Types]
 
-    using PipelineId                                = uint32_t;
-    static constexpr PipelineId INVALID_PIPELINE_ID = 0xFFFFFFFFu;
+using PipelineId                                = uint32_t;
+static constexpr PipelineId INVALID_PIPELINE_ID = 0xFFFFFFFFu;
 
-    enum class DepthFunc : uint8_t {
-        Less,
-        Lequal,
-        Equal,
-        Greater,
-        Gequal,
-        Notequal,
-        Always,
-        Never
-    };
+enum class DepthFunc : uint8_t {
+    Less,
+    Lequal,
+    Equal,
+    Greater,
+    Gequal,
+    Notequal,
+    Always,
+    Never
+};
 
-    enum class ShaderKind : uint8_t {
-        Skybox,
-        Ground,
-        Default,
-        Wireframe,
-        Lines
-    };
+enum class ShaderKind : uint8_t {
+    Skybox,
+    Ground,
+    Default,
+    Wireframe,
+    Lines
+};
 
-    enum class PassKind : uint8_t {
+enum class PassKind : uint8_t {
         // note: this is RENDER ORDER
-        Background      = 0,
-        Ground          = 1,
-        MainOpaque      = 2,
-        MainMask        = 3,
-        MainTransparent = 4,
-        Wireframe       = 5,
-        Lines           = 6
-    };
+    Background      = 0,
+    Ground          = 1,
+    MainOpaque      = 2,
+    MainMask        = 3,
+    MainTransparent = 4,
+    Wireframe       = 5,
+    Lines           = 6
+};
 
-    struct PipelineDesc {
+struct PipelineDesc {
         // *** MUST update PipelineDescHash() when this struct changes ***
-        PassKind                passKind        = PassKind::MainOpaque;
-        ShaderKind              shaderKind      = ShaderKind::Default;
-        VertexLayout            vertexLayoutKey = VertexLayout::None;
-        Material::FillMode      fillMode        = Material::FillMode::Fill;
-        Material::BlendFunction blendFunction   = Material::BlendFunction::Disabled;
-        bool                    doubleSided     = false;
-        bool                    depthTest       = true;
-        bool                    depthWrite      = true; // Main = true, Wire = false
-        DepthFunc               depthFunc       = DepthFunc::Less;
-        bool                    polygonOffset   = false; // Main = false, Wire = true
+    PassKind                passKind        = PassKind::MainOpaque;
+    ShaderKind              shaderKind      = ShaderKind::Default;
+    VertexLayout            vertexLayoutKey = VertexLayout::None;
+    Material::FillMode      fillMode        = Material::FillMode::Fill;
+    Material::BlendFunction blendFunction   = Material::BlendFunction::Disabled;
+    bool                    doubleSided     = false;
+    bool                    depthTest       = true;
+    bool                    depthWrite      = true; // Main = true, Wire = false
+    DepthFunc               depthFunc       = DepthFunc::Less;
+    bool                    polygonOffset   = false; // Main = false, Wire = true
 
-        bool                    operator==(const PipelineDesc&) const = default;
-    };
+    bool                    operator==(const PipelineDesc&) const = default;
+};
 
-    // [Internal Functions]
+// [Internal Functions]
 
-    struct PipelineDescHash { // for unordered_map
-        size_t operator()(const PipelineDesc& desc) const noexcept;
-    };
+struct PipelineDescHash { // for unordered_map
+    size_t operator()(const PipelineDesc& desc) const noexcept;
+};
 
 }
 

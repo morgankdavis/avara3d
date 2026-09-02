@@ -10,7 +10,8 @@
 
 #include <stdexcept>
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -38,3 +39,5 @@ void SpherePhysicsShape::type(PhysicsShape::Type type) {
 bool SpherePhysicsShape::supportsMargin() const {
     return false;
 }
+
+} // namespace a3d

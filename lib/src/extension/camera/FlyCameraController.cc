@@ -11,10 +11,10 @@
 #include "a3d/Math.h"
 #include "a3d/scene/Node.h"
 
-using namespace a3d;
-using namespace a3d::ext;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d::ext {
 
 // [Public Lifecycle Functions]
 
@@ -95,3 +95,5 @@ bool FlyCameraController::update(Node& pov, DesktopInputContext& input, double d
 
     return changed;
 }
+
+} // namespace a3d::ext

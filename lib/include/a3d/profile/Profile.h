@@ -20,11 +20,11 @@ namespace a3d::prof {
 
     // run f() while measuring its duration into `profiler` under `tag`
     // supports nesting!
-    template<class F>
-    decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
-        ScopeTimer t {profiler, tag};
-        return std::invoke(std::forward<F>(f));
-    }
+template<class F>
+decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
+    ScopeTimer t {profiler, tag};
+    return std::invoke(std::forward<F>(f));
+}
 
 }
 

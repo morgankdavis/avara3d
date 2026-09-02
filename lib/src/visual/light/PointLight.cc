@@ -11,8 +11,9 @@
 #include "a3d/Color.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -53,3 +54,5 @@ const Attenuation& PointLight::attenuation() const {
 void PointLight::attenuation(const Attenuation& attenuation) {
     _attenuation = attenuation;
 }
+
+} // namespace a3d

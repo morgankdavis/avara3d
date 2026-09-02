@@ -12,9 +12,10 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 using namespace a3d::math;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -43,3 +44,5 @@ const optional<string>& Camera::name() const {
 void Camera::name(const string& name) {
     _name = name;
 }
+
+} // namespace a3d

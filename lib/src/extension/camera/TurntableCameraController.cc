@@ -24,6 +24,8 @@ using namespace std;
 static void ValidateConfig(const TurntableCameraController::Config& config);
 static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
 
+namespace a3d::ext {
+
 // [Public Lifecycle Functions]
 
 TurntableCameraController::TurntableCameraController():
@@ -426,6 +428,8 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
         _view.target = _resolvedTarget;
     }
 }
+
+} // namespace a3d::ext
 
 // [Private Non-Member Functions]
 

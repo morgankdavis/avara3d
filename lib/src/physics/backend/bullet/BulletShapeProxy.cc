@@ -93,6 +93,8 @@ static void                               ValidateBTShapeMarginRec(const btColli
 static void                               SetBTShapeMarginRec(btCollisionShape& shape, btScalar margin);
 static void AccumulateBTShapeMarginRec(const btCollisionShape& shape, btScalar& margin, bool& foundMargin);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
@@ -195,6 +197,8 @@ void BulletShapeProxy::margin(float margin) {
 const vector<unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
     return _btShapes;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

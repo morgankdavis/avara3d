@@ -21,9 +21,10 @@
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/light/Light.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Pulic Static Members]
 
@@ -866,3 +867,5 @@ Node::DirtyMask Node::dirtyMask() const {
 void Node::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

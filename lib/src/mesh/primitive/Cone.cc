@@ -16,9 +16,10 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Pubic Static Members]
 
@@ -95,3 +96,5 @@ unsigned Cone::segments() const {
 unsigned Cone::rings() const {
     return _rings;
 }
+
+} // namespace a3d

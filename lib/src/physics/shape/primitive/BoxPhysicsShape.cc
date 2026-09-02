@@ -10,7 +10,8 @@
 
 #include <stdexcept>
 
-using namespace a3d;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -42,3 +43,5 @@ PhysicsShape::Type BoxPhysicsShape::type() const {
 void BoxPhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
 }
+
+} // namespace a3d

@@ -11,9 +11,10 @@
 #include "a3d/Color.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -46,3 +47,5 @@ float DirectionalLight::intensity() const {
 void DirectionalLight::intensity(float intensity) {
     _intensity = intensity;
 }
+
+} // namespace a3d

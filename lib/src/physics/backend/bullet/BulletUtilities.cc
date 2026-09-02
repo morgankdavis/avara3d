@@ -12,37 +12,38 @@
 #include <bullet/LinearMath/btTransform.h>
 #include <bullet/LinearMath/btVector3.h>
 
-using namespace a3d;
 using namespace a3d::math;
 
-vec3 a3d::A3DVec3FromBTVector3(const btVector3& from) {
+namespace a3d {
+
+vec3 A3DVec3FromBTVector3(const btVector3& from) {
     return {from.x(), from.y(), from.z()};
 }
 
-vec4 a3d::A3DVec4FromBTVector4(const btVector4& from) {
+vec4 A3DVec4FromBTVector4(const btVector4& from) {
     return vec4 {from.x(), from.y(), from.z(), from.w()};
 }
 
-mat4 a3d::A3DMat4FromBTTransform(const btTransform& from) {
+mat4 A3DMat4FromBTTransform(const btTransform& from) {
     mat4 glmMat;
     from.getOpenGLMatrix(value_ptr(glmMat));
     return glmMat;
 }
 
-btVector3 a3d::BTVector3FromA3DVec3(const math::vec3& from) {
+btVector3 BTVector3FromA3DVec3(const math::vec3& from) {
     return {from.x, from.y, from.z};
 }
 
-btVector4 a3d::BTVector4FromA3DVec4(const math::vec4& from) {
+btVector4 BTVector4FromA3DVec4(const math::vec4& from) {
     return {from.x, from.y, from.z, from.w};
 }
 
-btQuaternion a3d::BTQuaternionFromA3DQuat(const math::quat& from) {
+btQuaternion BTQuaternionFromA3DQuat(const math::quat& from) {
 
     return {from.x, from.y, from.z, from.w};
 }
 
-btTransform a3d::BTTransformFromA3DMat4(const math::mat4& from) {
+btTransform BTTransformFromA3DMat4(const math::mat4& from) {
 
     // this version (probably) does not strip scale & sheer
 
@@ -75,7 +76,7 @@ btTransform a3d::BTTransformFromA3DMat4(const math::mat4& from) {
 //	return bulletTransform;
 }
 
-mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
+mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
     // TODO: optimize
 
     vec3 scale;
@@ -99,3 +100,5 @@ mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
 //	identityTransform.setIdentity();
 //	return identityTransform;
 //}
+
+} // namespace a3d

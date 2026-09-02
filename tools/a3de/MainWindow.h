@@ -20,7 +20,7 @@ QT_BEGIN_NAMESPACE
 
 namespace Ui {
 
-    class MainWindow;
+class MainWindow;
 
 }
 
@@ -28,43 +28,43 @@ QT_END_NAMESPACE
 
 namespace a3d {
 
-    class Mesh;
-    class Node;
-    class Scene;
+class Mesh;
+class Node;
+class Scene;
 
 }
 
 namespace a3d::qt {
 
-    class QtViewport;
+class QtViewport;
 
 }
 
 namespace a3de {
 
-    class MainWindow : public QMainWindow {
-        Q_OBJECT
+class MainWindow : public QMainWindow {
+    Q_OBJECT
 
-    public:
-        explicit MainWindow(QWidget* parent = nullptr);
-        ~MainWindow() override;
+public:
+    explicit MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() override;
 
-    private:
-        void initA3D();
-        void updateA3D();
-        void initLog(a3d::log::Level level);
+private:
+    void initA3D();
+    void updateA3D();
+    void initLog(a3d::log::Level level);
 
-        // [Runner Callbacks]
+    // [Runner Callbacks]
 
-        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info);
+    void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info);
 
-        Ui::MainWindow*              _ui;
-        a3d::qt::QtViewport*         _viewport;
-        std::unique_ptr<a3d::Scene>  _scene;
-        std::unique_ptr<a3d::Runner> _runner; // Runner must be destroyed before Scene
-        std::shared_ptr<a3d::Node>   _pointLightNode;
-        std::shared_ptr<a3d::Node>   _bananaNode;
-    };
+    Ui::MainWindow*              _ui;
+    a3d::qt::QtViewport*         _viewport;
+    std::unique_ptr<a3d::Scene>  _scene;
+    std::unique_ptr<a3d::Runner> _runner; // Runner must be destroyed before Scene
+    std::shared_ptr<a3d::Node>   _pointLightNode;
+    std::shared_ptr<a3d::Node>   _bananaNode;
+};
 
 }
 

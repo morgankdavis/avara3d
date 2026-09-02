@@ -17,7 +17,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace sandbox::import;
 using namespace std;
 
 // [Private Constants]
@@ -29,6 +28,8 @@ const bool                        ENABLE_HIGH_DPI {true};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
+
+namespace sandbox::import {
 
 // [Public Lifecycle Functions]
 
@@ -104,3 +105,5 @@ void Import::inputDidUpdate(Runner&       runner,
         _window->close();
     }
 }
+
+} // namespace sandbox::import

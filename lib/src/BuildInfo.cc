@@ -16,8 +16,9 @@
 #include "a3d/Math.h"
 #include "a3d/util/Enum.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Static Member Functions]
 
@@ -100,3 +101,5 @@ BuildInfo::BuildInfo() {
     _time.tm_min = m;
     _time.tm_sec = s;
 }
+
+} // namespace a3d

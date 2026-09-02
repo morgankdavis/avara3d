@@ -13,8 +13,9 @@
 #include "a3d/Buffer.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -82,3 +83,5 @@ Font::Type Font::type() const {
 const Buffer* Font::buffer() const {
     return _buffer.get();
 }
+
+} // namespace a3d

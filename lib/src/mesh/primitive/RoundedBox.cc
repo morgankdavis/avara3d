@@ -16,9 +16,10 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Pubic Static Members]
 
@@ -125,3 +126,5 @@ unsigned RoundedBox::widthSegments() const {
 unsigned RoundedBox::heightSegments() const {
     return _heightSegments;
 }
+
+} // namespace a3d

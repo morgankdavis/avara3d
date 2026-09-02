@@ -11,9 +11,10 @@
 #include "a3d/Color.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Public Lifecycle Functions]
 
@@ -94,3 +95,5 @@ float SpotLight::innerAngleCos() const {
 float SpotLight::outerAngleCos() const {
     return _outerAngleCos;
 }
+
+} // namespace a3d

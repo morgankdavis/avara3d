@@ -17,53 +17,53 @@ struct ImGuiContext;
 
 namespace a3d {
 
-    class Font;
-    class RenderContext;
+class Font;
+class RenderContext;
 
-    class ImguiContext {
+class ImguiContext {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        ImguiContext();
+    ImguiContext();
 
-        ImguiContext(const ImguiContext&)            = delete;
-        ImguiContext& operator=(const ImguiContext&) = delete;
+    ImguiContext(const ImguiContext&)            = delete;
+    ImguiContext& operator=(const ImguiContext&) = delete;
 
-        ImguiContext(ImguiContext&&)            = delete;
-        ImguiContext& operator=(ImguiContext&&) = delete;
+    ImguiContext(ImguiContext&&)            = delete;
+    ImguiContext& operator=(ImguiContext&&) = delete;
 
-        ~ImguiContext();
+    ~ImguiContext();
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        void    startup(const RenderContext& context);
-        void    shutdown();
+    void    startup(const RenderContext& context);
+    void    shutdown();
 
-        ImFont* addFont(std::unique_ptr<Font> font);
-        ImFont* defaultFont() const;
+    ImFont* addFont(std::unique_ptr<Font> font);
+    ImFont* defaultFont() const;
 
-        void    beginFrame(const RenderContext& context);
-        void    endFrame();
+    void    beginFrame(const RenderContext& context);
+    void    endFrame();
 
-        bool    isStarted() const;
+    bool    isStarted() const;
 
-    private:
-        // [Private Member Functions]
+private:
+    // [Private Member Functions]
 
-        void                               makeCurrent() const;
-        void                               updateDisplayMetrics(const RenderContext& context);
-        void                               rebuildDeviceObjects();
+    void                               makeCurrent() const;
+    void                               updateDisplayMetrics(const RenderContext& context);
+    void                               rebuildDeviceObjects();
 
-        // [Private Member Variables]
+    // [Private Member Variables]
 
-        ImGuiContext*                      _context;
-        std::vector<std::unique_ptr<Font>> _fontSources;
-        ImFont*                            _defaultFont;
-        bool                               _fontAtlasDirty;
-        bool                               _frameActive;
-        bool                               _started;
-    };
+    ImGuiContext*                      _context;
+    std::vector<std::unique_ptr<Font>> _fontSources;
+    ImFont*                            _defaultFont;
+    bool                               _fontAtlasDirty;
+    bool                               _frameActive;
+    bool                               _started;
+};
 
 }
 

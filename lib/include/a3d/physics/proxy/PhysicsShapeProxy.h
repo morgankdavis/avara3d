@@ -11,28 +11,28 @@
 
 namespace a3d {
 
-    class PhysicsShape;
+class PhysicsShape;
 
-    class PhysicsShapeProxy {
+class PhysicsShapeProxy {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        explicit PhysicsShapeProxy(PhysicsShape& shape);
+    explicit PhysicsShapeProxy(PhysicsShape& shape);
 
-        PhysicsShapeProxy(const PhysicsShapeProxy&)            = delete;
-        PhysicsShapeProxy& operator=(const PhysicsShapeProxy&) = delete;
+    PhysicsShapeProxy(const PhysicsShapeProxy&)            = delete;
+    PhysicsShapeProxy& operator=(const PhysicsShapeProxy&) = delete;
 
-        PhysicsShapeProxy(PhysicsShapeProxy&&)            = delete;
-        PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
+    PhysicsShapeProxy(PhysicsShapeProxy&&)            = delete;
+    PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
 
-        virtual ~PhysicsShapeProxy() = 0;
+    virtual ~PhysicsShapeProxy() = 0;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        virtual float margin() const       = 0;
-        virtual void  margin(float margin) = 0;
-    };
+    virtual float margin() const       = 0;
+    virtual void  margin(float margin) = 0;
+};
 
 }
 

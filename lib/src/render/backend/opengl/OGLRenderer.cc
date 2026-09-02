@@ -272,6 +272,8 @@ static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
 static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
+namespace a3d {
+
 // [Private Static Members]
 
 bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
@@ -1153,6 +1155,8 @@ void OGLRenderer::syncImguiMemoryStats() {
         },
         OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

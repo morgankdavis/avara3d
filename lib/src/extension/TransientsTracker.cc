@@ -16,9 +16,9 @@
 
 #include "a3d/scene/Node.h"
 
-using namespace a3d;
-using namespace a3d::ext;
 using namespace std;
+
+namespace a3d::ext {
 
 // [Public Static Member Functions]
 
@@ -414,3 +414,5 @@ void TransientsTracker::resetRuntimeState() {
     _simulationTime.reset();
     _nextSweepTime.reset();
 }
+
+} // namespace a3d::ext

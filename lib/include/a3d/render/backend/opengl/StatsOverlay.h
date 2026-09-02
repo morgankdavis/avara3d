@@ -15,44 +15,44 @@ struct ImFont;
 
 namespace a3d {
 
-    struct FrameStats;
+struct FrameStats;
 
-    class FrameStatsHistory;
-    class ImguiContext;
-    class RenderContext;
+class FrameStatsHistory;
+class ImguiContext;
+class RenderContext;
 
-    class StatsOverlay {
+class StatsOverlay {
 
-    public:
-        // [Internal Lifecycle Functions]
+public:
+    // [Internal Lifecycle Functions]
 
-        StatsOverlay();
+    StatsOverlay();
 
-        StatsOverlay(const StatsOverlay&)            = delete;
-        StatsOverlay& operator=(const StatsOverlay&) = delete;
+    StatsOverlay(const StatsOverlay&)            = delete;
+    StatsOverlay& operator=(const StatsOverlay&) = delete;
 
-        StatsOverlay(StatsOverlay&&)            = delete;
-        StatsOverlay& operator=(StatsOverlay&&) = delete;
+    StatsOverlay(StatsOverlay&&)            = delete;
+    StatsOverlay& operator=(StatsOverlay&&) = delete;
 
-        ~StatsOverlay();
+    ~StatsOverlay();
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        void initialize(ImguiContext& context);
+    void initialize(ImguiContext& context);
 
-        void draw(const RenderContext&     context,
-                  const Scene&             scene,
-                  FrameStats&              stats,
-                  const FrameStatsHistory& statsHistory,
-                  Scene::DebugOptions      debugOptions,
-                  bool                     gpuTimingAvailable);
+    void draw(const RenderContext&     context,
+              const Scene&             scene,
+              FrameStats&              stats,
+              const FrameStatsHistory& statsHistory,
+              Scene::DebugOptions      debugOptions,
+              bool                     gpuTimingAvailable);
 
-    private:
-        // [Private Member Variables]
+private:
+    // [Private Member Variables]
 
-        ImFont* _titleImFont;
-        ImFont* _bodyImFont;
-    };
+    ImFont* _titleImFont;
+    ImFont* _bodyImFont;
+};
 
 }
 

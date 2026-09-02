@@ -41,6 +41,8 @@ static void SetMassPropsPreservingType(btRigidBody&      body,
 static void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
 static void ActivateDynamicBody(btRigidBody& body);
 
+namespace a3d {
+
 // [Internal Lifecycle Functions]
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
@@ -726,6 +728,8 @@ void BulletBodyProxy::syncRollingFrictionAnisotropy() {
 
     _btBody->setAnisotropicFriction(direction, btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

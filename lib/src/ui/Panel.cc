@@ -20,7 +20,6 @@
 #include "a3d/Math.h"
 #include "a3d/util/String.h"
 
-using namespace a3d::ui;
 using namespace std;
 
 // [Private Constants]
@@ -45,6 +44,8 @@ static void  DrawShadowedText(const ImVec2&      position,
                               float              wrapWidth = 0.0f);
 
 static void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness);
+
+namespace a3d::ui {
 
 // [Public Lifecycle Functions]
 
@@ -897,6 +898,8 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
 
     return pressed;
 }
+
+} // namespace a3d::ui
 
 // [Private Non-Member Functions]
 

@@ -12,7 +12,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace sandbox::scratch;
 using namespace std;
 
 // [Private Constants]
@@ -26,6 +25,8 @@ const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 const double                      TIMESTEP {1.0 / 120.0};
 const bool                        DARK {false};
+
+namespace sandbox::scratch {
 
 // [Public Lifecycle Functions]
 
@@ -323,3 +324,5 @@ void Scratch::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo&
         bananaNode->orientation(rotationY * bananaNode->orientation());
     }
 }
+
+} // namespace sandbox::scratch

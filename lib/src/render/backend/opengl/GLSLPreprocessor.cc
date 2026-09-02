@@ -38,6 +38,8 @@ static string           ExpandIncludes(const string&                            
                                        vector<string>&                          includeStack);
 static string           IncludeCycleMessage(const vector<string>& includeStack, const string& includeName);
 
+namespace a3d {
+
 // [Internal Static Functions]
 
 string GLSLPreprocessor::Process(const string&          source,
@@ -67,6 +69,8 @@ string GLSLPreprocessor::Process(const string&          source,
 
     return output;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

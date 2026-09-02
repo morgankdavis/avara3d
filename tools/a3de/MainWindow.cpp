@@ -15,7 +15,6 @@
 #include "QtInputContext.h"
 
 using namespace a3d;
-using namespace a3de;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
@@ -24,6 +23,8 @@ const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
 const bool                        CAPTURE_CURSOR {false};
+
+namespace a3de {
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
@@ -149,3 +150,5 @@ void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         _bananaNode->orientation(rotY * _bananaNode->orientation());
     }
 }
+
+} // namespace a3de

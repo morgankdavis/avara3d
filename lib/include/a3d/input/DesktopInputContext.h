@@ -17,249 +17,249 @@
 namespace a3d {
 
     /**
-     * @brief Exposes keyboard, pointer-button, pointer-motion, and scroll state.
-     *
-     * Applications normally obtain a compatible DesktopInputContext from
-     * Window::InputContext() and install it on a Scene. Down-state queries are
-     * persistent, while pressed and released queries consume unread transitions.
-     * Pointer and scroll deltas describe the most recently completed input update.
-     */
-    class DesktopInputContext : public InputContext {
+ * @brief Exposes keyboard, pointer-button, pointer-motion, and scroll state.
+ *
+ * Applications normally obtain a compatible DesktopInputContext from
+ * Window::InputContext() and install it on a Scene. Down-state queries are
+ * persistent, while pressed and released queries consume unread transitions.
+ * Pointer and scroll deltas describe the most recently completed input update.
+ */
+class DesktopInputContext : public InputContext {
 
-    public:
-        // [Public Types]
+public:
+    // [Public Types]
 
         /** @brief Identifies keyboard keys reported by desktop-style input contexts. */
-        enum class Key : int {
-            Unknown      = 0,
-            Space        = 32, //+
-            Apostrophe   = 39, //+
-            Comma        = 44, //+
-            Minus        = 45,
-            Period       = 46,
-            Slash        = 47,
-            Zero         = 48,
-            One          = 49,
-            Two          = 50,
-            Three        = 51,
-            Four         = 52,
-            Five         = 53,
-            Six          = 54,
-            Seven        = 55,
-            Eight        = 56,
-            Nine         = 57,
-            Semicolon    = 59,
-            Equal        = 61,
-            A            = 65,
-            B            = 66,
-            C            = 67,
-            D            = 68,
-            E            = 69,
-            F            = 70,
-            G            = 71,
-            H            = 72,
-            I            = 73,
-            J            = 74,
-            K            = 75,
-            L            = 76,
-            M            = 77,
-            N            = 78,
-            O            = 79,
-            P            = 80,
-            Q            = 81,
-            R            = 82,
-            S            = 83,
-            T            = 84,
-            U            = 85,
-            V            = 86,
-            W            = 87,
-            X            = 88,
-            Y            = 89,
-            Z            = 90,
-            LeftBracket  = 91,
-            Backslash    = 92,
-            RightBracket = 93,
-            GraveAccent  = 96,
-            World1       = 161, // non-US #1
-            World2       = 162, // non-US #2
+    enum class Key : int {
+        Unknown      = 0,
+        Space        = 32, //+
+        Apostrophe   = 39, //+
+        Comma        = 44, //+
+        Minus        = 45,
+        Period       = 46,
+        Slash        = 47,
+        Zero         = 48,
+        One          = 49,
+        Two          = 50,
+        Three        = 51,
+        Four         = 52,
+        Five         = 53,
+        Six          = 54,
+        Seven        = 55,
+        Eight        = 56,
+        Nine         = 57,
+        Semicolon    = 59,
+        Equal        = 61,
+        A            = 65,
+        B            = 66,
+        C            = 67,
+        D            = 68,
+        E            = 69,
+        F            = 70,
+        G            = 71,
+        H            = 72,
+        I            = 73,
+        J            = 74,
+        K            = 75,
+        L            = 76,
+        M            = 77,
+        N            = 78,
+        O            = 79,
+        P            = 80,
+        Q            = 81,
+        R            = 82,
+        S            = 83,
+        T            = 84,
+        U            = 85,
+        V            = 86,
+        W            = 87,
+        X            = 88,
+        Y            = 89,
+        Z            = 90,
+        LeftBracket  = 91,
+        Backslash    = 92,
+        RightBracket = 93,
+        GraveAccent  = 96,
+        World1       = 161, // non-US #1
+        World2       = 162, // non-US #2
 
             /* Function keys */
-            Escape         = 256,
-            Enter          = 257,
-            Tab            = 258,
-            Backspace      = 259,
-            Insert         = 260,
-            ForwardDelete  = 261,
-            Right          = 262,
-            Left           = 263,
-            Down           = 264,
-            Up             = 265,
-            PageUp         = 266,
-            PageDown       = 267,
-            Home           = 268,
-            End            = 269,
-            CapsLock       = 280,
-            ScrollLock     = 281,
-            NumLock        = 282,
-            PrintScreen    = 283,
-            Pause          = 284,
-            F1             = 290,
-            F2             = 291,
-            F3             = 292,
-            F4             = 293,
-            F5             = 294,
-            F6             = 295,
-            F7             = 296,
-            F8             = 297,
-            F9             = 298,
-            F10            = 299,
-            F11            = 300,
-            F12            = 301,
-            F13            = 302,
-            F14            = 303,
-            F15            = 304,
-            F16            = 305,
-            F17            = 306,
-            F18            = 307,
-            F19            = 308,
-            F20            = 309,
-            F21            = 310,
-            F22            = 311,
-            F23            = 312,
-            F24            = 313,
-            F25            = 314,
-            Keypad0        = 320,
-            Keypad1        = 321,
-            Keypad2        = 322,
-            Keypad3        = 323,
-            Keypad4        = 324,
-            Keypad5        = 325,
-            Keypad6        = 326,
-            Keypad7        = 327,
-            Keypad8        = 328,
-            Keypad9        = 329,
-            KeypadDecimal  = 330,
-            KeypadDivide   = 331,
-            KeypadMultiply = 332,
-            KeypadSubtract = 333,
-            KeypadAdd      = 334,
-            KeypadEnter    = 335,
-            KeypadEqual    = 336,
-            LeftShift      = 340,
-            LeftControl    = 341,
-            LeftAlt        = 342,
-            LeftSuper      = 343,
-            RightShift     = 344,
-            RightControl   = 345,
-            RightAlt       = 346,
-            RightSuper     = 347,
-            Menu           = 348
-        };
+        Escape         = 256,
+        Enter          = 257,
+        Tab            = 258,
+        Backspace      = 259,
+        Insert         = 260,
+        ForwardDelete  = 261,
+        Right          = 262,
+        Left           = 263,
+        Down           = 264,
+        Up             = 265,
+        PageUp         = 266,
+        PageDown       = 267,
+        Home           = 268,
+        End            = 269,
+        CapsLock       = 280,
+        ScrollLock     = 281,
+        NumLock        = 282,
+        PrintScreen    = 283,
+        Pause          = 284,
+        F1             = 290,
+        F2             = 291,
+        F3             = 292,
+        F4             = 293,
+        F5             = 294,
+        F6             = 295,
+        F7             = 296,
+        F8             = 297,
+        F9             = 298,
+        F10            = 299,
+        F11            = 300,
+        F12            = 301,
+        F13            = 302,
+        F14            = 303,
+        F15            = 304,
+        F16            = 305,
+        F17            = 306,
+        F18            = 307,
+        F19            = 308,
+        F20            = 309,
+        F21            = 310,
+        F22            = 311,
+        F23            = 312,
+        F24            = 313,
+        F25            = 314,
+        Keypad0        = 320,
+        Keypad1        = 321,
+        Keypad2        = 322,
+        Keypad3        = 323,
+        Keypad4        = 324,
+        Keypad5        = 325,
+        Keypad6        = 326,
+        Keypad7        = 327,
+        Keypad8        = 328,
+        Keypad9        = 329,
+        KeypadDecimal  = 330,
+        KeypadDivide   = 331,
+        KeypadMultiply = 332,
+        KeypadSubtract = 333,
+        KeypadAdd      = 334,
+        KeypadEnter    = 335,
+        KeypadEqual    = 336,
+        LeftShift      = 340,
+        LeftControl    = 341,
+        LeftAlt        = 342,
+        LeftSuper      = 343,
+        RightShift     = 344,
+        RightControl   = 345,
+        RightAlt       = 346,
+        RightSuper     = 347,
+        Menu           = 348
+    };
 
         /** @brief Identifies one of up to eight pointer buttons. */
-        enum class MouseButton : int {
-            One   = 0,
-            Two   = 1,
-            Three = 2,
-            Four  = 3,
-            Five  = 4,
-            Six   = 5,
-            Seven = 6,
-            Eight = 7
-        };
+    enum class MouseButton : int {
+        One   = 0,
+        Two   = 1,
+        Three = 2,
+        Four  = 3,
+        Five  = 4,
+        Six   = 5,
+        Seven = 6,
+        Eight = 7
+    };
 
-        // [Public Lifecycle Functions]
+    // [Public Lifecycle Functions]
 
         /** @brief Creates a DesktopInputContext with no active input state. */
-        DesktopInputContext();
-        virtual ~DesktopInputContext() = 0;
+    DesktopInputContext();
+    virtual ~DesktopInputContext() = 0;
 
-        DesktopInputContext(const DesktopInputContext& other)                       = delete;
-        DesktopInputContext&            operator=(const DesktopInputContext& other) = delete;
+    DesktopInputContext(const DesktopInputContext& other)                       = delete;
+    DesktopInputContext&            operator=(const DesktopInputContext& other) = delete;
 
-        // [Public Member Functions]
+    // [Public Member Functions]
 
         /** @brief Returns whether @p key is currently held down. */
-        bool                            keyDown(Key key);
+    bool                            keyDown(Key key);
 
         /** @brief Returns whether @p button is currently held down. */
-        bool                            mouseButtonDown(MouseButton button);
+    bool                            mouseButtonDown(MouseButton button);
 
         /** @brief Returns and consumes an unread press transition for @p key. */
-        bool                            keyPressed(Key key);
+    bool                            keyPressed(Key key);
 
         /** @brief Returns and consumes an unread press transition for @p button. */
-        bool                            mouseButtonPressed(MouseButton button);
+    bool                            mouseButtonPressed(MouseButton button);
 
         /** @brief Returns and consumes an unread release transition for @p key. */
-        bool                            keyReleased(Key key);
+    bool                            keyReleased(Key key);
 
         /** @brief Returns and consumes an unread release transition for @p button. */
-        bool                            mouseButtonReleased(MouseButton button);
+    bool                            mouseButtonReleased(MouseButton button);
 
         /** @brief Returns a copy of all keys currently held down. */
-        std::unordered_set<Key>         keysDown(); // keys currently down
+    std::unordered_set<Key>         keysDown(); // keys currently down
 
         /** @brief Returns a copy of all pointer buttons currently held down. */
-        std::unordered_set<MouseButton> mouseButtonsDown(); // mouse buttons currently down
+    std::unordered_set<MouseButton> mouseButtonsDown(); // mouse buttons currently down
 
         // TODO: rework theese.
 
         // only reports keys down for one query until they are released
         /** @brief Returns and consumes all currently unread key-press transitions. */
-        std::unordered_set<Key>         keysPressed();
+    std::unordered_set<Key>         keysPressed();
 
         // only reports mouse buttons down for one query until they are released
         /** @brief Returns and consumes all currently unread pointer-button press transitions. */
-        std::unordered_set<MouseButton> mouseButtonsPressed();
+    std::unordered_set<MouseButton> mouseButtonsPressed();
 
         // current pointer position in logical viewport coordinates
         /**
-         * @brief Returns the current pointer position in logical viewport coordinates.
-         *
-         * The origin is the upper-left corner; positive X points right and positive Y points down.
-         */
-        const math::vec2&               mousePosition() const;
+     * @brief Returns the current pointer position in logical viewport coordinates.
+     *
+     * The origin is the upper-left corner; positive X points right and positive Y points down.
+     */
+    const math::vec2&               mousePosition() const;
 
         // pointer displacement observed during the current input update
         /**
-         * @brief Returns pointer displacement observed during the current input update.
-         *
-         * Positive X is rightward motion and positive Y is upward motion. The value is
-         * reset from newly accumulated pointer events on each input update.
-         */
-        const math::vec2&               mousePositionDelta() const;
+     * @brief Returns pointer displacement observed during the current input update.
+     *
+     * Positive X is rightward motion and positive Y is upward motion. The value is
+     * reset from newly accumulated pointer events on each input update.
+     */
+    const math::vec2&               mousePositionDelta() const;
 
         // scroll displacement observed during the current input update
         /** @brief Returns scroll displacement observed during the current input update. */
-        const math::vec2&               mouseScrollWheelDelta() const;
+    const math::vec2&               mouseScrollWheelDelta() const;
 
-        // [InputContext Internal Member Functions]
+    // [InputContext Internal Member Functions]
 
-        void                            update(const UpdateInfo& info) override;
+    void                            update(const UpdateInfo& info) override;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        virtual void                    rebaseMouseMotion();
-        void                            releaseAllInputs();
+    virtual void                    rebaseMouseMotion();
+    void                            releaseAllInputs();
 
-    protected:
-        // [Protected Member Variables]
+protected:
+    // [Protected Member Variables]
 
-        std::unordered_set<Key>         _keysDown;
-        std::unordered_set<MouseButton> _mouseButtonsDown;
-        std::unordered_set<Key>         _keysPressed;
-        std::unordered_set<Key>         _keysPressedCleared;
-        std::unordered_set<MouseButton> _mouseButtonsPressed;
-        std::unordered_set<MouseButton> _mouseButtonsPressedCleared;
-        std::unordered_set<Key>         _keysReleased;
-        std::unordered_set<MouseButton> _mouseButtonsReleased;
-        math::vec2                      _mousePosition;
-        math::vec2                      _mousePositionDelta;
-        math::vec2                      _pendingMousePositionDelta;
-        math::vec2                      _mouseScrollWheelDelta;
-        math::vec2                      _pendingMouseScrollWheelDelta;
-    };
+    std::unordered_set<Key>         _keysDown;
+    std::unordered_set<MouseButton> _mouseButtonsDown;
+    std::unordered_set<Key>         _keysPressed;
+    std::unordered_set<Key>         _keysPressedCleared;
+    std::unordered_set<MouseButton> _mouseButtonsPressed;
+    std::unordered_set<MouseButton> _mouseButtonsPressedCleared;
+    std::unordered_set<Key>         _keysReleased;
+    std::unordered_set<MouseButton> _mouseButtonsReleased;
+    math::vec2                      _mousePosition;
+    math::vec2                      _mousePositionDelta;
+    math::vec2                      _pendingMousePositionDelta;
+    math::vec2                      _mouseScrollWheelDelta;
+    math::vec2                      _pendingMouseScrollWheelDelta;
+};
 
 }
 

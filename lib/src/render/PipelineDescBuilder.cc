@@ -18,6 +18,8 @@ using namespace std;
 
 static PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
 
+namespace a3d {
+
 // [Internal Static Member Functions]
 
 PipelineDesc PipelineDescBuilder::MakeBackgroundDesc() {
@@ -100,6 +102,8 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     desc.polygonOffset = false;
     return desc;
 }
+
+} // namespace a3d
 
 // [Private Non-Member Functions]
 

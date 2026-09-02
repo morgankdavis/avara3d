@@ -18,136 +18,134 @@
 
 namespace a3d {
 
-    struct BackgroundPass;
-    struct FrameStats;
-    struct GroundPass;
-    struct LinesPass;
-    struct RenderMemoryStats;
+struct BackgroundPass;
+struct FrameStats;
+struct GroundPass;
+struct LinesPass;
+struct RenderMemoryStats;
 
-    class FrameStatsHistory;
-    class Image;
-    class Line;
-    class Node;
-    class Material;
-    class Mesh;
-    class MeshElement;
-    class Point;
-    class Profiler;
-    class DrawPacket;
-    class Scene;
+class FrameStatsHistory;
+class Image;
+class Line;
+class Node;
+class Material;
+class Mesh;
+class MeshElement;
+class Point;
+class Profiler;
+class DrawPacket;
+class Scene;
 
-    class Renderer {
+class Renderer {
 
-    public:
-        // [Internal Types]
+public:
+    // [Internal Types]
 
-        struct Capabilities {
-            bool wireframeRendering {false};
-            bool gpuTiming {false};
+    struct Capabilities {
+        bool wireframeRendering {false};
+        bool gpuTiming {false};
+    };
+
+    struct ClearCommand {
+
+        struct Scissor {
+            std::int32_t x      = 0;
+            std::int32_t y      = 0;
+            std::int32_t width  = 0;
+            std::int32_t height = 0;
         };
 
-        struct ClearCommand {
-
-            struct Scissor {
-                std::int32_t x      = 0;
-                std::int32_t y      = 0;
-                std::int32_t width  = 0;
-                std::int32_t height = 0;
-            };
-
-            bool                   clearColor   = true;
-            bool                   clearDepth   = true;
-            bool                   clearStencil = false;
-            math::vec4             color        = {0.f, 0.f, 0.f, 1.f};
-            float                  depth        = 1.0f;
-            int                    stencil      = 0;
-            std::optional<Scissor> scissor      = {};
+        bool                   clearColor   = true;
+        bool                   clearDepth   = true;
+        bool                   clearStencil = false;
+        math::vec4             color        = {0.f, 0.f, 0.f, 1.f};
+        float                  depth        = 1.0f;
+        int                    stencil      = 0;
+        std::optional<Scissor> scissor      = {};
             // clear operations may respect the current scissor and write masks.
             // override them when necessary to ensure the requested buffers are cleared.
-            bool                   forceWriteMasks = true;
-        };
+        bool                   forceWriteMasks = true;
+    };
 
-        struct FrameParams {
-            const RenderContext& context;
-            math::mat4           view     = math::mat4(1.0f);
-            math::mat4           proj     = math::mat4(1.0f);
-            Scene::DebugOptions  debug    = Scene::DebugOptions::None;
-            FrameStats*          stats    = nullptr;
-            Profiler*            profiler = nullptr;
-        };
+    struct FrameParams {
+        const RenderContext& context;
+        math::mat4           view     = math::mat4(1.0f);
+        math::mat4           proj     = math::mat4(1.0f);
+        Scene::DebugOptions  debug    = Scene::DebugOptions::None;
+        FrameStats*          stats    = nullptr;
+        Profiler*            profiler = nullptr;
+    };
 
-        // [Internal Lifecycle Functions]
+    // [Internal Lifecycle Functions]
 
-        Renderer();
+    Renderer();
 
-        Renderer(const Renderer&)            = delete;
-        Renderer& operator=(const Renderer&) = delete;
+    Renderer(const Renderer&)            = delete;
+    Renderer& operator=(const Renderer&) = delete;
 
-        Renderer(Renderer&&)            = delete;
-        Renderer& operator=(Renderer&&) = delete;
+    Renderer(Renderer&&)            = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
-        virtual ~Renderer() = 0;
+    virtual ~Renderer() = 0;
 
-        // [Internal Member Functions]
+    // [Internal Member Functions]
 
-        virtual bool                   initialize(const RenderContext& context) = 0;
-        virtual bool                   isInitialized() const                    = 0;
+    virtual bool                   initialize(const RenderContext& context) = 0;
+    virtual bool                   isInitialized() const                    = 0;
 
-        virtual const Capabilities&    capabilities() const = 0;
+    virtual const Capabilities&    capabilities() const = 0;
 
-        virtual void                   beginFrame(const Scene&               scene,
-                                                  const RenderContext&       context,
-                                                  const Scene::DebugOptions& debugOptions,
-                                                  FrameStats&                stats,
-                                                  Profiler&                  profiler)   = 0;
-        virtual void                   endFrame(const Scene&               scene,
+    virtual void                   beginFrame(const Scene&               scene,
+                                              const RenderContext&       context,
+                                              const Scene::DebugOptions& debugOptions,
+                                              FrameStats&                stats,
+                                              Profiler&                  profiler)   = 0;
+    virtual void                   endFrame(const Scene&               scene,
+                                            const RenderContext&       context,
+                                            const Scene::DebugOptions& debugOptions,
+                                            FrameStats&                stats,
+                                            Profiler&                  profiler,
+                                            const FrameStatsHistory&   statsHistory) = 0;
+
+    virtual void                   preTraversal(const Scene&               scene,
                                                 const RenderContext&       context,
                                                 const Scene::DebugOptions& debugOptions,
-                                                FrameStats&                stats,
-                                                Profiler&                  profiler,
-                                                const FrameStatsHistory&   statsHistory) = 0;
+                                                FrameStats&                stats)  = 0;
+    virtual void                   postTraversal(const Scene&               scene,
+                                                 const RenderContext&       context,
+                                                 const math::mat4&          view,
+                                                 const std::vector<Node*>&  lightNodes,
+                                                 const Scene::DebugOptions& debugOptions,
+                                                 FrameStats&                stats) = 0;
 
-        virtual void                   preTraversal(const Scene&               scene,
-                                                    const RenderContext&       context,
-                                                    const Scene::DebugOptions& debugOptions,
-                                                    FrameStats&                stats)  = 0;
-        virtual void                   postTraversal(const Scene&               scene,
-                                                     const RenderContext&       context,
-                                                     const math::mat4&          view,
-                                                     const std::vector<Node*>&  lightNodes,
-                                                     const Scene::DebugOptions& debugOptions,
-                                                     FrameStats&                stats) = 0;
+    virtual void                   clear(const ClearCommand& cmd, const RenderContext& context) = 0;
 
-        virtual void                   clear(const ClearCommand& cmd, const RenderContext& context) = 0;
+    virtual void                   renderPacket(DrawPacket& packet, const FrameParams& frame) = 0;
 
-        virtual void                   renderPacket(DrawPacket& packet, const FrameParams& frame) = 0;
+    virtual std::unique_ptr<Image> snapshot(const RenderContext& context) const = 0;
 
-        virtual std::unique_ptr<Image> snapshot(const RenderContext& context) const = 0;
+protected:
+    // [Protected Member Functions]
 
-    protected:
-        // [Protected Member Functions]
+    virtual void resolvePacket(DrawPacket& packet, const FrameParams& frame)    = 0;
+    virtual void drawPacket(const DrawPacket& packet, const FrameParams& frame) = 0;
 
-        virtual void resolvePacket(DrawPacket& packet, const FrameParams& frame)    = 0;
-        virtual void drawPacket(const DrawPacket& packet, const FrameParams& frame) = 0;
+    virtual void drawBackground(const BackgroundPass& backgroundPass,
+                                const math::mat4&     view,
+                                const math::mat4&     proj)                                               = 0;
+    virtual void drawGround(const GroundPass& groundPass, const math::mat4& view, const math::mat4& proj) = 0;
 
-        virtual void drawBackground(const BackgroundPass& backgroundPass,
-                                    const math::mat4&     view,
-                                    const math::mat4&     proj) = 0;
-        virtual void drawGround(const GroundPass& groundPass,
-                                const math::mat4& view,
-                                const math::mat4& proj)         = 0;
+    virtual void bindPipeline(PipelineId pipelineId)                                               = 0;
+    virtual void bindMaterial(const Material& material)                                            = 0;
+    virtual void bindMeshElement(const MeshElement& element)                                       = 0;
+    virtual void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) = 0;
+    virtual void drawElements()                                                                    = 0;
 
-        virtual void bindPipeline(PipelineId pipelineId)                                               = 0;
-        virtual void bindMaterial(const Material& material)                                            = 0;
-        virtual void bindMeshElement(const MeshElement& element)                                       = 0;
-        virtual void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) = 0;
-        virtual void drawElements()                                                                    = 0;
-
-        virtual void drawLines(const LinesPass&     pass,
-                               const RenderContext& context,
-                               const math::mat4&    view,
-                               const math::mat4&    proj) = 0;
-    };
+    virtual void drawLines(const LinesPass&     pass,
+                           const RenderContext& context,
+                           const math::mat4&    view,
+                           const math::mat4&    proj) = 0;
+};
 
 }
 

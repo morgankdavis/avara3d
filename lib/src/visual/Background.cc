@@ -10,8 +10,11 @@
 
 #include <utility>
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 Background::Background(Material::Property contents):
     contents {std::move(contents)} {}
+
+} // namespace a3d

@@ -13,7 +13,6 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace demo::janus;
 using namespace std;
 
 // [Private Non-Member Prototypes]
@@ -22,6 +21,8 @@ static pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
                                             const vec3&   cellSize,
                                             const u8vec3& gridSize,
                                             float         gap);
+
+namespace demo::janus {
 
 // [Public Member Functions]
 
@@ -318,6 +319,8 @@ shared_ptr<Node> TransientsBuilder::duck(const vec3& location, const vec3& veloc
 
     return node;
 }
+
+} // namespace demo::janus
 
 // [Private Non-Member Functions]
 

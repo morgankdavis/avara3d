@@ -8,8 +8,9 @@
 
 #include "a3d/scene/HitTestResult.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 // [Public Member Functions]
 
@@ -65,3 +66,5 @@ HitTestResult::HitTestResult(weak_ptr<Node>     node,
     _localNormal {localNormal},
     _worldNormal {worldNormal},
     _modelTransform {modelTransform} {}
+
+} // namespace a3d

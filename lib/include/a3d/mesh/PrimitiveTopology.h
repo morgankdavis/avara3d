@@ -13,11 +13,11 @@
 
 namespace a3d {
 
-    enum class PrimitiveTopology : uint8_t {
-        Triangles,
-        Lines,
-        Points,
-    };
+enum class PrimitiveTopology : uint8_t {
+    Triangles,
+    Lines,
+    Points,
+};
 
 }
 

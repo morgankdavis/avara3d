@@ -12,8 +12,9 @@
 
 #include "a3d/profile/Profiler.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 ScopeTimer::ScopeTimer(Profiler& profiler, Profiler::Tag tag):
     _profiler {&profiler},
@@ -24,3 +25,5 @@ ScopeTimer::~ScopeTimer() {
     auto duration = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - _start);
     _profiler->add(_tag, duration);
 }
+
+} // namespace a3d

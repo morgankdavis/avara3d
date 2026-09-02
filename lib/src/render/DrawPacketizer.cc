@@ -18,9 +18,10 @@
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 // [Internal Static Member Functions]
 
@@ -117,3 +118,5 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
     return packet;
 }
+
+} // namespace a3d

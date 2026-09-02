@@ -18,37 +18,37 @@
 
 namespace a3d {
 
-    class Node;
+class Node;
 
 }
 
 namespace demo::janus {
 
-    class TransientsBuilder {
+class TransientsBuilder {
 
-    public:
-        // [Public Member Functions]
+public:
+    // [Public Member Functions]
 
-        void init(const a3d::Node& assetsRoot);
+    void init(const a3d::Node& assetsRoot);
 
-        std::vector<std::shared_ptr<a3d::Node>> rocks(const a3d::math::vec3&   location,
-                                                      const a3d::math::u8vec3& stackSize,
-                                                      float                    gap);
-        std::vector<std::shared_ptr<a3d::Node>> coins(const a3d::math::vec3&   location,
-                                                      const a3d::math::u8vec3& stackSize,
-                                                      float                    gap);
-        std::vector<std::shared_ptr<a3d::Node>> balls(const a3d::math::vec3&   location,
-                                                      const a3d::math::u8vec3& stackSize,
-                                                      float                    gap);
-        std::shared_ptr<a3d::Node> hammer(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
-        std::shared_ptr<a3d::Node> hula(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
-        std::shared_ptr<a3d::Node> duck(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+    std::vector<std::shared_ptr<a3d::Node>> rocks(const a3d::math::vec3&   location,
+                                                  const a3d::math::u8vec3& stackSize,
+                                                  float                    gap);
+    std::vector<std::shared_ptr<a3d::Node>> coins(const a3d::math::vec3&   location,
+                                                  const a3d::math::u8vec3& stackSize,
+                                                  float                    gap);
+    std::vector<std::shared_ptr<a3d::Node>> balls(const a3d::math::vec3&   location,
+                                                  const a3d::math::u8vec3& stackSize,
+                                                  float                    gap);
+    std::shared_ptr<a3d::Node> hammer(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+    std::shared_ptr<a3d::Node> hula(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
+    std::shared_ptr<a3d::Node> duck(const a3d::math::vec3& location, const a3d::math::vec3& velocity);
 
-    private:
-        // [Private Static Member Variables]
+private:
+    // [Private Static Member Variables]
 
-        TransientsCache _cache;
-    };
+    TransientsCache _cache;
+};
 
 }
 

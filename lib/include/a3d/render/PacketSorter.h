@@ -13,17 +13,17 @@
 
 namespace a3d {
 
-    struct DrawItem;
-    struct DrawPacket;
+struct DrawItem;
+struct DrawPacket;
 
-    class PacketSorter {
+class PacketSorter {
 
-    public:
-        // [Internal Static Member Functions]
+public:
+    // [Internal Static Member Functions]
 
-        static uint64_t MakeBatchKey(const DrawItem& item);
-        static void     SortPacket(DrawPacket& packet);
-    };
+    static uint64_t MakeBatchKey(const DrawItem& item);
+    static void     SortPacket(DrawPacket& packet);
+};
 
 }
 

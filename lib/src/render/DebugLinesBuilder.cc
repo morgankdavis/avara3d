@@ -20,6 +20,8 @@ using namespace std;
 
 static void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color);
 
+namespace a3d {
+
 // [Internal Static Member Functions]
 
 void DebugLinesBuilder::AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color) {
@@ -69,6 +71,8 @@ void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, co
     out.emplace_back(origin, yEnd, Color {vec3 {0.3f, 1.0f, 0.3f}});
     out.emplace_back(origin, zEnd, Color {vec3 {0.3f, 0.3f, 1.0f}});
 }
+
+} // namespace a3d
 
 // [Internal Static Non-Member Functions]
 
