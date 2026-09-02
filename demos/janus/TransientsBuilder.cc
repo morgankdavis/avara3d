@@ -58,11 +58,8 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
                 auto node = Node::MeshNode(rockEntry.mesh);
 
                 static int rockNum = 0;
-                node->name(std::format("pock {}", ++rockNum));
+                node->name(std::format("rock {}", ++rockNum));
 
-                // node->position(startPosition
-                //                + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
-                //                        static_cast<float>(z) * step.z});
                 const vec3 position = startPosition
                       + vec3 {static_cast<float>(x) * step.x, static_cast<float>(y) * step.y,
                               static_cast<float>(z) * step.z};
@@ -75,7 +72,6 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildRocks(const vector<TransientsCa
                 body->restitution(STONE_RESTITUTION);
                 body->rollingFriction(0.01f);
                 body->spinningFriction(0.015f);
-                // body->angularDamping(0.005f);
                 body->angularSleepingThreshold(.25f);
 
                 const float ANGULAR_VARIANCE = radians(30.0f);
@@ -134,12 +130,6 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildCoins(const TransientsCache::En
                 body->spinningFriction(0.1);
                 body->angularDamping(0.4f);
 
-                // const auto extent = mesh->localExtent();
-                // const float minExtent = math::min(extent);
-                // physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-                // physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
-                // physicsBody->ccdEnabled(true);
-
                 const float ANGULAR_VARIANCE = radians(180.0f);
                 body->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
@@ -197,9 +187,6 @@ vector<shared_ptr<Node>> TransientsBuilder::BuildBalls(const TransientsCache::En
                 body->linearDamping(0.2f);
                 body->angularDamping(0.3f);
 
-                // body->autocalculatesMomentOfInertia(false);
-                // body->momentOfInertia(body->momentOfInertia() * (5.0f / 3.0f));
-
                 const float ANGULAR_VARIANCE = radians(90.0f);
                 body->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
@@ -229,13 +216,12 @@ shared_ptr<Node> TransientsBuilder::BuildHammer(const TransientsCache::Entry& ca
     body->restitution(0.10);
     body->friction(0.65f);
     body->rollingFriction(0.003);
-    // body->spinningFriction(0.005);
 
     static const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.3f, 0.0f});
 
     const vec3 throwForward = math::normalize(vec3 {velocity.x, 0.0f, velocity.z});
-    // node forward is -Z, so yaw -Z toward the horizontal throw direction.
+    // node forward is -Z, so yaw -Z toward the horizontal throw direction
     const float        yaw = math::atan2(-throwForward.x, -throwForward.z);
     static const float START_PITCH = radians(20.0f);
     static const float START_PITCH_VARIANCE = radians(10.0f);
@@ -270,15 +256,10 @@ shared_ptr<Node> TransientsBuilder::BuildHula(const TransientsCache::Entry& cach
     body->mass(1.0f);
     body->friction(0.35f);
     body->restitution(0.3f);
-    // body->rollingFriction(0.003);
     body->spinningFriction(0.05);
-    // body->angularDamping(0.05f);
 
     static const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
-
-    // body->autocalculatesMomentOfInertia(false);
-    // body->momentOfInertia(body->momentOfInertia() * 2.0f);
 
     static const float minExtent = math::min(extent);
     body->ccdMotionThreshold(minExtent * 0.25f);
@@ -326,17 +307,12 @@ shared_ptr<Node> TransientsBuilder::BuildDuck(const TransientsCache::Entry& cach
     body->mass(1.0f);
     body->friction(0.6f);
     body->restitution(0.4f);
-    body->rollingFriction(0.05);
-    body->spinningFriction(0.05);
-    // body->angularDamping(0.05f);
+    body->rollingFriction(0.1);
+    body->spinningFriction(0.1);
+    body->angularSleepingThreshold(0.25);
 
     static const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
-
-    // static const float minExtent = math::min(extent);
-    // body->ccdMotionThreshold(minExtent * 0.25f);
-    // body->ccdSweptSphereRadius(minExtent * 0.25f);
-    // body->ccdEnabled(true);
 
     node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
 

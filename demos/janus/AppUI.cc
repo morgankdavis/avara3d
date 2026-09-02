@@ -28,9 +28,9 @@ bool App::drawPanel() {
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
-    // if (panel.button("CAMERA")) {
-    //     log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
-    // }
+    if (panel.button("CAMERA")) {
+        log::app::i()("CAMERA: {:P}", static_cast<void*>(&_cameraController));
+    }
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
@@ -48,16 +48,10 @@ bool App::drawPanel() {
         runner.maxCatchUpSteps(maxCatchUpSteps);
     }
 
-    // panel.row(2);
-
     float timeScale = runner.timeScale();
     if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.1fx")) {
         runner.timeScale(timeScale);
     }
-
-    // if (panel.button("1x")) {
-    //     runner.timeScale(1.0f);
-    // }
 
     panel.row(paused ? 2 : 1);
 
@@ -151,7 +145,6 @@ bool App::drawPanel() {
             break;
     }
 
-    //panel.spacer(12.0f);
     panel.section("selected node");
 
     if (!_selection) {
@@ -162,8 +155,6 @@ bool App::drawPanel() {
         // node
 
         panel.value("name", node->name().value_or("(unnamed)"));
-        // panel.value("position", FormatVec3(node->worldPosition()));
-        // panel.value("rotation", FormatRotation(node->worldEulerAngles()));
 
         // physics body
 

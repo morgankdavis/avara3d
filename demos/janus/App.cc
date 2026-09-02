@@ -203,9 +203,6 @@ std::unique_ptr<Scene> App::init() {
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
 
-            // auto extent = node->mesh()->localExtent();
-            // body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
-
             node->physicsBody(std::move(body));
         }
 
@@ -249,14 +246,12 @@ std::unique_ptr<Scene> App::init() {
             body->angularSleepingThreshold(0.25);
 
             auto extent = node->mesh()->localExtent();
-            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.1f});
+            body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.15f});
 
             node->physicsBody(std::move(body));
         }
 
         if (auto node = _dynamicsRoot->childNamed("teapot")) {
-
-            // auto body = PhysicsBody::DynamicBody();
 
             auto physNode = _dynamicsRoot->childNamed("teapot.phys", true);
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
@@ -266,33 +261,8 @@ std::unique_ptr<Scene> App::init() {
             body->restitution(0.2f);
             body->rollingFriction(0.05f);
             body->spinningFriction(0.05);
-            // body->angularSleepingThreshold(0.05f);
+            body->angularSleepingThreshold(0.25f);
 
-            // auto extent = node->mesh()->localExtent();
-            // body->centerOfMass(body->centerOfMass() + extent * vec3 {-0.05f, 0.0f, 0.0f});
-
-            // const auto moi = body->momentOfInertia();
-            // log::i()("Teapot MOI: {}, {}, {}", moi.x, moi.y, moi.z);
-
-            // body->autocalculatesMomentOfInertia(false);
-            // body->momentOfInertia(body->momentOfInertia() * 1.5f);
-
-            // const auto moi = body->momentOfInertia();
-            //
-            // log::i()("Teapot auto MOI: {}, {}, {}", moi.x, moi.y, moi.z);
-            //
-            // body->autocalculatesMomentOfInertia(false);
-            // body->momentOfInertia(moi * 1.5f);
-            //
-            // const auto manualMoi = body->momentOfInertia();
-            //
-            // log::i()("Teapot manual MOI: {}, {}, {}", manualMoi.x, manualMoi.y, manualMoi.z);
-
-            // body->rollingFriction(0.15f);
-            // body->spinningFriction(0.1);
-            // body->angularDamping(0.4f);
-
-            // body->angularDamping(0.05f);
             node->physicsBody(std::move(body));
         }
 
@@ -334,7 +304,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup ambient lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color {0.1f});
+        auto ambientLight = make_shared<AmbientLight>(Color {0.075f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
@@ -370,16 +340,15 @@ std::unique_ptr<Scene> App::init() {
         auto cameraConfig = _cameraController.config();
         cameraConfig.controls.orbitButton = DesktopInputContext::MouseButton::One;
         cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
-        // cameraConfig.minPitch = math::radians(-2.5f);
         cameraConfig.invertPitch = true;
         cameraConfig.minDistance = 0.5f;
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        _cameraController.view({.target = vec3 {-0.1346f, 4.2466f, 0.4131},
-                                .yaw = radians(-10.66f),
-                                .pitch = radians(-1.89f),
-                                .distance = 17.4275f});
+        _cameraController.view({.target = vec3 {-0.3356, 4.2463, 0.3752},
+                        .yaw = radians(-10.66f),
+                        .pitch = radians(-1.89f),
+                        .distance = 17.1});
 
         // create the action target marker
         {
