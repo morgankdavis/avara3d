@@ -16,7 +16,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Exposes keyboard, pointer-button, pointer-motion, and scroll state.
  *
  * Applications normally obtain a compatible DesktopInputContext from
@@ -29,7 +29,7 @@ class DesktopInputContext : public InputContext {
 public:
     // [Public Types]
 
-        /** @brief Identifies keyboard keys reported by desktop-style input contexts. */
+    /** @brief Identifies keyboard keys reported by desktop-style input contexts. */
     enum class Key : int {
         Unknown      = 0,
         Space        = 32, //+
@@ -83,7 +83,7 @@ public:
         World1       = 161, // non-US #1
         World2       = 162, // non-US #2
 
-            /* Function keys */
+        /* Function keys */
         Escape         = 256,
         Enter          = 257,
         Tab            = 258,
@@ -156,7 +156,7 @@ public:
         Menu           = 348
     };
 
-        /** @brief Identifies one of up to eight pointer buttons. */
+    /** @brief Identifies one of up to eight pointer buttons. */
     enum class MouseButton : int {
         One   = 0,
         Two   = 1,
@@ -170,7 +170,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a DesktopInputContext with no active input state. */
+    /** @brief Creates a DesktopInputContext with no active input state. */
     DesktopInputContext();
     virtual ~DesktopInputContext() = 0;
 
@@ -179,50 +179,50 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns whether @p key is currently held down. */
+    /** @brief Returns whether @p key is currently held down. */
     bool                            keyDown(Key key);
 
-        /** @brief Returns whether @p button is currently held down. */
+    /** @brief Returns whether @p button is currently held down. */
     bool                            mouseButtonDown(MouseButton button);
 
-        /** @brief Returns and consumes an unread press transition for @p key. */
+    /** @brief Returns and consumes an unread press transition for @p key. */
     bool                            keyPressed(Key key);
 
-        /** @brief Returns and consumes an unread press transition for @p button. */
+    /** @brief Returns and consumes an unread press transition for @p button. */
     bool                            mouseButtonPressed(MouseButton button);
 
-        /** @brief Returns and consumes an unread release transition for @p key. */
+    /** @brief Returns and consumes an unread release transition for @p key. */
     bool                            keyReleased(Key key);
 
-        /** @brief Returns and consumes an unread release transition for @p button. */
+    /** @brief Returns and consumes an unread release transition for @p button. */
     bool                            mouseButtonReleased(MouseButton button);
 
-        /** @brief Returns a copy of all keys currently held down. */
+    /** @brief Returns a copy of all keys currently held down. */
     std::unordered_set<Key>         keysDown(); // keys currently down
 
-        /** @brief Returns a copy of all pointer buttons currently held down. */
+    /** @brief Returns a copy of all pointer buttons currently held down. */
     std::unordered_set<MouseButton> mouseButtonsDown(); // mouse buttons currently down
 
-        // TODO: rework theese.
+    // TODO: rework theese.
 
-        // only reports keys down for one query until they are released
-        /** @brief Returns and consumes all currently unread key-press transitions. */
+    // only reports keys down for one query until they are released
+    /** @brief Returns and consumes all currently unread key-press transitions. */
     std::unordered_set<Key>         keysPressed();
 
-        // only reports mouse buttons down for one query until they are released
-        /** @brief Returns and consumes all currently unread pointer-button press transitions. */
+    // only reports mouse buttons down for one query until they are released
+    /** @brief Returns and consumes all currently unread pointer-button press transitions. */
     std::unordered_set<MouseButton> mouseButtonsPressed();
 
-        // current pointer position in logical viewport coordinates
-        /**
+    // current pointer position in logical viewport coordinates
+    /**
      * @brief Returns the current pointer position in logical viewport coordinates.
      *
      * The origin is the upper-left corner; positive X points right and positive Y points down.
      */
     const math::vec2&               mousePosition() const;
 
-        // pointer displacement observed during the current input update
-        /**
+    // pointer displacement observed during the current input update
+    /**
      * @brief Returns pointer displacement observed during the current input update.
      *
      * Positive X is rightward motion and positive Y is upward motion. The value is
@@ -230,8 +230,8 @@ public:
      */
     const math::vec2&               mousePositionDelta() const;
 
-        // scroll displacement observed during the current input update
-        /** @brief Returns scroll displacement observed during the current input update. */
+    // scroll displacement observed during the current input update
+    /** @brief Returns scroll displacement observed during the current input update. */
     const math::vec2&               mouseScrollWheelDelta() const;
 
     // [InputContext Internal Member Functions]

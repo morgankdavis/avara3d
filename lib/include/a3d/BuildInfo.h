@@ -15,13 +15,13 @@
 
 namespace a3d {
 
-    /** @brief Exposes version and build metadata compiled into the A3D library. */
+/** @brief Exposes version and build metadata compiled into the A3D library. */
 class BuildInfo {
 
 public:
     // [Public Types]
 
-        /**
+    /**
      * @brief Major, minor, and patch components of an A3D version.
      *
      * A3D version numbers follow Semantic Versioning (SemVer).
@@ -34,7 +34,7 @@ public:
         int patch; ///< Patch version component.
     };
 
-        /** @brief Build configuration used to compile the library. */
+    /** @brief Build configuration used to compile the library. */
     enum class Type {
         Debug,          ///< Debug build.
         Release,        ///< Release build.
@@ -43,7 +43,7 @@ public:
         Unknown         ///< Unrecognized or unavailable build configuration.
     };
 
-        /** @brief Origin of the build metadata. */
+    /** @brief Origin of the build metadata. */
     enum class Origin {
         CI,   ///< Build produced by the configured CI environment.
         AdHoc ///< Build produced outside the configured CI environment.
@@ -51,33 +51,33 @@ public:
 
     // [Public Static Member Functions]
 
-        /** @brief Returns the process-wide BuildInfo for the linked A3D library. */
+    /** @brief Returns the process-wide BuildInfo for the linked A3D library. */
     static const BuildInfo& Info();
 
-        /** @brief Formats @p version as a dotted major.minor.patch string. */
+    /** @brief Formats @p version as a dotted major.minor.patch string. */
     static std::string      VersionString(const Version& version);
 
-        /** @brief Returns the canonical string for @p type. */
+    /** @brief Returns the canonical string for @p type. */
     static std::string      TypeString(Type type);
 
-        /** @brief Returns the canonical string for @p origin. */
+    /** @brief Returns the canonical string for @p origin. */
     static std::string      OriginString(Origin origin);
 
     // [Public Member Functions]
 
-        /** @brief Returns the CI build number, or zero for an ad-hoc build. */
+    /** @brief Returns the CI build number, or zero for an ad-hoc build. */
     unsigned                number() const;
 
-        /** @brief Returns the semantic version compiled into the library. */
+    /** @brief Returns the semantic version compiled into the library. */
     const Version&          version() const;
 
-        /** @brief Returns the build configuration. */
+    /** @brief Returns the build configuration. */
     Type                    type() const;
 
-        /** @brief Returns whether the build metadata originated from CI or an ad-hoc build. */
+    /** @brief Returns whether the build metadata originated from CI or an ad-hoc build. */
     Origin                  origin() const;
 
-        /**
+    /**
      * @brief Returns the recorded build time as calendar components.
      *
      * CI builds use the CI pipeline creation timestamp. Ad-hoc builds currently

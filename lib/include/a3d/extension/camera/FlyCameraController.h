@@ -19,7 +19,7 @@ class Node;
 
 namespace a3d::ext {
 
-    /**
+/**
  * @brief Applies free-flight keyboard and pointer controls to a point-of-view Node.
  *
  * Pointer motion changes pitch and yaw while configured keys translate the Node
@@ -31,7 +31,7 @@ class FlyCameraController {
 public:
     // [Public Types]
 
-        /** @brief Key bindings used for free-flight translation and speed control. */
+    /** @brief Key bindings used for free-flight translation and speed control. */
     struct Controls {
 
         DesktopInputContext::Key forward {DesktopInputContext::Key::W}; ///< Move along the POV's forward axis.

@@ -17,7 +17,7 @@ namespace a3d {
 class RenderContext;
 class Scene;
 
-    /**
+/**
  * @brief Base interface for Scene input state updated once per Runner host update.
  *
  * Event polling occurs before the InputContext is updated. The did-update callback
@@ -29,18 +29,18 @@ class InputContext {
 public:
     // [Public Types]
 
-        /** @brief Timing information for one input update. */
+    /** @brief Timing information for one input update. */
     struct UpdateInfo {
 
-            // zero-based enclosing host-update index
+        // zero-based enclosing host-update index
         std::uint64_t updateIndex {0}; ///< Zero-based index of the enclosing Runner host update.
 
-            // monotonic seconds since the host update loop started,
-            // measured at the beginning of this input update
+        // monotonic seconds since the host update loop started,
+        // measured at the beginning of this input update
         double        elapsedTime {0.0}; ///< Elapsed host-loop time at this input update, in seconds.
 
-            // monotonic seconds since the beginning of the previous
-            // host update; zero during the first update
+        // monotonic seconds since the beginning of the previous
+        // host update; zero during the first update
         double deltaTime {0.0}; ///< Time since the preceding host update, in seconds; zero on the first update.
     };
 

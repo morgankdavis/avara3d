@@ -16,7 +16,7 @@
 
 namespace a3d {
 
-    /** @brief Camera using a centered orthographic projection with a fixed vertical size. */
+/** @brief Camera using a centered orthographic projection with a fixed vertical size. */
 class OrthographicCamera : public Camera {
 
 public:

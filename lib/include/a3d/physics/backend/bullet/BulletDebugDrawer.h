@@ -55,7 +55,7 @@ public:
                                const btVector3& fromColor,
                                const btVector3& toColor) override;
 
-        /*
+    /*
     void 	drawSphere(btScalar radius,
                        const btTransform& transform,
                        const btVector3& color) override;
@@ -72,7 +72,7 @@ public:
 
      */
 
-        // these three are pure virtual and must be implemented
+    // these three are pure virtual and must be implemented
 
     void              drawContactPoint(const btVector3& PointOnB,
                                        const btVector3& normalOnB,
@@ -84,7 +84,7 @@ public:
 
     void              draw3dText(const btVector3& location, const char* textString) override;
 
-        /*
+    /*
     void 	drawAabb(const btVector3& from,
                      const btVector3& to,
                      const btVector3& color) override;

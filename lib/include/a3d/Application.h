@@ -27,7 +27,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Base class and top-level entry point for A3D applications.
  *
  * Applications normally derive from Application, implement init() to create
@@ -48,7 +48,7 @@ class Application {
 public:
     // [Public Static Member Functions]
 
-        /**
+    /**
      * @brief Runs @p application using the platform host loop.
      *
      * Run() takes ownership of @p application. On native builds it blocks
@@ -65,7 +65,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates application state from process arguments and configures logging.
      *
      * Derived application constructors normally forward their process arguments
@@ -88,12 +88,12 @@ public:
 protected:
     // [Protected Types]
 
-        /** @brief Callable queued for execution at a simulation-step boundary. */
+    /** @brief Callable queued for execution at a simulation-step boundary. */
     using SceneCommand = std::function<void(Scene&)>;
 
     // [Protected Member Functions]
 
-        /**
+    /**
      * @brief Creates the initial Scene for the application.
      *
      * Called once during startup before the Runner is created. Implementations
@@ -104,7 +104,7 @@ protected:
      */
     virtual std::unique_ptr<Scene>  init() = 0;
 
-        /**
+    /**
      * @brief Supplies the initial simulation scheduling configuration.
      *
      * Called once after init() and before the Runner is started. The default
@@ -112,7 +112,7 @@ protected:
      */
     virtual SimulationConfig        simulationConfig() const;
 
-        /**
+    /**
      * @brief Determines whether the application host loop should continue.
      *
      * Called before each Runner host update. Returning false stops the Runner
@@ -120,7 +120,7 @@ protected:
      */
     virtual bool                    shouldContinue(const Scene& scene);
 
-        /**
+    /**
      * @brief Called after the Runner and Scene have been destroyed during shutdown.
      *
      * The default implementation does nothing. Exceptions escaping this hook
@@ -128,35 +128,35 @@ protected:
      */
     virtual void                    didShutdown();
 
-        /**
+    /**
      * @brief Returns the application's Runner after initialization.
      *
      * @throws std::logic_error if the Runner has not yet been initialized.
      */
     Runner&                         runner();
 
-        /**
+    /**
      * @brief Returns the application's Runner after initialization.
      *
      * @throws std::logic_error if the Runner has not yet been initialized.
      */
     const Runner&                   runner() const;
 
-        /**
+    /**
      * @brief Returns the application's Scene after initialization.
      *
      * @throws std::logic_error if the Scene has not yet been initialized.
      */
     Scene&                          scene();
 
-        /**
+    /**
      * @brief Returns the application's Scene after initialization.
      *
      * @throws std::logic_error if the Scene has not yet been initialized.
      */
     const Scene&                    scene() const;
 
-        /**
+    /**
      * @brief Queues @p command to run before the next simulation step.
      *
      * The command runs before sceneWillStep() and before physics advances.
@@ -165,7 +165,7 @@ protected:
      */
     void                            queueScenePreStepCommand(SceneCommand command);
 
-        /**
+    /**
      * @brief Queues @p command to run after the next simulation step.
      *
      * The command runs after physics advances and before sceneDidStep().
@@ -174,10 +174,10 @@ protected:
      */
     void                            queueScenePostStepCommand(SceneCommand command);
 
-        /** @brief Returns process command-line arguments excluding the executable name. */
+    /** @brief Returns process command-line arguments excluding the executable name. */
     const std::vector<std::string>& args() const;
 
-        /**
+    /**
      * @brief Called near the beginning of each Runner host update.
      *
      * This hook runs before event polling, input update, simulation scheduling,
@@ -185,7 +185,7 @@ protected:
      */
     virtual void                    runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
 
-        /**
+    /**
      * @brief Called after the InputContext has processed the current host update.
      *
      * The default implementation does nothing.
@@ -195,7 +195,7 @@ protected:
                                                    InputContext& inputContext,
                                                    const InputContext::UpdateInfo&);
 
-        /**
+    /**
      * @brief Called immediately before each Scene simulation step.
      *
      * Queued pre-step Scene commands execute before this hook. The default
@@ -203,7 +203,7 @@ protected:
      */
     virtual void                    sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
 
-        /**
+    /**
      * @brief Called immediately after each Scene simulation step.
      *
      * Queued post-step Scene commands execute before this hook. The default
@@ -211,7 +211,7 @@ protected:
      */
     virtual void                    sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
 
-        /**
+    /**
      * @brief Called after a render frame begins and before scene traversal and drawing.
      *
      * The default implementation does nothing.
@@ -221,7 +221,7 @@ protected:
                                                   VisualWorld&                   visualWorld,
                                                   const VisualWorld::RenderInfo& info);
 
-        /**
+    /**
      * @brief Called when the PhysicsWorld reports the beginning of a contact.
      *
      * The default implementation does nothing.
@@ -231,7 +231,7 @@ protected:
                                                     PhysicsWorld&         physicsWorld,
                                                     const PhysicsContact& contact);
 
-        /**
+    /**
      * @brief Called when the PhysicsWorld reports a continuing contact.
      *
      * The default implementation does nothing.
@@ -241,7 +241,7 @@ protected:
                                                        PhysicsWorld&         physicsWorld,
                                                        const PhysicsContact& contact);
 
-        /**
+    /**
      * @brief Called when the PhysicsWorld reports the end of a contact.
      *
      * The default implementation does nothing.

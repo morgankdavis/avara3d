@@ -13,29 +13,29 @@
 
 namespace a3d {
 
-    /** @brief Cone collision shape centered at the local origin and aligned along Y. */
+/** @brief Cone collision shape centered at the local origin and aligned along Y. */
 class ConePhysicsShape : public PhysicsShape {
 
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a cone collision shape with the supplied base radius and full height. */
+    /** @brief Creates a cone collision shape with the supplied base radius and full height. */
     ConePhysicsShape(float radius, float height);
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured circular base radius. */
+    /** @brief Returns the configured circular base radius. */
     float radius() const;
 
-        /** @brief Returns the configured full height along Y. */
+    /** @brief Returns the configured full height along Y. */
     float height() const;
 
     // [Public PhysicsShape Member Functions]
 
-        /** @brief Returns PhysicsShape::Type::Primitive. */
+    /** @brief Returns PhysicsShape::Type::Primitive. */
     Type  type() const override;
 
-        /**
+    /**
      * @brief Rejects attempts to change the fixed primitive shape type.
      *
      * @throws std::logic_error always; ConePhysicsShape has a fixed type.

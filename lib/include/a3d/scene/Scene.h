@@ -33,7 +33,7 @@ class Renderer;
 class RenderContext;
 class VisualWorld;
 
-    /**
+/**
  * @brief Owns a scene graph and the worlds used to simulate and render it.
  *
  * A Scene always has a root Node. VisualWorld, PhysicsWorld, and InputContext
@@ -46,7 +46,7 @@ class Scene {
 public:
     // [Public Types]
 
-        /** @brief Selects which resource categories are imported by FromFile(). */
+    /** @brief Selects which resource categories are imported by FromFile(). */
     enum class ImportOptions : uint16_t {
         None            = 0,          ///< Import no optional resource categories.
         ImportMeshes    = 1 << 0,     ///< Import meshes.
@@ -56,8 +56,8 @@ public:
         ImportAll       = UINT16_MAX  ///< Import all supported resource categories.
     };
 
-        // TODO: move to VisualWorld?
-        /** @brief Scene-wide debug visualization options. */
+    // TODO: move to VisualWorld?
+    /** @brief Scene-wide debug visualization options. */
     enum class DebugOptions : uint32_t {
         None = 0, ///< No scene debug visualization options enabled.
 

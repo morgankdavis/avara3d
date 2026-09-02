@@ -33,7 +33,7 @@ class Renderer;
 class RenderContext;
 class RenderItem;
 
-    /**
+/**
  * @brief Owns the vertex and optional index data for one mesh primitive.
  *
  * MeshElement corresponds roughly to what many 3D APIs call a "submesh" or "mesh
@@ -45,7 +45,7 @@ class MeshElement {
 public:
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates a MeshElement by copying the supplied vertex and index data.
      *
      * The input byte spans do not need to outlive the MeshElement. For a
@@ -78,7 +78,7 @@ public:
         None       = 0,
         VertexData = 1 << 0,
         IndexData  = 1 << 1,
-            // AABB?
+        // AABB?
         All = UINT_MAX
     };
 

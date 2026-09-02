@@ -63,7 +63,7 @@ public:
     std::vector<HitTestResult>    rayTest(const math::vec3& from,
                                           const math::vec3& to,
                                           HitTestSearchMode searchMode) const override;
-        // ! NOT IMPLEMENTED !
+    // ! NOT IMPLEMENTED !
     std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape& shape,
                                                   const math::mat4&   fromMat,
                                                   const math::mat4&   toMat,
@@ -109,17 +109,17 @@ private:
 
     // [Private Member Variables]
 
-        // scheduler
+    // scheduler
     btITaskScheduler*                                _btScheduler;
     std::unique_ptr<btITaskScheduler>                _ownedScheduler;
     btITaskScheduler*                                _prevScheduler; // non-owning
 
-        // config/dispatcher/broadphase
+    // config/dispatcher/broadphase
     std::unique_ptr<btDefaultCollisionConfiguration> _btCollisionConfiguration;
     std::unique_ptr<btCollisionDispatcher>           _btCollisionDispatcher;
     std::unique_ptr<btDbvtBroadphase>                _btBroadphase;
 
-        // solvers
+    // solvers
     std::unique_ptr<btConstraintSolverPoolMt>        _btSolverPool;
     std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
 
@@ -134,7 +134,7 @@ private:
 
     mutable std::mutex                                     _btMutex;
 
-        // MUST be last so destroyed first
+    // MUST be last so destroyed first
     std::unique_ptr<btDiscreteDynamicsWorld>               _btWorld;
 
     std::chrono::steady_clock::time_point                  _nextDebugLineUpdate;

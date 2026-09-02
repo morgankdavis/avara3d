@@ -24,7 +24,7 @@ class RenderContext;
 class Scene;
 class VisualWorld;
 
-    /**
+/**
  * @brief Abstract rendering destination used by VisualWorld.
  *
  * A RenderContext owns the renderer resources associated with a rendering target.
@@ -36,7 +36,7 @@ class RenderContext {
 public:
     // [Public Types]
 
-        /** @brief Selects multisample antialiasing requested for the rendering target. */
+    /** @brief Selects multisample antialiasing requested for the rendering target. */
     enum class Antialiasing : uint8_t {
         None    = 0,  ///< No multisample antialiasing.
         Msaa2X  = 2,  ///< Two samples per pixel.
@@ -47,7 +47,7 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns whether presentation synchronization is enabled for this context. */
+    /** @brief Returns whether presentation synchronization is enabled for this context. */
     virtual bool           vSyncEnabled() const = 0;
 
     /** @brief Enables or disables presentation synchronization when supported by the concrete context. */

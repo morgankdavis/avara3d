@@ -32,7 +32,7 @@ class PhysicsWorld;
 class PhysicsBody;
 class VisualWorld;
 
-    /**
+/**
  * @brief A transformable object in a Scene hierarchy.
  *
  * A Node may contain a Mesh, Light, Camera, and PhysicsBody, and may have
@@ -47,8 +47,8 @@ class Node : public std::enable_shared_from_this<Node> {
 public:
     // [Public Types]
 
-        // TODO: probably move these
-        /** @brief Debug visualization options associated with a node. */
+    // TODO: probably move these
+    /** @brief Debug visualization options associated with a node. */
     enum class DebugOptions : uint32_t {
         None              = 0,      ///< No node debug visualization.
         ShowHighlightBox  = 1 << 0, ///< Show the node highlight box.
@@ -57,33 +57,33 @@ public:
 
     // [Public Static Member Functions]
 
-        /** @brief Creates a new node with @p name. */
+    /** @brief Creates a new node with @p name. */
     static std::shared_ptr<Node> NamedNode(const std::string& name);
 
-        /** @brief Creates a new node containing @p geometry. */
+    /** @brief Creates a new node containing @p geometry. */
     static std::shared_ptr<Node> MeshNode(const std::shared_ptr<Mesh>& geometry);
 
-        /** @brief Creates a new node containing @p light. */
+    /** @brief Creates a new node containing @p light. */
     static std::shared_ptr<Node> LightNode(const std::shared_ptr<Light>& light);
 
-        /** @brief Creates a new node containing @p camera. */
+    /** @brief Creates a new node containing @p camera. */
     static std::shared_ptr<Node> CameraNode(const std::shared_ptr<Camera>& camera);
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an empty node with an identity transform. */
+    /** @brief Creates an empty node with an identity transform. */
     Node();
 
-        /** @brief Creates a node with @p name and an identity transform. */
+    /** @brief Creates a node with @p name and an identity transform. */
     explicit Node(const std::string& name);
 
-        /** @brief Creates a node containing @p mesh and an identity transform. */
+    /** @brief Creates a node containing @p mesh and an identity transform. */
     explicit Node(const std::shared_ptr<Mesh>& mesh);
 
-        /** @brief Creates a node containing @p light and an identity transform. */
+    /** @brief Creates a node containing @p light and an identity transform. */
     explicit Node(const std::shared_ptr<Light>& light);
 
-        /** @brief Creates a node containing @p camera and an identity transform. */
+    /** @brief Creates a node containing @p camera and an identity transform. */
     explicit Node(const std::shared_ptr<Camera>& camera);
 
     Node(const Node&)            = delete;
@@ -96,28 +96,28 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the optional node name. */
+    /** @brief Returns the optional node name. */
     const std::optional<std::string>& name() const;
 
-        /** @brief Sets the node name. */
+    /** @brief Sets the node name. */
     void                              name(const std::string& name);
 
-        /** @brief Returns the light attached to this node, or nullptr if none is attached. */
+    /** @brief Returns the light attached to this node, or nullptr if none is attached. */
     const std::shared_ptr<Light>&     light() const;
 
-        /** @brief Replaces the light attached to this node; nullptr removes it. */
+    /** @brief Replaces the light attached to this node; nullptr removes it. */
     void                              light(const std::shared_ptr<Light>& light);
 
-        /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
+    /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
     const std::shared_ptr<Camera>&    camera() const;
 
-        /** @brief Replaces the camera attached to this node; nullptr removes it. */
+    /** @brief Replaces the camera attached to this node; nullptr removes it. */
     void                              camera(const std::shared_ptr<Camera>& camera);
 
-        /** @brief Returns the mesh attached to this node, or nullptr if none is attached. */
+    /** @brief Returns the mesh attached to this node, or nullptr if none is attached. */
     const std::shared_ptr<Mesh>&      mesh() const;
 
-        /**
+    /**
      * @brief Replaces the mesh attached to this node.
      *
      * Passing nullptr removes the current Mesh. If this node owns a PhysicsBody
@@ -134,13 +134,13 @@ public:
      */
     void                              mesh(const std::shared_ptr<Mesh>& mesh);
 
-        /** @brief Returns the node position in parent coordinates. */
+    /** @brief Returns the node position in parent coordinates. */
     const math::vec3&                 position() const;
 
-        /** @brief Sets the node position in parent coordinates. */
+    /** @brief Sets the node position in parent coordinates. */
     void                              position(const math::vec3& position);
 
-        /**
+    /**
      * @brief Returns the node rotation in parent coordinates.
      *
      * @return An axis-angle vector with xyz containing the axis and w containing
@@ -148,7 +148,7 @@ public:
      */
     math::vec4                        rotation() const;
 
-        /** @brief Sets the node rotation from @p axis and @p angle in radians. */
+    /** @brief Sets the node rotation from @p axis and @p angle in radians. */
     void                              rotation(const math::vec3& axis, float angle);
 
     /** @brief Returns the node Euler angles in parent coordinates as pitch, yaw, and roll in radians. */

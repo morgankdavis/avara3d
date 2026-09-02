@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Capped cone mesh element centered at the origin and aligned along the Y axis.
  *
  * Radius describes the circular base and height is the full axial length. Slices
@@ -30,7 +30,7 @@ class Cone : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a Cone and optional @p material. */
+    /** @brief Creates a Mesh containing a Cone and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     radius,
                                       float                     height,
                                       unsigned                  slices   = DEFAULT_SLICES,
@@ -40,7 +40,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates capped cone geometry with the supplied dimensions and subdivisions. */
+    /** @brief Generates capped cone geometry with the supplied dimensions and subdivisions. */
     Cone(float    radius,
          float    height,
          unsigned slices   = DEFAULT_SLICES,
@@ -49,19 +49,19 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured base radius. */
+    /** @brief Returns the configured base radius. */
     float    radius() const;
 
-        /** @brief Returns the configured axial height. */
+    /** @brief Returns the configured axial height. */
     float    height() const;
 
-        /** @brief Returns the circumferential subdivision count. */
+    /** @brief Returns the circumferential subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the axial subdivision count. */
+    /** @brief Returns the axial subdivision count. */
     unsigned segments() const;
 
-        /** @brief Returns the radial cap subdivision count. */
+    /** @brief Returns the radial cap subdivision count. */
     unsigned rings() const;
 
 private:

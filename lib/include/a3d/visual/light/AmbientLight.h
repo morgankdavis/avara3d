@@ -16,22 +16,22 @@
 
 namespace a3d {
 
-    /** @brief Uniform light that contributes independent of position, direction, or distance. */
+/** @brief Uniform light that contributes independent of position, direction, or distance. */
 class AmbientLight : public Light {
 
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed white AmbientLight. */
+    /** @brief Creates an unnamed white AmbientLight. */
     AmbientLight();
 
-        /** @brief Creates a named white AmbientLight. */
+    /** @brief Creates a named white AmbientLight. */
     explicit AmbientLight(const std::string& name);
 
-        /** @brief Creates an unnamed AmbientLight with @p color. */
+    /** @brief Creates an unnamed AmbientLight with @p color. */
     explicit AmbientLight(const Color& color);
 
-        /** @brief Creates an AmbientLight with @p name and @p color. */
+    /** @brief Creates an AmbientLight with @p name and @p color. */
     AmbientLight(const std::string& name, const Color& color);
 
     AmbientLight(const AmbientLight&)            = default;

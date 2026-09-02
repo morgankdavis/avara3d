@@ -11,7 +11,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Distance-attenuation coefficients for point and spot lights.
  *
  * Light intensity is scaled by 1 / (constant + linear * d + quadratic * d^2),
@@ -21,7 +21,7 @@ struct Attenuation {
 
     // [Public Static Member Functions]
 
-        /**
+    /**
      * @brief Returns quadratic attenuation that falls to the fraction @p p at
      * distance @p range.
      *

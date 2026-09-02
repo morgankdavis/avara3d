@@ -13,7 +13,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Capsule collision shape centered at the local origin and aligned along Y.
  *
  * Height is the distance between the centers of the hemispherical caps, so the

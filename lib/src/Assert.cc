@@ -49,10 +49,10 @@ static const char* basename(const char* path) {
 [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func) {
     const char* f = basename(file);
 
-        // Log through your system
+    // Log through your system
     log::e()("A3D_ASSERT FAILED: expr={} at {}:{} func={}", expr, f, line, func);
 
-        // Also dump to stderr as a last-resort (helps if logging isn't initialized)
+    // Also dump to stderr as a last-resort (helps if logging isn't initialized)
     std::fprintf(stderr, "A3D_ASSERT FAILED: %s (%s:%d %s)\n", expr, f, line, func);
     std::fflush(stderr);
 

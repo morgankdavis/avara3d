@@ -60,7 +60,7 @@ using quat = f32quat;
 
 // [Constants]
 
-    // floating-point limits
+// floating-point limits
 
 inline constexpr f32 F32_LOWEST     = std::numeric_limits<f32>::lowest();
 inline constexpr f32 F32_MAX        = std::numeric_limits<f32>::max();
@@ -70,11 +70,11 @@ inline constexpr f32 F32_EPSILON    = std::numeric_limits<f32>::epsilon();
 inline constexpr f32 F32_INFINITY   = std::numeric_limits<f32>::infinity();
 inline constexpr f32 F32_QUIET_NAN  = std::numeric_limits<f32>::quiet_NaN();
 
-    // comparison
+// comparison
 
 inline constexpr f32 F32_COMPARE_EPSILON = 1e-6f;
 
-    // mathematical constants
+// mathematical constants
 
 inline constexpr f32 E       = 2.7182818284590452354f;
 inline constexpr f32 LOG2_E  = 1.4426950408889634074f;

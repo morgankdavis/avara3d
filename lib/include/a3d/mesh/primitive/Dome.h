@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Generates a bounded angular patch of a sphere centered at the origin.
  *
  * Azimuth angles are measured counterclockwise around the Z axis from +X;
@@ -31,8 +31,8 @@ class Dome : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        // NOTE: this is NOT centered.
-        /** @brief Creates a Mesh containing a Dome and optional @p material. */
+    // NOTE: this is NOT centered.
+    /** @brief Creates a Mesh containing a Dome and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     radius,
                                       float                     azimuthStart,
                                       float                     azimuthSweep,
@@ -44,8 +44,8 @@ public:
 
     // [Public Lifecycle Functions]
 
-        // z, x, y?
-        /** @brief Generates a spherical patch with the supplied angular ranges and subdivisions. */
+    // z, x, y?
+    /** @brief Generates a spherical patch with the supplied angular ranges and subdivisions. */
     Dome(float    radius,
          float    azimuthStart,
          float    azimuthSweep,
@@ -56,25 +56,25 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the source sphere radius. */
+    /** @brief Returns the source sphere radius. */
     float    radius() const;
 
-        /** @brief Returns the azimuth start angle in radians. */
+    /** @brief Returns the azimuth start angle in radians. */
     float    azimuthStart() const;
 
-        /** @brief Returns the azimuth sweep angle in radians. */
+    /** @brief Returns the azimuth sweep angle in radians. */
     float    azimuthSweep() const;
 
-        /** @brief Returns the elevation start angle in radians. */
+    /** @brief Returns the elevation start angle in radians. */
     float    elevationStart() const;
 
-        /** @brief Returns the elevation sweep angle in radians. */
+    /** @brief Returns the elevation sweep angle in radians. */
     float    elevationSweep() const;
 
-        /** @brief Returns the azimuth subdivision count. */
+    /** @brief Returns the azimuth subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the elevation subdivision count. */
+    /** @brief Returns the elevation subdivision count. */
     unsigned segments() const;
 
 private:

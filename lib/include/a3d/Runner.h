@@ -25,7 +25,7 @@ struct FrameStats;
 
 class Scene;
 
-    /**
+/**
  * @brief Drives host updates, fixed-step simulation, and rendering for a Scene.
  *
  * A Runner converts elapsed host time into zero or more constant-duration
@@ -47,23 +47,23 @@ class Runner {
 public:
     // [Public Types]
 
-        /** @brief Runner lifecycle states. */
+    /** @brief Runner lifecycle states. */
     enum class State {
         Idle,    ///< Constructed but not yet started.
         Running, ///< Accepting host updates and scheduling simulation work.
         Stopped  ///< Permanently stopped; the Runner cannot be restarted.
     };
 
-        /** @brief Timing information supplied to each host update callback. */
+    /** @brief Timing information supplied to each host update callback. */
     struct UpdateInfo {
 
-            /** Zero-based Runner update index. */
+        /** Zero-based Runner update index. */
         std::uint64_t updateIndex {0};
 
-            /** Monotonic seconds since start(), sampled at this update's start. */
+        /** Monotonic seconds since start(), sampled at this update's start. */
         double        elapsedTime {0.0};
 
-            /**
+        /**
          * Monotonic seconds since the previous update's start.
          *
          * This value is zero on the first update.
@@ -71,7 +71,7 @@ public:
         double        deltaTime {0.0};
     };
 
-        /**
+    /**
      * @brief Callback invoked near the beginning of each host update.
      *
      * The callback runs before event polling, input update, simulation
@@ -82,7 +82,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates an idle Runner for @p scene.
      *
      * The Runner retains @p scene by reference; the Scene must outlive the Runner.
@@ -103,7 +103,7 @@ public:
 
     // [Public Member Functions]
 
-        /**
+    /**
      * @brief Starts the Runner using the current monotonic time.
      *
      * Starting resets simulation progression and host-update counters to their
@@ -114,7 +114,7 @@ public:
      */
     void           start();
 
-        /**
+    /**
      * @brief Performs one host update using the current monotonic time.
      *
      * A running update invokes the host callback, polls events, updates input,
@@ -126,17 +126,17 @@ public:
      */
     bool           update();
 
-        /**
+    /**
      * @brief Permanently stops the Runner and clears pending requested steps.
      *
      * Calling stop() on an already stopped Runner has no effect.
      */
     void           stop();
 
-        /** @brief Returns true when automatic simulation stepping is paused. */
+    /** @brief Returns true when automatic simulation stepping is paused. */
     bool           simulationPaused() const;
 
-        /**
+    /**
      * @brief Pauses or resumes automatic simulation stepping.
      *
      * Host updates, input processing, host-update and input callbacks, and
@@ -152,7 +152,7 @@ public:
      */
     void           simulationPaused(bool paused);
 
-        /**
+    /**
      * @brief Queues one fixed-duration simulation step while paused.
      *
      * Requested steps use timeStep() and are not scaled by timeScale(). Multiple
@@ -163,7 +163,7 @@ public:
      */
     void           requestSimulationStep();
 
-        /**
+    /**
      * @brief Resets simulation progression without changing scheduling settings.
      *
      * Simulation time, completed step count, accumulated/discarded time, and
@@ -176,16 +176,16 @@ public:
      */
     void           resetSimulation();
 
-        /** @brief Returns the currently installed host update callback. */
+    /** @brief Returns the currently installed host update callback. */
     UpdateCallback updateCallback() const;
 
-        /** @brief Replaces the host update callback; an empty callback disables it. */
+    /** @brief Replaces the host update callback; an empty callback disables it. */
     void           updateCallback(UpdateCallback callback);
 
-        /** @brief Returns the fixed simulation step duration in seconds. */
+    /** @brief Returns the fixed simulation step duration in seconds. */
     double         timeStep() const;
 
-        /**
+    /**
      * @brief Changes the fixed simulation step duration.
      *
      * Existing accumulated simulation time is preserved in seconds.
@@ -194,20 +194,20 @@ public:
      */
     void           timeStep(double value);
 
-        /** @brief Returns the maximum number of automatic catch-up steps permitted per host update. */
+    /** @brief Returns the maximum number of automatic catch-up steps permitted per host update. */
     std::uint32_t  maxCatchUpSteps() const;
 
-        /**
+    /**
      * @brief Changes the maximum number of automatic catch-up steps per host update.
      *
      * @throws std::invalid_argument if @p value is zero.
      */
     void           maxCatchUpSteps(std::uint32_t value);
 
-        /** @brief Returns the scale applied to elapsed host time for automatic simulation stepping. */
+    /** @brief Returns the scale applied to elapsed host time for automatic simulation stepping. */
     double         timeScale() const;
 
-        /**
+    /**
      * @brief Changes the scale applied to elapsed host time for automatic simulation stepping.
      *
      * Requested steps are not affected by this value.
@@ -216,19 +216,19 @@ public:
      */
     void           timeScale(double value);
 
-        /** @brief Returns total simulated time in seconds completed by fixed simulation steps. */
+    /** @brief Returns total simulated time in seconds completed by fixed simulation steps. */
     double         simulationTime() const;
 
-        /** @brief Returns the total number of completed fixed simulation steps. */
+    /** @brief Returns the total number of completed fixed simulation steps. */
     std::uint64_t  simulationStepCount() const;
 
-        /** @brief Returns the current Runner lifecycle state. */
+    /** @brief Returns the current Runner lifecycle state. */
     State          state() const;
 
-        /** @brief Returns the Scene driven by this Runner. */
+    /** @brief Returns the Scene driven by this Runner. */
     Scene&         scene();
 
-        /** @brief Returns the Scene driven by this Runner. */
+    /** @brief Returns the Scene driven by this Runner. */
     const Scene&   scene() const;
 
     // [Internal Member Functions]

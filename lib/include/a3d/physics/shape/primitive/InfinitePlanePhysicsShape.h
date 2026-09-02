@@ -13,7 +13,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Infinite collision plane through the local origin with normal along +Z.
  *
  * InfinitePlanePhysicsShape is compatible only with static PhysicsBody objects.
@@ -23,15 +23,15 @@ class InfinitePlanePhysicsShape : public PhysicsShape {
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an infinite collision plane through the local XY plane. */
+    /** @brief Creates an infinite collision plane through the local XY plane. */
     InfinitePlanePhysicsShape();
 
     // [PhysicsShape Public Member Functions]
 
-        /** @brief Returns PhysicsShape::Type::Primitive. */
+    /** @brief Returns PhysicsShape::Type::Primitive. */
     Type type() const override;
 
-        /**
+    /**
      * @brief Rejects attempts to change the fixed primitive shape type.
      *
      * @throws std::logic_error always; InfinitePlanePhysicsShape has a fixed type.

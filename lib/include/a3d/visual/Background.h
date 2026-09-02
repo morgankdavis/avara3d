@@ -14,12 +14,12 @@
 
 namespace a3d {
 
-    /** @brief Configures a solid-color or cubemap background for a VisualWorld. */
+/** @brief Configures a solid-color or cubemap background for a VisualWorld. */
 struct Background {
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a background with @p contents. */
+    /** @brief Creates a background with @p contents. */
     explicit Background(Material::Property contents);
 
     // [Public Member Variables]

@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Capped hollow tube mesh element centered at the origin and aligned along the Z axis.
  *
  * Inner and outer radii lie in the XY plane and height is the full axial
@@ -30,7 +30,7 @@ class Tube : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a Tube and optional @p material. */
+    /** @brief Creates a Mesh containing a Tube and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     innerRadius,
                                       float                     outerRadius,
                                       float                     height,
@@ -41,7 +41,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates capped tube geometry with the supplied dimensions and subdivisions. */
+    /** @brief Generates capped tube geometry with the supplied dimensions and subdivisions. */
     Tube(float    innerRadius,
          float    outerRadius,
          float    height,
@@ -51,22 +51,22 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured inner radius. */
+    /** @brief Returns the configured inner radius. */
     float    innerRadius() const;
 
-        /** @brief Returns the configured outer radius. */
+    /** @brief Returns the configured outer radius. */
     float    outerRadius() const;
 
-        /** @brief Returns the configured axial height. */
+    /** @brief Returns the configured axial height. */
     float    height() const;
 
-        /** @brief Returns the circumferential subdivision count. */
+    /** @brief Returns the circumferential subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the axial subdivision count. */
+    /** @brief Returns the axial subdivision count. */
     unsigned segments() const;
 
-        /** @brief Returns the radial end-cap subdivision count. */
+    /** @brief Returns the radial end-cap subdivision count. */
     unsigned rings() const;
 
 private:

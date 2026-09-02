@@ -154,7 +154,7 @@ SortIncludes:
 IncludeBlocks: Preserve
 SortUsingDeclarations: Never
 
-ReflowComments: IndentOnly
+ReflowComments: Never
 BreakStringLiterals: false
 InsertBraces: true
 RemoveBracesLLVM: false

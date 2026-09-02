@@ -20,8 +20,8 @@ enum class VertexAttribFormat : uint8_t {
     F32x2,
     F32x3,
     F32x4,
-        // UN8x4
-        // I16x4N
+    // UN8x4
+    // I16x4N
 };
 
 enum class VertexSemantic : uint8_t {

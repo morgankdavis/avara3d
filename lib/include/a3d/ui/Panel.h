@@ -15,7 +15,7 @@
 
 namespace a3d::ui {
 
-    /**
+/**
  * @brief Transient immediate-mode overlay panel for application controls and status.
  *
  * Construct a Panel during Application::frameDidBegin(), emit its contents,
@@ -31,12 +31,12 @@ class Panel {
 public:
     // [Public Types]
 
-        /** @brief Controls panel width and its inset from the upper-right viewport corner. */
+    /** @brief Controls panel width and its inset from the upper-right viewport corner. */
     struct Options {
         float          width {260.0f}; ///< Panel width in logical UI units.
         float          margin {12.0f}; ///< Top and right viewport margin in logical UI units.
 
-            /**
+        /**
          * @brief Returns the Options value currently used as Panel's default argument.
          *
          * The current implementation returns zero width and margin; Panel rejects
@@ -47,25 +47,25 @@ public:
         }
     };
 
-        /** @brief Per-item padding in logical UI units. */
+    /** @brief Per-item padding in logical UI units. */
     struct Padding {
         float          top {0.0f}; ///< Padding above the item contents.
         float          bottom {0.0f}; ///< Padding below the item contents.
         float          left {0.0f}; ///< Padding to the left of the item contents.
         float          right {0.0f}; ///< Padding to the right of the item contents.
 
-            /** @brief Returns zero padding on all sides. */
+        /** @brief Returns zero padding on all sides. */
         static Padding Default() {
             return {0.0f, 0.0f, 0.0f, 0.0f};
         }
     };
 
-        /** @brief Controls the optional separator line and capitalization of section headings. */
+    /** @brief Controls the optional separator line and capitalization of section headings. */
     struct SectionConfig {
         bool                 line {true}; ///< Draw a separator line beneath the heading when true.
         bool                 uppercase {false}; ///< Convert the displayed heading to uppercase when true.
 
-            /** @brief Returns the default section-heading configuration. */
+        /** @brief Returns the default section-heading configuration. */
         static SectionConfig Default() {
             return {true, false};
         }
@@ -73,7 +73,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Begins an immediate-mode panel for the current frame.
      *
      * @p id is used to preserve UI identity between frames and should remain stable.
@@ -95,25 +95,25 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Draws a section heading with optional separator line, capitalization, and padding. */
+    /** @brief Draws a section heading with optional separator line, capitalization, and padding. */
     void section(std::string_view text,
                  SectionConfig    config  = SectionConfig::Default(),
                  Padding          padding = {12.0f, 4.0f, 0.0f, 0.0f});
 
-        /** @brief Draws body text, wrapping it to the available item width. */
+    /** @brief Draws body text, wrapping it to the available item width. */
     void text(std::string_view text, Padding padding = Padding::Default());
 
-        /** @brief Draws a left-aligned label and right-aligned textual value. */
+    /** @brief Draws a left-aligned label and right-aligned textual value. */
     void value(std::string_view label, std::string_view value, Padding padding = Padding::Default());
 
-        /**
+    /**
      * @brief Inserts vertical space of @p height logical UI units.
      *
      * @throws std::invalid_argument if @p height is negative.
      */
     void spacer(float height);
 
-        /**
+    /**
      * @brief Arranges the next @p itemCount items horizontally with equal widths.
      *
      * @throws std::invalid_argument if @p itemCount is zero.
@@ -121,7 +121,7 @@ public:
      */
     void row(unsigned itemCount);
 
-        /**
+    /**
      * @brief Arranges the next @p itemCount items as a contiguous horizontal segmented row.
      *
      * @throws std::invalid_argument if @p itemCount is zero.
@@ -129,14 +129,14 @@ public:
      */
     void segmentedRow(unsigned itemCount);
 
-        /**
+    /**
      * @brief Draws a button and reports activation once.
      *
      * @throws std::invalid_argument if @p label is empty.
      */
     bool button(std::string_view label, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /**
+    /**
      * @brief Draws a selectable option button and reports activation once.
      *
      * @p selected controls the persistent selected appearance for this frame and
@@ -146,7 +146,7 @@ public:
      */
     bool option(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /**
+    /**
      * @brief Draws a visually subordinate selectable option button and reports activation once.
      *
      * @p selected controls the persistent selected appearance for this frame and
@@ -156,7 +156,7 @@ public:
      */
     bool subOption(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /**
+    /**
      * @brief Draws a floating-point slider and reports whether @p value changed.
      *
      * @throws std::invalid_argument if @p label is empty or the range is not increasing.
@@ -168,7 +168,7 @@ public:
                 std::string_view format  = "%.2f",
                 Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /**
+    /**
      * @brief Draws an integer slider and reports whether @p value changed.
      *
      * @throws std::invalid_argument if @p label is empty or @p minimum is not less than @p maximum.
@@ -180,14 +180,14 @@ public:
                 std::string_view format  = "%d",
                 Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /**
+    /**
      * @brief Draws a boolean toggle and reports whether @p value changed.
      *
      * @throws std::invalid_argument if @p label is empty.
      */
     bool toggle(std::string_view label, bool& value, Padding padding = Padding::Default());
 
-        /** @brief Returns whether the pointer is hovering the panel during the current frame. */
+    /** @brief Returns whether the pointer is hovering the panel during the current frame. */
     bool hovered() const;
 
 private:

@@ -22,7 +22,7 @@ class DirectionalLight;
 class PointLight;
 class SpotLight;
 
-    /**
+/**
  * @brief Base class for light sources attached to Scene Nodes.
  *
  * Concrete lights use the containing Node transform where spatial information
@@ -34,28 +34,28 @@ class Light {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a white AmbientLight. */
+    /** @brief Creates a white AmbientLight. */
     static std::shared_ptr<AmbientLight>     Ambient();
 
-        /** @brief Creates an AmbientLight with @p color. */
+    /** @brief Creates an AmbientLight with @p color. */
     static std::shared_ptr<AmbientLight>     Ambient(const Color& color);
 
-        /** @brief Creates a white DirectionalLight. */
+    /** @brief Creates a white DirectionalLight. */
     static std::shared_ptr<DirectionalLight> Directional();
 
-        /** @brief Creates a DirectionalLight with @p color. */
+    /** @brief Creates a DirectionalLight with @p color. */
     static std::shared_ptr<DirectionalLight> Directional(const Color& color);
 
-        /** @brief Creates a white PointLight. */
+    /** @brief Creates a white PointLight. */
     static std::shared_ptr<PointLight>       Point();
 
-        /** @brief Creates a PointLight with @p color. */
+    /** @brief Creates a PointLight with @p color. */
     static std::shared_ptr<PointLight>       Point(const Color& color);
 
-        /** @brief Creates a white SpotLight. */
+    /** @brief Creates a white SpotLight. */
     static std::shared_ptr<SpotLight>        Spot();
 
-        /** @brief Creates a SpotLight with @p color. */
+    /** @brief Creates a SpotLight with @p color. */
     static std::shared_ptr<SpotLight>        Spot(const Color& color);
 
 protected:
@@ -77,16 +77,16 @@ protected:
 public:
     // [Public Member Functions]
 
-        /** @brief Returns the optional light name. */
+    /** @brief Returns the optional light name. */
     const std::optional<std::string>& name() const;
 
-        /** @brief Sets the light name. */
+    /** @brief Sets the light name. */
     void                              name(const std::string& name);
 
-        /** @brief Returns the light color. */
+    /** @brief Returns the light color. */
     const Color&                      color() const;
 
-        /** @brief Sets the light color. */
+    /** @brief Sets the light color. */
     void                              color(const Color& color);
 
 protected:

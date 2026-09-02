@@ -15,13 +15,13 @@
 
 namespace a3d::log {
 
-    /** @brief LogSink that writes ordinary messages to standard output and errors to standard error. */
+/** @brief LogSink that writes ordinary messages to standard output and errors to standard error. */
 class StdOutLogSink : public LogSink {
 
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a standard-stream log sink. */
+    /** @brief Creates a standard-stream log sink. */
     StdOutLogSink();
 
     StdOutLogSink(const StdOutLogSink&)            = delete;
@@ -34,7 +34,7 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Flushes buffered standard-stream output. */
+    /** @brief Flushes buffered standard-stream output. */
     void flush() override;
 
     // [Public LogSink Member Functions]

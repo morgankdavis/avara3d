@@ -65,18 +65,18 @@ struct FrameStats {
 
     RenderMemoryStats        renderMemory {};
 
-        // fixed simulation configuration
+    // fixed simulation configuration
     double                   simulationTimeStep {0.0};
     std::uint32_t            maxCatchUpSteps {0};
 
-        // cumulative completed simulation
+    // cumulative completed simulation
     std::uint64_t            simulationStepCount {0};
     double                   simulationTime {0.0};
 
-        // simulation steps completed during this Runner update
+    // simulation steps completed during this Runner update
     std::uint32_t            simulationStepsThisUpdate {0};
 
-        // complete fixed-step simulation debt discarded after bounded catch-up
+    // complete fixed-step simulation debt discarded after bounded catch-up
     double                   discardedSimulationTime {0.0};
     double                   totalDiscardedSimulationTime {0.0};
 

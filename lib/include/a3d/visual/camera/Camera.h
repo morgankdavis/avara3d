@@ -17,7 +17,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Base class for camera projection models used by VisualWorld.
  *
  * A Camera is attached to a Node; the Node's world transform supplies the
@@ -28,20 +28,20 @@ class Camera {
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed Camera. */
+    /** @brief Creates an unnamed Camera. */
     Camera();
 
-        /** @brief Creates a Camera with @p name. */
+    /** @brief Creates a Camera with @p name. */
     explicit Camera(const std::string& name);
 
     virtual ~Camera() = 0;
 
     // [Public Member Functions]
 
-        /** @brief Returns the optional camera name. */
+    /** @brief Returns the optional camera name. */
     const std::optional<std::string>& name() const;
 
-        /** @brief Sets the camera name. */
+    /** @brief Sets the camera name. */
     void                              name(const std::string& name);
 
     // [Internal Member Functions]

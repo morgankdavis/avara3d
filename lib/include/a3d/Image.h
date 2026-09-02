@@ -16,7 +16,7 @@ namespace a3d {
 
 class Buffer;
 
-    /**
+/**
  * @brief Owns decoded pixel data and its dimensions.
  *
  * Images decoded from encoded file or Buffer data are converted to four-byte
@@ -29,7 +29,7 @@ class Image {
 public:
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Loads and decodes an image from @p path.
      *
      * @param flipVertical vertically flips the decoded pixels when true.
@@ -38,7 +38,7 @@ public:
      */
     explicit Image(const std::filesystem::path& path, bool flipVertical = true, bool flipHorizontal = false);
 
-        /**
+    /**
      * @brief Decodes encoded image data from @p buffer.
      *
      * @param flipVertical vertically flips the decoded pixels when true.
@@ -47,7 +47,7 @@ public:
      */
     explicit Image(const Buffer& buffer, bool flipVertical = true, bool flipHorizontal = false);
 
-        /**
+    /**
      * @brief Takes ownership of an existing pixel buffer and its dimensions.
      *
      * The caller is responsible for supplying a buffer compatible with
@@ -74,16 +74,16 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the image width in pixels. */
+    /** @brief Returns the image width in pixels. */
     unsigned               width() const;
 
-        /** @brief Returns the image height in pixels. */
+    /** @brief Returns the image height in pixels. */
     unsigned               height() const;
 
-        /** @brief Returns the number of bytes stored for each pixel. */
+    /** @brief Returns the number of bytes stored for each pixel. */
     unsigned               bytesPerPixel() const;
 
-        /**
+    /**
      * @brief Returns a new Image with its color bytes inverted.
      *
      * For four-byte pixels, RGB is inverted while alpha is preserved. For
@@ -91,10 +91,10 @@ public:
      */
     std::unique_ptr<Image> inverted() const;
 
-        /** @brief Returns the Buffer containing the owned pixel data. */
+    /** @brief Returns the Buffer containing the owned pixel data. */
     const Buffer&          buffer() const;
 
-        /**
+    /**
      * @brief Writes the image pixels to a PNG file at @p path.
      *
      * @return true on success; false if the PNG could not be written.

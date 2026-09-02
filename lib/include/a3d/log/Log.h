@@ -26,7 +26,7 @@ class LogSink;
 
 // [Public Types]
 
-    /** @brief Log-message severity and filtering threshold. */
+/** @brief Log-message severity and filtering threshold. */
 enum class Level : uint8_t {
     Trace = 0, ///< Finest-grained diagnostic messages.
     Debug = 1, ///< Debug diagnostic messages.
@@ -39,16 +39,16 @@ enum class Level : uint8_t {
 
 // [Public Functions]
 
-    /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
+/** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
 Log& AppLog();
 
-    /** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
+/** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
 void AppLog(std::unique_ptr<Log> log);
 
-    /** @brief Returns A3D's process-wide default Log. */
+/** @brief Returns A3D's process-wide default Log. */
 Log& MainLog();
 
-    /**
+/**
  * @brief Dispatches severity-filtered log messages to one or more LogSink objects.
  *
  * A Log owns its sinks. Messages below level() are ignored; messages at or above
@@ -118,10 +118,10 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed Log with default thresholds and no sinks. */
+    /** @brief Creates an unnamed Log with default thresholds and no sinks. */
     Log();
 
-        /**
+    /**
      * @brief Creates a named Log that takes ownership of @p sink.
      *
      * A null sink is accepted and leaves the Log with no sinks.
@@ -131,7 +131,7 @@ public:
         Level                    level      = DEFAULT_LEVEL,
         Level                    flushLevel = DEFAULT_FLUSH_LEVEL);
 
-        /** @brief Creates a named Log that takes ownership of @p sinks. */
+    /** @brief Creates a named Log that takes ownership of @p sinks. */
     Log(const std::string&                    name,
         std::vector<std::unique_ptr<LogSink>> sinks,
         Level                                 level      = DEFAULT_LEVEL,
@@ -147,43 +147,43 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the name included in formatted log output. */
+    /** @brief Returns the name included in formatted log output. */
     const std::string&                           name() const;
 
-        /** @brief Returns the sinks owned by the Log. */
+    /** @brief Returns the sinks owned by the Log. */
     const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
-        /** @brief Returns the minimum severity currently emitted by the Log. */
+    /** @brief Returns the minimum severity currently emitted by the Log. */
     Level                                        level() const;
 
-        /** @brief Sets the minimum emitted severity; Level::Off disables message emission. */
+    /** @brief Sets the minimum emitted severity; Level::Off disables message emission. */
     void                                         level(Level level);
 
-        /** @brief Returns the severity threshold that triggers an automatic sink flush. */
+    /** @brief Returns the severity threshold that triggers an automatic sink flush. */
     Level                                        flushLevel() const;
 
-        /** @brief Sets the severity threshold that triggers an automatic sink flush. */
+    /** @brief Sets the severity threshold that triggers an automatic sink flush. */
     void                                         flushLevel(Level flushLevel);
 
-        /** @brief Emits @p msg at Trace severity when enabled. */
+    /** @brief Emits @p msg at Trace severity when enabled. */
     void                                         trace(const std::string& msg);
 
-        /** @brief Emits @p msg at Debug severity when enabled. */
+    /** @brief Emits @p msg at Debug severity when enabled. */
     void                                         debug(const std::string& msg);
 
-        /** @brief Emits @p msg at Info severity when enabled. */
+    /** @brief Emits @p msg at Info severity when enabled. */
     void                                         info(const std::string& msg);
 
-        /** @brief Emits @p msg at Warn severity when enabled. */
+    /** @brief Emits @p msg at Warn severity when enabled. */
     void                                         warn(const std::string& msg);
 
-        /** @brief Emits @p msg at Error severity when enabled. */
+    /** @brief Emits @p msg at Error severity when enabled. */
     void                                         error(const std::string& msg);
 
-        /** @brief Emits @p msg at Fatal severity when enabled. */
+    /** @brief Emits @p msg at Fatal severity when enabled. */
     void                                         fatal(const std::string& msg);
 
-        /** @brief Flushes every owned sink. */
+    /** @brief Flushes every owned sink. */
     void                                         flush();
 
     // [Internal Member Functions]
@@ -233,7 +233,7 @@ private:
 
 // [Public Functions]
 
-    /**
+/**
  * @name Main Log Convenience Functions
  *
  * Shorthand accessors for writing to MainLog() at the corresponding severity.
@@ -248,43 +248,43 @@ private:
  * @{
  */
 
-    /** @brief Returns a Trace-level entry for A3D's main log. */
+/** @brief Returns a Trace-level entry for A3D's main log. */
 inline Log::Entry t(std::source_location where = std::source_location::current()) {
     return MainLog().trace(where);
 }
 
-    /** @brief Returns a Debug-level entry for A3D's main log. */
+/** @brief Returns a Debug-level entry for A3D's main log. */
 inline Log::Entry d(std::source_location where = std::source_location::current()) {
     return MainLog().debug(where);
 }
 
-    /** @brief Returns an Info-level entry for A3D's main log. */
+/** @brief Returns an Info-level entry for A3D's main log. */
 inline Log::Entry i(std::source_location where = std::source_location::current()) {
     return MainLog().info(where);
 }
 
-    /** @brief Returns a Warn-level entry for A3D's main log. */
+/** @brief Returns a Warn-level entry for A3D's main log. */
 inline Log::Entry w(std::source_location where = std::source_location::current()) {
     return MainLog().warn(where);
 }
 
-    /** @brief Returns an Error-level entry for A3D's main log. */
+/** @brief Returns an Error-level entry for A3D's main log. */
 inline Log::Entry e(std::source_location where = std::source_location::current()) {
     return MainLog().error(where);
 }
 
-    /** @brief Returns a Fatal-level entry for A3D's main log. */
+/** @brief Returns a Fatal-level entry for A3D's main log. */
 inline Log::Entry f(std::source_location where = std::source_location::current()) {
     return MainLog().fatal(where);
 }
 
-    /** @} */
+/** @} */
 
 namespace app {
 
     // [Public Functions]
 
-        /**
+    /**
      * @name Application Log Convenience Functions
      *
      * Shorthand accessors for writing to AppLog() at the corresponding severity.
@@ -298,37 +298,37 @@ namespace app {
      * @{
      */
 
-        /** @brief Returns a Trace-level entry for the application log. */
+    /** @brief Returns a Trace-level entry for the application log. */
     inline Log::Entry t(std::source_location where = std::source_location::current()) {
         return AppLog().trace(where);
     }
 
-        /** @brief Returns a Debug-level entry for the application log. */
+    /** @brief Returns a Debug-level entry for the application log. */
     inline Log::Entry d(std::source_location where = std::source_location::current()) {
         return AppLog().debug(where);
     }
 
-        /** @brief Returns an Info-level entry for the application log. */
+    /** @brief Returns an Info-level entry for the application log. */
     inline Log::Entry i(std::source_location where = std::source_location::current()) {
         return AppLog().info(where);
     }
 
-        /** @brief Returns a Warn-level entry for the application log. */
+    /** @brief Returns a Warn-level entry for the application log. */
     inline Log::Entry w(std::source_location where = std::source_location::current()) {
         return AppLog().warn(where);
     }
 
-        /** @brief Returns an Error-level entry for the application log. */
+    /** @brief Returns an Error-level entry for the application log. */
     inline Log::Entry e(std::source_location where = std::source_location::current()) {
         return AppLog().error(where);
     }
 
-        /** @brief Returns a Fatal-level entry for the application log. */
+    /** @brief Returns a Fatal-level entry for the application log. */
     inline Log::Entry f(std::source_location where = std::source_location::current()) {
         return AppLog().fatal(where);
     }
 
-        /** @} */
+    /** @} */
 
 } // namespace app
 

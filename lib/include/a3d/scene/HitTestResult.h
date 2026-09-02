@@ -23,14 +23,14 @@ class Node;
 
 // [Public Types]
 
-    /** @brief Controls how hit-test results are selected. */
+/** @brief Controls how hit-test results are selected. */
 enum class HitTestSearchMode : uint8_t {
     Any,     ///< Returns the first hit found, which is not necessarily the closest.
     Closest, ///< Returns only the closest hit.
     All      ///< Returns all hits ordered from closest to farthest.
 };
 
-    /**
+/**
  * @brief Describes an intersection with scene geometry or a physics body.
  *
  * Coordinates, normals, and the model transform are snapshots from the time
@@ -45,7 +45,7 @@ class HitTestResult {
 public:
     // [Public Member Functions]
 
-        /** @brief Returns the hit node, or nullptr if it has since been destroyed. */
+    /** @brief Returns the hit node, or nullptr if it has since been destroyed. */
     std::shared_ptr<Node>   node() const;
 
     /** @brief Returns the hit visual mesh element, or nullptr when no visual mesh element is identified. */

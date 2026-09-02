@@ -39,7 +39,7 @@ class Renderer;
 class RenderContext;
 class Scene;
 
-    /**
+/**
  * @brief Manages the visual presentation, camera, and visual queries for a Scene.
  *
  * A VisualWorld renders through the RenderContext supplied at construction and
@@ -55,49 +55,49 @@ class VisualWorld {
 public:
     // [Public Types]
 
-        /** @brief Rendering capabilities available through this VisualWorld. */
+    /** @brief Rendering capabilities available through this VisualWorld. */
     struct Capabilities {
         bool wireframeRendering {false}; ///< Whether wireframe rendering is supported.
     };
 
-        /** @brief Timing and progression information associated with a rendered frame. */
+    /** @brief Timing and progression information associated with a rendered frame. */
     struct RenderInfo {
 
-            // zero-based successful-render-frame index
+        // zero-based successful-render-frame index
         std::uint64_t frameIndex {0}; ///< Zero-based index of the successful rendered frame.
 
-            // Runner update responsible for this render attempt
+        // Runner update responsible for this render attempt
         std::uint64_t updateIndex {0}; ///< Runner update responsible for this render attempt.
 
-            // monotonic Runner elapsed time for the containing update
+        // monotonic Runner elapsed time for the containing update
         double        updateTime {0.0}; ///< Runner elapsed time for the containing update, in seconds.
 
-            // monotonic delta for the containing Runner update
+        // monotonic delta for the containing Runner update
         double        updateDeltaTime {0.0}; ///< Delta time of the containing Runner update, in seconds.
 
-            // time reached by the most recently completed simulation step
+        // time reached by the most recently completed simulation step
         double        simulationTime {
             0.0}; ///< Time reached by the most recently completed simulation step, in seconds.
 
-            // total number of completed simulation steps
+        // total number of completed simulation steps
         std::uint64_t simulationStepCount {0}; ///< Total number of completed simulation steps.
     };
 
-        /** @brief Options controlling visual hit testing. */
+    /** @brief Options controlling visual hit testing. */
     struct HitTestOptions {
         HitTestSearchMode searchMode {HitTestSearchMode::Closest}; ///< Which matching hits to return.
         bool elementBoundsOnly {false}; ///< Test MeshElement bounds instead of individual triangles.
         std::vector<const Node*> ignoredNodes {}; ///< Nodes excluded from hit testing.
     };
 
-        /** @brief Callback invoked after renderer frame setup and before Scene rendering begins. */
+    /** @brief Callback invoked after renderer frame setup and before Scene rendering begins. */
     using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;
 
     // [Public Lifecycle Functions]
 
     VisualWorld() = delete;
 
-        /**
+    /**
      * @brief Creates a VisualWorld that renders through @p context.
      *
      * @p context is retained non-owningly and must outlive this VisualWorld.
@@ -114,13 +114,13 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the rendering capabilities currently available to the VisualWorld. */
+    /** @brief Returns the rendering capabilities currently available to the VisualWorld. */
     Capabilities                       capabilities() const;
 
-        /** @brief Returns the optional Scene background. */
+    /** @brief Returns the optional Scene background. */
     const std::optional<Background>&   background() const;
 
-        /**
+    /**
      * @brief Sets or disables the Scene background.
      *
      * Background contents must be a Color or a Texture containing a CubeImage.
@@ -131,20 +131,20 @@ public:
      */
     void                               background(const std::optional<Background>& background);
 
-        /** @brief Returns the optional distance fog configuration. */
+    /** @brief Returns the optional distance fog configuration. */
     const std::optional<Fog>&          fog() const;
 
-        /**
+    /**
      * @brief Sets or disables distance fog.
      *
      * @throws std::invalid_argument if distances or transition exponent are invalid.
      */
     void                               fog(const std::optional<Fog>& fog);
 
-        /** @brief Returns the optional atmosphere configuration. */
+    /** @brief Returns the optional atmosphere configuration. */
     const std::optional<Atmosphere>&   atmosphere() const;
 
-        /**
+    /**
      * @brief Sets or disables atmospheric effects.
      *
      * An enabled Atmosphere requires a Surface; limb glow additionally requires
@@ -155,10 +155,10 @@ public:
      */
     void                               atmosphere(const std::optional<Atmosphere>& atmosphere);
 
-        /** @brief Returns the optional visual ground configuration. */
+    /** @brief Returns the optional visual ground configuration. */
     const std::optional<Ground>&       ground() const;
 
-        /**
+    /**
      * @brief Sets or disables visual ground rendering.
      *
      * An enabled Ground requires a Surface.
@@ -168,10 +168,10 @@ public:
      */
     void                               ground(const std::optional<Ground>& ground);
 
-        /** @brief Returns the optional reference Surface used by ground and atmospheric effects. */
+    /** @brief Returns the optional reference Surface used by ground and atmospheric effects. */
     const std::optional<a3d::Surface>& surface() const;
 
-        /**
+    /**
      * @brief Sets or removes the reference Surface used by ground and atmospheric effects.
      *
      * The Surface cannot be removed while Ground or Atmosphere is enabled, and
@@ -182,10 +182,10 @@ public:
      */
     void                               surface(const std::optional<a3d::Surface>& surface);
 
-        /** @brief Returns the weak reference to the camera Node used as the point of view. */
+    /** @brief Returns the weak reference to the camera Node used as the point of view. */
     std::weak_ptr<Node>&               pointOfView();
 
-        /**
+    /**
      * @brief Sets the camera Node used as the point of view.
      *
      * Passing an empty weak pointer clears the explicit point of view. If no point
@@ -194,7 +194,7 @@ public:
      */
     void                               pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        /**
+    /**
      * @brief Projects a world-space point into logical viewport coordinates.
      *
      * The returned X and Y use a top-left viewport origin. Z is normalized so
@@ -204,7 +204,7 @@ public:
      */
     math::vec3                         projectPoint(const math::vec3& point) const;
 
-        /**
+    /**
      * @brief Unprojects a logical viewport point into world coordinates.
      *
      * Input X and Y use a top-left viewport origin. Input Z uses normalized
@@ -214,7 +214,7 @@ public:
      */
     math::vec3                         unprojectPoint(const math::vec3& point) const;
 
-        /**
+    /**
      * @brief Hit-tests visible Scene mesh geometry beneath a logical viewport point.
      *
      * With elementBoundsOnly enabled, MeshElement bounds are tested instead of
@@ -227,13 +227,13 @@ public:
      */
     std::vector<HitTestResult>         hitTest(const math::vec2& point, const HitTestOptions& options) const;
 
-        /** @brief Hit-tests the closest visible Scene mesh geometry beneath a logical viewport point. */
+    /** @brief Hit-tests the closest visible Scene mesh geometry beneath a logical viewport point. */
     std::vector<HitTestResult>         hitTest(const math::vec2& point) const;
 
-        /** @brief Returns whether renderer-provided default lighting is enabled. */
+    /** @brief Returns whether renderer-provided default lighting is enabled. */
     bool                               defaultLightingEnabled() const;
 
-        /**
+    /**
      * @brief Enables or disables renderer-provided default lighting.
      *
      * When enabled, material base content is rendered without evaluating the
@@ -241,16 +241,16 @@ public:
      */
     void                               defaultLightingEnabled(bool enabled);
 
-        /** @brief Returns the callback invoked immediately before Scene rendering begins. */
+    /** @brief Returns the callback invoked immediately before Scene rendering begins. */
     DidBeginFrameCallback              didBeginFrameCallback() const;
 
-        /** @brief Sets the begin-frame callback; an empty callback disables it. */
+    /** @brief Sets the begin-frame callback; an empty callback disables it. */
     void                               didBeginFrameCallback(DidBeginFrameCallback function);
 
-        /** @brief Returns the non-owning RenderContext associated with this VisualWorld. */
+    /** @brief Returns the non-owning RenderContext associated with this VisualWorld. */
     RenderContext*                     renderContext() const;
 
-        /** @brief Returns the Scene this VisualWorld is attached to, or nullptr if unattached. */
+    /** @brief Returns the Scene this VisualWorld is attached to, or nullptr if unattached. */
     Scene*                             scene() const;
 
     // [Internal Member Functions]

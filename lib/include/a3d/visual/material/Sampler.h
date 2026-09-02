@@ -19,14 +19,14 @@ namespace a3d {
 class Color;
 class Image;
 
-    /** @brief Describes filtering, anisotropy, and coordinate wrapping for a Texture. */
+/** @brief Describes filtering, anisotropy, and coordinate wrapping for a Texture. */
 class Sampler {
 
 public:
     // [Public Types]
 
-        // TODO: don't use GL constants
-        /** @brief Selects texture filtering and optional mipmap interpolation. */
+    // TODO: don't use GL constants
+    /** @brief Selects texture filtering and optional mipmap interpolation. */
     enum class FilterMode : uint16_t {
         Nearest              = 0x2600, ///< Select the nearest texel.
         Linear               = 0x2601, ///< Linearly interpolate neighboring texels.
@@ -36,8 +36,8 @@ public:
         LinearMipmapLinear   = 0x2703  ///< Linear texel filtering interpolated between mipmap levels.
     };
 
-        // TODO: don't use GL constants
-        /** @brief Selects how texture coordinates outside the image range are wrapped. */
+    // TODO: don't use GL constants
+    /** @brief Selects how texture coordinates outside the image range are wrapped. */
     enum class WrapMode : uint16_t {
         Repeat         = 0x2901, ///< Repeat the texture periodically.
         MirroredRepeat = 0x8370, ///< Repeat while mirroring every other interval.
@@ -46,7 +46,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a Sampler with default filtering, anisotropy, and wrapping state. */
+    /** @brief Creates a Sampler with default filtering, anisotropy, and wrapping state. */
     Sampler();
 
     Sampler(const Sampler& other);
@@ -59,44 +59,44 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the texture minification filter. */
+    /** @brief Returns the texture minification filter. */
     FilterMode minificationFilter() const;
 
-        /** @brief Sets the texture minification filter. */
+    /** @brief Sets the texture minification filter. */
     void       minificationFilter(FilterMode mode);
 
-        /** @brief Returns the texture magnification filter. */
+    /** @brief Returns the texture magnification filter. */
     FilterMode magnificationFilter() const;
 
-        /** @brief Sets the magnification filter; magnification supports Nearest or Linear filtering. */
+    /** @brief Sets the magnification filter; magnification supports Nearest or Linear filtering. */
     void       magnificationFilter(FilterMode mode);
 
-        /** @brief Returns the requested maximum anisotropy. */
+    /** @brief Returns the requested maximum anisotropy. */
     float      maxAnisotropy() const;
 
-        /**
+    /**
      * @brief Sets the requested maximum anisotropy.
      *
      * The renderer may clamp the request to the active rendering API's supported maximum.
      */
     void       maxAnisotropy(float max);
 
-        /** @brief Returns the S-coordinate wrap mode. */
+    /** @brief Returns the S-coordinate wrap mode. */
     WrapMode   wrapS() const;
 
-        /** @brief Sets the S-coordinate wrap mode. */
+    /** @brief Sets the S-coordinate wrap mode. */
     void       wrapS(WrapMode mode);
 
-        /** @brief Returns the T-coordinate wrap mode. */
+    /** @brief Returns the T-coordinate wrap mode. */
     WrapMode   wrapT() const;
 
-        /** @brief Sets the T-coordinate wrap mode. */
+    /** @brief Sets the T-coordinate wrap mode. */
     void       wrapT(WrapMode mode);
 
-        /** @brief Returns the R-coordinate wrap mode used by cubemap sampling. */
+    /** @brief Returns the R-coordinate wrap mode used by cubemap sampling. */
     WrapMode   wrapR() const;
 
-        /** @brief Sets the R-coordinate wrap mode used by cubemap sampling. */
+    /** @brief Sets the R-coordinate wrap mode used by cubemap sampling. */
     void       wrapR(WrapMode mode);
 
     // [Internal Types]

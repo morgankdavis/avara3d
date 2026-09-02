@@ -25,7 +25,7 @@ class PhysicsWorld;
 class PhysicsShapeProxy;
 class Scene;
 
-    /**
+/**
  * @brief Describes collision geometry used by one or more PhysicsBody objects.
  *
  * A PhysicsShape may derive its collision geometry from a Mesh, from the mesh
@@ -45,9 +45,9 @@ class PhysicsShape {
 public:
     // [Public Types]
 
-        /** @brief Collision-geometry representation requested for a PhysicsShape. */
+    /** @brief Collision-geometry representation requested for a PhysicsShape. */
     enum class Type : uint8_t {
-            // TODO: change this
+        // TODO: change this
         Primitive, ///< Reserved for internal use; public callers should not supply this value. This API is expected to change.
         BoundingBox, ///< Bounding-box collision geometry derived from the source geometry.
         ConvexHull, ///< Convex-hull collision geometry derived from the source geometry.

@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Rounded box mesh element centered at the origin.
  *
  * Width spans X, height spans Y, and length spans Z. Radius controls the
@@ -30,7 +30,7 @@ class RoundedBox : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a RoundedBox and optional @p material. */
+    /** @brief Creates a Mesh containing a RoundedBox and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     radius,
                                       float                     length,
                                       float                     width,
@@ -43,7 +43,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates rounded-box geometry with the supplied dimensions and subdivisions. */
+    /** @brief Generates rounded-box geometry with the supplied dimensions and subdivisions. */
     RoundedBox(float    radius,
                float    length,
                float    width,
@@ -55,28 +55,28 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured edge radius. */
+    /** @brief Returns the configured edge radius. */
     float    radius() const;
 
-        /** @brief Returns the configured box length along Z. */
+    /** @brief Returns the configured box length along Z. */
     float    length() const;
 
-        /** @brief Returns the configured box width along X. */
+    /** @brief Returns the configured box width along X. */
     float    width() const;
 
-        /** @brief Returns the configured box height along Y. */
+    /** @brief Returns the configured box height along Y. */
     float    height() const;
 
-        /** @brief Returns the rounded-edge subdivision count. */
+    /** @brief Returns the rounded-edge subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the length subdivision count. */
+    /** @brief Returns the length subdivision count. */
     unsigned lengthSegments() const;
 
-        /** @brief Returns the width subdivision count. */
+    /** @brief Returns the width subdivision count. */
     unsigned widthSegments() const;
 
-        /** @brief Returns the height subdivision count. */
+    /** @brief Returns the height subdivision count. */
     unsigned heightSegments() const;
 
 private:

@@ -21,17 +21,17 @@ namespace a3d {
 
 class Material;
 
-    /** @brief Configures ground rendering over a VisualWorld reference Surface. */
+/** @brief Configures ground rendering over a VisualWorld reference Surface. */
 struct Ground {
 
     // [Public Types]
 
-        /** @brief Configures a procedurally rendered ground fill. */
+    /** @brief Configures a procedurally rendered ground fill. */
     struct Procedural {
 
         // [Public Types]
 
-            /** @brief Configures one set of procedural grid lines. */
+        /** @brief Configures one set of procedural grid lines. */
         struct GridComponent {
 
             // [Public Member Variables]
@@ -42,7 +42,7 @@ struct Ground {
             float reliefStrength {0.0f}; ///< Strength of procedural grid relief; zero disables relief.
         };
 
-            /** @brief Configures a procedural grid with optional minor and major line components. */
+        /** @brief Configures a procedural grid with optional minor and major line components. */
         struct Grid {
 
             // [Public Member Variables]

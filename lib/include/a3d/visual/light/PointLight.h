@@ -17,7 +17,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Omnidirectional light located at its containing Node's world position.
  *
  * Light contribution is reduced with distance according to the configured
@@ -28,16 +28,16 @@ class PointLight : public Light {
 public:
     // [Public Lifecycle Functions]
 
-        /** @brief Creates an unnamed white PointLight. */
+    /** @brief Creates an unnamed white PointLight. */
     PointLight();
 
-        /** @brief Creates a named white PointLight. */
+    /** @brief Creates a named white PointLight. */
     explicit PointLight(const std::string& name);
 
-        /** @brief Creates an unnamed PointLight with @p color. */
+    /** @brief Creates an unnamed PointLight with @p color. */
     explicit PointLight(const Color& color);
 
-        /** @brief Creates a PointLight with @p name and @p color. */
+    /** @brief Creates a PointLight with @p name and @p color. */
     PointLight(const std::string& name, const Color& color);
 
     PointLight(const PointLight&)            = default;
@@ -48,16 +48,16 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the light intensity multiplier. */
+    /** @brief Returns the light intensity multiplier. */
     float              intensity() const;
 
-        /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
+    /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
     void               intensity(float intensity);
 
-        /** @brief Returns the distance-attenuation coefficients. */
+    /** @brief Returns the distance-attenuation coefficients. */
     const Attenuation& attenuation() const;
 
-        /** @brief Sets the distance-attenuation coefficients. */
+    /** @brief Sets the distance-attenuation coefficients. */
     void               attenuation(const Attenuation& attenuation);
 
 private:

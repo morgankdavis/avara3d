@@ -52,7 +52,7 @@ enum class index_type : enum_t {
     u32 = value::unsigned_int,
 };
 
-    // helpers
+// helpers
 template<class E>
 constexpr enum_t raw(E e) noexcept {
     return static_cast<enum_t>(e);
@@ -62,7 +62,7 @@ constexpr boolean_t gl_bool(bool b) noexcept {
     return b ? static_cast<boolean_t>(value::true_) : static_cast<boolean_t>(value::false_);
 }
 
-    // strong-typed handles (zero-cost)
+// strong-typed handles (zero-cost)
 template<class Tag>
 struct handle {
     uint_t             id = value::null_handle;

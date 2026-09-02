@@ -28,7 +28,7 @@ class Node;
 
 namespace a3d::ext {
 
-    /**
+/**
  * @brief Tracks transient scene nodes and removes them according to configurable policies.
  *
  * The registry stores weak references and never owns tracked nodes. Count limits are
@@ -44,34 +44,34 @@ class TransientsTracker {
 public:
     // [Public Types]
 
-        /** @brief Maximum permitted world-space distance from a fixed point. */
+    /** @brief Maximum permitted world-space distance from a fixed point. */
     struct DistanceLimit {
 
-            /** World-space center used for the distance test. */
+        /** World-space center used for the distance test. */
         math::vec3 center {0.0f};
 
-            /** Maximum permitted distance from center. */
+        /** Maximum permitted distance from center. */
         float      radius {0.0f};
     };
 
-        /** @brief Removal limits applied globally or to a named group. */
+    /** @brief Removal limits applied globally or to a named group. */
     struct Policy {
 
-            /**
+        /**
          * Maximum number of matching tracked nodes.
          *
          * Excess nodes are removed immediately, oldest first.
          */
         std::optional<std::size_t>   maxCount {};
 
-            /**
+        /**
          * Maximum node age in seconds of simulation time.
          *
          * The limit is evaluated during sweeps.
          */
         std::optional<double>        maxAge {};
 
-            /**
+        /**
          * Maximum world-space distance from a fixed point.
          *
          * The limit is evaluated during sweeps.
@@ -79,33 +79,33 @@ public:
         std::optional<DistanceLimit> distanceLimit {};
     };
 
-        /** @brief Scheduling policy controlling when update() performs a sweep. */
+    /** @brief Scheduling policy controlling when update() performs a sweep. */
     struct SweepPolicy {
 
-            /** @brief Available sweep scheduling modes. */
+        /** @brief Available sweep scheduling modes. */
         enum class Mode {
             EveryUpdate,   ///< Sweep on every call to update().
             EveryNUpdates, ///< Sweep after a configured number of calls to update().
             EveryInterval  ///< Sweep after a configured interval of simulation time.
         };
 
-            /** Selected scheduling mode. */
+        /** Selected scheduling mode. */
         Mode               mode {Mode::EveryUpdate};
 
-            /** Number of update() calls between sweeps in Mode::EveryNUpdates. */
+        /** Number of update() calls between sweeps in Mode::EveryNUpdates. */
         std::uint64_t      updateInterval {1};
 
-            /** Seconds of simulation time between sweeps in Mode::EveryInterval. */
+        /** Seconds of simulation time between sweeps in Mode::EveryInterval. */
         double             timeInterval {0.0};
 
-            /**
+        /**
          * @brief Creates a policy that sweeps on every call to update().
          *
          * @return the configured sweep policy.
          */
         static SweepPolicy EveryUpdate();
 
-            /**
+        /**
          * @brief Creates a policy that sweeps after a fixed number of update() calls.
          *
          * @param updates Number of update() calls between sweeps.
@@ -115,7 +115,7 @@ public:
          */
         static SweepPolicy EveryNUpdates(std::uint64_t updates);
 
-            /**
+        /**
          * @brief Creates a policy that sweeps at a fixed simulation-time interval.
          *
          * @param seconds Seconds of simulation time between sweeps.
@@ -128,7 +128,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates an empty registry with the supplied sweep policy.
      *
      * @param sweepPolicy Scheduling policy used by update().
@@ -143,12 +143,12 @@ public:
     TransientsTracker(TransientsTracker&&)            = delete;
     TransientsTracker& operator=(TransientsTracker&&) = delete;
 
-        /** @brief Destroys the registry without removing tracked nodes. */
+    /** @brief Destroys the registry without removing tracked nodes. */
     ~TransientsTracker() = default;
 
     // [Public Member Functions]
 
-        /**
+    /**
      * @brief Tracks a transient node and immediately enforces applicable count limits.
      *
      * The node's creation time is the most recently observed simulation time. Before the first update() or
@@ -162,7 +162,7 @@ public:
      */
     void               track(const std::shared_ptr<Node>& node, const std::string& group = {});
 
-        /**
+    /**
      * @brief Tracks a collection of nodes as members of the same transient group.
      *
      * Each node is registered using the same behavior as the single-node track()
@@ -173,17 +173,17 @@ public:
      */
     void               track(const std::vector<std::shared_ptr<Node>>& nodes, const std::string& group = {});
 
-        /**
+    /**
      * @brief Stops tracking a node without removing it from its parent.
      *
      * @param node Node to stop tracking.
      */
     void               untrack(const Node& node);
 
-        /** @brief Returns the global removal policy. */
+    /** @brief Returns the global removal policy. */
     const Policy&      policy() const;
 
-        /**
+    /**
      * @brief Replaces the global removal policy.
      *
      * A reduced maxCount is enforced immediately. Age and distance limits take effect on the next sweep.
@@ -194,7 +194,7 @@ public:
      */
     void               policy(const Policy& policy);
 
-        /**
+    /**
      * @brief Replaces the removal policy for a named group.
      *
      * A reduced maxCount is enforced immediately. Age and distance limits take effect on the next sweep. An
@@ -207,10 +207,10 @@ public:
      */
     void               groupPolicy(const std::string& group, const Policy& policy);
 
-        /** @brief Returns the scheduling policy used by update(). */
+    /** @brief Returns the scheduling policy used by update(). */
     const SweepPolicy& sweepPolicy() const;
 
-        /**
+    /**
      * @brief Replaces the scheduling policy used by update().
      *
      * The current scheduling cadence is restarted when the policy changes.
@@ -221,7 +221,7 @@ public:
      */
     void               sweepPolicy(const SweepPolicy& policy);
 
-        /**
+    /**
      * @brief Advances registry scheduling and sweeps when the configured policy is due.
      *
      * One call to this function counts as one update for SweepPolicy::EveryNUpdates.
@@ -232,7 +232,7 @@ public:
      */
     void               update(const Scene::StepInfo& info);
 
-        /**
+    /**
      * @brief Immediately evaluates all swept removal policies.
      *
      * Calling this function restarts the configured update-count or simulation-time
@@ -242,14 +242,14 @@ public:
      */
     void               sweep(const Scene::StepInfo& info);
 
-        /**
+    /**
      * @brief Forgets every tracked node and resets runtime scheduling state.
      *
      * Tracked nodes are not removed from their parents. Global, group, and sweep policies are retained.
      */
     void               clear();
 
-        /**
+    /**
      * @brief Removes every live tracked node from its parent and clears the registry.
      *
      * Global, group, and sweep policies are retained.

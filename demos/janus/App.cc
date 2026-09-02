@@ -81,20 +81,20 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
     try {
-            // create and configure the window
+        // create and configure the window
 
         _window = make_unique<Window>(WINDOW_SIZE, false, true, ANTIALIASING);
 
-            // create and configure the visual world
+        // create and configure the visual world
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
         ConfigureVisualWorld(*visualWorld);
 
-            // create the physics world
+        // create the physics world
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
-            // load the base scene
+        // load the base scene
 
         auto scene = util::fs::SceneAt("janus/janus.gltf", Scene::ImportOptions::ImportMeshes
                                                                | Scene::ImportOptions::ImportMaterials
@@ -104,34 +104,34 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-            /*  root
-                    environment
-                        environment.phys
-                            evora.phys
-                            lion.phys
-                        evora
-                        lights
-                            ...
-                        lion
-                    dynamics
-                        dynamics.phys
-                            augustus.phys
-                            diana.phys
-                        augustus
-                        diana
-                        janus
-                        plinth_janus
-                        plinth_teapot
-                        teapot
-                    transient_assets
-                        ball
-                        coin
-                        hammer
-                        hula
-                        quack
-                        rocks
-                            ...
-             */
+        /*  root
+                environment
+                    environment.phys
+                        evora.phys
+                        lion.phys
+                    evora
+                    lights
+                        ...
+                    lion
+                dynamics
+                    dynamics.phys
+                        augustus.phys
+                        diana.phys
+                    augustus
+                    diana
+                    janus
+                    plinth_janus
+                    plinth_teapot
+                    teapot
+                transient_assets
+                    ball
+                    coin
+                    hammer
+                    hula
+                    quack
+                    rocks
+                        ...
+         */
 
         auto environmentRoot = scene->rootNode()->childNamed("environment");
         for (const auto hoverIgnoreNode : ConfigureEnvironmentNodes(*environmentRoot)) {
@@ -149,7 +149,7 @@ std::unique_ptr<Scene> App::init() {
         _transientsRoot = Node::NamedNode("transients");
         scene->rootNode()->addChild(_transientsRoot);
 
-            // create and configure the ground
+        // create and configure the ground
 
         auto groundNode = Node::NamedNode("ground");
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
@@ -160,23 +160,23 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(body));
         scene->rootNode()->addChild(groundNode);
 
-            // setup ambient lighting
+        // setup ambient lighting
 
         auto ambientLight = make_shared<AmbientLight>(Color {0.075f});
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
-            // setup transient node groups
+        // setup transient node groups
 
         ConfigureTransientsTracker(_transientsTracker);
 
-            // create and configure the camera and camera controller
+        // create and configure the camera and camera controller
 
         _cameraNode = CreateCamera(_cameraController);
         scene->rootNode()->addChild(_cameraNode);
         scene->visualWorld()->pointOfView(_cameraNode);
 
-            // create the action target marker
+        // create the action target marker
 
         const bool ENABLE_CURSOR_MARKER {false};
         if (ENABLE_CURSOR_MARKER) {
@@ -184,12 +184,12 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(_cursorMarker);
         }
 
-            // create the wandering orbs
+        // create the wandering orbs
 
         auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
         scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
 
-            // open the window
+        // open the window
 
         _window->center();
         _window->open();

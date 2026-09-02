@@ -20,7 +20,7 @@
 
 namespace a3d::log {
 
-    /**
+/**
  * @brief LogSink that appends output to a file and rotates older files by size.
  *
  * Rotation is checked after each write. Numbered backups are kept beside the
@@ -31,7 +31,7 @@ class FileLogSink : public LogSink {
 public:
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates an append-mode file sink with size-based rotation.
      *
      * Missing parent directories are created when possible. @p maxFilesize is
@@ -55,21 +55,21 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the path of the active log file. */
+    /** @brief Returns the path of the active log file. */
     const std::filesystem::path& filepath() const;
 
-        /** @brief Returns the configured maximum number of retained log files. */
+    /** @brief Returns the configured maximum number of retained log files. */
     int                          maxFiles() const;
 
-        /** @brief Returns the configured rotation size threshold in bytes. */
+    /** @brief Returns the configured rotation size threshold in bytes. */
     int                          maxFilesize() const;
 
     // [Public LogSink Member Functions]
 
-        /** @brief Appends @p output to the active file and performs size-based rotation when needed. */
+    /** @brief Appends @p output to the active file and performs size-based rotation when needed. */
     void                         write(const std::string& output, Level level) override;
 
-        /** @brief Flushes buffered output to the active file. */
+    /** @brief Flushes buffered output to the active file. */
     void                         flush() override;
 
 private:

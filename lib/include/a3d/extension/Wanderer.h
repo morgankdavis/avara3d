@@ -23,7 +23,7 @@ class Node;
 
 namespace a3d::ext {
 
-    /**
+/**
  * @brief Moves a Node along a smooth deterministic path within a configurable box.
  *
  * The wander volume is centered on a position in the Node's parent coordinate space.
@@ -33,7 +33,7 @@ class Wanderer {
 public:
     // [Public Types]
 
-        /** @brief Configures the wander volume, pace, and deterministic random sequence. */
+    /** @brief Configures the wander volume, pace, and deterministic random sequence. */
     struct Config {
 
         math::vec3 halfExtents {
@@ -46,14 +46,14 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Creates a Wanderer centered on @p node's current position using the default Config.
      *
      * @throws std::invalid_argument if @p node is null.
      */
     explicit Wanderer(const std::shared_ptr<Node>& node);
 
-        /**
+    /**
      * @brief Creates a Wanderer centered on @p node's current position using @p config.
      *
      * @throws std::invalid_argument if @p node is null or @p config is invalid.
@@ -62,26 +62,26 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the current configuration. */
+    /** @brief Returns the current configuration. */
     const Config&     config() const;
 
-        /**
+    /**
      * @brief Replaces the configuration and restarts the deterministic path from the current center.
      *
      * @throws std::invalid_argument if @p config is invalid.
      */
     void              config(const Config& config);
 
-        /** @brief Returns the center of the wander volume in the Node's parent coordinate space. */
+    /** @brief Returns the center of the wander volume in the Node's parent coordinate space. */
     const math::vec3& center() const;
 
-        /** @brief Advances the wander path by @p deltaTime seconds; non-positive values do nothing. */
+    /** @brief Advances the wander path by @p deltaTime seconds; non-positive values do nothing. */
     void              update(double deltaTime);
 
-        /** @brief Returns the Node to the current center and restarts the same deterministic path. */
+    /** @brief Returns the Node to the current center and restarts the same deterministic path. */
     void              reset();
 
-        /** @brief Makes the Node's current position the new center and restarts the deterministic path. */
+    /** @brief Makes the Node's current position the new center and restarts the deterministic path. */
     void              recenter();
 
 private:

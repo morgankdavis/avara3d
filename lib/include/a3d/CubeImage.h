@@ -17,7 +17,7 @@ namespace a3d {
 
 class Image;
 
-    /**
+/**
  * @brief Owns the six images used as cubemap faces.
  *
  * All faces have identical width, height, and bytes-per-pixel values.
@@ -27,7 +27,7 @@ class CubeImage {
 public:
     // [Public Types]
 
-        /** @brief Identifies a cubemap face by its outward axis direction. */
+    /** @brief Identifies a cubemap face by its outward axis direction. */
     enum class Face : uint8_t {
         X_Pos, ///< Positive X face.
         X_Neg, ///< Negative X face.
@@ -39,7 +39,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /**
+    /**
      * @brief Takes ownership of the six cubemap face images.
      *
      * Array entries correspond to Face values in declaration order. Every face
@@ -60,16 +60,16 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the common face width in pixels. */
+    /** @brief Returns the common face width in pixels. */
     unsigned width() const;
 
-        /** @brief Returns the common face height in pixels. */
+    /** @brief Returns the common face height in pixels. */
     unsigned height() const;
 
-        /** @brief Returns the common number of bytes per pixel. */
+    /** @brief Returns the common number of bytes per pixel. */
     unsigned bytesPerPixel() const;
 
-        /** @brief Returns the Image owned for @p face. */
+    /** @brief Returns the Image owned for @p face. */
     Image*   face(Face face) const;
 
 private:

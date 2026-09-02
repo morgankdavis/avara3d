@@ -15,12 +15,12 @@
 
 namespace a3d {
 
-    /** @brief Configures atmospheric effects around a VisualWorld reference Surface. */
+/** @brief Configures atmospheric effects around a VisualWorld reference Surface. */
 struct Atmosphere {
 
     // [Public Types]
 
-        /** @brief Configures atmospheric haze. */
+    /** @brief Configures atmospheric haze. */
     struct Haze {
 
         // [Public Member Variables]
@@ -29,7 +29,7 @@ struct Atmosphere {
         float density {0.02f};     ///< Haze density; must be non-negative.
     };
 
-        /** @brief Configures glow along the limb of a spherical reference Surface. */
+    /** @brief Configures glow along the limb of a spherical reference Surface. */
     struct LimbGlow {
 
         // [Public Member Variables]

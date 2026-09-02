@@ -74,7 +74,7 @@ public:
     virtual std::vector<HitTestResult>    rayTest(const math::vec3& from,
                                                   const math::vec3& to,
                                                   HitTestSearchMode searchMode) const = 0;
-        // ! NOT IMPLEMENTED !
+    // ! NOT IMPLEMENTED !
     virtual std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape& shape,
                                                           const math::mat4&   fromMat,
                                                           const math::mat4&   toMat,

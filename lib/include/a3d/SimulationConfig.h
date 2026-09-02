@@ -13,7 +13,7 @@
 
 namespace a3d {
 
-    /**
+/**
  * @brief Initial simulation scheduling parameters supplied to a Runner.
  *
  * Runner copies this structure at construction. Values are validated when
@@ -26,7 +26,7 @@ struct SimulationConfig {
 
     // [Public Member Variables]
 
-        /**
+    /**
      * @brief Initial duration, in seconds, of each simulation step.
      *
      * The value must be positive. It is used by both automatic
@@ -34,7 +34,7 @@ struct SimulationConfig {
      */
     double        timeStep {1.0 / 60.0};
 
-        /**
+    /**
      * @brief Initial maximum automatic simulation steps performed by one update.
      *
      * The value must be at least one. Any whole accumulated steps remaining
@@ -43,7 +43,7 @@ struct SimulationConfig {
      */
     std::uint32_t maxCatchUpSteps {8};
 
-        /**
+    /**
      * @brief Initial multiplier applied to elapsed host time for automatic simulation stepping.
      *
      * The value must be positive. A value of 1.0 advances simulation

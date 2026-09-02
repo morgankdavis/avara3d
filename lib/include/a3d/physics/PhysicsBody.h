@@ -23,7 +23,7 @@ class PhysicsShapeProxy;
 class PhysicsShape;
 class Scene;
 
-    /**
+/**
  * @brief Rigid-body simulation state attached to a Node.
  *
  * A Node owns its PhysicsBody, while the body retains its PhysicsShape with
@@ -41,25 +41,25 @@ class PhysicsBody {
 public:
     // [Public Types]
 
-        /** @brief Determines how a rigid body participates in simulation. */
+    /** @brief Determines how a rigid body participates in simulation. */
     enum class Type : uint8_t {
         Static,   ///< Fixed collision body that does not respond dynamically to forces.
         Dynamic,  ///< Simulation-driven body affected by forces, gravity, and collisions.
         Kinematic ///< Explicitly moved body that participates in collisions without dynamic motion.
     };
 
-        /** @brief Selects the method used to automatically determine a dynamic body's center of mass. */
+    /** @brief Selects the method used to automatically determine a dynamic body's center of mass. */
     enum class CenterOfMassCalculation : uint8_t {
         BoundsCenter, ///< Uses the center of the collision shape's local bounds.
-            // VolumeCentroid
+        // VolumeCentroid
     };
 
     // [Public Static Member Functions]
 
-        /** @brief Creates a shape-less static body. */
+    /** @brief Creates a shape-less static body. */
     static std::unique_ptr<PhysicsBody> StaticBody();
 
-        /**
+    /**
      * @brief Creates a static body using @p shape.
      *
      * @throws std::logic_error if @p shape is incompatible with a static body, or if
@@ -69,10 +69,10 @@ public:
      */
     static std::unique_ptr<PhysicsBody> StaticBody(const std::shared_ptr<PhysicsShape>& shape);
 
-        /** @brief Creates a shape-less dynamic body. */
+    /** @brief Creates a shape-less dynamic body. */
     static std::unique_ptr<PhysicsBody> DynamicBody();
 
-        /**
+    /**
      * @brief Creates a dynamic body using @p shape.
      *
      * @throws std::logic_error if @p shape is incompatible with a dynamic body, or if
@@ -82,10 +82,10 @@ public:
      */
     static std::unique_ptr<PhysicsBody> DynamicBody(const std::shared_ptr<PhysicsShape>& shape);
 
-        /** @brief Creates a shape-less kinematic body. */
+    /** @brief Creates a shape-less kinematic body. */
     static std::unique_ptr<PhysicsBody> KinematicBody();
 
-        /**
+    /**
      * @brief Creates a kinematic body using @p shape.
      *
      * @throws std::logic_error if @p shape is incompatible with a kinematic body, or if
@@ -97,10 +97,10 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a shape-less body of @p type. */
+    /** @brief Creates a shape-less body of @p type. */
     explicit PhysicsBody(Type type);
 
-        /**
+    /**
      * @brief Creates a body of @p type using @p shape.
      *
      * @throws std::logic_error if @p shape is incompatible with @p type, or if collision
@@ -120,10 +120,10 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the body type. */
+    /** @brief Returns the body type. */
     Type                                 type() const;
 
-        /**
+    /**
      * @brief Validates the requested body type.
      *
      * Changing a body's type after construction is not currently supported.

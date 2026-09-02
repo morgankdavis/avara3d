@@ -62,8 +62,8 @@ public:
         float                  depth        = 1.0f;
         int                    stencil      = 0;
         std::optional<Scissor> scissor      = {};
-            // clear operations may respect the current scissor and write masks.
-            // override them when necessary to ensure the requested buffers are cleared.
+        // clear operations may respect the current scissor and write masks.
+        // override them when necessary to ensure the requested buffers are cleared.
         bool                   forceWriteMasks = true;
     };
 

@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Capsule mesh element centered at the origin and aligned along the Y axis.
  *
  * The height parameter represents the distance between the centers of the hemispherical
@@ -31,7 +31,7 @@ class Capsule : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a Capsule and optional @p material. */
+    /** @brief Creates a Mesh containing a Capsule and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     radius,
                                       float                     height,
                                       unsigned                  slices   = DEFAULT_SLICES,
@@ -41,7 +41,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates capsule geometry with the supplied dimensions and subdivisions. */
+    /** @brief Generates capsule geometry with the supplied dimensions and subdivisions. */
     Capsule(float    radius,
             float    height,
             unsigned slices   = DEFAULT_SLICES,
@@ -50,19 +50,19 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured capsule radius. */
+    /** @brief Returns the configured capsule radius. */
     float    radius() const;
 
-        /** @brief Returns the configured distance between the centers of the capsule caps. */
+    /** @brief Returns the configured distance between the centers of the capsule caps. */
     float    height() const;
 
-        /** @brief Returns the circumferential subdivision count. */
+    /** @brief Returns the circumferential subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the straight-section subdivision count. */
+    /** @brief Returns the straight-section subdivision count. */
     unsigned segments() const;
 
-        /** @brief Returns the cap subdivision count. */
+    /** @brief Returns the cap subdivision count. */
     unsigned rings() const;
 
 private:

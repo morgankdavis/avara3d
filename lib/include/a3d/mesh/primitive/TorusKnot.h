@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Tubular torus-knot mesh element controlled by the knot parameters p and q.
  *
  * Slices subdivide the tube cross-section and segments subdivide the knot path.
@@ -28,7 +28,7 @@ class TorusKnot : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a TorusKnot and optional @p material. */
+    /** @brief Creates a Mesh containing a TorusKnot and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(unsigned                  p,
                                       unsigned                  q,
                                       unsigned                  slices   = DEFAULT_SLICES,
@@ -37,21 +37,21 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates torus-knot geometry with the supplied knot parameters and subdivisions. */
+    /** @brief Generates torus-knot geometry with the supplied knot parameters and subdivisions. */
     TorusKnot(unsigned p, unsigned q, unsigned slices = DEFAULT_SLICES, unsigned segments = DEFAULT_SEGMENTS);
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured p knot parameter. */
+    /** @brief Returns the configured p knot parameter. */
     unsigned p() const;
 
-        /** @brief Returns the configured q knot parameter. */
+    /** @brief Returns the configured q knot parameter. */
     unsigned q() const;
 
-        /** @brief Returns the tube cross-section subdivision count. */
+    /** @brief Returns the tube cross-section subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the knot-path subdivision count. */
+    /** @brief Returns the knot-path subdivision count. */
     unsigned segments() const;
 
 private:

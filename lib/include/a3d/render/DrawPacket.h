@@ -64,9 +64,9 @@ struct DrawPacket {
     BackgroundPass        backgroundPass = {};
     GroundPass            groundPass     = {};
     std::vector<DrawItem> mainPassItems  = {};
-        // opaqueItems
-        // maskItems
-        // transparentItems
+    // opaqueItems
+    // maskItems
+    // transparentItems
     std::vector<DrawItem> wireframePassItems = {};
     LinesPass             linesPass          = {};
     std::vector<Node*>    lightNodes         = {};

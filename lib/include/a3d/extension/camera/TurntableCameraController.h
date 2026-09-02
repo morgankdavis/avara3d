@@ -24,7 +24,7 @@ class Node;
 
 namespace a3d::ext {
 
-    /**
+/**
  * @brief Provides orbit, pan, and dolly control around a world-space or Node-relative target.
  *
  * update() consumes DesktopInputContext state and changes the controller's View;
@@ -38,17 +38,17 @@ class TurntableCameraController {
 public:
     // [Public Types]
 
-        /** @brief Target point expressed in the local coordinates of a weakly referenced Node. */
+    /** @brief Target point expressed in the local coordinates of a weakly referenced Node. */
     struct NodeTarget {
 
         std::weak_ptr<Node> node; ///< Node whose transform supplies the target coordinate space.
         math::vec3          localPosition {0.0f}; ///< Target point in the Node's local coordinates.
     };
 
-        /** @brief Orbit target represented by either a fixed world position or a Node-relative point. */
+    /** @brief Orbit target represented by either a fixed world position or a Node-relative point. */
     using Target = std::variant<math::vec3, NodeTarget>;
 
-        /** @brief Camera orbit state around a target. */
+    /** @brief Camera orbit state around a target. */
     struct View {
 
         Target target {math::vec3 {0.0f}}; ///< Point around which the camera orbits.
@@ -57,7 +57,7 @@ public:
         float  distance {10.0f}; ///< Distance from the target in scene units.
     };
 
-        /** @brief Pointer buttons and modifier keys used for camera manipulation. */
+    /** @brief Pointer buttons and modifier keys used for camera manipulation. */
     struct Controls {
 
         DesktopInputContext::MouseButton orbitButton {
@@ -70,13 +70,13 @@ public:
             DesktopInputContext::Key::LeftControl}; ///< Makes orbit-button dragging dolly.
     };
 
-        /** @brief Pointer click reported when a configured button is released without becoming a drag. */
+    /** @brief Pointer click reported when a configured button is released without becoming a drag. */
     struct PointerClick {
 
         math::vec2 position; ///< Release position in logical viewport coordinates.
     };
 
-        /** @brief Limits, sensitivities, and input bindings used by the controller. */
+    /** @brief Limits, sensitivities, and input bindings used by the controller. */
     struct Config {
 
         float minPitch {-math::radians(85.0f)}; ///< Minimum pitch in radians; must remain above -90 degrees.

@@ -18,7 +18,7 @@ namespace a3d {
 class Mesh;
 class Material;
 
-    /**
+/**
  * @brief Helical spring mesh element aligned along the Z axis.
  *
  * Minor radius is the radius of the spring tube itself; major radius is the
@@ -31,7 +31,7 @@ class Spring : public MeshElement {
 public:
     // [Public Static Member Functions]
 
-        /** @brief Creates a Mesh containing a Spring and optional @p material. */
+    /** @brief Creates a Mesh containing a Spring and optional @p material. */
     static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
                                       float                     majorRadius,
                                       float                     length,
@@ -41,7 +41,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Generates spring geometry with the supplied dimensions and subdivisions. */
+    /** @brief Generates spring geometry with the supplied dimensions and subdivisions. */
     Spring(float    minorRadius,
            float    majorRadius,
            float    length,
@@ -50,19 +50,19 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the configured spring-tube radius. */
+    /** @brief Returns the configured spring-tube radius. */
     float    minorRadius() const;
 
-        /** @brief Returns the configured radius from the Z axis to the tube centerline. */
+    /** @brief Returns the configured radius from the Z axis to the tube centerline. */
     float    majorRadius() const;
 
-        /** @brief Returns the configured axial length. */
+    /** @brief Returns the configured axial length. */
     float    length() const;
 
-        /** @brief Returns the tube cross-section subdivision count. */
+    /** @brief Returns the tube cross-section subdivision count. */
     unsigned slices() const;
 
-        /** @brief Returns the helical-path subdivision count. */
+    /** @brief Returns the helical-path subdivision count. */
     unsigned segments() const;
 
 private:

@@ -19,7 +19,7 @@ class Node;
 
 namespace a3d::ext {
 
-    /**
+/**
  * @brief Applies smoothly varying random rotation to a Node.
  *
  * WanderRotator periodically chooses a random angular velocity and smoothly

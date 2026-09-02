@@ -17,7 +17,7 @@ namespace a3d {
 
 class Node;
 
-    /**
+/**
  * @brief Describes a contact between two physics bodies.
  *
  * The participating nodes are retained weakly. When a body pair has multiple
@@ -31,19 +31,19 @@ class PhysicsContact {
 public:
     // [Public Member Functions]
 
-        /** @brief Returns the first contact node as a weak reference. */
+    /** @brief Returns the first contact node as a weak reference. */
     std::weak_ptr<Node> nodeA() const;
 
-        /** @brief Returns the second contact node as a weak reference. */
+    /** @brief Returns the second contact node as a weak reference. */
     std::weak_ptr<Node> nodeB() const;
 
-        /** @brief Returns the world-space midpoint between the two body contact points. */
+    /** @brief Returns the world-space midpoint between the two body contact points. */
     const math::vec3&   contactPoint() const;
 
-        /** @brief Returns the world-space contact normal pointing from nodeB() toward nodeA(). */
+    /** @brief Returns the world-space contact normal pointing from nodeB() toward nodeA(). */
     const math::vec3&   contactNormal() const;
 
-        /** @brief Returns the collision impulse associated with the represented contact point. */
+    /** @brief Returns the collision impulse associated with the represented contact point. */
     float               collisionImpulse() const;
 
     /** @brief Returns the penetration depth, where zero indicates no penetration and positive values indicate overlap. */

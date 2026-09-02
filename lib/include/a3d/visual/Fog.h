@@ -13,7 +13,7 @@
 
 namespace a3d {
 
-    /** @brief Configures distance-based fog for a VisualWorld. */
+/** @brief Configures distance-based fog for a VisualWorld. */
 struct Fog {
 
     // [Public Member Variables]

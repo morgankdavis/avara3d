@@ -28,7 +28,7 @@ class PhysicsWorldProxy;
 class Profiler;
 class Scene;
 
-    /**
+/**
  * @brief Simulates rigid bodies and performs physics collision queries for a Scene.
  *
  * Physics bodies attached to nodes in a Scene become members of its PhysicsWorld
@@ -41,19 +41,19 @@ class PhysicsWorld {
 public:
     // [Public Types]
 
-        /** @brief Options controlling a ray collision query. */
+    /** @brief Options controlling a ray collision query. */
     struct RayTestOptions {
-            /** How matching ray hits are selected. */
+        /** How matching ray hits are selected. */
         HitTestSearchMode searchMode {HitTestSearchMode::Closest};
     };
 
-        /** @brief Options controlling a convex sweep collision query. */
+    /** @brief Options controlling a convex sweep collision query. */
     struct ConvexSweepTestOptions {
-            /** How matching sweep hits are selected. */
+        /** How matching sweep hits are selected. */
         HitTestSearchMode searchMode {HitTestSearchMode::Closest};
     };
 
-        /**
+    /**
      * @brief Callback invoked when a pair of physics bodies begins a logical contact.
      *
      * A body pair produces one logical contact lifecycle even when multiple
@@ -62,7 +62,7 @@ public:
     using DidBeginContactCallback =
         std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
 
-        /**
+    /**
      * @brief Callback invoked once per simulation step while a body pair remains in contact.
      *
      * Ordering relative to callbacks for unrelated body pairs is unspecified.
@@ -70,7 +70,7 @@ public:
     using DidContinueContactCallback =
         std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
 
-        /**
+    /**
      * @brief Callback invoked when a tracked body pair ceases to be in contact.
      *
      * Removing a physics body silently terminates its tracked contacts and does
@@ -82,7 +82,7 @@ public:
 
     // [Public Lifecycle Functions]
 
-        /** @brief Creates a PhysicsWorld with Earth-like gravity of (0, -9.807, 0). */
+    /** @brief Creates a PhysicsWorld with Earth-like gravity of (0, -9.807, 0). */
     PhysicsWorld();
 
     PhysicsWorld(const PhysicsWorld&)            = delete;
@@ -95,13 +95,13 @@ public:
 
     // [Public Member Functions]
 
-        /** @brief Returns the world gravity acceleration vector. */
+    /** @brief Returns the world gravity acceleration vector. */
     const math::vec3&             gravity() const;
 
-        /** @brief Sets the world gravity and immediately applies it to affected dynamic bodies. */
+    /** @brief Sets the world gravity and immediately applies it to affected dynamic bodies. */
     void                          gravity(const math::vec3& gravity);
 
-        /**
+    /**
      * @brief Tests for contact between @p bodyA and @p bodyB.
      *
      * If the bodies have multiple contact points, the returned PhysicsContact
@@ -112,14 +112,14 @@ public:
      */
     std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) const;
 
-        /**
+    /**
      * @brief Returns current contacts between @p body and other physics bodies.
      *
      * At most one representative PhysicsContact is returned for each body pair.
      */
     std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) const;
 
-        /**
+    /**
      * @brief Tests the world-space segment from @p from to @p to against physics bodies.
      *
      * @param options controls whether any, the closest, or all hits are returned.
@@ -129,15 +129,15 @@ public:
                                           const math::vec3&     to,
                                           const RayTestOptions& options) const;
 
-        /**
+    /**
      * @brief Tests the world-space segment from @p from to @p to and returns the closest physics hit.
      *
      * @return Zero or one HitTestResult.
      */
     std::vector<HitTestResult>    rayTest(const math::vec3& from, const math::vec3& to) const;
 
-        // ! NOT IMPLEMENTED !
-        /**
+    // ! NOT IMPLEMENTED !
+    /**
      * @brief Sweeps @p shape between two transforms. Not currently implemented.
      *
      * @throws std::runtime_error always; convex sweep tests are not currently implemented.
@@ -147,8 +147,8 @@ public:
                                                   const math::mat4&             toMat,
                                                   const ConvexSweepTestOptions& options) const;
 
-        // ! NOT IMPLEMENTED !
-        /**
+    // ! NOT IMPLEMENTED !
+    /**
      * @brief Sweeps @p shape between two transforms. Not currently implemented.
      *
      * @throws std::runtime_error always; convex sweep tests are not currently implemented.

@@ -17,7 +17,7 @@ namespace a3d {
 
 // [Public Types]
 
-    /** @brief Identifies individual A3D target platforms and platform groups. */
+/** @brief Identifies individual A3D target platforms and platform groups. */
 enum class Platform : std::uint8_t {
     None = 0, ///< No platform.
 
@@ -36,7 +36,7 @@ namespace env {
 
     // [Public Constants]
 
-        /** @brief Platform selected for the current build. */
+    /** @brief Platform selected for the current build. */
 #if defined(A3D_LINUX)
     inline constexpr Platform platform = Platform::Linux;
 #elif defined(A3D_MACOS)
@@ -55,7 +55,7 @@ namespace env {
 
     // [Public Functions]
 
-        /** @brief Returns whether the current build platform matches any platform in @p platforms. */
+    /** @brief Returns whether the current build platform matches any platform in @p platforms. */
     constexpr bool is(Platform platforms) noexcept {
 
         return util::bitmask::any(platform, platforms);

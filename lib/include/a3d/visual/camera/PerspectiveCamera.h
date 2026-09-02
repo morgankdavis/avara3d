@@ -14,7 +14,7 @@
 
 namespace a3d {
 
-    /** @brief Camera using a perspective projection with a vertical field of view. */
+/** @brief Camera using a perspective projection with a vertical field of view. */
 class PerspectiveCamera : public Camera {
 
 public:

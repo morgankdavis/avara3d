@@ -44,7 +44,7 @@ public:
     void                     add(Tag tag, std::chrono::nanoseconds ns) noexcept;
     void                     add(const std::string& key, std::chrono::nanoseconds ns) noexcept; // ! untested
 
-        // ! TEMPORARY !
+    // ! TEMPORARY !
 //		void subtract(Tag tag, std::chrono::nanoseconds ns); // ! untested
 //		void subtract(const std::string& key, std::chrono::nanoseconds ns); // ! untested
 

@@ -42,7 +42,7 @@ enum class ShaderKind : uint8_t {
 };
 
 enum class PassKind : uint8_t {
-        // note: this is RENDER ORDER
+    // note: this is RENDER ORDER
     Background      = 0,
     Ground          = 1,
     MainOpaque      = 2,
@@ -53,7 +53,7 @@ enum class PassKind : uint8_t {
 };
 
 struct PipelineDesc {
-        // *** MUST update PipelineDescHash() when this struct changes ***
+    // *** MUST update PipelineDescHash() when this struct changes ***
     PassKind                passKind        = PassKind::MainOpaque;
     ShaderKind              shaderKind      = ShaderKind::Default;
     VertexLayout            vertexLayoutKey = VertexLayout::None;
