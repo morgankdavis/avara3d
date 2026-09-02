@@ -328,9 +328,9 @@ bool Log::enabled(Level level) const {
            >= static_cast<std::underlying_type_t<Level>>(_level);
 }
 
-// [Private Non-Member Functions]
-
 namespace {
+
+    // [Private Non-Member Functions]
 
     string TimestampString() {
         constexpr size_t BUF_SIZE = 256;

@@ -60,219 +60,222 @@
         }                                                                                                      \
     } while (0);
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Constants]
-
-static constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
-static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
-static constexpr std::size_t MAX_POINT_LIGHTS {128};
-static constexpr std::size_t MAX_SPOT_LIGHTS {64};
-
-static const GLuint ENV_BINDING_POINT {0};
-
-// ring buffer size for GL timing queries
-static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
-
-static constexpr gl::uint_t IMGUI_VERTEX_BUFFER_ALLOCATION_ID {1};
-static constexpr gl::uint_t IMGUI_INDEX_BUFFER_ALLOCATION_ID {2};
-static constexpr gl::uint_t IMGUI_TEXTURE_ALLOCATION_ID {3};
-
-// [Private Types]
-
-enum class MaterialContentsType : unsigned {
-    None = 0,
-    Color = 1,
-    Sampler = 2
-};
-
-static_assert(sizeof(vec4) == 16);
-static_assert(sizeof(vec3) == 12);
-
-struct AmbientLightGLSLStruct {
-    vec4 color;
-};
-
-static_assert(sizeof(AmbientLightGLSLStruct) == 16);
-
-struct DirectionalLightGLSLStruct {
-    vec4 color;
-    vec3 direction_world;
-    f32  intensity;
-};
-
-static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
-
-struct PointLightGLSLStruct {
-    vec4 color;
-    vec3 position_world;
-    f32  intensity;
-    f32  constantAttenuation;
-    f32  linearAttenuation;
-    f32  quadraticAttenuation;
-    f32  _pad_0_;
-};
-
-static_assert(sizeof(PointLightGLSLStruct) == 48);
-
-struct SpotLightGLSLStruct {
-    vec4     color;
-    vec3     position_world;
-    f32      intensity;
-    vec3     direction_world;
-    f32      _pad_0_;
-    f32      innerAngleCos;
-    f32      outerAngleCos;
-    uint32_t featheringMode;
-    f32      constantAttenuation;
-    f32      linearAttenuation;
-    f32      quadraticAttenuation;
-    f32      _pad_1_;
-    f32      _pad_2_;
-};
-
-static_assert(sizeof(SpotLightGLSLStruct) == 80);
-
-enum class SurfaceType : uint32_t {
-    None = 0,
-    Plane = 1,
-    Sphere = 2
-};
-
-struct SurfaceGLSLStruct {
-    uint32_t type;
-    f32      planeHeight;
-    f32      _pad_0_;
-    f32      _pad_1_;
-    vec3     sphereCenter;
-    f32      sphereRadius;
-};
-
-static_assert(sizeof(SurfaceGLSLStruct) == 32);
-
-struct FogGLSLStruct {
-    vec4     color;
-    f32      startDistance;
-    f32      endDistance;
-    f32      transitionExponent;
-    uint32_t enabled;
-};
-
-static_assert(sizeof(FogGLSLStruct) == 32);
-
-struct AtmosphereHazeGLSLStruct {
-    vec4     color;
-    f32      density;
-    uint32_t enabled;
-    f32      _pad_0_;
-    f32      _pad_1_;
-};
-
-static_assert(sizeof(AtmosphereHazeGLSLStruct) == 32);
-
-struct AtmosphereLimbGlowGLSLStruct {
-    vec4     color;
-    f32      intensity;
-    uint32_t enabled;
-    f32      _pad_0_;
-    f32      _pad_1_;
-};
-
-static_assert(sizeof(AtmosphereLimbGlowGLSLStruct) == 32);
-
-struct AtmosphereGLSLStruct {
-    f32                          scaleHeight;
-    uint32_t                     enabled;
-    f32                          _pad_0_;
-    f32                          _pad_1_;
-    AtmosphereHazeGLSLStruct     haze;
-    AtmosphereLimbGlowGLSLStruct limbGlow;
-};
-
-static_assert(sizeof(AtmosphereGLSLStruct) == 80);
-
-struct EnvironmentBlock {
-    uint32_t                   defaultLightingEnabled;
-    uint32_t                   _pad0_[3];
-    uint32_t                   numAmbientLights;
-    uint32_t                   _pad1_[3];
-    AmbientLightGLSLStruct     ambientLights[MAX_AMBIENT_LIGHTS];
-    uint32_t                   numDirectionalLights;
-    uint32_t                   _pad2_[3];
-    DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
-    uint32_t                   numPointLights;
-    uint32_t                   _pad3_[3];
-    PointLightGLSLStruct       pointLights[MAX_POINT_LIGHTS];
-    uint32_t                   numSpotLights;
-    uint32_t                   _pad4_[3];
-    SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
-    FogGLSLStruct              fog;
-    vec3                       viewPosition_world; // TODO: move this out to a new ViewBlock
-    f32                        _pad5_0_;
-    SurfaceGLSLStruct          surface;
-    AtmosphereGLSLStruct       atmosphere;
-};
-
-static_assert(offsetof(EnvironmentBlock, fog) == 12112);
-static_assert(offsetof(EnvironmentBlock, viewPosition_world) == 12144);
-static_assert(offsetof(EnvironmentBlock, surface) == 12160);
-static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
-static_assert(sizeof(EnvironmentBlock) == 12272);
-
-struct FBORestore {
-    GLint drawFbo = 0, readFbo = 0;
-
-    FBORestore() {
-        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
-        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
-    }
-
-    FBORestore(const FBORestore&) = delete;
-    FBORestore& operator=(const FBORestore&) = delete;
-
-    FBORestore(FBORestore&&) = delete;
-    FBORestore& operator=(FBORestore&&) = delete;
-
-    ~FBORestore() {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
-    }
-};
-
-// [Private Non-Member Prototypes]
-
-static void LogGLInfo();
-
-static void SendMaterialUniforms(const Material&              material,
-                                 GLSLProgram&                 program,
-                                 const std::array<GLuint, 4>& glTextureHandles,
-                                 OGLRenderer::GLStateCache&   state);
-
-static void SendMaterialPropertyUniforms(const Material::Property&  property,
-                                         Material::PropertyType     type,
-                                         GLuint                     glTextureHandle,
-                                         GLSLProgram&               program,
-                                         OGLRenderer::GLStateCache& state);
-
-static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program);
-
-static void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
-                                    const Scene&         scene,
-                                    const math::mat4&    view,
-                                    const vector<Node*>& lightNodes,
-                                    FrameStats&          stats);
-
-static void ApplyBlendFunction(Material::BlendFunction func);
-
-static GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
-
-static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
-
-static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
+    constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
+    constexpr std::size_t MAX_POINT_LIGHTS {128};
+    constexpr std::size_t MAX_SPOT_LIGHTS {64};
+
+    const GLuint ENV_BINDING_POINT {0};
+
+    // ring buffer size for GL timing queries
+    const unsigned DRAW_TIMER_BUFFER_SIZE {4};
+
+    constexpr gl::uint_t IMGUI_VERTEX_BUFFER_ALLOCATION_ID {1};
+    constexpr gl::uint_t IMGUI_INDEX_BUFFER_ALLOCATION_ID {2};
+    constexpr gl::uint_t IMGUI_TEXTURE_ALLOCATION_ID {3};
+
+    // [Private Types]
+
+    enum class MaterialContentsType : unsigned {
+        None = 0,
+        Color = 1,
+        Sampler = 2
+    };
+
+    static_assert(sizeof(vec4) == 16);
+    static_assert(sizeof(vec3) == 12);
+
+    struct AmbientLightGLSLStruct {
+        vec4 color;
+    };
+
+    static_assert(sizeof(AmbientLightGLSLStruct) == 16);
+
+    struct DirectionalLightGLSLStruct {
+        vec4 color;
+        vec3 direction_world;
+        f32  intensity;
+    };
+
+    static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
+
+    struct PointLightGLSLStruct {
+        vec4 color;
+        vec3 position_world;
+        f32  intensity;
+        f32  constantAttenuation;
+        f32  linearAttenuation;
+        f32  quadraticAttenuation;
+        f32  _pad_0_;
+    };
+
+    static_assert(sizeof(PointLightGLSLStruct) == 48);
+
+    struct SpotLightGLSLStruct {
+        vec4     color;
+        vec3     position_world;
+        f32      intensity;
+        vec3     direction_world;
+        f32      _pad_0_;
+        f32      innerAngleCos;
+        f32      outerAngleCos;
+        uint32_t featheringMode;
+        f32      constantAttenuation;
+        f32      linearAttenuation;
+        f32      quadraticAttenuation;
+        f32      _pad_1_;
+        f32      _pad_2_;
+    };
+
+    static_assert(sizeof(SpotLightGLSLStruct) == 80);
+
+    enum class SurfaceType : uint32_t {
+        None = 0,
+        Plane = 1,
+        Sphere = 2
+    };
+
+    struct SurfaceGLSLStruct {
+        uint32_t type;
+        f32      planeHeight;
+        f32      _pad_0_;
+        f32      _pad_1_;
+        vec3     sphereCenter;
+        f32      sphereRadius;
+    };
+
+    static_assert(sizeof(SurfaceGLSLStruct) == 32);
+
+    struct FogGLSLStruct {
+        vec4     color;
+        f32      startDistance;
+        f32      endDistance;
+        f32      transitionExponent;
+        uint32_t enabled;
+    };
+
+    static_assert(sizeof(FogGLSLStruct) == 32);
+
+    struct AtmosphereHazeGLSLStruct {
+        vec4     color;
+        f32      density;
+        uint32_t enabled;
+        f32      _pad_0_;
+        f32      _pad_1_;
+    };
+
+    static_assert(sizeof(AtmosphereHazeGLSLStruct) == 32);
+
+    struct AtmosphereLimbGlowGLSLStruct {
+        vec4     color;
+        f32      intensity;
+        uint32_t enabled;
+        f32      _pad_0_;
+        f32      _pad_1_;
+    };
+
+    static_assert(sizeof(AtmosphereLimbGlowGLSLStruct) == 32);
+
+    struct AtmosphereGLSLStruct {
+        f32                          scaleHeight;
+        uint32_t                     enabled;
+        f32                          _pad_0_;
+        f32                          _pad_1_;
+        AtmosphereHazeGLSLStruct     haze;
+        AtmosphereLimbGlowGLSLStruct limbGlow;
+    };
+
+    static_assert(sizeof(AtmosphereGLSLStruct) == 80);
+
+    struct EnvironmentBlock {
+        uint32_t                   defaultLightingEnabled;
+        uint32_t                   _pad0_[3];
+        uint32_t                   numAmbientLights;
+        uint32_t                   _pad1_[3];
+        AmbientLightGLSLStruct     ambientLights[MAX_AMBIENT_LIGHTS];
+        uint32_t                   numDirectionalLights;
+        uint32_t                   _pad2_[3];
+        DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
+        uint32_t                   numPointLights;
+        uint32_t                   _pad3_[3];
+        PointLightGLSLStruct       pointLights[MAX_POINT_LIGHTS];
+        uint32_t                   numSpotLights;
+        uint32_t                   _pad4_[3];
+        SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
+        FogGLSLStruct              fog;
+        vec3                       viewPosition_world; // TODO: move this out to a new ViewBlock
+        f32                        _pad5_0_;
+        SurfaceGLSLStruct          surface;
+        AtmosphereGLSLStruct       atmosphere;
+    };
+
+    static_assert(offsetof(EnvironmentBlock, fog) == 12112);
+    static_assert(offsetof(EnvironmentBlock, viewPosition_world) == 12144);
+    static_assert(offsetof(EnvironmentBlock, surface) == 12160);
+    static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
+    static_assert(sizeof(EnvironmentBlock) == 12272);
+
+    struct FBORestore {
+        GLint drawFbo = 0, readFbo = 0;
+
+        FBORestore() {
+            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
+            glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
+        }
+
+        FBORestore(const FBORestore&) = delete;
+        FBORestore& operator=(const FBORestore&) = delete;
+
+        FBORestore(FBORestore&&) = delete;
+        FBORestore& operator=(FBORestore&&) = delete;
+
+        ~FBORestore() {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
+        }
+    };
+
+    // [Private Non-Member Prototypes]
+
+    void LogGLInfo();
+
+    void SendMaterialUniforms(const Material&              material,
+                              GLSLProgram&                 program,
+                              const std::array<GLuint, 4>& glTextureHandles,
+                              OGLRenderer::GLStateCache&   state);
+
+    void SendMaterialPropertyUniforms(const Material::Property&  property,
+                                      Material::PropertyType     type,
+                                      GLuint                     glTextureHandle,
+                                      GLSLProgram&               program,
+                                      OGLRenderer::GLStateCache& state);
+
+    void SendDrawUniforms(const DrawItem& item, GLSLProgram& program);
+
+    void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
+                                 const Scene&         scene,
+                                 const math::mat4&    view,
+                                 const vector<Node*>& lightNodes,
+                                 FrameStats&          stats);
+
+    void ApplyBlendFunction(Material::BlendFunction func);
+
+    GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
+
+    GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
+
+    GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
+
+} // namespace
 
 // [Private Static Members]
 
@@ -1156,446 +1159,450 @@ void OGLRenderer::syncImguiMemoryStats() {
         OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-void LogGLInfo() {
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version = glGetString(GL_VERSION);
+    void LogGLInfo() {
+        const GLubyte* vendor = glGetString(GL_VENDOR);
+        const GLubyte* renderer = glGetString(GL_RENDERER);
+        const GLubyte* version = glGetString(GL_VERSION);
 
-    log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
-    log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
-    log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
-}
+        log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
+        log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+        log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
+    }
 
-void SendMaterialUniforms(const Material&              material,
-                          GLSLProgram&                 program,
-                          const std::array<GLuint, 4>& glTextureHandles,
-                          OGLRenderer::GLStateCache&   state) {
-    // sends uniforms for the Material, and MaterialProperties it has
+    void SendMaterialUniforms(const Material&              material,
+                              GLSLProgram&                 program,
+                              const std::array<GLuint, 4>& glTextureHandles,
+                              OGLRenderer::GLStateCache&   state) {
+        // sends uniforms for the Material, and MaterialProperties it has
 
-    program.setUniform("specularExponent", material.specularExponent());
-    program.setUniform("uvScale", material.uvScale());
-    program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
+        program.setUniform("specularExponent", material.specularExponent());
+        program.setUniform("uvScale", material.uvScale());
+        program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 
-    // material uniforms persist across draws -- clear unused properties to prevent
-    // state leaking between materials.
-    const auto none = static_cast<unsigned>(MaterialContentsType::None);
-    program.setUniform("ambientContentsType", none);
-    program.setUniform("diffuseContentsType", none);
-    program.setUniform("specularContentsType", none);
-    program.setUniform("emissionContentsType", none);
+        // material uniforms persist across draws -- clear unused properties to prevent
+        // state leaking between materials.
+        const auto none = static_cast<unsigned>(MaterialContentsType::None);
+        program.setUniform("ambientContentsType", none);
+        program.setUniform("diffuseContentsType", none);
+        program.setUniform("specularContentsType", none);
+        program.setUniform("emissionContentsType", none);
 
-    for (auto& [property, type] : material.properties()) {
-        if (!holds_alternative<monostate>(*property)) {
-            const int    slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
-            const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
-            SendMaterialPropertyUniforms(*property, type, h, program, state);
+        for (auto& [property, type] : material.properties()) {
+            if (!holds_alternative<monostate>(*property)) {
+                const int    slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
+                const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
+                SendMaterialPropertyUniforms(*property, type, h, program, state);
+            }
         }
     }
-}
 
-void SendMaterialPropertyUniforms(const Material::Property&  property,
-                                  Material::PropertyType     type,
-                                  GLuint                     glTextureHandle,
-                                  GLSLProgram&               program,
-                                  OGLRenderer::GLStateCache& state) {
-    std::visit(
-        [&type, &program, &glTextureHandle](auto&& property) -> void {
-            using T = std::decay_t<decltype(property)>;
+    void SendMaterialPropertyUniforms(const Material::Property&  property,
+                                      Material::PropertyType     type,
+                                      GLuint                     glTextureHandle,
+                                      GLSLProgram&               program,
+                                      OGLRenderer::GLStateCache& state) {
+        std::visit(
+            [&type, &program, &glTextureHandle](auto&& property) -> void {
+                using T = std::decay_t<decltype(property)>;
 
-            if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
-                std::visit(
-                    [&type, &glTextureHandle, &program](auto&& contents) -> void {
-                        using T = std::decay_t<decltype(contents)>;
+                if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
+                    std::visit(
+                        [&type, &glTextureHandle, &program](auto&& contents) -> void {
+                            using T = std::decay_t<decltype(contents)>;
 
-                        if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
-                            string modeUniformName;
-                            string samplerUniformName;
-                            GLenum slot;
-                            GLint  index;
+                            if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
+                                string modeUniformName;
+                                string samplerUniformName;
+                                GLenum slot;
+                                GLint  index;
 
-                            switch (type) {
-                                case Material::PropertyType::Ambient:
-                                    modeUniformName = "ambientContentsType";
-                            //samplerUniformName = "samplers.ambient";
-                                    samplerUniformName = "ambientSampler";
-                                    slot = GL_TEXTURE0;
-                                    index = 0;
-                                    break;
-                                case Material::PropertyType::Diffuse:
-                                    modeUniformName = "diffuseContentsType";
-                            //samplerUniformName = "samplers.diffuse";
-                                    samplerUniformName = "diffuseSampler";
-                                    slot = GL_TEXTURE1;
-                                    index = 1;
-                                    break;
-                                case Material::PropertyType::Specular:
-                                    modeUniformName = "specularContentsType";
-                            //samplerUniformName = "samplers.specular";
-                                    samplerUniformName = "specularSampler";
-                                    slot = GL_TEXTURE2;
-                                    index = 2;
-                                    break;
-                                case Material::PropertyType::Emission:
-                                    modeUniformName = "emissionContentsType";
-                            //samplerUniformName = "samplers.emission";
-                                    samplerUniformName = "emissionSampler";
-                                    slot = GL_TEXTURE3;
-                                    index = 3;
-                                    break;
-                                default:
-                                    throw logic_error(std::format("Invalid MaterialPropertyType: {}",
-                                                                  util::enums::enum_name<
-                                                                      Material::PropertyType>(type)));
-                                    return;
+                                switch (type) {
+                                    case Material::PropertyType::Ambient:
+                                        modeUniformName = "ambientContentsType";
+                                        //samplerUniformName = "samplers.ambient";
+                                        samplerUniformName = "ambientSampler";
+                                        slot = GL_TEXTURE0;
+                                        index = 0;
+                                        break;
+                                    case Material::PropertyType::Diffuse:
+                                        modeUniformName = "diffuseContentsType";
+                                        //samplerUniformName = "samplers.diffuse";
+                                        samplerUniformName = "diffuseSampler";
+                                        slot = GL_TEXTURE1;
+                                        index = 1;
+                                        break;
+                                    case Material::PropertyType::Specular:
+                                        modeUniformName = "specularContentsType";
+                                        //samplerUniformName = "samplers.specular";
+                                        samplerUniformName = "specularSampler";
+                                        slot = GL_TEXTURE2;
+                                        index = 2;
+                                        break;
+                                    case Material::PropertyType::Emission:
+                                        modeUniformName = "emissionContentsType";
+                                        //samplerUniformName = "samplers.emission";
+                                        samplerUniformName = "emissionSampler";
+                                        slot = GL_TEXTURE3;
+                                        index = 3;
+                                        break;
+                                    default:
+                                        throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                                      util::enums::enum_name<
+                                                                          Material::PropertyType>(type)));
+                                        return;
+                                }
+
+                                program.setUniform(modeUniformName.c_str(),
+                                                   static_cast<underlying_type<MaterialContentsType>::
+                                                                   type>(MaterialContentsType::Sampler));
+                                program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot,
+                                                    glTextureHandle, index);
                             }
-
-                            program.setUniform(modeUniformName.c_str(),
-                                               static_cast<underlying_type<
-                                                   MaterialContentsType>::type>(MaterialContentsType::Sampler));
-                            program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot,
-                                                glTextureHandle, index);
-                        }
-                        else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-                            program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0,
-                                                glTextureHandle, 0);
-                        }
-                        else if constexpr (std::is_same_v<T, std::monostate>) {
-                            log::e()("Empty texture variant.");
-                        }
-                    },
-                    property->contents());
-            }
-            else if constexpr (std::is_same_v<T, Color>) {
-                string modeUniformName;
-                string colorUniformName;
-
-                switch (type) {
-                    case Material::PropertyType::Ambient:
-                        modeUniformName = "ambientContentsType";
-                        colorUniformName = "colors.ambient";
-                        break;
-                    case Material::PropertyType::Diffuse:
-                        modeUniformName = "diffuseContentsType";
-                        colorUniformName = "colors.diffuse";
-                        break;
-                    case Material::PropertyType::Specular:
-                        modeUniformName = "specularContentsType";
-                        colorUniformName = "colors.specular";
-                        break;
-                    case Material::PropertyType::Emission:
-                        modeUniformName = "emissionContentsType";
-                        colorUniformName = "colors.emission";
-                        break;
-                    default:
-                        throw logic_error(std::format("Invalid MaterialPropertyType: {}",
-                                                      util::enums::enum_name<Material::PropertyType>(type)));
-                        return;
+                            else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                                program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0,
+                                                    glTextureHandle, 0);
+                            }
+                            else if constexpr (std::is_same_v<T, std::monostate>) {
+                                log::e()("Empty texture variant.");
+                            }
+                        },
+                        property->contents());
                 }
+                else if constexpr (std::is_same_v<T, Color>) {
+                    string modeUniformName;
+                    string colorUniformName;
 
-                program
-                    .setUniform(modeUniformName.c_str(),
-                                static_cast<
-                                    underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-                program.setUniform(colorUniformName.c_str(), property.r(), property.g(), property.b());
-            }
-            else if constexpr (std::is_same_v<T, std::monostate>) {
-                log::w()("NULL material property contents.");
-            }
-        },
-        property);
-}
+                    switch (type) {
+                        case Material::PropertyType::Ambient:
+                            modeUniformName = "ambientContentsType";
+                            colorUniformName = "colors.ambient";
+                            break;
+                        case Material::PropertyType::Diffuse:
+                            modeUniformName = "diffuseContentsType";
+                            colorUniformName = "colors.diffuse";
+                            break;
+                        case Material::PropertyType::Specular:
+                            modeUniformName = "specularContentsType";
+                            colorUniformName = "colors.specular";
+                            break;
+                        case Material::PropertyType::Emission:
+                            modeUniformName = "emissionContentsType";
+                            colorUniformName = "colors.emission";
+                            break;
+                        default:
+                            throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                          util::enums::enum_name<
+                                                              Material::PropertyType>(type)));
+                            return;
+                    }
 
-static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
-
-    program.setUniform("tint", item.tint);
-}
-
-void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
-                             const Scene&         scene,
-                             const mat4&          view,
-                             const vector<Node*>& lightNodes,
-                             FrameStats&          stats) {
-    // block
-
-    EnvironmentBlock environmentStruct {};
-
-    environmentStruct.viewPosition_world = translation(inverse(view));
-
-    // surface
-
-    SurfaceGLSLStruct surfaceStruct {};
-
-    if (const auto& surface = scene.visualWorld()->surface()) {
-
-        if (const auto* plane = get_if<PlaneSurface>(&*surface)) {
-
-            surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Plane);
-            surfaceStruct.planeHeight = plane->height;
-        }
-        else if (const auto* sphere = get_if<SphereSurface>(&*surface)) {
-
-            surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Sphere);
-            surfaceStruct.sphereCenter = sphere->center;
-            surfaceStruct.sphereRadius = sphere->radius;
-        }
+                    program.setUniform(modeUniformName.c_str(),
+                                       static_cast<underlying_type<
+                                           MaterialContentsType>::type>(MaterialContentsType::Color));
+                    program.setUniform(colorUniformName.c_str(), property.r(), property.g(), property.b());
+                }
+                else if constexpr (std::is_same_v<T, std::monostate>) {
+                    log::w()("NULL material property contents.");
+                }
+            },
+            property);
     }
 
-    memcpy(&environmentStruct.surface, &surfaceStruct, sizeof(surfaceStruct));
+    void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
 
-    // lights
-
-    auto numLights = lightNodes.size();
-
-    if (scene.visualWorld()->defaultLightingEnabled()) {
-        environmentStruct.defaultLightingEnabled = 1u;
+        program.setUniform("tint", item.tint);
     }
-    else {
-        environmentStruct.defaultLightingEnabled = 0u;
 
-        stats.lights = numLights;
+    void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
+                                 const Scene&         scene,
+                                 const mat4&          view,
+                                 const vector<Node*>& lightNodes,
+                                 FrameStats&          stats) {
+        // block
 
-        vector<AmbientLightGLSLStruct>     ambientStructs;
-        vector<DirectionalLightGLSLStruct> directionalStructs;
-        vector<PointLightGLSLStruct>       pointStructs;
-        vector<SpotLightGLSLStruct>        spotStructs;
+        EnvironmentBlock environmentStruct {};
 
-        ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
-        directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
-        pointStructs.reserve(MAX_POINT_LIGHTS);
-        spotStructs.reserve(MAX_SPOT_LIGHTS);
+        environmentStruct.viewPosition_world = translation(inverse(view));
 
-        for (unsigned l = 0; l < numLights; ++l) {
-            auto node = lightNodes[l];
-            auto light = node->light().get();
-            auto color = light->color();
+        // surface
 
-            // light_cutoff:
-            // if an attenuated light, first make sure it's not past its cutoff distance.
-            // this is either a hard-coded distance or calcualted based on a minimum attenuation.
-            //
-            // for min attenuation:
-            // https://gamedev.stackexchange.com/a/56934
-            // cuts light off at distance 'd'
-            // when attenuation drops below 'a'.
-            // d = sqrt(1.0 / (Kq * a))
-            //
-            // UPDATE: distance from what? the camera?  that doesn't make sense.
-            // the fragment?  sure, but probably slow.
-            // the vertex?  sure, but maybe messy?
+        SurfaceGLSLStruct surfaceStruct {};
 
-            if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-                if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
-                    AmbientLightGLSLStruct lightStruct {};
-                    lightStruct.color = ambientLight->color().rgba();
-                    ambientStructs.push_back(lightStruct);
-                }
+        if (const auto& surface = scene.visualWorld()->surface()) {
+
+            if (const auto* plane = get_if<PlaneSurface>(&*surface)) {
+
+                surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Plane);
+                surfaceStruct.planeHeight = plane->height;
             }
-            else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-                if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
-                    DirectionalLightGLSLStruct lightStruct {};
-                    lightStruct.color = directionalLight->color().rgba();
-                    lightStruct.intensity = directionalLight->intensity();
-                    lightStruct.direction_world = node->worldForward();
-                    directionalStructs.push_back(lightStruct);
-                }
-            }
-            else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-                if (pointStructs.size() < MAX_POINT_LIGHTS) {
-                    PointLightGLSLStruct lightStruct {};
-                    lightStruct.color = pointLight->color().rgba();
-                    lightStruct.intensity = pointLight->intensity();
-                    lightStruct.position_world = node->worldPosition();
-                    lightStruct.constantAttenuation = pointLight->attenuation().constant;
-                    lightStruct.linearAttenuation = pointLight->attenuation().linear;
-                    lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
-                    pointStructs.push_back(lightStruct);
-                }
-            }
-            else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-                if (spotStructs.size() < MAX_SPOT_LIGHTS) {
-                    SpotLightGLSLStruct lightStruct {};
-                    lightStruct.color = spotLight->color().rgba();
-                    lightStruct.intensity = spotLight->intensity();
-                    lightStruct.position_world = node->worldPosition();
-                    lightStruct.direction_world = node->worldForward();
-                    lightStruct.innerAngleCos = spotLight->innerAngleCos();
-                    lightStruct.outerAngleCos = spotLight->outerAngleCos();
-                    lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());
-                    lightStruct.constantAttenuation = spotLight->attenuation().constant;
-                    lightStruct.linearAttenuation = spotLight->attenuation().linear;
-                    lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
-                    spotStructs.push_back(lightStruct);
-                }
+            else if (const auto* sphere = get_if<SphereSurface>(&*surface)) {
+
+                surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Sphere);
+                surfaceStruct.sphereCenter = sphere->center;
+                surfaceStruct.sphereRadius = sphere->radius;
             }
         }
 
-        environmentStruct.numAmbientLights = ambientStructs.size();
-        memcpy(&environmentStruct.ambientLights, ambientStructs.data(),
-               sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+        memcpy(&environmentStruct.surface, &surfaceStruct, sizeof(surfaceStruct));
 
-        environmentStruct.numDirectionalLights = directionalStructs.size();
-        memcpy(&environmentStruct.directionalLights, directionalStructs.data(),
-               sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+        // lights
 
-        environmentStruct.numPointLights = pointStructs.size();
-        memcpy(&environmentStruct.pointLights, pointStructs.data(),
-               sizeof(PointLightGLSLStruct) * pointStructs.size());
+        auto numLights = lightNodes.size();
 
-        environmentStruct.numSpotLights = spotStructs.size();
-        memcpy(&environmentStruct.spotLights, spotStructs.data(),
-               sizeof(SpotLightGLSLStruct) * spotStructs.size());
-    }
+        if (scene.visualWorld()->defaultLightingEnabled()) {
+            environmentStruct.defaultLightingEnabled = 1u;
+        }
+        else {
+            environmentStruct.defaultLightingEnabled = 0u;
 
-    // fog
+            stats.lights = numLights;
 
-    FogGLSLStruct fogStruct {};
+            vector<AmbientLightGLSLStruct>     ambientStructs;
+            vector<DirectionalLightGLSLStruct> directionalStructs;
+            vector<PointLightGLSLStruct>       pointStructs;
+            vector<SpotLightGLSLStruct>        spotStructs;
 
-    if (const auto& fog = scene.visualWorld()->fog()) {
-        fogStruct.color = fog->color.rgba();
-        fogStruct.startDistance = fog->startDistance;
-        fogStruct.endDistance = fog->endDistance;
-        fogStruct.transitionExponent = fog->transitionExponent;
-        fogStruct.enabled = 1u;
-    }
+            ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
+            directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
+            pointStructs.reserve(MAX_POINT_LIGHTS);
+            spotStructs.reserve(MAX_SPOT_LIGHTS);
 
-    memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+            for (unsigned l = 0; l < numLights; ++l) {
+                auto node = lightNodes[l];
+                auto light = node->light().get();
+                auto color = light->color();
 
-    // atmosphere
+                // light_cutoff:
+                // if an attenuated light, first make sure it's not past its cutoff distance.
+                // this is either a hard-coded distance or calcualted based on a minimum attenuation.
+                //
+                // for min attenuation:
+                // https://gamedev.stackexchange.com/a/56934
+                // cuts light off at distance 'd'
+                // when attenuation drops below 'a'.
+                // d = sqrt(1.0 / (Kq * a))
+                //
+                // UPDATE: distance from what? the camera?  that doesn't make sense.
+                // the fragment?  sure, but probably slow.
+                // the vertex?  sure, but maybe messy?
 
-    AtmosphereGLSLStruct atmosphereStruct {};
+                if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+                    if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
+                        AmbientLightGLSLStruct lightStruct {};
+                        lightStruct.color = ambientLight->color().rgba();
+                        ambientStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+                    if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
+                        DirectionalLightGLSLStruct lightStruct {};
+                        lightStruct.color = directionalLight->color().rgba();
+                        lightStruct.intensity = directionalLight->intensity();
+                        lightStruct.direction_world = node->worldForward();
+                        directionalStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+                    if (pointStructs.size() < MAX_POINT_LIGHTS) {
+                        PointLightGLSLStruct lightStruct {};
+                        lightStruct.color = pointLight->color().rgba();
+                        lightStruct.intensity = pointLight->intensity();
+                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.constantAttenuation = pointLight->attenuation().constant;
+                        lightStruct.linearAttenuation = pointLight->attenuation().linear;
+                        lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
+                        pointStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+                    if (spotStructs.size() < MAX_SPOT_LIGHTS) {
+                        SpotLightGLSLStruct lightStruct {};
+                        lightStruct.color = spotLight->color().rgba();
+                        lightStruct.intensity = spotLight->intensity();
+                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.innerAngleCos = spotLight->innerAngleCos();
+                        lightStruct.outerAngleCos = spotLight->outerAngleCos();
+                        lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());
+                        lightStruct.constantAttenuation = spotLight->attenuation().constant;
+                        lightStruct.linearAttenuation = spotLight->attenuation().linear;
+                        lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
+                        spotStructs.push_back(lightStruct);
+                    }
+                }
+            }
 
-    if (const auto& atmosphere = scene.visualWorld()->atmosphere()) {
+            environmentStruct.numAmbientLights = ambientStructs.size();
+            memcpy(&environmentStruct.ambientLights, ambientStructs.data(),
+                   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
 
-        atmosphereStruct.enabled = 1u;
-        atmosphereStruct.scaleHeight = atmosphere->scaleHeight;
+            environmentStruct.numDirectionalLights = directionalStructs.size();
+            memcpy(&environmentStruct.directionalLights, directionalStructs.data(),
+                   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
 
-        if (atmosphere->haze) {
+            environmentStruct.numPointLights = pointStructs.size();
+            memcpy(&environmentStruct.pointLights, pointStructs.data(),
+                   sizeof(PointLightGLSLStruct) * pointStructs.size());
 
-            atmosphereStruct.haze.color = atmosphere->haze->color.rgba();
-            atmosphereStruct.haze.density = atmosphere->haze->density;
-            atmosphereStruct.haze.enabled = 1u;
+            environmentStruct.numSpotLights = spotStructs.size();
+            memcpy(&environmentStruct.spotLights, spotStructs.data(),
+                   sizeof(SpotLightGLSLStruct) * spotStructs.size());
         }
 
-        if (atmosphere->limbGlow) {
+        // fog
 
-            atmosphereStruct.limbGlow.color = atmosphere->limbGlow->color.rgba();
-            atmosphereStruct.limbGlow.intensity = atmosphere->limbGlow->intensity;
-            atmosphereStruct.limbGlow.enabled = 1u;
+        FogGLSLStruct fogStruct {};
+
+        if (const auto& fog = scene.visualWorld()->fog()) {
+            fogStruct.color = fog->color.rgba();
+            fogStruct.startDistance = fog->startDistance;
+            fogStruct.endDistance = fog->endDistance;
+            fogStruct.transitionExponent = fog->transitionExponent;
+            fogStruct.enabled = 1u;
         }
-    }
 
-    memcpy(&environmentStruct.atmosphere, &atmosphereStruct, sizeof(atmosphereStruct));
+        memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
-    // send 'em
+        // atmosphere
 
-    //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-    //	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
-    //	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+        AtmosphereGLSLStruct atmosphereStruct {};
 
-    //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-    //	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
-    //								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    //	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
-    //	glUnmapBuffer(GL_UNIFORM_BUFFER);
+        if (const auto& atmosphere = scene.visualWorld()->atmosphere()) {
 
-    glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+            atmosphereStruct.enabled = 1u;
+            atmosphereStruct.scaleHeight = atmosphere->scaleHeight;
+
+            if (atmosphere->haze) {
+
+                atmosphereStruct.haze.color = atmosphere->haze->color.rgba();
+                atmosphereStruct.haze.density = atmosphere->haze->density;
+                atmosphereStruct.haze.enabled = 1u;
+            }
+
+            if (atmosphere->limbGlow) {
+
+                atmosphereStruct.limbGlow.color = atmosphere->limbGlow->color.rgba();
+                atmosphereStruct.limbGlow.intensity = atmosphere->limbGlow->intensity;
+                atmosphereStruct.limbGlow.enabled = 1u;
+            }
+        }
+
+        memcpy(&environmentStruct.atmosphere, &atmosphereStruct, sizeof(atmosphereStruct));
+
+        // send 'em
+
+        //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+        //	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
+        //	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+
+        //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+        //	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+        //								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        //	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+        //	glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+        glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 
 #ifdef A3D_GL_WEB
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
 #else
-    void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
-                                 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+                                     GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-    if (dst) {
-        memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
-        glUnmapBuffer(GL_UNIFORM_BUFFER);
-    }
+        if (dst) {
+            memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
+        }
 #endif
-}
-
-void ApplyBlendFunction(Material::BlendFunction func) {
-    if (func == Material::BlendFunction::Disabled) {
-        glDisable(GL_BLEND);
-        return;
     }
 
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
+    void ApplyBlendFunction(Material::BlendFunction func) {
+        if (func == Material::BlendFunction::Disabled) {
+            glDisable(GL_BLEND);
+            return;
+        }
 
-    switch (func) {
-        case Material::BlendFunction::Alpha:
-            // out = src*a + dst*(1-a)
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
 
-        case Material::BlendFunction::PremultipliedAlpha:
-            // src already multiplied by alpha: out = src + dst*(1-a)
-            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
+        switch (func) {
+            case Material::BlendFunction::Alpha:
+                // out = src*a + dst*(1-a)
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                break;
 
-        case Material::BlendFunction::Additive:
-            // common additive: out = src*a + dst
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-            break;
+            case Material::BlendFunction::PremultipliedAlpha:
+                // src already multiplied by alpha: out = src + dst*(1-a)
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                break;
 
-        default:
-            break;
+            case Material::BlendFunction::Additive:
+                // common additive: out = src*a + dst
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+                break;
+
+            default:
+                break;
+        }
     }
-}
 
-GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
-    switch (func) {
-        case DepthFunc::Less:
-            return GL_LESS;
-        case DepthFunc::Lequal:
-            return GL_LEQUAL;
-        case DepthFunc::Equal:
-            return GL_EQUAL;
-        case DepthFunc::Greater:
-            return GL_GREATER;
-        case DepthFunc::Gequal:
-            return GL_GEQUAL;
-        case DepthFunc::Notequal:
-            return GL_NOTEQUAL;
-        case DepthFunc::Always:
-            return GL_ALWAYS;
-        case DepthFunc::Never:
-            return GL_NEVER;
+    GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
+        switch (func) {
+            case DepthFunc::Less:
+                return GL_LESS;
+            case DepthFunc::Lequal:
+                return GL_LEQUAL;
+            case DepthFunc::Equal:
+                return GL_EQUAL;
+            case DepthFunc::Greater:
+                return GL_GREATER;
+            case DepthFunc::Gequal:
+                return GL_GEQUAL;
+            case DepthFunc::Notequal:
+                return GL_NOTEQUAL;
+            case DepthFunc::Always:
+                return GL_ALWAYS;
+            case DepthFunc::Never:
+                return GL_NEVER;
+        }
+        return GL_LESS;
     }
-    return GL_LESS;
-}
 
-GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
-    switch (mode) {
-        case Sampler::FilterMode::Nearest:
-            return GL_NEAREST;
-        case Sampler::FilterMode::Linear:
-            return GL_LINEAR;
-        case Sampler::FilterMode::NearestMipmapNearest:
-            return GL_NEAREST_MIPMAP_NEAREST;
-        case Sampler::FilterMode::LinearMipmapNearest:
-            return GL_LINEAR_MIPMAP_NEAREST;
-        case Sampler::FilterMode::NearestMipmapLinear:
-            return GL_NEAREST_MIPMAP_LINEAR;
-        case Sampler::FilterMode::LinearMipmapLinear:
-            return GL_LINEAR_MIPMAP_LINEAR;
+    GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
+        switch (mode) {
+            case Sampler::FilterMode::Nearest:
+                return GL_NEAREST;
+            case Sampler::FilterMode::Linear:
+                return GL_LINEAR;
+            case Sampler::FilterMode::NearestMipmapNearest:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case Sampler::FilterMode::LinearMipmapNearest:
+                return GL_LINEAR_MIPMAP_NEAREST;
+            case Sampler::FilterMode::NearestMipmapLinear:
+                return GL_NEAREST_MIPMAP_LINEAR;
+            case Sampler::FilterMode::LinearMipmapLinear:
+                return GL_LINEAR_MIPMAP_LINEAR;
+        }
     }
-}
 
-GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
-    switch (mode) {
-        case Sampler::WrapMode::ClampToEdge:
-            return GL_CLAMP_TO_EDGE;
-        //#ifdef A3D_GL_DESKTOP
-        //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
-        //#endif
-        case Sampler::WrapMode::Repeat:
-            return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */
-            return GL_MIRRORED_REPEAT;
+    GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
+        switch (mode) {
+            case Sampler::WrapMode::ClampToEdge:
+                return GL_CLAMP_TO_EDGE;
+            //#ifdef A3D_GL_DESKTOP
+            //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
+            //#endif
+            case Sampler::WrapMode::Repeat:
+                return GL_REPEAT;
+            default: /* MIRRORED_REPEAT */
+                return GL_MIRRORED_REPEAT;
+        }
     }
-}
+
+} // namespace
+
+} // namespace a3d

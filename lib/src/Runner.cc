@@ -22,12 +22,16 @@
 
 using namespace std;
 
-// [Private Constants]
-
-// duration of sample history to keep
-static constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    // duration of sample history to keep
+    constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
+
+} // namespace
 
 // [Public Lifecycle Functions]
 

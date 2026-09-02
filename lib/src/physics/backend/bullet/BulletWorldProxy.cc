@@ -40,7 +40,6 @@
 #include "a3d/util/Bitmask.h"
 #include "a3d/util/Flow.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
@@ -59,56 +58,60 @@ using namespace std;
     #endif
 #endif
 
-// [Private Constants]
-
-// ! btCollisionDispatcherMt is known to be buggy. leave it off.
-static constexpr bool A3D_USE_MT_DISPATCHER = false;
-
-// bullet's MT spatial-grid contact batching can assert on large/dense
-// contact islands. keep the MT world/solver infrastructure, but disable
-// contact batching until/unless we patch or replace that path
-static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
-
-static constexpr float PHYSICS_DEBUG_FRAME_MARGIN = 0.1f;
-static constexpr float PHYSICS_DEBUG_FRAME_TIP_MARGIN = 0.1f;
-
-// [Private Non-Member Prototypes]
-
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
-static string                       BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes);
-static int                          PickNumBTThreads(btITaskScheduler* scheduler);
-
-// [Internal Types]
-
-struct RawContactResult {
-    btManifoldPoint          point;
-    const btCollisionObject* objectA;
-    const btCollisionObject* objectB;
-};
-
-struct ContactTestResultCallback : btCollisionWorld::ContactResultCallback {
-
-    btScalar addSingleResult(btManifoldPoint&                point,
-                             const btCollisionObjectWrapper* objectA,
-                             int,
-                             int,
-                             const btCollisionObjectWrapper* objectB,
-                             int,
-                             int) override {
-
-        results.push_back({
-            point,
-            objectA->getCollisionObject(),
-            objectB->getCollisionObject(),
-        });
-
-        return btScalar(0.0);
-    }
-
-    vector<RawContactResult> results;
-};
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    // ! btCollisionDispatcherMt is known to be buggy. leave it off.
+    constexpr bool A3D_USE_MT_DISPATCHER = false;
+
+    // bullet's MT spatial-grid contact batching can assert on large/dense
+    // contact islands. keep the MT world/solver infrastructure, but disable
+    // contact batching until/unless we patch or replace that path
+    constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
+
+    constexpr float PHYSICS_DEBUG_FRAME_MARGIN = 0.1f;
+    constexpr float PHYSICS_DEBUG_FRAME_TIP_MARGIN = 0.1f;
+
+    // [Private Non-Member Prototypes]
+
+    btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
+    string                       BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes);
+    int                          PickNumBTThreads(btITaskScheduler* scheduler);
+
+    // [Internal Types]
+
+    struct RawContactResult {
+        btManifoldPoint          point;
+        const btCollisionObject* objectA;
+        const btCollisionObject* objectB;
+    };
+
+    struct ContactTestResultCallback : btCollisionWorld::ContactResultCallback {
+
+        btScalar addSingleResult(btManifoldPoint&                point,
+                                 const btCollisionObjectWrapper* objectA,
+                                 int,
+                                 int,
+                                 const btCollisionObjectWrapper* objectB,
+                                 int,
+                                 int) override {
+
+            results.push_back({
+                point,
+                objectA->getCollisionObject(),
+                objectB->getCollisionObject(),
+            });
+
+            return btScalar(0.0);
+        }
+
+        vector<RawContactResult> results;
+    };
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -1007,92 +1010,97 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
     };
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
+
+        using DebugOptions = Scene::DebugOptions;
+
+        btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
+
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBounds)) {
+            btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawAabb);
+        }
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsWireframes)) {
+            btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawWireframe);
+        }
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsContactPoints)) {
+            btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawContactPoints);
+        }
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsNormals)) {
+            btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawNormals);
+        }
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraints)) {
+            btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraints);
+        }
+        if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraintLimits)) {
+            btModes =
+                static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
+        }
+        // Bullet draws TINY lines for these. instead handling manually in appendDebugLines()
+        // if (util::bitmask::contains(options, DebugOptions::ShowPhysicsFrames)) {
+        //     btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawFrames);
+        // }
+
+        /* what do these do?
+
+	     btModes = (btIDebugDraw::DebugDrawModes)
+	     (btModes | btIDebugDraw::DBG_ProfileTimings);
+
+	     btModes = (btIDebugDraw::DebugDrawModes)
+	     (btModes | btIDebugDraw::DBG_DrawFeaturesText);
+
+	     btModes = (btIDebugDraw::DebugDrawModes)
+	     (btModes | btIDebugDraw::DBG_EnableCCD); */
+
+        static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
+        if (btModes != previousModes) {
+            log::d()("Bullet debug modes: {}", BTDebugDrawModesString(btModes));
+        }
+        previousModes = btModes;
+
+        return btModes;
+    }
+
+    string BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes) {
+
+        if (modes == btIDebugDraw::DBG_NoDebug) {
+            return "DBG_NoDebug";
+        }
+
+        string result;
+
+        const auto append = [&](btIDebugDraw::DebugDrawModes mode, const char* name) {
+            if ((static_cast<int>(modes) & static_cast<int>(mode)) == 0) {
+                return;
+            }
+
+            if (!result.empty()) {
+                result += " | ";
+            }
+
+            result += name;
+        };
+
+        append(btIDebugDraw::DBG_DrawAabb, "DBG_DrawAabb");
+        append(btIDebugDraw::DBG_DrawWireframe, "DBG_DrawWireframe");
+        append(btIDebugDraw::DBG_DrawContactPoints, "DBG_DrawContactPoints");
+        append(btIDebugDraw::DBG_DrawNormals, "DBG_DrawNormals");
+        append(btIDebugDraw::DBG_DrawConstraints, "DBG_DrawConstraints");
+        append(btIDebugDraw::DBG_DrawConstraintLimits, "DBG_DrawConstraintLimits");
+
+        return result;
+    }
+
+    int PickNumBTThreads(btITaskScheduler* scheduler) {
+        const int hw = math::max(1u, std::thread::hardware_concurrency());
+        const int maxT = scheduler ? scheduler->getMaxNumThreads() : hw;
+        // bullet MT often benefits from "not all cores", but start simple...
+        return math::clamp(hw, 1, maxT);
+    }
+
+} // namespace
+
 } // namespace a3d
-
-// [Private Non-Member Functions]
-
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
-
-    using DebugOptions = Scene::DebugOptions;
-
-    btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
-
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBounds)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawAabb);
-    }
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsWireframes)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawWireframe);
-    }
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsContactPoints)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawContactPoints);
-    }
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsNormals)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawNormals);
-    }
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraints)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraints);
-    }
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraintLimits)) {
-        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
-    }
-    // Bullet draws TINY lines for these. instead handling manually in appendDebugLines()
-    // if (util::bitmask::contains(options, DebugOptions::ShowPhysicsFrames)) {
-    //     btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawFrames);
-    // }
-
-    /* what do these do?
-
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_ProfileTimings);
-
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_DrawFeaturesText);
-
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_EnableCCD); */
-
-    static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
-    if (btModes != previousModes) {
-        log::d()("Bullet debug modes: {}", BTDebugDrawModesString(btModes));
-    }
-    previousModes = btModes;
-
-    return btModes;
-}
-
-string BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes) {
-
-    if (modes == btIDebugDraw::DBG_NoDebug) {
-        return "DBG_NoDebug";
-    }
-
-    string result;
-
-    const auto append = [&](btIDebugDraw::DebugDrawModes mode, const char* name) {
-        if ((static_cast<int>(modes) & static_cast<int>(mode)) == 0) {
-            return;
-        }
-
-        if (!result.empty()) {
-            result += " | ";
-        }
-
-        result += name;
-    };
-
-    append(btIDebugDraw::DBG_DrawAabb, "DBG_DrawAabb");
-    append(btIDebugDraw::DBG_DrawWireframe, "DBG_DrawWireframe");
-    append(btIDebugDraw::DBG_DrawContactPoints, "DBG_DrawContactPoints");
-    append(btIDebugDraw::DBG_DrawNormals, "DBG_DrawNormals");
-    append(btIDebugDraw::DBG_DrawConstraints, "DBG_DrawConstraints");
-    append(btIDebugDraw::DBG_DrawConstraintLimits, "DBG_DrawConstraintLimits");
-
-    return result;
-}
-
-int PickNumBTThreads(btITaskScheduler* scheduler) {
-    const int hw = math::max(1u, std::thread::hardware_concurrency());
-    const int maxT = scheduler ? scheduler->getMaxNumThreads() : hw;
-    // bullet MT often benefits from "not all cores", but start simple...
-    return math::clamp(hw, 1, maxT);
-}

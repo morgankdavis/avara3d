@@ -11,14 +11,17 @@
 #include "a3d/render/GatherOutput.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
+
+} // namespace
 
 // [Internal Static Member Functions]
 
@@ -103,33 +106,37 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     return desc;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
-    PipelineDesc desc {};
-    desc.vertexLayoutKey = layout;
-    desc.fillMode = material.fillMode();
-    desc.blendFunction = material.blendFunction();
-    desc.doubleSided = material.doubleSided();
-    desc.depthTest = material.depthTestEnabled();
-    desc.depthWrite = material.depthWriteEnabled();
-    desc.depthFunc = DepthFunc::Less;
-    desc.shaderKind = ShaderKind::Default;
+    PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
+        PipelineDesc desc {};
+        desc.vertexLayoutKey = layout;
+        desc.fillMode = material.fillMode();
+        desc.blendFunction = material.blendFunction();
+        desc.doubleSided = material.doubleSided();
+        desc.depthTest = material.depthTestEnabled();
+        desc.depthWrite = material.depthWriteEnabled();
+        desc.depthFunc = DepthFunc::Less;
+        desc.shaderKind = ShaderKind::Default;
 
-    switch (material.alphaMode()) {
-        case Material::AlphaMode::Opaque:
-        case Material::AlphaMode::Mask:
-            desc.blendFunction = Material::BlendFunction::Disabled;
-            break;
+        switch (material.alphaMode()) {
+            case Material::AlphaMode::Opaque:
+            case Material::AlphaMode::Mask:
+                desc.blendFunction = Material::BlendFunction::Disabled;
+                break;
 
-        case Material::AlphaMode::Blend:
-            if (desc.blendFunction == Material::BlendFunction::Disabled) {
-                desc.blendFunction = Material::BlendFunction::Alpha;
-            }
-            break;
+            case Material::AlphaMode::Blend:
+                if (desc.blendFunction == Material::BlendFunction::Disabled) {
+                    desc.blendFunction = Material::BlendFunction::Alpha;
+                }
+                break;
+        }
+
+        return desc;
     }
 
-    return desc;
-}
+} // namespace
+
+} // namespace a3d

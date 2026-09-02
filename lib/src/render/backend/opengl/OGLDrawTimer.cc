@@ -17,14 +17,17 @@
 #include "a3d/log/Log.h"
 #include "a3d/render/backend/opengl/gl.h"
 
-using namespace a3d;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static unsigned MinBufferSize(unsigned bufferedFrames);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    unsigned MinBufferSize(unsigned bufferedFrames);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -220,14 +223,18 @@ void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
     }
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-unsigned MinBufferSize(unsigned bufferedFrames) {
+    unsigned MinBufferSize(unsigned bufferedFrames) {
 #if defined(A3D_GL_WEB)
-    return math::max(unsigned(8), bufferedFrames);
+        return math::max(unsigned(8), bufferedFrames);
 #else
-    return math::max(unsigned(2), bufferedFrames);
+        return math::max(unsigned(2), bufferedFrames);
 #endif
-}
+    }
+
+} // namespace
+
+} // namespace a3d

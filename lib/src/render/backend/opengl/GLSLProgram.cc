@@ -18,16 +18,19 @@
 #include "a3d/util/Enum.h"
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static optional<string> ShaderSourceAt(const string& name, ShaderType type);
-static optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    optional<string> ShaderSourceAt(const string& name, ShaderType type);
+    optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -444,27 +447,31 @@ void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-optional<string> ShaderSourceAt(const string& name, ShaderType type) {
+    optional<string> ShaderSourceAt(const string& name, ShaderType type) {
 
-    const auto extension = type == ShaderType::Vertex ? ".vert" : ".frag";
-    return util::fs::TextAt(filesystem::path("shaders") / (name + extension));
-}
-
-optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
-
-    if (filename.empty() || filename.has_root_path()) {
-        return nullopt;
+        const auto extension = type == ShaderType::Vertex ? ".vert" : ".frag";
+        return util::fs::TextAt(filesystem::path("shaders") / (name + extension));
     }
 
-    for (const auto& component : filename) {
-        if (component == "..") {
+    optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
+
+        if (filename.empty() || filename.has_root_path()) {
             return nullopt;
         }
+
+        for (const auto& component : filename) {
+            if (component == "..") {
+                return nullopt;
+            }
+        }
+
+        return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
     }
 
-    return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
-}
+} // namespace
+
+} // namespace a3d

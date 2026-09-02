@@ -27,21 +27,24 @@
 #include "a3d/scene/Node.h"
 #include "a3d/util/Flow.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
-static void SetMassPropsPreservingType(btRigidBody&      body,
-                                       PhysicsBody::Type type,
-                                       btScalar          mass,
-                                       const btVector3&  inertia);
-static void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
-static void ActivateDynamicBody(btRigidBody& body);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
+    void SetMassPropsPreservingType(btRigidBody&      body,
+                                    PhysicsBody::Type type,
+                                    btScalar          mass,
+                                    const btVector3&  inertia);
+    void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
+    void ActivateDynamicBody(btRigidBody& body);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -729,52 +732,56 @@ void BulletBodyProxy::syncRollingFrictionAnisotropy() {
     _btBody->setAnisotropicFriction(direction, btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
+        flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+
+        switch (type) {
+            case PhysicsBody::Type::Static:
+                return flags | btCollisionObject::CF_STATIC_OBJECT;
+
+            case PhysicsBody::Type::Kinematic:
+                return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
+
+            case PhysicsBody::Type::Dynamic:
+                return flags;
+        }
+
+        return flags;
+    }
+
+    void SetMassPropsPreservingType(btRigidBody&      body,
+                                    PhysicsBody::Type type,
+                                    btScalar          mass,
+                                    const btVector3&  inertia) {
+        body.setMassProps(mass, inertia);
+        body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
+        body.updateInertiaTensor();
+    }
+
+    void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
+        switch (type) {
+            case PhysicsBody::Type::Static:
+            case PhysicsBody::Type::Dynamic:
+                body.forceActivationState(ACTIVE_TAG);
+                break;
+
+            case PhysicsBody::Type::Kinematic:
+                body.forceActivationState(DISABLE_DEACTIVATION);
+                break;
+        }
+    }
+
+    void ActivateDynamicBody(btRigidBody& body) {
+
+        if (!body.isStaticOrKinematicObject()) {
+            body.activate(true);
+        }
+    }
+
+} // namespace
+
 } // namespace a3d
-
-// [Private Non-Member Functions]
-
-int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
-    flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-
-    switch (type) {
-        case PhysicsBody::Type::Static:
-            return flags | btCollisionObject::CF_STATIC_OBJECT;
-
-        case PhysicsBody::Type::Kinematic:
-            return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
-
-        case PhysicsBody::Type::Dynamic:
-            return flags;
-    }
-
-    return flags;
-}
-
-void SetMassPropsPreservingType(btRigidBody&      body,
-                                PhysicsBody::Type type,
-                                btScalar          mass,
-                                const btVector3&  inertia) {
-    body.setMassProps(mass, inertia);
-    body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
-    body.updateInertiaTensor();
-}
-
-void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
-    switch (type) {
-        case PhysicsBody::Type::Static:
-        case PhysicsBody::Type::Dynamic:
-            body.forceActivationState(ACTIVE_TAG);
-            break;
-
-        case PhysicsBody::Type::Kinematic:
-            body.forceActivationState(DISABLE_DEACTIVATION);
-            break;
-    }
-}
-
-void ActivateDynamicBody(btRigidBody& body) {
-
-    if (!body.isStaticOrKinematicObject()) {
-        body.activate(true);
-    }
-}

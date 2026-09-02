@@ -15,12 +15,16 @@
 using namespace a3d::math;
 using namespace std;
 
-// [Private Constants]
-
-static constexpr float CONTACT_POINT_RADIUS = 0.04f;
-static constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    constexpr float CONTACT_POINT_RADIUS = 0.04f;
+    constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
+
+} // namespace
 
 // [Public Lifecycle Functions]
 

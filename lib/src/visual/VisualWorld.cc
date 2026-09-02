@@ -39,51 +39,54 @@
 #include "a3d/visual/material/Texture.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Types]
-
-struct HitTestCandidate {
-    float         t;
-    HitTestResult result;
-};
-
-struct AABBIntersection {
-    float t {0.0f};
-    vec3  normal {};
-};
-
-// [Private Non-Member Prototypes]
-
-// tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
-// earliest intersection as a normalized segment parameter t in [0, 1] and the local-space entry-face normal,
-// or nullopt if there is no hit. if the segment begins inside the box, t is 0 and the normal may be zero.
-static optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb);
-
-// performs a precise segment-versus-triangle test using Möller–Trumbore. deliberately two-sided and returns
-// the intersection t in [0, 1], or nullopt if there is no hit.
-static optional<float> IntersectSegmentTriangle(const vec3& origin,
-                                                const vec3& delta,
-                                                const vec3& a,
-                                                const vec3& b,
-                                                const vec3& c);
-
-// transforms the world-space picking segment into a node's mesh-local space and rejects elements using their
-// AABBs. when elementBoundingBoxOnly is true, returns the nearest element AABB hit without testing triangles;
-// otherwise performs precise triangle tests and returns the nearest geometry hit. packages either result as a
-// complete HitTestResult, with faceIndex unset for element-bounding-box-only hits.
-static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
-                                                    const shared_ptr<Mesh>& mesh,
-                                                    const mat4&             modelTransform,
-                                                    const vec3&             worldOrigin,
-                                                    const vec3&             worldDelta,
-                                                    bool                    boundingBoxOnly);
-
-static bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Types]
+
+    struct HitTestCandidate {
+        float         t;
+        HitTestResult result;
+    };
+
+    struct AABBIntersection {
+        float t {0.0f};
+        vec3  normal {};
+    };
+
+    // [Private Non-Member Prototypes]
+
+    // tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
+    // earliest intersection as a normalized segment parameter t in [0, 1] and the local-space entry-face normal,
+    // or nullopt if there is no hit. if the segment begins inside the box, t is 0 and the normal may be zero.
+    optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb);
+
+    // performs a precise segment-versus-triangle test using Möller–Trumbore. deliberately two-sided and returns
+    // the intersection t in [0, 1], or nullopt if there is no hit.
+    optional<float> IntersectSegmentTriangle(const vec3& origin,
+                                             const vec3& delta,
+                                             const vec3& a,
+                                             const vec3& b,
+                                             const vec3& c);
+
+    // transforms the world-space picking segment into a node's mesh-local space and rejects elements using their
+    // AABBs. when elementBoundingBoxOnly is true, returns the nearest element AABB hit without testing triangles;
+    // otherwise performs precise triangle tests and returns the nearest geometry hit. packages either result as a
+    // complete HitTestResult, with faceIndex unset for element-bounding-box-only hits.
+    optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
+                                                 const shared_ptr<Mesh>& mesh,
+                                                 const mat4&             modelTransform,
+                                                 const vec3&             worldOrigin,
+                                                 const vec3&             worldDelta,
+                                                 bool                    boundingBoxOnly);
+
+    bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -714,254 +717,259 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     return cameraNode;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
+    optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
 
-    if (!aabb.valid()) {
-        return {};
-    }
-
-    float tMin = 0.0f;
-    float tMax = 1.0f;
-    vec3  entryNormal {};
-
-    for (int axis = 0; axis < 3; ++axis) {
-
-        if (math::abs(delta[axis]) <= F32_COMPARE_EPSILON) {
-
-            if (origin[axis] < aabb.min[axis] || origin[axis] > aabb.max[axis]) {
-                return {};
-            }
-
-            continue;
-        }
-
-        const float inverseDelta = 1.0f / delta[axis];
-
-        const float t0 = (aabb.min[axis] - origin[axis]) * inverseDelta;
-        const float t1 = (aabb.max[axis] - origin[axis]) * inverseDelta;
-
-        float tNear;
-        float tFar;
-        vec3  nearNormal {};
-
-        if (t0 < t1) {
-            tNear = t0;
-            tFar = t1;
-            nearNormal[axis] = -1.0f;
-        }
-        else {
-            tNear = t1;
-            tFar = t0;
-            nearNormal[axis] = 1.0f;
-        }
-
-        if (tNear > tMin) {
-            tMin = tNear;
-            entryNormal = nearNormal;
-        }
-
-        tMax = math::min(tMax, tFar);
-
-        if (tMin > tMax) {
+        if (!aabb.valid()) {
             return {};
         }
-    }
 
-    return AABBIntersection {
-        .t = tMin,
-        .normal = entryNormal,
-    };
-}
+        float tMin = 0.0f;
+        float tMax = 1.0f;
+        vec3  entryNormal {};
 
-optional<float> IntersectSegmentTriangle(const vec3& origin,
-                                         const vec3& delta,
-                                         const vec3& a,
-                                         const vec3& b,
-                                         const vec3& c) {
+        for (int axis = 0; axis < 3; ++axis) {
 
-    const vec3 edgeAB = b - a;
-    const vec3 edgeAC = c - a;
+            if (math::abs(delta[axis]) <= F32_COMPARE_EPSILON) {
 
-    const vec3  p = cross(delta, edgeAC);
-    const float determinant = dot(edgeAB, p);
+                if (origin[axis] < aabb.min[axis] || origin[axis] > aabb.max[axis]) {
+                    return {};
+                }
 
-    // Using abs() here deliberately makes the test two-sided.
-    if (math::abs(determinant) <= F32_COMPARE_EPSILON) {
-        return {};
-    }
-
-    const float inverseDeterminant = 1.0f / determinant;
-    const vec3  fromA = origin - a;
-
-    const float u = dot(fromA, p) * inverseDeterminant;
-    if (u < 0.0f || u > 1.0f) {
-        return {};
-    }
-
-    const vec3 q = cross(fromA, edgeAB);
-
-    const float v = dot(delta, q) * inverseDeterminant;
-    if (v < 0.0f || u + v > 1.0f) {
-        return {};
-    }
-
-    const float t = dot(edgeAC, q) * inverseDeterminant;
-    if (t < 0.0f || t > 1.0f) {
-        return {};
-    }
-
-    return t;
-}
-
-optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
-                                             const shared_ptr<Mesh>& mesh,
-                                             const mat4&             modelTransform,
-                                             const vec3&             worldOrigin,
-                                             const vec3&             worldDelta,
-                                             bool                    boundingBoxOnly) {
-
-    const mat3  linearTransform {modelTransform};
-    const float linearDeterminant = determinant(linearTransform);
-
-    if (!math::is_finite(linearDeterminant) || linearDeterminant == 0.0f) {
-        return {};
-    }
-
-    const mat4 inverseModelTransform = inverse(modelTransform);
-
-    const vec3 worldEnd = worldOrigin + worldDelta;
-
-    const vec3 localOrigin = vec3 {inverseModelTransform * vec4 {worldOrigin, 1.0f}};
-    const vec3 localEnd = vec3 {inverseModelTransform * vec4 {worldEnd, 1.0f}};
-    const vec3 localDelta = localEnd - localOrigin;
-
-    optional<float>    bestT;
-    const MeshElement* bestElement = nullptr;
-    optional<uint32_t> bestFaceIndex;
-    vec3               bestA;
-    vec3               bestB;
-    vec3               bestC;
-    vec3               bestLocalNormal {};
-
-    for (const auto& elementPtr : mesh->elements()) {
-
-        const auto& element = *elementPtr;
-
-        if (element.topology() != PrimitiveTopology::Triangles) {
-            continue;
-        }
-
-        const AABB& localAABB = element.localAABB();
-        if (!localAABB.valid()) {
-            continue;
-        }
-
-        const auto aabbHit = IntersectSegmentAABB(localOrigin, localDelta, localAABB);
-        if (!aabbHit) {
-            continue;
-        }
-
-        // the nearest possible hit in this element is already farther than
-        // the best hit found so far.
-        if (bestT && aabbHit->t > *bestT) {
-            continue;
-        }
-
-        if (boundingBoxOnly) {
-
-            bestT = aabbHit->t;
-            bestElement = &element;
-            bestFaceIndex.reset();
-            bestLocalNormal = aabbHit->normal;
-
-            continue;
-        }
-
-        const auto positions = VertexAccess::GetPositionStreamView(element);
-        if (!positions) {
-            continue;
-        }
-
-        uint32_t faceIndex = 0;
-
-        IndexAccess::ForEachTriangle(element, [&](uint32_t indexA, uint32_t indexB, uint32_t indexC) {
-            const uint32_t currentFaceIndex = faceIndex++;
-
-            const bool indicesValid =
-                indexA < positions->count && indexB < positions->count && indexC < positions->count;
-
-            A3D_ASSERT(indicesValid);
-
-            if (!indicesValid) {
-                return;
+                continue;
             }
 
-            const vec3 a = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexA), positions->offset);
-            const vec3 b = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexB), positions->offset);
-            const vec3 c = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexC), positions->offset);
+            const float inverseDelta = 1.0f / delta[axis];
 
-            const auto t = IntersectSegmentTriangle(localOrigin, localDelta, a, b, c);
+            const float t0 = (aabb.min[axis] - origin[axis]) * inverseDelta;
+            const float t1 = (aabb.max[axis] - origin[axis]) * inverseDelta;
 
-            if (!t || (bestT && *t >= *bestT)) {
-                return;
+            float tNear;
+            float tFar;
+            vec3  nearNormal {};
+
+            if (t0 < t1) {
+                tNear = t0;
+                tFar = t1;
+                nearNormal[axis] = -1.0f;
+            }
+            else {
+                tNear = t1;
+                tFar = t0;
+                nearNormal[axis] = 1.0f;
             }
 
-            bestT = *t;
-            bestElement = &element;
-            bestFaceIndex = currentFaceIndex;
-            bestA = a;
-            bestB = b;
-            bestC = c;
-        });
+            if (tNear > tMin) {
+                tMin = tNear;
+                entryNormal = nearNormal;
+            }
+
+            tMax = math::min(tMax, tFar);
+
+            if (tMin > tMax) {
+                return {};
+            }
+        }
+
+        return AABBIntersection {
+            .t = tMin,
+            .normal = entryNormal,
+        };
     }
 
-    if (!bestT || !bestElement) {
-        return {};
+    optional<float> IntersectSegmentTriangle(const vec3& origin,
+                                             const vec3& delta,
+                                             const vec3& a,
+                                             const vec3& b,
+                                             const vec3& c) {
+
+        const vec3 edgeAB = b - a;
+        const vec3 edgeAC = c - a;
+
+        const vec3  p = cross(delta, edgeAC);
+        const float determinant = dot(edgeAB, p);
+
+        // Using abs() here deliberately makes the test two-sided.
+        if (math::abs(determinant) <= F32_COMPARE_EPSILON) {
+            return {};
+        }
+
+        const float inverseDeterminant = 1.0f / determinant;
+        const vec3  fromA = origin - a;
+
+        const float u = dot(fromA, p) * inverseDeterminant;
+        if (u < 0.0f || u > 1.0f) {
+            return {};
+        }
+
+        const vec3 q = cross(fromA, edgeAB);
+
+        const float v = dot(delta, q) * inverseDeterminant;
+        if (v < 0.0f || u + v > 1.0f) {
+            return {};
+        }
+
+        const float t = dot(edgeAC, q) * inverseDeterminant;
+        if (t < 0.0f || t > 1.0f) {
+            return {};
+        }
+
+        return t;
     }
 
-    const vec3 localCoordinates = localOrigin + localDelta * *bestT;
-    const vec3 worldCoordinates = worldOrigin + worldDelta * *bestT;
-    const vec3 localNormal = boundingBoxOnly ? bestLocalNormal : normalize(cross(bestB - bestA, bestC - bestA));
-    const mat3 normalTransform {transpose(inverseModelTransform)};
-    const vec3 worldNormal =
-        length(localNormal) > F32_COMPARE_EPSILON ? normalize(normalTransform * localNormal) : vec3 {};
+    optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
+                                                 const shared_ptr<Mesh>& mesh,
+                                                 const mat4&             modelTransform,
+                                                 const vec3&             worldOrigin,
+                                                 const vec3&             worldDelta,
+                                                 bool                    boundingBoxOnly) {
 
-    return HitTestCandidate {
-        .t = *bestT,
-        .result =
-            HitTestResult {
-                node,
-                mesh,
-                bestElement,
-                bestFaceIndex,
-                localCoordinates,
-                worldCoordinates,
-                localNormal,
-                worldNormal,
-                modelTransform,
-            },
-    };
-}
+        const mat3  linearTransform {modelTransform};
+        const float linearDeterminant = determinant(linearTransform);
 
-bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b) {
+        if (!math::is_finite(linearDeterminant) || linearDeterminant == 0.0f) {
+            return {};
+        }
 
-    if (a.index() != b.index()) {
-        return false;
+        const mat4 inverseModelTransform = inverse(modelTransform);
+
+        const vec3 worldEnd = worldOrigin + worldDelta;
+
+        const vec3 localOrigin = vec3 {inverseModelTransform * vec4 {worldOrigin, 1.0f}};
+        const vec3 localEnd = vec3 {inverseModelTransform * vec4 {worldEnd, 1.0f}};
+        const vec3 localDelta = localEnd - localOrigin;
+
+        optional<float>    bestT;
+        const MeshElement* bestElement = nullptr;
+        optional<uint32_t> bestFaceIndex;
+        vec3               bestA;
+        vec3               bestB;
+        vec3               bestC;
+        vec3               bestLocalNormal {};
+
+        for (const auto& elementPtr : mesh->elements()) {
+
+            const auto& element = *elementPtr;
+
+            if (element.topology() != PrimitiveTopology::Triangles) {
+                continue;
+            }
+
+            const AABB& localAABB = element.localAABB();
+            if (!localAABB.valid()) {
+                continue;
+            }
+
+            const auto aabbHit = IntersectSegmentAABB(localOrigin, localDelta, localAABB);
+            if (!aabbHit) {
+                continue;
+            }
+
+            // the nearest possible hit in this element is already farther than
+            // the best hit found so far.
+            if (bestT && aabbHit->t > *bestT) {
+                continue;
+            }
+
+            if (boundingBoxOnly) {
+
+                bestT = aabbHit->t;
+                bestElement = &element;
+                bestFaceIndex.reset();
+                bestLocalNormal = aabbHit->normal;
+
+                continue;
+            }
+
+            const auto positions = VertexAccess::GetPositionStreamView(element);
+            if (!positions) {
+                continue;
+            }
+
+            uint32_t faceIndex = 0;
+
+            IndexAccess::ForEachTriangle(element, [&](uint32_t indexA, uint32_t indexB, uint32_t indexC) {
+                const uint32_t currentFaceIndex = faceIndex++;
+
+                const bool indicesValid =
+                    indexA < positions->count && indexB < positions->count && indexC < positions->count;
+
+                A3D_ASSERT(indicesValid);
+
+                if (!indicesValid) {
+                    return;
+                }
+
+                const vec3 a = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexA), positions->offset);
+                const vec3 b = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexB), positions->offset);
+                const vec3 c = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexC), positions->offset);
+
+                const auto t = IntersectSegmentTriangle(localOrigin, localDelta, a, b, c);
+
+                if (!t || (bestT && *t >= *bestT)) {
+                    return;
+                }
+
+                bestT = *t;
+                bestElement = &element;
+                bestFaceIndex = currentFaceIndex;
+                bestA = a;
+                bestB = b;
+                bestC = c;
+            });
+        }
+
+        if (!bestT || !bestElement) {
+            return {};
+        }
+
+        const vec3 localCoordinates = localOrigin + localDelta * *bestT;
+        const vec3 worldCoordinates = worldOrigin + worldDelta * *bestT;
+        const vec3 localNormal =
+            boundingBoxOnly ? bestLocalNormal : normalize(cross(bestB - bestA, bestC - bestA));
+        const mat3 normalTransform {transpose(inverseModelTransform)};
+        const vec3 worldNormal =
+            length(localNormal) > F32_COMPARE_EPSILON ? normalize(normalTransform * localNormal) : vec3 {};
+
+        return HitTestCandidate {
+            .t = *bestT,
+            .result =
+                HitTestResult {
+                    node,
+                    mesh,
+                    bestElement,
+                    bestFaceIndex,
+                    localCoordinates,
+                    worldCoordinates,
+                    localNormal,
+                    worldNormal,
+                    modelTransform,
+                },
+        };
     }
 
-    if (const auto* aTexture = get_if<shared_ptr<Texture>>(&a)) {
-        const auto* bTexture = get_if<shared_ptr<Texture>>(&b);
-        return bTexture && *aTexture == *bTexture;
+    bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b) {
+
+        if (a.index() != b.index()) {
+            return false;
+        }
+
+        if (const auto* aTexture = get_if<shared_ptr<Texture>>(&a)) {
+            const auto* bTexture = get_if<shared_ptr<Texture>>(&b);
+            return bTexture && *aTexture == *bTexture;
+        }
+
+        if (const auto* aColor = get_if<Color>(&a)) {
+            const auto* bColor = get_if<Color>(&b);
+            return bColor && aColor->rgba() == bColor->rgba();
+        }
+
+        return holds_alternative<monostate>(a);
     }
 
-    if (const auto* aColor = get_if<Color>(&a)) {
-        const auto* bColor = get_if<Color>(&b);
-        return bColor && aColor->rgba() == bColor->rgba();
-    }
+} // namespace
 
-    return holds_alternative<monostate>(a);
-}
+} // namespace a3d

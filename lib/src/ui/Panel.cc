@@ -22,30 +22,31 @@
 
 using namespace std;
 
-// [Private Constants]
-
-static constexpr float PANEL_FONT_SIZE {15.0f};
-static constexpr float SHADOW_OFFSET {1.0f};
-static constexpr float VALUE_GAP {12.0f};
-static constexpr float SECTION_LINE_GAP {4.0f};
-static constexpr float TOGGLE_BOX_SIZE {16.0f};
-static constexpr float TOGGLE_LABEL_GAP {8.0f};
-static constexpr float SLIDER_GRAB_WIDTH {8.0f};
-
-static constexpr int PANEL_STYLE_VAR_COUNT {7};
-static constexpr int PANEL_STYLE_COLOR_COUNT {6};
-
-// [Private Non-Member Prototypes]
-
-static float SnapPixel(float value);
-static void  DrawShadowedText(const ImVec2&      position,
-                              const std::string& text,
-                              ImU32              color,
-                              float              wrapWidth = 0.0f);
-
-static void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness);
-
 namespace a3d::ui {
+
+namespace {
+
+    // [Private Constants]
+
+    constexpr float PANEL_FONT_SIZE {15.0f};
+    constexpr float SHADOW_OFFSET {1.0f};
+    constexpr float VALUE_GAP {12.0f};
+    constexpr float SECTION_LINE_GAP {4.0f};
+    constexpr float TOGGLE_BOX_SIZE {16.0f};
+    constexpr float TOGGLE_LABEL_GAP {8.0f};
+    constexpr float SLIDER_GRAB_WIDTH {8.0f};
+
+    constexpr int PANEL_STYLE_VAR_COUNT {7};
+    constexpr int PANEL_STYLE_COLOR_COUNT {6};
+
+    // [Private Non-Member Prototypes]
+
+    float SnapPixel(float value);
+    void DrawShadowedText(const ImVec2& position, const std::string& text, ImU32 color, float wrapWidth = 0.0f);
+
+    void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -899,34 +900,39 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
     return pressed;
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    float SnapPixel(float value) {
+
+        return a3d::math::floor(value + 0.5f);
+    }
+
+    void DrawShadowedText(const ImVec2& position, const string& text, ImU32 color, float wrapWidth) {
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        ImFont*     font = ImGui::GetFont();
+        const float fontSize = ImGui::GetFontSize();
+
+        const char* textBegin = text.c_str();
+        const char* textEnd = textBegin + text.size();
+
+        drawList->AddText(font, fontSize, ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
+                          IM_COL32(0, 0, 0, 255), textBegin, textEnd, wrapWidth);
+        drawList->AddText(font, fontSize, position, color, textBegin, textEnd, wrapWidth);
+    }
+
+    void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness) {
+
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        drawList->AddLine(ImVec2(start.x + SHADOW_OFFSET, start.y + SHADOW_OFFSET),
+                          ImVec2(end.x + SHADOW_OFFSET, end.y + SHADOW_OFFSET), IM_COL32(0, 0, 0, 255),
+                          thickness);
+        drawList->AddLine(start, end, color, thickness);
+    }
+
+} // namespace
+
 } // namespace a3d::ui
-
-// [Private Non-Member Functions]
-
-float SnapPixel(float value) {
-
-    return a3d::math::floor(value + 0.5f);
-}
-
-void DrawShadowedText(const ImVec2& position, const string& text, ImU32 color, float wrapWidth) {
-
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImFont*     font = ImGui::GetFont();
-    const float fontSize = ImGui::GetFontSize();
-
-    const char* textBegin = text.c_str();
-    const char* textEnd = textBegin + text.size();
-
-    drawList->AddText(font, fontSize, ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
-                      IM_COL32(0, 0, 0, 255), textBegin, textEnd, wrapWidth);
-    drawList->AddText(font, fontSize, position, color, textBegin, textEnd, wrapWidth);
-}
-
-void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness) {
-
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    drawList->AddLine(ImVec2(start.x + SHADOW_OFFSET, start.y + SHADOW_OFFSET),
-                      ImVec2(end.x + SHADOW_OFFSET, end.y + SHADOW_OFFSET), IM_COL32(0, 0, 0, 255), thickness);
-    drawList->AddLine(start, end, color, thickness);
-}

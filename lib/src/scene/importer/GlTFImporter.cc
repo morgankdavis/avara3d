@@ -45,26 +45,29 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
-static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4                   TransformFromGlTFNode(fastgltf::Node& node);
-static Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
-static float                  PhongExponentFromGlTFRoughness(float roughness);
-static Color                  PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
-static std::shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image);
-static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
-                                             const fastgltf::Accessor& idxAccessor,
-                                             vector<uint32_t>&         out);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+    std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
+    std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
+    mat4                   TransformFromGlTFNode(fastgltf::Node& node);
+    Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+    Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+    float                  PhongExponentFromGlTFRoughness(float roughness);
+    Color                  PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
+    std::shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image);
+    void                   ReadIndicesU32(const fastgltf::Asset&    asset,
+                                          const fastgltf::Accessor& idxAccessor,
+                                          vector<uint32_t>&         out);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -784,202 +787,207 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
     return nullptr;
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
+
+        using namespace fastgltf;
+        using ImportOptions = a3d::Scene::ImportOptions;
+
+        auto gltfOptions = Options::None;
+
+        // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+
+        if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
+            gltfOptions |= Options::LoadExternalBuffers | Options::GenerateMeshIndices;
+        }
+
+        if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
+            gltfOptions |= Options::LoadExternalBuffers | Options::LoadExternalImages;
+        }
+
+        if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
+        }
+
+        if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
+        }
+
+        return gltfOptions;
+    }
+
+    std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src) {
+        return std::visit(fastgltf::visitor {[](const fastgltf::sources::Vector& v) -> std::span<const byte> {
+                                                 return {v.bytes.data(), v.bytes.size()};
+                                             },
+                                             [](const fastgltf::sources::Array& a) -> std::span<const byte> {
+                                                 return {a.bytes.data(), a.bytes.size()};
+                                             },
+                                             [](const fastgltf::sources::ByteView& bv)
+                                                 -> std::span<const byte> {
+                                                 return {bv.bytes.data(), bv.bytes.size()};
+                                             },
+                                             [](const auto&) -> std::span<const byte> {
+                                                 return {};
+                                             }},
+                          src);
+    }
+
+    std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
+        const auto& bv = asset.bufferViews[bufferViewIndex];
+        const auto& buf = asset.buffers[bv.bufferIndex];
+
+        auto base = BytesFromDataSource(buf.data);
+        if (base.empty()) {
+            return {};
+        }
+
+        const std::size_t begin = bv.byteOffset;
+        const std::size_t len = bv.byteLength;
+
+        if (begin + len > base.size()) {
+            return {};
+        }
+        return base.subspan(begin, len);
+    }
+
+    mat4 TransformFromGlTFNode(fastgltf::Node& node) {
+
+        const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
+        return math::make_mat4(&m[0][0]);
+    }
+
+    Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
+        return {v[0], v[1], v[2]};
+    }
+
+    Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
+        return {v[0], v[1], v[2]};
+    }
+
+    float PhongExponentFromGlTFRoughness(float roughness) {
+
+        // glTF uses a GGX microfacet BRDF with alpha = roughness^2.
+        // A3D uses classic Phong shading, so approximate the GGX lobe width
+        // with a corresponding Phong specular exponent.
+
+        constexpr float MIN_ROUGHNESS = 0.001f;
+        constexpr float MIN_EXPONENT = 1.0f;
+        constexpr float MAX_EXPONENT = 1000.0f;
+
+        roughness = math::clamp(roughness, MIN_ROUGHNESS, 1.0f);
+
+        const float roughnessSquared = roughness * roughness;
+        const float exponent = 2.0f / (roughnessSquared * roughnessSquared) - 2.0f;
+
+        return math::clamp(exponent, MIN_EXPONENT, MAX_EXPONENT);
+    }
+
+    Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
+
+        // approximate glTF's dielectric Fresnel reflectance with A3D's
+        // constant Phong specular coefficient (Ks). this preserves the
+        // normal-incidence reflectance (F0), but not glTF's angle-dependent
+        // Fresnel behavior.
+        const float ior = material.ior;
+        const float ratio = (ior - 1.0f) / (ior + 1.0f);
+        const float baseF0 = ratio * ratio;
+
+        float                 specularFactor = 1.0f;
+        fastgltf::math::nvec3 specularColorFactor(1.0f);
+
+        if (material.specular) {
+
+            specularFactor = material.specular->specularFactor;
+            specularColorFactor = material.specular->specularColorFactor;
+
+            if (material.specular->specularTexture || material.specular->specularColorTexture) {
+                log::w()("Ignoring unsupported glTF specular textures.");
+            }
+        }
+
+        // KHR_materials_specular clamps IOR-derived F0 * specularColor
+        // before applying the scalar specular strength.
+        const vec3 specular {
+            math::clamp_01(baseF0 * specularColorFactor[0]) * specularFactor,
+            math::clamp_01(baseF0 * specularColorFactor[1]) * specularFactor,
+            math::clamp_01(baseF0 * specularColorFactor[2]) * specularFactor,
+        };
+
+        return Color(specular);
+    }
+
+    shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image) {
+
+        // convert a glTF KHR_materials_specular specular-strength texture to A3D's
+        // Phong specular-map representation. glTF stores scalar specular strength
+        // in the alpha channel, while A3D's Phong shader expects an RGB Ks value.
+        // replicate source alpha into RGB and make the resulting texture opaque.
+        // this conversion does not apply specularFactor, specularColorFactor, or IOR.
+
+        A3D_ASSERT(image.bytesPerPixel() == 4);
+
+        const size_t pixelCount = static_cast<size_t>(image.width()) * image.height();
+        auto         buffer = make_unique<Buffer>(pixelCount * 4);
+
+        const auto* src = reinterpret_cast<const uint8_t*>(image.buffer().data());
+        auto*       dst = reinterpret_cast<uint8_t*>(buffer->data());
+
+        for (size_t i = 0; i < pixelCount; ++i) {
+
+            const uint8_t specular = src[i * 4 + 3];
+
+            dst[i * 4 + 0] = specular;
+            dst[i * 4 + 1] = specular;
+            dst[i * 4 + 2] = specular;
+            dst[i * 4 + 3] = 255;
+        }
+
+        return make_shared<Image>(std::move(buffer), image.width(), image.height(), 4, false, false);
+    }
+
+    void ReadIndicesU32(const fastgltf::Asset&    asset,
+                        const fastgltf::Accessor& idxAccessor,
+                        std::vector<uint32_t>&    out) {
+
+        using namespace fastgltf;
+
+        out.assign(idxAccessor.count, 0);
+
+        switch (idxAccessor.componentType) {
+            case ComponentType::UnsignedByte: {
+                iterateAccessorWithIndex<uint8_t>(asset, idxAccessor, [&](uint8_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = (uint32_t) v;
+                    }
+                });
+                break;
+            }
+            case ComponentType::UnsignedShort: {
+                iterateAccessorWithIndex<uint16_t>(asset, idxAccessor, [&](uint16_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = (uint32_t) v;
+                    }
+                });
+                break;
+            }
+            case ComponentType::UnsignedInt: {
+                iterateAccessorWithIndex<uint32_t>(asset, idxAccessor, [&](uint32_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = v;
+                    }
+                });
+                break;
+            }
+            default:
+                log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
+                         util::enums::enum_name(idxAccessor.componentType));
+                out.clear();
+                break;
+        }
+    }
+
+} // namespace
+
 } // namespace a3d
-
-// [Private Non-Member Functions]
-
-fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
-
-    using namespace fastgltf;
-    using ImportOptions = a3d::Scene::ImportOptions;
-
-    auto gltfOptions = Options::None;
-
-    // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-
-    if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
-        gltfOptions |= Options::LoadExternalBuffers | Options::GenerateMeshIndices;
-    }
-
-    if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
-        gltfOptions |= Options::LoadExternalBuffers | Options::LoadExternalImages;
-    }
-
-    if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
-    }
-
-    if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
-    }
-
-    return gltfOptions;
-}
-
-static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src) {
-    return std::visit(fastgltf::visitor {[](const fastgltf::sources::Vector& v) -> std::span<const byte> {
-                                             return {v.bytes.data(), v.bytes.size()};
-                                         },
-                                         [](const fastgltf::sources::Array& a) -> std::span<const byte> {
-                                             return {a.bytes.data(), a.bytes.size()};
-                                         },
-                                         [](const fastgltf::sources::ByteView& bv) -> std::span<const byte> {
-                                             return {bv.bytes.data(), bv.bytes.size()};
-                                         },
-                                         [](const auto&) -> std::span<const byte> {
-                                             return {};
-                                         }},
-                      src);
-}
-
-static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
-    const auto& bv = asset.bufferViews[bufferViewIndex];
-    const auto& buf = asset.buffers[bv.bufferIndex];
-
-    auto base = BytesFromDataSource(buf.data);
-    if (base.empty()) {
-        return {};
-    }
-
-    const std::size_t begin = bv.byteOffset;
-    const std::size_t len = bv.byteLength;
-
-    if (begin + len > base.size()) {
-        return {};
-    }
-    return base.subspan(begin, len);
-}
-
-mat4 TransformFromGlTFNode(fastgltf::Node& node) {
-
-    const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
-    return math::make_mat4(&m[0][0]);
-}
-
-Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
-    return {v[0], v[1], v[2]};
-}
-
-Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
-    return {v[0], v[1], v[2]};
-}
-
-float PhongExponentFromGlTFRoughness(float roughness) {
-
-    // glTF uses a GGX microfacet BRDF with alpha = roughness^2.
-    // A3D uses classic Phong shading, so approximate the GGX lobe width
-    // with a corresponding Phong specular exponent.
-
-    constexpr float MIN_ROUGHNESS = 0.001f;
-    constexpr float MIN_EXPONENT = 1.0f;
-    constexpr float MAX_EXPONENT = 1000.0f;
-
-    roughness = math::clamp(roughness, MIN_ROUGHNESS, 1.0f);
-
-    const float roughnessSquared = roughness * roughness;
-    const float exponent = 2.0f / (roughnessSquared * roughnessSquared) - 2.0f;
-
-    return math::clamp(exponent, MIN_EXPONENT, MAX_EXPONENT);
-}
-
-Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
-
-    // approximate glTF's dielectric Fresnel reflectance with A3D's
-    // constant Phong specular coefficient (Ks). this preserves the
-    // normal-incidence reflectance (F0), but not glTF's angle-dependent
-    // Fresnel behavior.
-    const float ior = material.ior;
-    const float ratio = (ior - 1.0f) / (ior + 1.0f);
-    const float baseF0 = ratio * ratio;
-
-    float                 specularFactor = 1.0f;
-    fastgltf::math::nvec3 specularColorFactor(1.0f);
-
-    if (material.specular) {
-
-        specularFactor = material.specular->specularFactor;
-        specularColorFactor = material.specular->specularColorFactor;
-
-        if (material.specular->specularTexture || material.specular->specularColorTexture) {
-            log::w()("Ignoring unsupported glTF specular textures.");
-        }
-    }
-
-    // KHR_materials_specular clamps IOR-derived F0 * specularColor
-    // before applying the scalar specular strength.
-    const vec3 specular {
-        math::clamp_01(baseF0 * specularColorFactor[0]) * specularFactor,
-        math::clamp_01(baseF0 * specularColorFactor[1]) * specularFactor,
-        math::clamp_01(baseF0 * specularColorFactor[2]) * specularFactor,
-    };
-
-    return Color(specular);
-}
-
-shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image) {
-
-    // convert a glTF KHR_materials_specular specular-strength texture to A3D's
-    // Phong specular-map representation. glTF stores scalar specular strength
-    // in the alpha channel, while A3D's Phong shader expects an RGB Ks value.
-    // replicate source alpha into RGB and make the resulting texture opaque.
-    // this conversion does not apply specularFactor, specularColorFactor, or IOR.
-
-    A3D_ASSERT(image.bytesPerPixel() == 4);
-
-    const size_t pixelCount = static_cast<size_t>(image.width()) * image.height();
-    auto         buffer = make_unique<Buffer>(pixelCount * 4);
-
-    const auto* src = reinterpret_cast<const uint8_t*>(image.buffer().data());
-    auto*       dst = reinterpret_cast<uint8_t*>(buffer->data());
-
-    for (size_t i = 0; i < pixelCount; ++i) {
-
-        const uint8_t specular = src[i * 4 + 3];
-
-        dst[i * 4 + 0] = specular;
-        dst[i * 4 + 1] = specular;
-        dst[i * 4 + 2] = specular;
-        dst[i * 4 + 3] = 255;
-    }
-
-    return make_shared<Image>(std::move(buffer), image.width(), image.height(), 4, false, false);
-}
-
-void ReadIndicesU32(const fastgltf::Asset&    asset,
-                    const fastgltf::Accessor& idxAccessor,
-                    std::vector<uint32_t>&    out) {
-
-    using namespace fastgltf;
-
-    out.assign(idxAccessor.count, 0);
-
-    switch (idxAccessor.componentType) {
-        case ComponentType::UnsignedByte: {
-            iterateAccessorWithIndex<uint8_t>(asset, idxAccessor, [&](uint8_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = (uint32_t) v;
-                }
-            });
-            break;
-        }
-        case ComponentType::UnsignedShort: {
-            iterateAccessorWithIndex<uint16_t>(asset, idxAccessor, [&](uint16_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = (uint32_t) v;
-                }
-            });
-            break;
-        }
-        case ComponentType::UnsignedInt: {
-            iterateAccessorWithIndex<uint32_t>(asset, idxAccessor, [&](uint32_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = v;
-                }
-            });
-            break;
-        }
-        default:
-            log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
-                     util::enums::enum_name(idxAccessor.componentType));
-            out.clear();
-            break;
-    }
-}

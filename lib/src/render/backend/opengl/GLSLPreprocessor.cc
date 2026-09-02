@@ -18,27 +18,30 @@
 
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace std;
 
-// [Private Static Non-Member Constants]
-
-static constexpr string_view HeaderDirective = "#header";
-static constexpr string_view IncludeDirective = "#include";
-
-// [Private Non-Member Prototypes]
-
-static size_t           SkipUtf8Bom(const string& source);
-static string           PlatformShaderHeader();
-static string_view      Trim(string_view value);
-static optional<string> ParseIncludeDirective(string_view line, const string& sourceName, size_t lineNumber);
-static string           ExpandIncludes(const string&                            source,
-                                       const string&                            sourceName,
-                                       const GLSLPreprocessor::IncludeResolver& includeResolver,
-                                       vector<string>&                          includeStack);
-static string           IncludeCycleMessage(const vector<string>& includeStack, const string& includeName);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Constants]
+
+    constexpr string_view HeaderDirective = "#header";
+    constexpr string_view IncludeDirective = "#include";
+
+    // [Private Non-Member Prototypes]
+
+    size_t           SkipUtf8Bom(const string& source);
+    string           PlatformShaderHeader();
+    string_view      Trim(string_view value);
+    optional<string> ParseIncludeDirective(string_view line, const string& sourceName, size_t lineNumber);
+    string           ExpandIncludes(const string&                            source,
+                                    const string&                            sourceName,
+                                    const GLSLPreprocessor::IncludeResolver& includeResolver,
+                                    vector<string>&                          includeStack);
+    string           IncludeCycleMessage(const vector<string>& includeStack, const string& includeName);
+
+} // namespace
 
 // [Internal Static Functions]
 
@@ -70,177 +73,181 @@ string GLSLPreprocessor::Process(const string&          source,
     return output;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
+    optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
 
-    if (filename.empty() || filename.has_root_path()) {
-        return nullopt;
-    }
-
-    for (const auto& component : filename) {
-        if (component == "..") {
+        if (filename.empty() || filename.has_root_path()) {
             return nullopt;
         }
+
+        for (const auto& component : filename) {
+            if (component == "..") {
+                return nullopt;
+            }
+        }
+
+        return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
     }
 
-    return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
-}
+    size_t SkipUtf8Bom(const std::string& source) {
 
-size_t SkipUtf8Bom(const std::string& source) {
-
-    if (source.size() >= 3 && static_cast<unsigned char>(source[0]) == 0xEF
-        && static_cast<unsigned char>(source[1]) == 0xBB && static_cast<unsigned char>(source[2]) == 0xBF) {
-        return 3;
+        if (source.size() >= 3 && static_cast<unsigned char>(source[0]) == 0xEF
+            && static_cast<unsigned char>(source[1]) == 0xBB && static_cast<unsigned char>(source[2]) == 0xBF) {
+            return 3;
+        }
+        return 0;
     }
-    return 0;
-}
 
-std::string PlatformShaderHeader() {
+    std::string PlatformShaderHeader() {
 
 #if defined(A3D_GL_WEB) || defined(A3D_GL_ES)
-    return "#version 300 es\n"
-           "#define A3D_GLSL_ES 1\n"
-           "precision highp float;\n"
-           "precision highp int;\n"
-           "#line 2\n";
+        return "#version 300 es\n"
+               "#define A3D_GLSL_ES 1\n"
+               "precision highp float;\n"
+               "precision highp int;\n"
+               "#line 2\n";
 #else
-    return "#version 330 core\n"
-           "#define A3D_GLSL_DESKTOP 1\n"
-           "#line 2\n";
+        return "#version 330 core\n"
+               "#define A3D_GLSL_DESKTOP 1\n"
+               "#line 2\n";
 #endif
-}
-
-string_view Trim(string_view value) {
-
-    constexpr string_view whitespace = " \t\r";
-
-    const auto begin = value.find_first_not_of(whitespace);
-
-    if (begin == string_view::npos) {
-        return {};
     }
 
-    const auto end = value.find_last_not_of(whitespace);
+    string_view Trim(string_view value) {
 
-    return value.substr(begin, end - begin + 1);
-}
+        constexpr string_view whitespace = " \t\r";
 
-optional<string> ParseIncludeDirective(string_view line, const string& sourceName, size_t lineNumber) {
+        const auto begin = value.find_first_not_of(whitespace);
 
-    line = Trim(line);
-
-    if (!line.starts_with(IncludeDirective)) {
-        return nullopt;
-    }
-
-    if (line.size() > IncludeDirective.size() && line[IncludeDirective.size()] != ' '
-        && line[IncludeDirective.size()] != '\t') {
-
-        return nullopt;
-    }
-
-    auto remainder = Trim(line.substr(IncludeDirective.size()));
-
-    if (remainder.empty() || remainder.front() != '"') {
-
-        throw runtime_error(format("Malformed shader include directive in '{}' at line {}.", sourceName,
-                                   lineNumber));
-    }
-
-    const auto closingQuote = remainder.find('"', 1);
-
-    if (closingQuote == string_view::npos) {
-        throw runtime_error(format("Malformed shader include directive in '{}' at line {}.", sourceName,
-                                   lineNumber));
-    }
-
-    const auto includeName = remainder.substr(1, closingQuote - 1);
-
-    if (includeName.empty()) {
-        throw runtime_error(format("Empty shader include in '{}' at line {}.", sourceName, lineNumber));
-    }
-
-    const auto trailing = Trim(remainder.substr(closingQuote + 1));
-
-    if (!trailing.empty()) {
-        throw runtime_error(format("Unexpected text after shader include in '{}' at line {}.", sourceName,
-                                   lineNumber));
-    }
-
-    return string(includeName);
-}
-
-string IncludeCycleMessage(const vector<string>& includeStack, const string& includeName) {
-
-    string message = "Shader include cycle detected: ";
-
-    for (const auto& entry : includeStack) {
-        message += entry;
-        message += " -> ";
-    }
-
-    message += includeName;
-
-    return message;
-}
-
-string ExpandIncludes(const string&                            source,
-                      const string&                            sourceName,
-                      const GLSLPreprocessor::IncludeResolver& includeResolver,
-                      vector<string>&                          includeStack) {
-
-    istringstream stream {source.substr(SkipUtf8Bom(source))};
-
-    string output;
-    string line;
-    size_t lineNumber = 0;
-
-    while (getline(stream, line)) {
-
-        ++lineNumber;
-
-        const auto trimmed = Trim(line);
-
-        if (trimmed == HeaderDirective) {
-            throw runtime_error(format("Shader '#header' directive is only valid at the beginning "
-                                       "of a top-level shader; found in '{}' at line {}.",
-                                       sourceName, lineNumber));
+        if (begin == string_view::npos) {
+            return {};
         }
 
-        const auto includeName = ParseIncludeDirective(line, sourceName, lineNumber);
+        const auto end = value.find_last_not_of(whitespace);
 
-        if (!includeName) {
-            output += line;
-            output += '\n';
-            continue;
-        }
-
-        if (!includeResolver) {
-            throw runtime_error(format("Shader '{}' includes '{}', but no include resolver is available.",
-                                       sourceName, *includeName));
-        }
-
-        if (find(includeStack.begin(), includeStack.end(), *includeName) != includeStack.end()) {
-
-            throw runtime_error(IncludeCycleMessage(includeStack, *includeName));
-        }
-
-        const auto includeSource = includeResolver(*includeName);
-
-        if (!includeSource) {
-            throw runtime_error(format("Shader include '{}' referenced by '{}' at line {} was not found.",
-                                       *includeName, sourceName, lineNumber));
-        }
-
-        includeStack.push_back(*includeName);
-
-        output += ExpandIncludes(*includeSource, *includeName, includeResolver, includeStack);
-
-        includeStack.pop_back();
+        return value.substr(begin, end - begin + 1);
     }
 
-    return output;
-}
+    optional<string> ParseIncludeDirective(string_view line, const string& sourceName, size_t lineNumber) {
+
+        line = Trim(line);
+
+        if (!line.starts_with(IncludeDirective)) {
+            return nullopt;
+        }
+
+        if (line.size() > IncludeDirective.size() && line[IncludeDirective.size()] != ' '
+            && line[IncludeDirective.size()] != '\t') {
+
+            return nullopt;
+        }
+
+        auto remainder = Trim(line.substr(IncludeDirective.size()));
+
+        if (remainder.empty() || remainder.front() != '"') {
+
+            throw runtime_error(format("Malformed shader include directive in '{}' at line {}.", sourceName,
+                                       lineNumber));
+        }
+
+        const auto closingQuote = remainder.find('"', 1);
+
+        if (closingQuote == string_view::npos) {
+            throw runtime_error(format("Malformed shader include directive in '{}' at line {}.", sourceName,
+                                       lineNumber));
+        }
+
+        const auto includeName = remainder.substr(1, closingQuote - 1);
+
+        if (includeName.empty()) {
+            throw runtime_error(format("Empty shader include in '{}' at line {}.", sourceName, lineNumber));
+        }
+
+        const auto trailing = Trim(remainder.substr(closingQuote + 1));
+
+        if (!trailing.empty()) {
+            throw runtime_error(format("Unexpected text after shader include in '{}' at line {}.", sourceName,
+                                       lineNumber));
+        }
+
+        return string(includeName);
+    }
+
+    string IncludeCycleMessage(const vector<string>& includeStack, const string& includeName) {
+
+        string message = "Shader include cycle detected: ";
+
+        for (const auto& entry : includeStack) {
+            message += entry;
+            message += " -> ";
+        }
+
+        message += includeName;
+
+        return message;
+    }
+
+    string ExpandIncludes(const string&                            source,
+                          const string&                            sourceName,
+                          const GLSLPreprocessor::IncludeResolver& includeResolver,
+                          vector<string>&                          includeStack) {
+
+        istringstream stream {source.substr(SkipUtf8Bom(source))};
+
+        string output;
+        string line;
+        size_t lineNumber = 0;
+
+        while (getline(stream, line)) {
+
+            ++lineNumber;
+
+            const auto trimmed = Trim(line);
+
+            if (trimmed == HeaderDirective) {
+                throw runtime_error(format("Shader '#header' directive is only valid at the beginning "
+                                           "of a top-level shader; found in '{}' at line {}.",
+                                           sourceName, lineNumber));
+            }
+
+            const auto includeName = ParseIncludeDirective(line, sourceName, lineNumber);
+
+            if (!includeName) {
+                output += line;
+                output += '\n';
+                continue;
+            }
+
+            if (!includeResolver) {
+                throw runtime_error(format("Shader '{}' includes '{}', but no include resolver is available.",
+                                           sourceName, *includeName));
+            }
+
+            if (find(includeStack.begin(), includeStack.end(), *includeName) != includeStack.end()) {
+
+                throw runtime_error(IncludeCycleMessage(includeStack, *includeName));
+            }
+
+            const auto includeSource = includeResolver(*includeName);
+
+            if (!includeSource) {
+                throw runtime_error(format("Shader include '{}' referenced by '{}' at line {} was not found.",
+                                           *includeName, sourceName, lineNumber));
+            }
+
+            includeStack.push_back(*includeName);
+
+            output += ExpandIncludes(*includeSource, *includeName, includeResolver, includeStack);
+
+            includeStack.pop_back();
+        }
+
+        return output;
+    }
+
+} // namespace
+
+} // namespace a3d

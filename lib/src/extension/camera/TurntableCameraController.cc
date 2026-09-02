@@ -14,17 +14,19 @@
 
 #include "a3d/scene/Node.h"
 
-using namespace a3d;
-using namespace a3d::ext;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static void ValidateConfig(const TurntableCameraController::Config& config);
-static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
-
 namespace a3d::ext {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    void ValidateConfig(const TurntableCameraController::Config& config);
+    bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -429,63 +431,67 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
     }
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    void ValidateConfig(const TurntableCameraController::Config& config) {
+
+        const float pole = math::radians(90.0f);
+
+        if (config.minPitch <= -pole || config.maxPitch >= pole) {
+            throw invalid_argument(
+                "TurntableCameraController pitch limits must remain between -90 and 90 degrees.");
+        }
+
+        if (config.minPitch >= config.maxPitch) {
+            throw invalid_argument("TurntableCameraController minimum pitch must be less than maximum pitch.");
+        }
+
+        if (config.minDistance <= 0.0f) {
+            throw invalid_argument("TurntableCameraController minimum distance must be positive.");
+        }
+
+        if (config.maxDistance < config.minDistance) {
+            throw invalid_argument(
+                "TurntableCameraController maximum distance must not be less than minimum distance.");
+        }
+
+        if (config.orbitSensitivity < 0.0f) {
+            throw invalid_argument("TurntableCameraController orbit sensitivity must be non-negative.");
+        }
+
+        if (config.dollySensitivity < 0.0f) {
+            throw invalid_argument("TurntableCameraController dolly sensitivity must be non-negative.");
+        }
+
+        if (config.scrollDollySensitivity < 0.0f) {
+
+            throw invalid_argument("TurntableCameraController scroll dolly sensitivity must be non-negative.");
+        }
+
+        if (config.dragThreshold < 0.0f) {
+            throw invalid_argument("TurntableCameraController drag threshold must be non-negative.");
+        }
+    }
+
+    bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition) {
+
+        auto node = target.node.lock();
+
+        if (!node) {
+            return false;
+        }
+
+        const vec4 world = node->worldTransform() * vec4 {target.localPosition, 1.0f};
+
+        const vec3 resolved {world};
+
+        worldPosition = resolved;
+
+        return true;
+    }
+
+} // namespace
+
 } // namespace a3d::ext
-
-// [Private Non-Member Functions]
-
-void ValidateConfig(const TurntableCameraController::Config& config) {
-
-    const float pole = math::radians(90.0f);
-
-    if (config.minPitch <= -pole || config.maxPitch >= pole) {
-        throw invalid_argument(
-            "TurntableCameraController pitch limits must remain between -90 and 90 degrees.");
-    }
-
-    if (config.minPitch >= config.maxPitch) {
-        throw invalid_argument("TurntableCameraController minimum pitch must be less than maximum pitch.");
-    }
-
-    if (config.minDistance <= 0.0f) {
-        throw invalid_argument("TurntableCameraController minimum distance must be positive.");
-    }
-
-    if (config.maxDistance < config.minDistance) {
-        throw invalid_argument(
-            "TurntableCameraController maximum distance must not be less than minimum distance.");
-    }
-
-    if (config.orbitSensitivity < 0.0f) {
-        throw invalid_argument("TurntableCameraController orbit sensitivity must be non-negative.");
-    }
-
-    if (config.dollySensitivity < 0.0f) {
-        throw invalid_argument("TurntableCameraController dolly sensitivity must be non-negative.");
-    }
-
-    if (config.scrollDollySensitivity < 0.0f) {
-
-        throw invalid_argument("TurntableCameraController scroll dolly sensitivity must be non-negative.");
-    }
-
-    if (config.dragThreshold < 0.0f) {
-        throw invalid_argument("TurntableCameraController drag threshold must be non-negative.");
-    }
-}
-
-bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition) {
-
-    auto node = target.node.lock();
-
-    if (!node) {
-        return false;
-    }
-
-    const vec4 world = node->worldTransform() * vec4 {target.localPosition, 1.0f};
-
-    const vec3 resolved {world};
-
-    worldPosition = resolved;
-
-    return true;
-}

@@ -25,11 +25,15 @@
 
 using namespace std;
 
-// [Private Constants]
-
-static const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 

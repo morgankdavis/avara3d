@@ -16,35 +16,39 @@
 
 namespace a3d::detail {
 
-static const char* basename(const char* path) {
-    if (!path) {
-        return "unknown";
-    }
-    const char* slash = std::strrchr(path, '/');
-#if defined(_WIN32)
-    const char* bslash = std::strrchr(path, '\\');
-    if (bslash && (!slash || bslash > slash)) {
-        slash = bslash;
-    }
-#endif
-    return slash ? (slash + 1) : path;
-}
+namespace {
 
-[[noreturn]] static void trap_or_abort() {
+    const char* basename(const char* path) {
+        if (!path) {
+            return "unknown";
+        }
+        const char* slash = std::strrchr(path, '/');
+#if defined(_WIN32)
+        const char* bslash = std::strrchr(path, '\\');
+        if (bslash && (!slash || bslash > slash)) {
+            slash = bslash;
+        }
+#endif
+        return slash ? (slash + 1) : path;
+    }
+
+    [[noreturn]] void trap_or_abort() {
 #if defined(_MSC_VER)
-    __debugbreak();
+        __debugbreak();
 #elif defined(__has_builtin)
     #if __has_builtin(__builtin_trap)
-    __builtin_trap();
+        __builtin_trap();
     #else
-    std::abort();
+        std::abort();
     #endif
 #elif defined(__GNUC__) || defined(__clang__)
-    __builtin_trap();
+        __builtin_trap();
 #else
-    std::abort();
+        std::abort();
 #endif
-}
+    }
+
+} // namespace
 
 [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func) {
     const char* f = basename(file);

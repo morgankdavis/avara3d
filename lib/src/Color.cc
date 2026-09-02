@@ -11,7 +11,6 @@
 #include <cctype>
 #include <stdexcept>
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
@@ -101,16 +100,20 @@ Color Color::Random() {
 
 } // namespace a3d
 
-// [Private Non-Member Prototypes]
-
-static bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
-static bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
-static int         HexNibble(char c);
-static const char* SkipWs(const char* s);
-static bool        ParseHexByte(const char* s, u8& out);
-static uint8_t     FloatToU8(float x);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
+    bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
+    int         HexNibble(char c);
+    const char* SkipWs(const char* s);
+    bool        ParseHexByte(const char* s, u8& out);
+    uint8_t     FloatToU8(float x);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -237,102 +240,106 @@ u8vec4 Color::u8rgba() const {
     return u8vec4 {u8r(), u8g(), u8b(), u8a()};
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    bool ParseHexRgb(const char* s, u8vec3& rgb) {
+        s = SkipWs(s);
+        if (!s) {
+            return false;
+        }
+        if (*s == '#') {
+            ++s;
+        }
+
+        u8 r = 0, g = 0, b = 0;
+        if (!ParseHexByte(s + 0, r)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 2, g)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 4, b)) {
+            return false;
+        }
+
+        rgb.r = r;
+        rgb.g = g;
+        rgb.b = b;
+
+        return true;
+    }
+
+    bool ParseHexRgba(const char* s, u8vec4& rgba) {
+        s = SkipWs(s);
+        if (!s) {
+            return 0;
+        }
+        if (*s == '#') {
+            ++s;
+        }
+
+        u8 r = 0, g = 0, b = 0, a = 0;
+        if (!ParseHexByte(s + 0, r)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 2, g)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 4, b)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 6, a)) {
+            return false;
+        }
+
+        rgba.r = r;
+        rgba.g = g;
+        rgba.b = b;
+        rgba.a = a;
+
+        return true;
+    }
+
+    int HexNibble(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return 10 + (c - 'a');
+        }
+        if (c >= 'A' && c <= 'F') {
+            return 10 + (c - 'A');
+        }
+        return -1;
+    }
+
+    const char* SkipWs(const char* s) {
+        while (s && *s && std::isspace(static_cast<unsigned char>(*s))) {
+            ++s;
+        }
+        return s;
+    }
+
+    bool ParseHexByte(const char* s, u8& out) {
+        const int hi = HexNibble(s[0]);
+        const int lo = HexNibble(s[1]);
+        if (hi < 0 || lo < 0) {
+            return false;
+        }
+        out = static_cast<u8>((hi << 4) | lo);
+        return true;
+    }
+
+    uint8_t FloatToU8(float x) {
+        if (!math::is_finite(x)) {
+            return 0;
+        }
+        x = math::clamp(x, 0.0f, 1.0f);
+        return static_cast<uint8_t>(math::round(x * 255.0f));
+    }
+
+} // namespace
+
 } // namespace a3d
-
-// [Private Non-Member Functions]
-
-bool ParseHexRgb(const char* s, u8vec3& rgb) {
-    s = SkipWs(s);
-    if (!s) {
-        return false;
-    }
-    if (*s == '#') {
-        ++s;
-    }
-
-    u8 r = 0, g = 0, b = 0;
-    if (!ParseHexByte(s + 0, r)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 2, g)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 4, b)) {
-        return false;
-    }
-
-    rgb.r = r;
-    rgb.g = g;
-    rgb.b = b;
-
-    return true;
-}
-
-bool ParseHexRgba(const char* s, u8vec4& rgba) {
-    s = SkipWs(s);
-    if (!s) {
-        return 0;
-    }
-    if (*s == '#') {
-        ++s;
-    }
-
-    u8 r = 0, g = 0, b = 0, a = 0;
-    if (!ParseHexByte(s + 0, r)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 2, g)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 4, b)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 6, a)) {
-        return false;
-    }
-
-    rgba.r = r;
-    rgba.g = g;
-    rgba.b = b;
-    rgba.a = a;
-
-    return true;
-}
-
-int HexNibble(char c) {
-    if (c >= '0' && c <= '9') {
-        return c - '0';
-    }
-    if (c >= 'a' && c <= 'f') {
-        return 10 + (c - 'a');
-    }
-    if (c >= 'A' && c <= 'F') {
-        return 10 + (c - 'A');
-    }
-    return -1;
-}
-
-const char* SkipWs(const char* s) {
-    while (s && *s && std::isspace(static_cast<unsigned char>(*s))) {
-        ++s;
-    }
-    return s;
-}
-
-bool ParseHexByte(const char* s, u8& out) {
-    const int hi = HexNibble(s[0]);
-    const int lo = HexNibble(s[1]);
-    if (hi < 0 || lo < 0) {
-        return false;
-    }
-    out = static_cast<u8>((hi << 4) | lo);
-    return true;
-}
-
-uint8_t FloatToU8(float x) {
-    if (!math::is_finite(x)) {
-        return 0;
-    }
-    x = math::clamp(x, 0.0f, 1.0f);
-    return static_cast<uint8_t>(math::round(x * 255.0f));
-}

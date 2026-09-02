@@ -12,19 +12,21 @@
 
 #include "a3d/mesh/VertexFormats.h"
 
-using namespace a3d;
-
-static constexpr VertexAttribDesc PNT_DESC[] =
-    {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, position)},
-     {VertexSemantic::Normal, 1, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, normal)},
-     {VertexSemantic::TexCoord0, 2, VertexAttribFormat::F32x2, (uint16_t) offsetof(VertexPNT, texCoord)}};
-
-static constexpr VertexAttribDesc PC_DESC[] = {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3,
-                                                (uint16_t) offsetof(VertexPC, position)},
-                                               {VertexSemantic::Color0, 1, VertexAttribFormat::F32x3,
-                                                (uint16_t) offsetof(VertexPC, color)}};
-
 namespace a3d {
+
+namespace {
+
+    constexpr VertexAttribDesc PNT_DESC[] =
+        {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, position)},
+         {VertexSemantic::Normal, 1, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, normal)},
+         {VertexSemantic::TexCoord0, 2, VertexAttribFormat::F32x2, (uint16_t) offsetof(VertexPNT, texCoord)}};
+
+    constexpr VertexAttribDesc PC_DESC[] = {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3,
+                                             (uint16_t) offsetof(VertexPC, position)},
+                                            {VertexSemantic::Color0, 1, VertexAttribFormat::F32x3,
+                                             (uint16_t) offsetof(VertexPC, color)}};
+
+} // namespace
 
 const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout) {
     static constexpr VertexLayoutDesc PNT {(uint16_t) sizeof(VertexPNT), PNT_DESC};

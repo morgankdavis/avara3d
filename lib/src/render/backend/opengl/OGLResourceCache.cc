@@ -27,27 +27,30 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-using namespace a3d;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
-static GLenum      GLFilterModeForFilterMode(Sampler::FilterMode mode);
-static GLenum      GLWrapModeForWrapMode(Sampler::WrapMode mode);
-static bool        UsesMipmaps(Sampler::FilterMode mode);
-static void        GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type);
-static unsigned    BufferTextureContents(const Texture& texture);
-static void        ApplySamplerState(Texture&          texture,
-                                     unsigned          glTextureHandle,
-                                     bool              forceAll,
-                                     OGLMemoryTracker& memoryTracker);
-static int         SlotFor(Material::PropertyType type);
-static GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
-static uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
-static uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
+    GLenum      GLFilterModeForFilterMode(Sampler::FilterMode mode);
+    GLenum      GLWrapModeForWrapMode(Sampler::WrapMode mode);
+    bool        UsesMipmaps(Sampler::FilterMode mode);
+    void        GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type);
+    unsigned    BufferTextureContents(const Texture& texture);
+    void        ApplySamplerState(Texture&          texture,
+                                  unsigned          glTextureHandle,
+                                  bool              forceAll,
+                                  OGLMemoryTracker& memoryTracker);
+    int         SlotFor(Material::PropertyType type);
+    GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
+    uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
+    uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -341,327 +344,331 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
     return it->second;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
+    OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 
-    OGLPipeline pipeline;
+        OGLPipeline pipeline;
 
-    pipeline.desc = desc;
-    pipeline.program = program;
+        pipeline.desc = desc;
+        pipeline.program = program;
 
-    return pipeline;
-}
-
-GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
-    switch (mode) {
-        case Sampler::FilterMode::Nearest:
-            return GL_NEAREST;
-        case Sampler::FilterMode::Linear:
-            return GL_LINEAR;
-        case Sampler::FilterMode::NearestMipmapNearest:
-            return GL_NEAREST_MIPMAP_NEAREST;
-        case Sampler::FilterMode::LinearMipmapNearest:
-            return GL_LINEAR_MIPMAP_NEAREST;
-        case Sampler::FilterMode::NearestMipmapLinear:
-            return GL_NEAREST_MIPMAP_LINEAR;
-        case Sampler::FilterMode::LinearMipmapLinear:
-            return GL_LINEAR_MIPMAP_LINEAR;
+        return pipeline;
     }
-    return GL_LINEAR;
-}
 
-GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
-    switch (mode) {
-        case Sampler::WrapMode::ClampToEdge:
-            return GL_CLAMP_TO_EDGE;
-        case Sampler::WrapMode::Repeat:
-            return GL_REPEAT;
-        default:
-            return GL_MIRRORED_REPEAT;
+    GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
+        switch (mode) {
+            case Sampler::FilterMode::Nearest:
+                return GL_NEAREST;
+            case Sampler::FilterMode::Linear:
+                return GL_LINEAR;
+            case Sampler::FilterMode::NearestMipmapNearest:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case Sampler::FilterMode::LinearMipmapNearest:
+                return GL_LINEAR_MIPMAP_NEAREST;
+            case Sampler::FilterMode::NearestMipmapLinear:
+                return GL_NEAREST_MIPMAP_LINEAR;
+            case Sampler::FilterMode::LinearMipmapLinear:
+                return GL_LINEAR_MIPMAP_LINEAR;
+        }
+        return GL_LINEAR;
     }
-}
 
-bool UsesMipmaps(Sampler::FilterMode mode) {
-    switch (mode) {
-        case Sampler::FilterMode::NearestMipmapNearest:
-        case Sampler::FilterMode::NearestMipmapLinear:
-        case Sampler::FilterMode::LinearMipmapNearest:
-        case Sampler::FilterMode::LinearMipmapLinear:
-            return true;
-        default:
-            return false;
+    GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
+        switch (mode) {
+            case Sampler::WrapMode::ClampToEdge:
+                return GL_CLAMP_TO_EDGE;
+            case Sampler::WrapMode::Repeat:
+                return GL_REPEAT;
+            default:
+                return GL_MIRRORED_REPEAT;
+        }
     }
-}
 
-void GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type) {
-    switch (f) {
-        case VertexAttribFormat::F32x2:
-            comps = 2;
-            type = GL_FLOAT;
-            break;
-        case VertexAttribFormat::F32x3:
-            comps = 3;
-            type = GL_FLOAT;
-            break;
-        case VertexAttribFormat::F32x4:
-            comps = 4;
-            type = GL_FLOAT;
-            break;
+    bool UsesMipmaps(Sampler::FilterMode mode) {
+        switch (mode) {
+            case Sampler::FilterMode::NearestMipmapNearest:
+            case Sampler::FilterMode::NearestMipmapLinear:
+            case Sampler::FilterMode::LinearMipmapNearest:
+            case Sampler::FilterMode::LinearMipmapLinear:
+                return true;
+            default:
+                return false;
+        }
     }
-}
 
-unsigned BufferTextureContents(const Texture& texture) {
-    unsigned glTextureHandle = 0;
+    void GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type) {
+        switch (f) {
+            case VertexAttribFormat::F32x2:
+                comps = 2;
+                type = GL_FLOAT;
+                break;
+            case VertexAttribFormat::F32x3:
+                comps = 3;
+                type = GL_FLOAT;
+                break;
+            case VertexAttribFormat::F32x4:
+                comps = 4;
+                type = GL_FLOAT;
+                break;
+        }
+    }
 
-    auto contents = texture.contents();
-    std::visit(
-        [&](auto&& v) {
-            using T = std::decay_t<decltype(v)>;
+    unsigned BufferTextureContents(const Texture& texture) {
+        unsigned glTextureHandle = 0;
 
-            if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-                auto cubeImage = dynamic_pointer_cast<CubeImage>(v);
-                if (!cubeImage) {
-                    return;
-                }
+        auto contents = texture.contents();
+        std::visit(
+            [&](auto&& v) {
+                using T = std::decay_t<decltype(v)>;
 
-                Image* images[] = {cubeImage->face(CubeImage::Face::X_Pos),
-                                   cubeImage->face(CubeImage::Face::X_Neg),
-                                   cubeImage->face(CubeImage::Face::Y_Pos),
-                                   cubeImage->face(CubeImage::Face::Y_Neg),
-                                   cubeImage->face(CubeImage::Face::Z_Pos),
-                                   cubeImage->face(CubeImage::Face::Z_Neg)};
-
-                GLenum sides[] = {GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-                                  GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-                                  GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
-
-                glGenTextures(1, (GLuint*) &glTextureHandle);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, (GLuint) glTextureHandle);
-
-                for (int s = 0; s < 6; ++s) {
-                    auto* image = images[s];
-                    if (!image) {
-                        continue;
+                if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                    auto cubeImage = dynamic_pointer_cast<CubeImage>(v);
+                    if (!cubeImage) {
+                        return;
                     }
-                // Your code currently assumes 4 bytes/px
-                    glTexImage2D(sides[s], 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
+
+                    Image* images[] = {cubeImage->face(CubeImage::Face::X_Pos),
+                                       cubeImage->face(CubeImage::Face::X_Neg),
+                                       cubeImage->face(CubeImage::Face::Y_Pos),
+                                       cubeImage->face(CubeImage::Face::Y_Neg),
+                                       cubeImage->face(CubeImage::Face::Z_Pos),
+                                       cubeImage->face(CubeImage::Face::Z_Neg)};
+
+                    GLenum sides[] = {GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+                                      GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                                      GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
+
+                    glGenTextures(1, (GLuint*) &glTextureHandle);
+                    glBindTexture(GL_TEXTURE_CUBE_MAP, (GLuint) glTextureHandle);
+
+                    for (int s = 0; s < 6; ++s) {
+                        auto* image = images[s];
+                        if (!image) {
+                            continue;
+                        }
+                    // Your code currently assumes 4 bytes/px
+                        glTexImage2D(sides[s], 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
+                                     GL_UNSIGNED_BYTE, *(image->buffer()));
+                    }
+                }
+                else if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
+                    auto image = std::dynamic_pointer_cast<Image>(v);
+                    if (!image) {
+                        return;
+                    }
+
+                    glGenTextures(1, (GLuint*) &glTextureHandle);
+                    glBindTexture(GL_TEXTURE_2D, (GLuint) glTextureHandle);
+
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
                                  GL_UNSIGNED_BYTE, *(image->buffer()));
                 }
-            }
-            else if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
-                auto image = std::dynamic_pointer_cast<Image>(v);
-                if (!image) {
-                    return;
+                else if constexpr (std::is_same_v<T, std::monostate>) {
+                    log::w()("Texture has empty contents.");
                 }
+            },
+            contents);
 
-                glGenTextures(1, (GLuint*) &glTextureHandle);
-                glBindTexture(GL_TEXTURE_2D, (GLuint) glTextureHandle);
-
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
-                             GL_UNSIGNED_BYTE, *(image->buffer()));
-            }
-            else if constexpr (std::is_same_v<T, std::monostate>) {
-                log::w()("Texture has empty contents.");
-            }
-        },
-        contents);
-
-    return glTextureHandle;
-}
-
-void ApplySamplerState(Texture&          texture,
-                       unsigned          glTextureHandle,
-                       bool              forceAll,
-                       OGLMemoryTracker& memoryTracker) {
-    auto sampler = texture.sampler();
-    if (!sampler) {
-        return;
+        return glTextureHandle;
     }
 
-    const bool   isCubemap = std::holds_alternative<std::shared_ptr<CubeImage>>(texture.contents());
-    const GLenum texType = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
-
-    glBindTexture(texType, (GLuint) glTextureHandle);
-
-    const auto sm = sampler->dirtyMask();
-
-    auto doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
-    auto doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
-    auto doWS = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
-    auto doWT = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
-    auto doWR = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
-    auto doAn = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
-
-    if (doMin) {
-        auto mode = sampler->minificationFilter();
-        if (UsesMipmaps(mode)) {
-            glGenerateMipmap(texType);
-
-            memoryTracker.setAllocation(
-                {
-                    OGLMemoryTracker::ObjectNamespace::Texture,
-                    glTextureHandle,
-                },
-                OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::Texture,
-                TextureStorageBytes(texture, true));
+    void ApplySamplerState(Texture&          texture,
+                           unsigned          glTextureHandle,
+                           bool              forceAll,
+                           OGLMemoryTracker& memoryTracker) {
+        auto sampler = texture.sampler();
+        if (!sampler) {
+            return;
         }
-        glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint) GLFilterModeForFilterMode(mode));
-    }
 
-    if (doMag) {
-        auto mode = sampler->magnificationFilter();
-        // only Nearest/Linear are valid
-        glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint) GLFilterModeForFilterMode(mode));
-    }
+        const bool   isCubemap = std::holds_alternative<std::shared_ptr<CubeImage>>(texture.contents());
+        const GLenum texType = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
-    if (doWS) {
-        glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint) GLWrapModeForWrapMode(sampler->wrapS()));
-    }
-    if (doWT) {
-        glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint) GLWrapModeForWrapMode(sampler->wrapT()));
-    }
-    if (doWR) {
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,
-                        (GLint) GLWrapModeForWrapMode(sampler->wrapR()));
-    }
+        glBindTexture(texType, (GLuint) glTextureHandle);
 
-#ifdef A3D_GL_DESKTOP
-    if (doAn) {
-    #if defined(GL_EXT_texture_filter_anisotropic)
-        float anisotropy = sampler->maxAnisotropy();
-        float largest = 0.0f;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
-        if (largest > 0.0f && anisotropy > largest) {
-            anisotropy = largest;
-        }
-        glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
-    #else
-        (void) texType; // anisotropy extension not available
-    #endif
-    }
-#endif
+        const auto sm = sampler->dirtyMask();
 
-    // clear sampler dirty bits we just applied
-    if (forceAll) {
-        sampler->dirtyMask((Sampler::DirtyMask) 0);
-    }
-    else {
-        auto cleared = sm;
+        auto doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
+        auto doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
+        auto doWS = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
+        auto doWT = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
+        auto doWR = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
+        auto doAn = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
+
         if (doMin) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MinificationFilter);
+            auto mode = sampler->minificationFilter();
+            if (UsesMipmaps(mode)) {
+                glGenerateMipmap(texType);
+
+                memoryTracker.setAllocation(
+                    {
+                        OGLMemoryTracker::ObjectNamespace::Texture,
+                        glTextureHandle,
+                    },
+                    OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::Texture,
+                    TextureStorageBytes(texture, true));
+            }
+            glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint) GLFilterModeForFilterMode(mode));
         }
+
         if (doMag) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MagnificationFilter);
+            auto mode = sampler->magnificationFilter();
+            // only Nearest/Linear are valid
+            glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint) GLFilterModeForFilterMode(mode));
         }
+
         if (doWS) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapS);
+            glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint) GLWrapModeForWrapMode(sampler->wrapS()));
         }
         if (doWT) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapT);
+            glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint) GLWrapModeForWrapMode(sampler->wrapT()));
         }
         if (doWR) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,
+                            (GLint) GLWrapModeForWrapMode(sampler->wrapR()));
         }
+
+#ifdef A3D_GL_DESKTOP
         if (doAn) {
-            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MaxAnisotropy);
-        }
-        sampler->dirtyMask(cleared);
-    }
-}
-
-int SlotFor(Material::PropertyType type) {
-    switch (type) {
-        case Material::PropertyType::Ambient:
-            return 0;
-        case Material::PropertyType::Diffuse:
-            return 1;
-        case Material::PropertyType::Specular:
-            return 2;
-        case Material::PropertyType::Emission:
-            return 3;
-        default:
-            return -1;
-    }
-}
-
-GLenum GLIndexTypeForIndexFormat(IndexFormat format) {
-    switch (format) {
-        case IndexFormat::U16:
-            return GL_UNSIGNED_SHORT;
-        case IndexFormat::U32:
-            return GL_UNSIGNED_INT;
-        default:
-            return GL_UNSIGNED_INT;
-    }
-}
-
-uint64_t ImageTextureStorageBytes(const Image& image, bool includeMipmaps) {
-
-    uint64_t width = image.width();
-    uint64_t height = image.height();
-
-    if (width == 0 || height == 0) {
-        return 0;
-    }
-
-    constexpr uint64_t BYTES_PER_PIXEL = 4;
-
-    uint64_t bytes = 0;
-
-    while (true) {
-        bytes += width * height * BYTES_PER_PIXEL;
-
-        if (!includeMipmaps || (width == 1 && height == 1)) {
-            break;
-        }
-
-        width = math::max<uint64_t>(1, width / 2);
-        height = math::max<uint64_t>(1, height / 2);
-    }
-
-    return bytes;
-}
-
-uint64_t TextureStorageBytes(const Texture& texture, bool includeMipmaps) {
-
-    return std::visit(
-        [includeMipmaps](const auto& contents) -> uint64_t {
-            using T = std::decay_t<decltype(contents)>;
-
-            if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
-                if (!contents) {
-                    return 0;
-                }
-
-                return ImageTextureStorageBytes(*contents, includeMipmaps);
+    #if defined(GL_EXT_texture_filter_anisotropic)
+            float anisotropy = sampler->maxAnisotropy();
+            float largest = 0.0f;
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+            if (largest > 0.0f && anisotropy > largest) {
+                anisotropy = largest;
             }
-            else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-                if (!contents) {
-                    return 0;
-                }
+            glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    #else
+            (void) texType; // anisotropy extension not available
+    #endif
+        }
+#endif
 
-                const Image* images[] = {
-                    contents->face(CubeImage::Face::X_Pos), contents->face(CubeImage::Face::X_Neg),
-                    contents->face(CubeImage::Face::Y_Pos), contents->face(CubeImage::Face::Y_Neg),
-                    contents->face(CubeImage::Face::Z_Pos), contents->face(CubeImage::Face::Z_Neg),
-                };
-
-                uint64_t bytes = 0;
-
-                for (const Image* image : images) {
-                    if (image) {
-                        bytes += ImageTextureStorageBytes(*image, includeMipmaps);
-                    }
-                }
-
-                return bytes;
+        // clear sampler dirty bits we just applied
+        if (forceAll) {
+            sampler->dirtyMask((Sampler::DirtyMask) 0);
+        }
+        else {
+            auto cleared = sm;
+            if (doMin) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MinificationFilter);
             }
-            else {
+            if (doMag) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MagnificationFilter);
+            }
+            if (doWS) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapS);
+            }
+            if (doWT) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapT);
+            }
+            if (doWR) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapR);
+            }
+            if (doAn) {
+                cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MaxAnisotropy);
+            }
+            sampler->dirtyMask(cleared);
+        }
+    }
+
+    int SlotFor(Material::PropertyType type) {
+        switch (type) {
+            case Material::PropertyType::Ambient:
                 return 0;
+            case Material::PropertyType::Diffuse:
+                return 1;
+            case Material::PropertyType::Specular:
+                return 2;
+            case Material::PropertyType::Emission:
+                return 3;
+            default:
+                return -1;
+        }
+    }
+
+    GLenum GLIndexTypeForIndexFormat(IndexFormat format) {
+        switch (format) {
+            case IndexFormat::U16:
+                return GL_UNSIGNED_SHORT;
+            case IndexFormat::U32:
+                return GL_UNSIGNED_INT;
+            default:
+                return GL_UNSIGNED_INT;
+        }
+    }
+
+    uint64_t ImageTextureStorageBytes(const Image& image, bool includeMipmaps) {
+
+        uint64_t width = image.width();
+        uint64_t height = image.height();
+
+        if (width == 0 || height == 0) {
+            return 0;
+        }
+
+        constexpr uint64_t BYTES_PER_PIXEL = 4;
+
+        uint64_t bytes = 0;
+
+        while (true) {
+            bytes += width * height * BYTES_PER_PIXEL;
+
+            if (!includeMipmaps || (width == 1 && height == 1)) {
+                break;
             }
-        },
-        texture.contents());
-}
+
+            width = math::max<uint64_t>(1, width / 2);
+            height = math::max<uint64_t>(1, height / 2);
+        }
+
+        return bytes;
+    }
+
+    uint64_t TextureStorageBytes(const Texture& texture, bool includeMipmaps) {
+
+        return std::visit(
+            [includeMipmaps](const auto& contents) -> uint64_t {
+                using T = std::decay_t<decltype(contents)>;
+
+                if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
+                    if (!contents) {
+                        return 0;
+                    }
+
+                    return ImageTextureStorageBytes(*contents, includeMipmaps);
+                }
+                else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                    if (!contents) {
+                        return 0;
+                    }
+
+                    const Image* images[] = {
+                        contents->face(CubeImage::Face::X_Pos), contents->face(CubeImage::Face::X_Neg),
+                        contents->face(CubeImage::Face::Y_Pos), contents->face(CubeImage::Face::Y_Neg),
+                        contents->face(CubeImage::Face::Z_Pos), contents->face(CubeImage::Face::Z_Neg),
+                    };
+
+                    uint64_t bytes = 0;
+
+                    for (const Image* image : images) {
+                        if (image) {
+                            bytes += ImageTextureStorageBytes(*image, includeMipmaps);
+                        }
+                    }
+
+                    return bytes;
+                }
+                else {
+                    return 0;
+                }
+            },
+            texture.contents());
+    }
+
+} // namespace
+
+} // namespace a3d

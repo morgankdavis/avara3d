@@ -33,7 +33,6 @@
 #include "a3d/scene/Node.h"
 #include "a3d/util/Enum.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
@@ -67,11 +66,15 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const shared_ptr<PhysicsShape
 
 } // namespace a3d
 
-// [Private Non-Member Prototypes]
-
-static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -703,47 +706,51 @@ void PhysicsBody::checkAddToWorld() {
     }
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
+    shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
 
-    if (!mesh || mesh->elements().size() != 1) {
+        if (!mesh || mesh->elements().size() != 1) {
+            return nullptr;
+        }
+
+        auto* element = mesh->elements().front().get();
+
+        if (auto box = dynamic_cast<Box*>(element)) {
+            log::d()("Creating BoxPhysicsShape based on Box MeshElement.");
+            return make_shared<BoxPhysicsShape>(box->width(), box->height(), box->length());
+        }
+
+        if (auto capsule = dynamic_cast<Capsule*>(element)) {
+            log::d()("Creating CapsulePhysicsShape based on Capsule MeshElement.");
+            return make_shared<CapsulePhysicsShape>(capsule->radius(), capsule->height());
+        }
+
+        if (auto cone = dynamic_cast<Cone*>(element)) {
+            log::d()("Creating ConePhysicsShape based on Cone MeshElement.");
+            return make_shared<ConePhysicsShape>(cone->radius(), cone->height());
+        }
+
+        if (auto cylinder = dynamic_cast<Cylinder*>(element)) {
+            log::d()("Creating CylinderPhysicsShape based on Cylinder MeshElement.");
+            return make_shared<CylinderPhysicsShape>(cylinder->radius(), cylinder->height());
+        }
+
+        if (auto plane = dynamic_cast<Plane*>(element)) {
+            log::d()("Creating FinitePlanePhysicsShape based on Plane MeshElement.");
+            return make_shared<FinitePlanePhysicsShape>(plane->width(), plane->height());
+        }
+
+        if (auto sphere = dynamic_cast<Sphere*>(element)) {
+            log::d()("Creating SpherePhysicsShape based on Sphere MeshElement.");
+            return make_shared<SpherePhysicsShape>(sphere->radius());
+        }
+
         return nullptr;
     }
 
-    auto* element = mesh->elements().front().get();
+} // namespace
 
-    if (auto box = dynamic_cast<Box*>(element)) {
-        log::d()("Creating BoxPhysicsShape based on Box MeshElement.");
-        return make_shared<BoxPhysicsShape>(box->width(), box->height(), box->length());
-    }
-
-    if (auto capsule = dynamic_cast<Capsule*>(element)) {
-        log::d()("Creating CapsulePhysicsShape based on Capsule MeshElement.");
-        return make_shared<CapsulePhysicsShape>(capsule->radius(), capsule->height());
-    }
-
-    if (auto cone = dynamic_cast<Cone*>(element)) {
-        log::d()("Creating ConePhysicsShape based on Cone MeshElement.");
-        return make_shared<ConePhysicsShape>(cone->radius(), cone->height());
-    }
-
-    if (auto cylinder = dynamic_cast<Cylinder*>(element)) {
-        log::d()("Creating CylinderPhysicsShape based on Cylinder MeshElement.");
-        return make_shared<CylinderPhysicsShape>(cylinder->radius(), cylinder->height());
-    }
-
-    if (auto plane = dynamic_cast<Plane*>(element)) {
-        log::d()("Creating FinitePlanePhysicsShape based on Plane MeshElement.");
-        return make_shared<FinitePlanePhysicsShape>(plane->width(), plane->height());
-    }
-
-    if (auto sphere = dynamic_cast<Sphere*>(element)) {
-        log::d()("Creating SpherePhysicsShape based on Sphere MeshElement.");
-        return make_shared<SpherePhysicsShape>(sphere->radius());
-    }
-
-    return nullptr;
-}
+} // namespace a3d

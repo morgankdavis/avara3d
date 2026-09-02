@@ -22,15 +22,18 @@
 #include "a3d/mesh/VertexLayout.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
-// [Private Non-Member Prototypes]
-
-static VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
-
 namespace a3d {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
+
+} // namespace
 
 // [Internal Lifecycle Functions]
 
@@ -179,22 +182,26 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
     return out;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
+    VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
 
-    using FillMode = ConvexDecomposer::FILL_MODE;
+        using FillMode = ConvexDecomposer::FILL_MODE;
 
-    switch (fillMode) {
-        case FillMode::FLOOD_FILL:
-            return VHACD::FillMode::FLOOD_FILL;
-        case FillMode::SURFACE_ONLY:
-            return VHACD::FillMode::SURFACE_ONLY;
-        case FillMode::RAYCAST_FILL:
-            return VHACD::FillMode::RAYCAST_FILL;
+        switch (fillMode) {
+            case FillMode::FLOOD_FILL:
+                return VHACD::FillMode::FLOOD_FILL;
+            case FillMode::SURFACE_ONLY:
+                return VHACD::FillMode::SURFACE_ONLY;
+            case FillMode::RAYCAST_FILL:
+                return VHACD::FillMode::RAYCAST_FILL;
+        }
+
+        throw invalid_argument("Invalid ConvexDecomposer fill mode.");
     }
 
-    throw invalid_argument("Invalid ConvexDecomposer fill mode.");
-}
+} // namespace
+
+} // namespace a3d

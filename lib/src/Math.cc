@@ -17,18 +17,22 @@
 
 namespace a3d::math {
 
-// [Private Utility Prototypes]
+namespace {
 
-static std::mt19937& default_random_gen();
-static std::mt19937& pick_random_gen(std::mt19937* gen);
-static f32           ease_out_bounce_impl(f32 t);
-static f32           hue2rgb(f32 p, f32 q, f32 t);
-static std::string   mat_right_fit(std::string s, int width);
-static std::string   mat_fmtf(float v, unsigned width);
-static u8            saturate_u8(f32 v);
-f32quat              operator-(const f32quat& q);
-f32quat              operator+(const f32quat& a, const f32quat& b);
-f32quat&             operator+=(f32quat& a, const f32quat& b);
+    // [Private Utility Prototypes]
+
+    std::mt19937& default_random_gen();
+    std::mt19937& pick_random_gen(std::mt19937* gen);
+    f32           ease_out_bounce_impl(f32 t);
+    f32           hue2rgb(f32 p, f32 q, f32 t);
+    std::string   mat_right_fit(std::string s, int width);
+    std::string   mat_fmtf(float v, unsigned width);
+    u8            saturate_u8(f32 v);
+    f32quat       operator-(const f32quat& q);
+    f32quat       operator+(const f32quat& a, const f32quat& b);
+    f32quat&      operator+=(f32quat& a, const f32quat& b);
+
+} // namespace
 
 // [Types]
 
@@ -3929,144 +3933,148 @@ void swap(f32& a, f32& b) {
     std::swap(a, b);
 }
 
-// [Private Utilities]
+namespace {
 
-std::mt19937& default_random_gen() {
-    thread_local std::mt19937 gen([] {
-        std::random_device rd;
-        std::seed_seq      seq {rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-        return std::mt19937(seq);
-    }());
-    return gen;
-}
+    // [Private Utilities]
 
-std::mt19937& pick_random_gen(std::mt19937* gen) {
-    return gen ? *gen : default_random_gen();
-}
-
-f32 ease_out_bounce_impl(f32 t) {
-    // Piecewise parabola bounce (Penner)
-    const f32 n1 = f32(7.5625);
-    const f32 d1 = f32(2.75);
-
-    if (t < f32(1) / d1) {
-        return n1 * t * t;
-    }
-    else if (t < f32(2) / d1) {
-        t -= f32(1.5) / d1;
-        return n1 * t * t + f32(0.75);
-    }
-    else if (t < f32(2.5) / d1) {
-        t -= f32(2.25) / d1;
-        return n1 * t * t + f32(0.9375);
-    }
-    else {
-        t -= f32(2.625) / d1;
-        return n1 * t * t + f32(0.984375);
-    }
-}
-
-f32 hue2rgb(f32 p, f32 q, f32 t) {
-    // HSL helper
-    if (t < f32(0)) {
-        t += f32(1);
-    }
-    if (t > f32(1)) {
-        t -= f32(1);
-    }
-    if (t < f32(1.0 / 6.0)) {
-        return p + (q - p) * f32(6) * t;
-    }
-    if (t < f32(1.0 / 2.0)) {
-        return q;
-    }
-    if (t < f32(2.0 / 3.0)) {
-        return p + (q - p) * (f32(2.0 / 3.0) - t) * f32(6);
-    }
-    return p;
-}
-
-std::string mat_right_fit(std::string s, int width) {
-    if (width <= 0) {
-        return s;
-    }
-    if ((int) s.size() < width) {
-        return std::format("{:>{}}", s, width);
-    }
-    if ((int) s.size() == width) {
-        return s;
-    }
-    return std::string(width, '#'); // overflow marker (guaranteed width)
-}
-
-std::string mat_fmtf(float v, unsigned width) {
-    if (width <= 0) {
-        return std::format("{}", v);
+    std::mt19937& default_random_gen() {
+        thread_local std::mt19937 gen([] {
+            std::random_device rd;
+            std::seed_seq      seq {rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
+            return std::mt19937(seq);
+        }());
+        return gen;
     }
 
-    // special values
-    if (math::is_nan(v)) {
-        return mat_right_fit("nan", width);
-    }
-    if (math::is_infinite(v)) {
-        return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+    std::mt19937& pick_random_gen(std::mt19937* gen) {
+        return gen ? *gen : default_random_gen();
     }
 
-    // avoid "-0.000..."
-    if (v == 0.0f) {
-        v = 0.0f;
-    }
+    f32 ease_out_bounce_impl(f32 t) {
+        // Piecewise parabola bounce (Penner)
+        const f32 n1 = f32(7.5625);
+        const f32 d1 = f32(2.75);
 
-    const bool  neg = math::sign_bit(v);
-    const float a = math::abs(v);
-
-    // count integer digits of |v|
-    int int_digits = 1;
-    if (a >= 1.0f) {
-        int_digits = static_cast<int>(math::floor(math::log10(a))) + 1;
-    }
-
-    // decimals that can fit if we include '.' (when decimals > 0)
-    int max_dec = width - (neg ? 1 : 0) - int_digits - 1;
-    max_dec = math::clamp(max_dec, 0, (int) width);
-
-    // try fixed, reducing decimals until it fits
-    for (int dec = max_dec; dec >= 0; --dec) {
-        std::string s = std::format("{:{}.{}f}", v, width, dec); // dynamic width + precision
-        if ((int) s.size() <= width) {
-            return mat_right_fit(std::move(s), width);
+        if (t < f32(1) / d1) {
+            return n1 * t * t;
+        }
+        else if (t < f32(2) / d1) {
+            t -= f32(1.5) / d1;
+            return n1 * t * t + f32(0.75);
+        }
+        else if (t < f32(2.5) / d1) {
+            t -= f32(2.25) / d1;
+            return n1 * t * t + f32(0.9375);
+        }
+        else {
+            t -= f32(2.625) / d1;
+            return n1 * t * t + f32(0.984375);
         }
     }
 
-    // fallback: scientific, try to fit by reducing precision
-    for (int prec = math::min(6, (int) width); prec >= 0; --prec) {
-        std::string s = std::format("{:{}.{}e}", v, width, prec);
-        if ((int) s.size() <= width) {
-            return mat_right_fit(std::move(s), width);
+    f32 hue2rgb(f32 p, f32 q, f32 t) {
+        // HSL helper
+        if (t < f32(0)) {
+            t += f32(1);
         }
+        if (t > f32(1)) {
+            t -= f32(1);
+        }
+        if (t < f32(1.0 / 6.0)) {
+            return p + (q - p) * f32(6) * t;
+        }
+        if (t < f32(1.0 / 2.0)) {
+            return q;
+        }
+        if (t < f32(2.0 / 3.0)) {
+            return p + (q - p) * (f32(2.0 / 3.0) - t) * f32(6);
+        }
+        return p;
     }
 
-    return std::string(width, '#');
-}
+    std::string mat_right_fit(std::string s, int width) {
+        if (width <= 0) {
+            return s;
+        }
+        if ((int) s.size() < width) {
+            return std::format("{:>{}}", s, width);
+        }
+        if ((int) s.size() == width) {
+            return s;
+        }
+        return std::string(width, '#'); // overflow marker (guaranteed width)
+    }
 
-u8 saturate_u8(f32 v) {
-    return static_cast<u8>(math::clamp(v, 0.0f, 255.0f));
-}
+    std::string mat_fmtf(float v, unsigned width) {
+        if (width <= 0) {
+            return std::format("{}", v);
+        }
 
-f32quat operator-(const f32quat& q) {
-    return {-q.w, -q.x, -q.y, -q.z};
-}
+        // special values
+        if (math::is_nan(v)) {
+            return mat_right_fit("nan", width);
+        }
+        if (math::is_infinite(v)) {
+            return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+        }
 
-f32quat operator+(const f32quat& a, const f32quat& b) {
-    return f32quat {a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
-}
+        // avoid "-0.000..."
+        if (v == 0.0f) {
+            v = 0.0f;
+        }
 
-f32quat& operator+=(f32quat& a, const f32quat& b) {
-    a.w += b.w;
-    a.x += b.x;
-    a.y += b.y;
-    a.z += b.z;
-    return a;
-}
+        const bool  neg = math::sign_bit(v);
+        const float a = math::abs(v);
+
+        // count integer digits of |v|
+        int int_digits = 1;
+        if (a >= 1.0f) {
+            int_digits = static_cast<int>(math::floor(math::log10(a))) + 1;
+        }
+
+        // decimals that can fit if we include '.' (when decimals > 0)
+        int max_dec = width - (neg ? 1 : 0) - int_digits - 1;
+        max_dec = math::clamp(max_dec, 0, (int) width);
+
+        // try fixed, reducing decimals until it fits
+        for (int dec = max_dec; dec >= 0; --dec) {
+            std::string s = std::format("{:{}.{}f}", v, width, dec); // dynamic width + precision
+            if ((int) s.size() <= width) {
+                return mat_right_fit(std::move(s), width);
+            }
+        }
+
+        // fallback: scientific, try to fit by reducing precision
+        for (int prec = math::min(6, (int) width); prec >= 0; --prec) {
+            std::string s = std::format("{:{}.{}e}", v, width, prec);
+            if ((int) s.size() <= width) {
+                return mat_right_fit(std::move(s), width);
+            }
+        }
+
+        return std::string(width, '#');
+    }
+
+    u8 saturate_u8(f32 v) {
+        return static_cast<u8>(math::clamp(v, 0.0f, 255.0f));
+    }
+
+    f32quat operator-(const f32quat& q) {
+        return {-q.w, -q.x, -q.y, -q.z};
+    }
+
+    f32quat operator+(const f32quat& a, const f32quat& b) {
+        return f32quat {a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+    }
+
+    f32quat& operator+=(f32quat& a, const f32quat& b) {
+        a.w += b.w;
+        a.x += b.x;
+        a.y += b.y;
+        a.z += b.z;
+        return a;
+    }
+
+} // namespace
 
 } // namespace a3d::math

@@ -22,20 +22,23 @@
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Constants]
-
-const Color            MESH_OBB_COLOR {0.5f, 0.5f, 0.5f, 1.0f};
-const Color            MESH_AABB_COLOR {1.0f, 0.0f, 0.0f, 1.0f};
-const Color            SCENE_AABB_COLOR {0.0f, 0.5f, 0.0f, 1.0f};
-const Color            HIGHLIGHT_BOX_COLOR {1.0f, 1.0f, 0.0f, 1.0f};
-const vec4             HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
-static constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
-
 namespace a3d {
+
+namespace {
+
+    // [Private Constants]
+
+    const Color     MESH_OBB_COLOR {0.5f, 0.5f, 0.5f, 1.0f};
+    const Color     MESH_AABB_COLOR {1.0f, 0.0f, 0.0f, 1.0f};
+    const Color     SCENE_AABB_COLOR {0.0f, 0.5f, 0.0f, 1.0f};
+    const Color     HIGHLIGHT_BOX_COLOR {1.0f, 1.0f, 0.0f, 1.0f};
+    const vec4      HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
+    constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
+
+} // namespace
 
 // [Internal Static Member Functions]
 

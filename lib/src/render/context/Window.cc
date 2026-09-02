@@ -30,32 +30,35 @@
     #error Exactly one of A3D_GL_DESKTOP, A3D_GL_ES, or A3D_GL_WEB must be defined.
 #endif
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Constants]
+namespace a3d {
+
+namespace {
+
+    // [Private Constants]
 
 #if defined(A3D_WEB)
-static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
+    constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 #endif
 
-// [Private Non-Member Prototypes]
+    // [Private Non-Member Prototypes]
 
-static bool InitGLFW();
+    bool InitGLFW();
 #ifdef A3D_WEB
-static void InstallWebContextMenuHandler();
-static void InstallWebGLContextLostHandler();
+    void InstallWebContextMenuHandler();
+    void InstallWebGLContextLostHandler();
 #endif
-static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
-static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
-static void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
-static void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale);
-static void GLFWErrorCallback(int error, const char* description);
-static bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
-static bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+    void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
+    void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
+    void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
+    void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale);
+    void GLFWErrorCallback(int error, const char* description);
+    bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+    bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
-namespace a3d {
+} // namespace
 
 // [Public Static Member Functions]
 
@@ -184,6 +187,7 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     else {
         throw std::runtime_error("Couldn't initialize GLFW.");
     }
+
 }
 
 Window::~Window() {
@@ -196,7 +200,7 @@ Window::~Window() {
 
         close();
 
-        // TODO: must modify to support multiple windows
+            // TODO: must modify to support multiple windows
         unregisterGLFWCallbacks();
         ImGui_ImplGlfw_Shutdown();
         _renderer.reset();
@@ -659,231 +663,237 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
     return WindowFromGLFWwindow(glfwWindow)->_inputContext;
 }
 
-} // namespace a3d
+namespace {
 
-// [Private Non-Member Functions]
+    // [Private Non-Member Functions]
 
-bool InitGLFW() {
+    bool InitGLFW() {
 
-    static bool initialized = false;
-    if (!initialized) {
-        log::i();
+        static bool initialized = false;
+        if (!initialized) {
+            log::i();
 
-        int glfwMajVers, glfwMinVers, glfwRev;
-        glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-        log::i()("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
+            int glfwMajVers, glfwMinVers, glfwRev;
+            glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
+            log::i()("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
-        // TODO: must modify to support multiple windows
-        glfwSetErrorCallback(GLFWErrorCallback);
+            // TODO: must modify to support multiple windows
+            glfwSetErrorCallback(GLFWErrorCallback);
 
-        if (glfwInit()) {
-            log::i()("GLFW Initialized.");
+            if (glfwInit()) {
+                log::i()("GLFW Initialized.");
+            }
+            else {
+                log::f()("Error initializing GLFW.");
+                return false;
+            }
+
+            srand(time(nullptr)); // where else can we put this?
+
+            initialized = true;
         }
-        else {
-            log::f()("Error initializing GLFW.");
-            return false;
-        }
-
-        srand(time(nullptr)); // where else can we put this?
-
-        initialized = true;
+        return true;
     }
-    return true;
-}
 
 #ifdef A3D_WEB
-void InstallWebContextMenuHandler() {
-    // suppressed right-click in Emscripten canvas
-    auto result = emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
-                                                      [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
-                                                          return EM_TRUE;
-                                                      });
+    void InstallWebContextMenuHandler() {
+        // suppressed right-click in Emscripten canvas
+        auto result =
+            emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+                                                [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
+                                                    return EM_TRUE;
+                                                });
 
-    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
-        log::e()("Error setting Emscripten context menu callback: {}", result);
+        if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+            log::e()("Error setting Emscripten context menu callback: {}", result);
+        }
     }
-}
 
-void InstallWebGLContextLostHandler() {
-    const auto result = emscripten_set_webglcontextlost_callback(WEB_CANVAS_SELECTOR, nullptr, false,
-                                                                 [](int, const void*, void*) -> EM_BOOL {
-                                                                     log::e()("WebGL context lost.");
-                                                                     return EM_FALSE;
-                                                                 });
+    void InstallWebGLContextLostHandler() {
+        const auto result = emscripten_set_webglcontextlost_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+                                                                     [](int, const void*, void*) -> EM_BOOL {
+                                                                         log::e()("WebGL context lost.");
+                                                                         return EM_FALSE;
+                                                                     });
 
-    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
-        log::e()("Error registering WebGL context-lost callback: {}", result);
+        if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+            log::e()("Error registering WebGL context-lost callback: {}", result);
+        }
     }
-}
 
 #endif
 
-void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-    //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-    //			  static_cast<void*>(glfwWindow), width, height);
+    void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+        //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
+        //			  static_cast<void*>(glfwWindow), width, height);
 
-    auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
-    window->size(uvec2(width, height));
-}
+        auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
+        window->size(uvec2(width, height));
+    }
 
-void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
-    log::i()("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
+    void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
+        log::i()("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
-    auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
-    window->close();
-}
+        auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
+        window->close();
+    }
 
-void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-    //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-    //			  static_cast<void*>(glfwWindow), width, height);
+    void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+        //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
+        //			  static_cast<void*>(glfwWindow), width, height);
 
-    //	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-    //	window->renderer()->viewportScaleChanged(*window);
-}
+        //	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+        //	window->renderer()->viewportScaleChanged(*window);
+    }
 
-void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
-    log::d()("glfwWindow: {:p}, xScale: {}, yScale: {}", static_cast<void*>(glfwWindow), xScale, yScale);
-}
+    void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
+        log::d()("glfwWindow: {:p}, xScale: {}, yScale: {}", static_cast<void*>(glfwWindow), xScale, yScale);
+    }
 
-void GLFWErrorCallback(int error, const char* description) {
-    log::e()("error: {}, description: {}", error, description);
-}
+    void GLFWErrorCallback(int error, const char* description) {
+        log::e()("error: {}, description: {}", error, description);
+    }
 
-bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
-    // https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+    bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+        // https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
 
-    bool success = false;
+        bool success = false;
 
-    int windowRect[4] = {0};
-    glfwGetWindowPos(window, &windowRect[0], &windowRect[1]);
-    glfwGetWindowSize(window, &windowRect[2], &windowRect[3]);
+        int windowRect[4] = {0};
+        glfwGetWindowPos(window, &windowRect[0], &windowRect[1]);
+        glfwGetWindowSize(window, &windowRect[2], &windowRect[3]);
 
-    int           monitorsSize = 0;
-    GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+        int           monitorsSize = 0;
+        GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
 
-    GLFWmonitor* closestMonitor = NULL;
-    int          maxOverlapArea = 0;
+        GLFWmonitor* closestMonitor = NULL;
+        int          maxOverlapArea = 0;
 
-    for (int i = 0; i < monitorsSize; ++i) {
+        for (int i = 0; i < monitorsSize; ++i) {
 
-        int monitorPos[2] = {0};
-        glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+            int monitorPos[2] = {0};
+            glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
 
-        const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
-
-        // https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
-        int monitorRect[4] = {
-            monitorPos[0],
-            monitorPos[1],
-            monitorVideoMode->width,
-            monitorVideoMode->height,
-        };
-
-        if (!(((windowRect[0] + windowRect[2]) < monitorRect[0])
-              || (windowRect[0] > (monitorRect[0] + monitorRect[2]))
-              || ((windowRect[1] + windowRect[3]) < monitorRect[1])
-              || (windowRect[1] > (monitorRect[1] + monitorRect[3])))) {
-
-            int intersectionRect[4] = {0};
-
-            // x, width
-            if (windowRect[0] < monitorRect[0]) {
-                intersectionRect[0] = monitorRect[0];
-
-                if ((windowRect[0] + windowRect[2]) < (monitorRect[0] + monitorRect[2])) {
-                    intersectionRect[2] = (windowRect[0] + windowRect[2]) - intersectionRect[0];
-                }
-                else {
-                    intersectionRect[2] = monitorRect[2];
-                }
-            }
-            else {
-                intersectionRect[0] = windowRect[0];
-
-                if ((monitorRect[0] + monitorRect[2]) < (windowRect[0] + windowRect[2])) {
-                    intersectionRect[2] = (monitorRect[0] + monitorRect[2]) - intersectionRect[0];
-                }
-                else {
-                    intersectionRect[2] = windowRect[2];
-                }
-            }
-
-            // y, height
-            if (windowRect[1] < monitorRect[1]) {
-                intersectionRect[1] = monitorRect[1];
-
-                if ((windowRect[1] + windowRect[3]) < (monitorRect[1] + monitorRect[3])) {
-                    intersectionRect[3] = (windowRect[1] + windowRect[3]) - intersectionRect[1];
-                }
-                else {
-                    intersectionRect[3] = monitorRect[3];
-                }
-            }
-            else {
-                intersectionRect[1] = windowRect[1];
-
-                if ((monitorRect[1] + monitorRect[3]) < (windowRect[1] + windowRect[3])) {
-                    intersectionRect[3] = (monitorRect[1] + monitorRect[3]) - intersectionRect[1];
-                }
-                else {
-                    intersectionRect[3] = windowRect[3];
-                }
-            }
+            const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
 
             // https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
-            //int overlap_area = intersection_rectangle[3] * intersection_rectangle[4];
-            int overlapArea = intersectionRect[2] * intersectionRect[3];
-            if (overlapArea > maxOverlapArea) {
-                closestMonitor = monitors[i];
-                maxOverlapArea = overlapArea;
+            int monitorRect[4] = {
+                monitorPos[0],
+                monitorPos[1],
+                monitorVideoMode->width,
+                monitorVideoMode->height,
+            };
+
+            if (!(((windowRect[0] + windowRect[2]) < monitorRect[0])
+                  || (windowRect[0] > (monitorRect[0] + monitorRect[2]))
+                  || ((windowRect[1] + windowRect[3]) < monitorRect[1])
+                  || (windowRect[1] > (monitorRect[1] + monitorRect[3])))) {
+
+                int intersectionRect[4] = {0};
+
+                // x, width
+                if (windowRect[0] < monitorRect[0]) {
+                    intersectionRect[0] = monitorRect[0];
+
+                    if ((windowRect[0] + windowRect[2]) < (monitorRect[0] + monitorRect[2])) {
+                        intersectionRect[2] = (windowRect[0] + windowRect[2]) - intersectionRect[0];
+                    }
+                    else {
+                        intersectionRect[2] = monitorRect[2];
+                    }
+                }
+                else {
+                    intersectionRect[0] = windowRect[0];
+
+                    if ((monitorRect[0] + monitorRect[2]) < (windowRect[0] + windowRect[2])) {
+                        intersectionRect[2] = (monitorRect[0] + monitorRect[2]) - intersectionRect[0];
+                    }
+                    else {
+                        intersectionRect[2] = windowRect[2];
+                    }
+                }
+
+                // y, height
+                if (windowRect[1] < monitorRect[1]) {
+                    intersectionRect[1] = monitorRect[1];
+
+                    if ((windowRect[1] + windowRect[3]) < (monitorRect[1] + monitorRect[3])) {
+                        intersectionRect[3] = (windowRect[1] + windowRect[3]) - intersectionRect[1];
+                    }
+                    else {
+                        intersectionRect[3] = monitorRect[3];
+                    }
+                }
+                else {
+                    intersectionRect[1] = windowRect[1];
+
+                    if ((monitorRect[1] + monitorRect[3]) < (windowRect[1] + windowRect[3])) {
+                        intersectionRect[3] = (monitorRect[1] + monitorRect[3]) - intersectionRect[1];
+                    }
+                    else {
+                        intersectionRect[3] = windowRect[3];
+                    }
+                }
+
+                // https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
+                //int overlap_area = intersection_rectangle[3] * intersection_rectangle[4];
+                int overlapArea = intersectionRect[2] * intersectionRect[3];
+                if (overlapArea > maxOverlapArea) {
+                    closestMonitor = monitors[i];
+                    maxOverlapArea = overlapArea;
+                }
             }
         }
-    }
 
-    if (closestMonitor) {
-        *monitor = closestMonitor;
-        success = true;
-    }
-
-    // true: monitor contains the monitor the window is most on
-    // false: monitor is unmodified
-    return success;
-}
-
-bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
-    // https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
-
-    bool success = false;
-
-    double cursorPos[2] = {0};
-    glfwGetCursorPos(window, &cursorPos[0], &cursorPos[1]);
-
-    int windowPos[2] = {0};
-    glfwGetWindowPos(window, &windowPos[0], &windowPos[1]);
-
-    int           monitorsSize = 0;
-    GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
-
-    // convert cursor position from window coordinates to screen coordinates
-    cursorPos[0] += windowPos[0];
-    cursorPos[1] += windowPos[1];
-
-    for (int i = 0; ((!success) && (i < monitorsSize)); ++i) {
-
-        int monitorPos[2] = {0};
-        glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
-
-        const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
-
-        if ((cursorPos[0] < monitorPos[0]) || (cursorPos[0] > (monitorPos[0] + monitorVideoMode->width))
-            || (cursorPos[1] < monitorPos[1]) || (cursorPos[1] > (monitorPos[1] + monitorVideoMode->height))) {
-
-            *monitor = monitors[i];
+        if (closestMonitor) {
+            *monitor = closestMonitor;
             success = true;
         }
+
+        // true: monitor contains the monitor the window is most on
+        // false: monitor is unmodified
+        return success;
     }
 
-    // true: monitor contains the monitor the mouse is on
-    // false: monitor is unmodified
-    return success;
-}
+    bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+        // https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+
+        bool success = false;
+
+        double cursorPos[2] = {0};
+        glfwGetCursorPos(window, &cursorPos[0], &cursorPos[1]);
+
+        int windowPos[2] = {0};
+        glfwGetWindowPos(window, &windowPos[0], &windowPos[1]);
+
+        int           monitorsSize = 0;
+        GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+
+        // convert cursor position from window coordinates to screen coordinates
+        cursorPos[0] += windowPos[0];
+        cursorPos[1] += windowPos[1];
+
+        for (int i = 0; ((!success) && (i < monitorsSize)); ++i) {
+
+            int monitorPos[2] = {0};
+            glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+
+            const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
+
+            if ((cursorPos[0] < monitorPos[0]) || (cursorPos[0] > (monitorPos[0] + monitorVideoMode->width))
+                || (cursorPos[1] < monitorPos[1])
+                || (cursorPos[1] > (monitorPos[1] + monitorVideoMode->height))) {
+
+                *monitor = monitors[i];
+                success = true;
+            }
+        }
+
+        // true: monitor contains the monitor the mouse is on
+        // false: monitor is unmodified
+        return success;
+    }
+
+} // namespace
+
+} // namespace a3d
