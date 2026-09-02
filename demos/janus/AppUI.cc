@@ -101,7 +101,7 @@ bool App::drawPanel() {
     //panel.spacer(12.0f);
     panel.section("action");
 
-    panel.row(3);
+    panel.segmentedRow(3);
     if (panel.option("Drop", _action == Action::Drop)) {
         _action = Action::Drop;
     }
