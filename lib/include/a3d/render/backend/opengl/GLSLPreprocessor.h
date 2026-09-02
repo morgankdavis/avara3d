@@ -15,19 +15,19 @@
 
 namespace a3d {
 
-    class GLSLPreprocessor {
+class GLSLPreprocessor {
 
-    public:
-        // [Internal Types]
+public:
+    // [Internal Types]
 
-        using IncludeResolver = std::function<std::optional<std::string>(const std::string&)>;
+    using IncludeResolver = std::function<std::optional<std::string>(const std::string&)>;
 
-        // [Internal Static Functions]
+    // [Internal Static Functions]
 
-        static std::string Process(const std::string&     source,
-                                   const std::string&     sourceName,
-                                   const IncludeResolver& includeResolver);
-    };
+    static std::string Process(const std::string&     source,
+                               const std::string&     sourceName,
+                               const IncludeResolver& includeResolver);
+};
 
 }
 

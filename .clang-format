@@ -13,7 +13,7 @@ BracedInitializerIndentWidth: 4
 TabWidth: 4
 UseTab: Never
 
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 CompactNamespaces: false
 FixNamespaceComments: false
 WrapNamespaceBodyWithEmptyLines: Always

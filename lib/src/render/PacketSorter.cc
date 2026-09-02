@@ -52,7 +52,7 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
 
 // [Private Non-Member Functions]
 
-int32_t PtrHash32(const void* p) {
+uint32_t PtrHash32(const void* p) {
     uintptr_t v = reinterpret_cast<uintptr_t>(p) >> 4; // drop alignment bits
 
     uint32_t lo = static_cast<uint32_t>(v);
