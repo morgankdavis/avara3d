@@ -34,7 +34,6 @@ const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
 const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
 
 namespace sandbox::matlights {
-
 // [Public Lifecycle Functions]
 
 MatLights::MatLights(int argc, char* argv[]):
@@ -271,7 +270,6 @@ void MatLights::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const V
         visualWorld.background(background);
     }
 }
-
 } // namespace sandbox::matlights
 
 // [Private Non-Member Functions]

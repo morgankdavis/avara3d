@@ -15,15 +15,12 @@
 #include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
-
 class PhysicsShape;
 class Scene;
 class Window;
-
-}
+} // namespace a3d
 
 namespace sandbox::inputcam {
-
 class InputCam : public a3d::Application {
 
 public:
@@ -49,7 +46,6 @@ private:
     std::unique_ptr<a3d::Window>  _window;
     a3d::ext::FlyCameraController _cameraController;
 };
-
-}
+} // namespace sandbox::inputcam
 
 #endif // AVARA3D_TEST_SANDBOX_INPUTCAM_H

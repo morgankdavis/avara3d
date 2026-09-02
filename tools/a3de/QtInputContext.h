@@ -12,7 +12,6 @@
 #include "a3d/input/DesktopInputContext.h"
 
 namespace a3d::qt {
-
 class QtViewport;
 
 class QtInputContext : public DesktopInputContext {
@@ -46,7 +45,6 @@ private:
 
     QtViewport* _viewport;
 };
-
-}
+} // namespace a3d::qt
 
 #endif // A3DE_QTINPUTCONTEXT_H

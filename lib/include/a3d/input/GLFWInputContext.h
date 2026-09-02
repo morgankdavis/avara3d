@@ -17,7 +17,6 @@
 struct GLFWwindow;
 
 namespace a3d {
-
 class Window;
 
 class GLFWInputContext : public DesktopInputContext {
@@ -62,7 +61,6 @@ private:
     Window* _window;
     bool    _hasMousePosition;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_INPUT_GLFWINPUTCONTEXT_H

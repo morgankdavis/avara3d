@@ -15,7 +15,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 DirectionalLight::DirectionalLight():
@@ -47,5 +46,4 @@ float DirectionalLight::intensity() const {
 void DirectionalLight::intensity(float intensity) {
     _intensity = intensity;
 }
-
 } // namespace a3d

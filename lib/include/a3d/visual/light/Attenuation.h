@@ -10,7 +10,6 @@
 #define AVARA3D_VISUAL_LIGHT_ATTENUATION_H
 
 namespace a3d {
-
 /**
  * @brief Distance-attenuation coefficients for point and spot lights.
  *
@@ -37,7 +36,6 @@ struct Attenuation {
     float              linear    = 0.0f; ///< Linear-distance denominator coefficient.
     float              quadratic = 0.1f; ///< Squared-distance denominator coefficient.
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_ATTENUATION_H

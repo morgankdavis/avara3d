@@ -14,7 +14,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 PointLight::PointLight():
@@ -54,5 +53,4 @@ const Attenuation& PointLight::attenuation() const {
 void PointLight::attenuation(const Attenuation& attenuation) {
     _attenuation = attenuation;
 }
-
 } // namespace a3d

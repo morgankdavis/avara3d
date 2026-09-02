@@ -34,7 +34,6 @@ class btDefaultCollisionConfiguration;
 struct btDbvtBroadphase;
 
 namespace a3d {
-
 class BulletDebugDrawer;
 class PhysicsShape;
 class RenderContext;
@@ -140,7 +139,6 @@ private:
     std::chrono::steady_clock::time_point                  _nextDebugLineUpdate;
     int                                                    _debugDrawMode;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

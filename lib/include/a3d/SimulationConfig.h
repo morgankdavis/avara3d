@@ -12,7 +12,6 @@
 #include <cstdint>
 
 namespace a3d {
-
 /**
  * @brief Initial simulation scheduling parameters supplied to a Runner.
  *
@@ -51,7 +50,6 @@ struct SimulationConfig {
      */
     double        timeScale {1.0};
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_SIMULATIONCONFIG_H

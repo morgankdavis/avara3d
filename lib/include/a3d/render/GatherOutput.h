@@ -19,7 +19,6 @@
 #include "a3d/visual/Ground.h"
 
 namespace a3d {
-
 class Line;
 class Material;
 class Mesh;
@@ -60,7 +59,6 @@ struct GatherOutput {
     std::vector<Node*>        lightNodes            = {};
     std::vector<Line>         debugLines            = {};
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_GATHEROUTPUT_H

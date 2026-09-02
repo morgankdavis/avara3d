@@ -12,7 +12,6 @@
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
-
 /** @brief Spherical collision shape centered at the local origin. */
 class SpherePhysicsShape : public PhysicsShape {
 
@@ -48,7 +47,6 @@ private:
 
     float _radius;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H

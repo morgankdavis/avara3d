@@ -18,7 +18,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Material;
 
 /** @brief Configures ground rendering over a VisualWorld reference Surface. */
@@ -94,7 +93,6 @@ struct Ground {
     std::optional<RadialFade>  radialFade {}; ///< Optional radial fade applied to the ground.
     std::optional<HorizonHaze> horizonHaze {}; ///< Optional haze applied around the ground horizon.
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_GROUND_H

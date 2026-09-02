@@ -8,9 +8,7 @@
 
 #include "a3d/render/PipelineDesc.h"
 
-
 namespace a3d {
-
 // [Internal Functions]
 
 size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
@@ -35,5 +33,4 @@ size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 
     return static_cast<size_t>(h);
 }
-
 } // namespace a3d

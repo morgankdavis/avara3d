@@ -10,7 +10,6 @@
 #define AVARA3D_RENDER_DRAWPACKETIZER_H
 
 namespace a3d {
-
 struct DrawPacket;
 struct GatherOutput;
 
@@ -21,7 +20,6 @@ public:
 
     static DrawPacket Packetize(GatherOutput& gatherOutput);
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_DRAWPACKETIZER_H

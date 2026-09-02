@@ -25,14 +25,11 @@
 #include "TransientsBuilder.h"
 
 namespace a3d {
-
 class Node;
 class Window;
-
 } // namespace a3d
 
 namespace demo::janus {
-
 class App : public a3d::Application {
 
 public:
@@ -164,7 +161,6 @@ private:
     unsigned                            _simulationGeneration;
     bool                                _pendingReset;
 };
-
 } // namespace demo::janus
 
 #endif // AVARA3D_DEMO_JANUS_APP_H

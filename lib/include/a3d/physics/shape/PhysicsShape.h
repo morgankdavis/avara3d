@@ -18,7 +18,6 @@
 #include "a3d/physics/PhysicsBody.h"
 
 namespace a3d {
-
 class Mesh;
 class Node;
 class PhysicsWorld;
@@ -187,7 +186,6 @@ private:
     Source                           _source;
     std::unordered_set<PhysicsBody*> _bodies;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PHYSICSSHAPE_H

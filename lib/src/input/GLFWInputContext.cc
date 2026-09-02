@@ -23,13 +23,10 @@ using namespace std;
 using namespace a3d::math;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -190,7 +187,6 @@ void GLFWInputContext::initMouseInput() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
@@ -198,7 +194,5 @@ namespace {
         auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
         return dynamic_cast<GLFWInputContext*>(window->visualWorld()->scene()->inputContext());
     }
-
 } // namespace
-
 } // namespace a3d

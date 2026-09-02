@@ -16,7 +16,6 @@
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
-
 class OGLMemoryTracker;
 
 struct OGLDebugLines {
@@ -46,7 +45,6 @@ struct OGLDebugLines {
     gl::sizei_t         vertexCount = 0;
     std::vector<Vertex> cpuVerts    = {};
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLDEBUGLINES_H

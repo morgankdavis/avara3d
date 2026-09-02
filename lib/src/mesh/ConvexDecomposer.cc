@@ -26,13 +26,10 @@ using namespace std;
 using namespace VHACD;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -183,7 +180,6 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
@@ -201,7 +197,5 @@ namespace {
 
         throw invalid_argument("Invalid ConvexDecomposer fill mode.");
     }
-
 } // namespace
-
 } // namespace a3d

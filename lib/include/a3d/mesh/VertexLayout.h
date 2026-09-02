@@ -12,7 +12,6 @@
 #include <cstdint>
 
 namespace a3d {
-
 // [Internal Types]
 
 using VertexLayoutKey = uint32_t;
@@ -28,7 +27,6 @@ enum class VertexLayout : uint32_t {
     // InstancedPNT - per-instance transform stream
     // MorphPNT - multiple position/normal deltas
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_MESH_VERTEXLAYOUT_H

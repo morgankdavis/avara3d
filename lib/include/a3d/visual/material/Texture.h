@@ -19,7 +19,6 @@
 #include "a3d/visual/material/Sampler.h"
 
 namespace a3d {
-
 class CubeImage;
 class Image;
 
@@ -107,10 +106,8 @@ private:
 };
 
 namespace util::bitmask {
-
     template<>
     struct enable_ops<Texture::DirtyMask> : std::true_type {};
-
 } // namespace util::bitmask
 } // namespace a3d
 

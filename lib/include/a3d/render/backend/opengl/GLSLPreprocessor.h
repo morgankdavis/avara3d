@@ -14,7 +14,6 @@
 #include <string>
 
 namespace a3d {
-
 class GLSLPreprocessor {
 
 public:
@@ -28,7 +27,6 @@ public:
                                const std::string&     sourceName,
                                const IncludeResolver& includeResolver);
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_GLSLPREPROCESSOR_H

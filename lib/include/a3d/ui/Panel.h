@@ -14,7 +14,6 @@
 #include <string_view>
 
 namespace a3d::ui {
-
 /**
  * @brief Transient immediate-mode overlay panel for application controls and status.
  *
@@ -208,7 +207,6 @@ private:
     bool        _visible;
     bool        _hovered;
 };
-
 } // namespace a3d::ui
 
 #endif // AVARA3D_UI_PANEL_H

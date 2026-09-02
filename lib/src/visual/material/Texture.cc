@@ -16,7 +16,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 Texture::Texture():
@@ -118,5 +117,4 @@ Texture::DirtyMask Texture::dirtyMask() const {
 void Texture::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
-
 } // namespace a3d

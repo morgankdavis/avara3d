@@ -16,14 +16,11 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d::ext {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     void ValidateConfig(const Wanderer::Config& config);
     vec3 EvaluateSpline(const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, float t);
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -164,7 +161,6 @@ vec3 Wanderer::randomOffset(float scale) {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     void ValidateConfig(const Wanderer::Config& config) {
@@ -199,7 +195,5 @@ namespace {
 
         return p0 * b0 + p1 * b1 + p2 * b2 + p3 * b3;
     }
-
 } // namespace
-
 } // namespace a3d::ext

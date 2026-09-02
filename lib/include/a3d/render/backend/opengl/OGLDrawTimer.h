@@ -16,7 +16,6 @@
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
-
 class OGLDrawTimer {
 
 public:
@@ -65,7 +64,6 @@ private:
     bool                     _active      = false;
     bool                     _initialized = false;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PROFILING_OPENGLDRAWTIMER_H

@@ -23,7 +23,6 @@
 #include "a3d/mesh/PrimitiveTopology.h"
 
 namespace a3d {
-
 struct IndexStreamView {
     const std::byte* base   = nullptr;
     uint32_t         count  = 0; // number of indices
@@ -86,7 +85,6 @@ struct IndexAccess {
         }
     }
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_MESH_INDEXACCESS_H

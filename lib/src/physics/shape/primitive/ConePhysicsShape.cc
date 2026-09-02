@@ -10,9 +10,7 @@
 
 #include <stdexcept>
 
-
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
@@ -38,5 +36,4 @@ PhysicsShape::Type ConePhysicsShape::type() const {
 void ConePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for ConePhysicsShape.");
 }
-
 } // namespace a3d

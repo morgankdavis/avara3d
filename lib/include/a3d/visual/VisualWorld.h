@@ -25,7 +25,6 @@
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
-
 struct FrameStats;
 
 class Color;
@@ -288,7 +287,6 @@ private:
     Scene*                      _scene;
     DidBeginFrameCallback       _didBeginFrameCallback;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_VISUALWORLD_H

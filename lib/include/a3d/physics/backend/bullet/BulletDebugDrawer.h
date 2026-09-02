@@ -16,7 +16,6 @@
 #include <bullet/LinearMath/btIDebugDraw.h>
 
 namespace a3d {
-
 class Line;
 class Renderer;
 class RenderContext;
@@ -157,7 +156,6 @@ private:
     int               _debugMode;
     std::vector<Line> _lines;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETDEBUGDRAWER_H

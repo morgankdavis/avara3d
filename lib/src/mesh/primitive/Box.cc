@@ -20,7 +20,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Box::Mesh(float                      width,
@@ -118,5 +117,4 @@ unsigned Box::widthSegments() const {
 unsigned Box::heightSegments() const {
     return _heightSegments;
 }
-
 } // namespace a3d

@@ -12,7 +12,6 @@
 #include <cstdint>
 
 namespace a3d {
-
 enum class IndexFormat : uint8_t {
     None,
     U16,
@@ -29,7 +28,6 @@ constexpr uint16_t IndexStride(IndexFormat format) {
             return 0;
     }
 }
-
 } // namespace a3d
 
 #endif // AVARA3D_MESH_INDEXTYPES_H

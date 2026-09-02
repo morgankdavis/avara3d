@@ -14,7 +14,6 @@
 #include <string>
 
 namespace a3d {
-
 /** @brief Exposes version and build metadata compiled into the A3D library. */
 class BuildInfo {
 
@@ -104,7 +103,6 @@ private:
     Origin     _origin;
     std::tm    _time;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_BUILDINFO_H

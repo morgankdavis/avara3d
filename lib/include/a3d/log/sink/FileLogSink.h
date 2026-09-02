@@ -19,7 +19,6 @@
 #include "a3d/log/sink/LogSink.h"
 
 namespace a3d::log {
-
 /**
  * @brief LogSink that appends output to a file and rotates older files by size.
  *
@@ -91,7 +90,6 @@ private:
     int                            _maxFilesize;
     std::shared_ptr<std::ofstream> _fileStream;
 };
-
 } // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_FILELOGSINK_H

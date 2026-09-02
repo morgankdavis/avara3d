@@ -15,7 +15,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Static Member Functions]
 
 Color Color::Black() {
@@ -99,7 +98,6 @@ Color Color::Random() {
 }
 
 namespace {
-
     // [Private Non-Member Prototypes]
 
     bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
@@ -108,7 +106,6 @@ namespace {
     const char* SkipWs(const char* s);
     bool        ParseHexByte(const char* s, u8& out);
     uint8_t     FloatToU8(float x);
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -237,7 +234,6 @@ u8vec4 Color::u8rgba() const {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     bool ParseHexRgb(const char* s, u8vec3& rgb) {
@@ -335,7 +331,5 @@ namespace {
         x = math::clamp(x, 0.0f, 1.0f);
         return static_cast<uint8_t>(math::round(x * 255.0f));
     }
-
 } // namespace
-
 } // namespace a3d

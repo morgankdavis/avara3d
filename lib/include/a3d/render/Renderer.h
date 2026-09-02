@@ -17,7 +17,6 @@
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
-
 struct BackgroundPass;
 struct FrameStats;
 struct GroundPass;
@@ -146,7 +145,6 @@ protected:
                            const math::mat4&    view,
                            const math::mat4&    proj) = 0;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_RENDERER_H

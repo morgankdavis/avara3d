@@ -16,7 +16,6 @@
 #include "a3d/render/context/RenderContext.h"
 
 namespace a3d::qt {
-
 class QtInputContext;
 
 class QtViewport : public QOpenGLWidget, public RenderContext {
@@ -90,7 +89,6 @@ private:
     QtInputContext*        _inputContext;
     bool                   _warpingCursor;
 };
-
-}
+} // namespace a3d::qt
 
 #endif // A3DE_QTVIEWPORT_H

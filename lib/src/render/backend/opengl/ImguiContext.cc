@@ -26,13 +26,10 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Constants]
 
     const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -286,5 +283,4 @@ void ImguiContext::rebuildDeviceObjects() {
 
     _fontAtlasDirty = false;
 }
-
 } // namespace a3d

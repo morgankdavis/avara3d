@@ -13,7 +13,6 @@
 using namespace std;
 
 namespace a3d {
-
 optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element) {
     const auto        ib = element.indexBytes();
     const uint32_t    count = element.indexCount();
@@ -155,5 +154,4 @@ void IndexAccess::GetTrianglesU32(const MeshElement& element, std::vector<uint32
         out[i] = i;
     }
 }
-
 } // namespace a3d

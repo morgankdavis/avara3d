@@ -17,7 +17,6 @@ class btVector3;
 class btVector4;
 
 namespace a3d {
-
 math::vec3   A3DVec3FromBTVector3(const btVector3& from);
 math::vec4   A3DVec4FromBTVector4(const btVector4& from);
 math::mat4   A3DMat4FromBTTransform(const btTransform& from);
@@ -27,7 +26,6 @@ btQuaternion BTQuaternionFromA3DQuat(const math::quat& from);
 btTransform  BTTransformFromA3DMat4(const math::mat4& from);
 math::mat4   TransformByRemovingScale(const math::mat4& m, bool& scaled);
 //	btTransform&	BTIdentityTransform();
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETUTILITIES_H

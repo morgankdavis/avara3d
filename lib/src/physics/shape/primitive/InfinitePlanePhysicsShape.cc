@@ -12,9 +12,7 @@
 
 #include "a3d/physics/PhysicsBody.h"
 
-
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 InfinitePlanePhysicsShape::InfinitePlanePhysicsShape() = default;
@@ -38,5 +36,4 @@ bool InfinitePlanePhysicsShape::supportsBodyType(PhysicsBody::Type type) const {
 bool InfinitePlanePhysicsShape::supportsMargin() const {
     return false;
 }
-
 } // namespace a3d

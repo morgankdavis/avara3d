@@ -11,7 +11,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Member Functions]
 
 shared_ptr<Node> HitTestResult::node() const {
@@ -66,5 +65,4 @@ HitTestResult::HitTestResult(weak_ptr<Node>     node,
     _localNormal {localNormal},
     _worldNormal {worldNormal},
     _modelTransform {modelTransform} {}
-
 } // namespace a3d

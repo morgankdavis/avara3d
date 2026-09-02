@@ -11,7 +11,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Internal Member Functions]
 
 void OGLMemoryTracker::setAllocation(AllocationKey key,
@@ -110,5 +109,4 @@ size_t OGLMemoryTracker::AllocationKeyHash::operator()(const AllocationKey& key)
     const size_t idHash = hash<gl::uint_t> {}(key.id);
     return typeHash ^ idHash;
 }
-
 } // namespace a3d

@@ -29,9 +29,7 @@ static_assert(__cplusplus >= 202002L, "C++20 is required for std::source_locatio
 using namespace std;
 
 namespace a3d::log {
-
 namespace {
-
     // [Private Non-Member Variables]
 
     unique_ptr<Log> _appLog {};
@@ -41,7 +39,6 @@ namespace {
     string TimestampString();
     string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo);
     string HeaderString(const string& logName, Level level);
-
 } // namespace
 
 // [Public Functions]
@@ -329,7 +326,6 @@ bool Log::enabled(Level level) const {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     string TimestampString() {
@@ -363,6 +359,5 @@ namespace {
     string HeaderString(const string& logName, Level level) {
         return std::format("{} [{}] [{}]", TimestampString(), logName, util::enums::enum_name(level));
     }
-
 } // namespace
 } // namespace a3d::log

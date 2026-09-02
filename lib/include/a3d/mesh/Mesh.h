@@ -22,7 +22,6 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
-
 class Line;
 class Material;
 class MeshElement;
@@ -201,13 +200,11 @@ private:
 };
 
 namespace util::bitmask {
-
     template<>
     struct enable_ops<Mesh::ImportOptions> : std::true_type {};
 
     template<>
     struct enable_ops<Mesh::DirtyMask> : std::true_type {};
-
 } // namespace util::bitmask
 } // namespace a3d
 

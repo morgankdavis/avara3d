@@ -12,13 +12,10 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
-    struct AABB;
-
+struct AABB;
 } // namespace a3d
 
 namespace a3d::util::geom {
-
     // [Public Functions]
 
     /**
@@ -26,8 +23,7 @@ namespace a3d::util::geom {
      *
      * @throws std::invalid_argument if the source bounds or target size are invalid.
      */
-    math::mat4 fit_inside(const AABB& source, const math::vec3& targetSize);
-
+math::mat4 fit_inside(const AABB& source, const math::vec3& targetSize);
 } // namespace a3d::util::geom
 
 #endif // AVARA3D_UTIL_GEOMETRY_H

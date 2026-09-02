@@ -15,7 +15,6 @@
 using namespace std;
 
 namespace a3d {
-
 ScopeTimer::ScopeTimer(Profiler& profiler, Profiler::Tag tag):
     _profiler {&profiler},
     _tag {tag},
@@ -25,5 +24,4 @@ ScopeTimer::~ScopeTimer() {
     auto duration = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - _start);
     _profiler->add(_tag, duration);
 }
-
 } // namespace a3d

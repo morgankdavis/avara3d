@@ -20,9 +20,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace demo::janus {
-
 namespace {
-
     // [Private Constants]
 
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
@@ -37,21 +35,20 @@ namespace {
 
     // [Private Non-Member Prototypes]
 
-    static void                      ConfigureVisualWorld(VisualWorld& world);
-    static vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
-    static void                      ConfigureDynamicsNodes(const Node& root);
-    static shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
-    static shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
-    static void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
-    static shared_ptr<Node>          CreateCursorMarker();
-    static optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
-                                          const vec2&                screenPosition,
-                                          const vector<const Node*>& ignoredNodes = {},
-                                          bool                       elementBoundsOnly = true);
-    static pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
-                                                              const vec3& targetPosition,
-                                                              const vec3& gravity);
-
+    void                      ConfigureVisualWorld(VisualWorld& world);
+    vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
+    void                      ConfigureDynamicsNodes(const Node& root);
+    shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
+    shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
+    void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
+    shared_ptr<Node>          CreateCursorMarker();
+    optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
+                                   const vec2&                screenPosition,
+                                   const vector<const Node*>& ignoredNodes = {},
+                                   bool                       elementBoundsOnly = true);
+    pair<vec3, vec3>          CalculateThrowTrajectory(const vec3& cameraPosition,
+                                                       const vec3& targetPosition,
+                                                       const vec3& gravity);
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -690,7 +687,6 @@ void App::reset() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     void ConfigureVisualWorld(VisualWorld& world) {
@@ -1016,7 +1012,5 @@ namespace {
 
         return {spawnPosition, velocity};
     }
-
 } // namespace
-
 } // namespace demo::janus

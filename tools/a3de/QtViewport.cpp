@@ -28,13 +28,11 @@ using namespace std;
 using Viewport = qt::QtViewport;
 
 namespace a3d::qt {
-
 /// Public Static Member Functions ///
 
 unique_ptr<qt::QtInputContext> Viewport::InputContext() {
     return std::make_unique<QtInputContext>();
 }
-
 } // namespace a3d::qt
 
 /// Private Static Non-Member Prototypes ///
@@ -42,7 +40,6 @@ unique_ptr<qt::QtInputContext> Viewport::InputContext() {
 static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
 
 namespace a3d::qt {
-
 /// Public Lifecycle Functions ///
 
 Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
@@ -374,7 +371,6 @@ void Viewport::centerCursor() {
     QPoint center(width() / 2, height() / 2);
     QCursor::setPos(mapToGlobal(center));
 }
-
 } // namespace a3d::qt
 
 /// Private Static Non-Member Functions ///

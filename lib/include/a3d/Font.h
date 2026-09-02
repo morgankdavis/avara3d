@@ -14,7 +14,6 @@
 #include <optional>
 
 namespace a3d {
-
 class Buffer;
 
 /**
@@ -77,7 +76,6 @@ private:
     Type                       _type;
     std::unique_ptr<Buffer>    _buffer;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_FONT_H

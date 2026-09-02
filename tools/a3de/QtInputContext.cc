@@ -27,7 +27,6 @@ using MouseButton = DesktopInputContext::MouseButton;
 static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
 namespace a3d::qt {
-
 // [Public Lifecycle Functions]
 
 QtInput::QtInputContext() {}
@@ -122,7 +121,6 @@ void QtInput::viewport(QtViewport* viewport) {
 qt::QtViewport* QtInput::viewport() const {
     return _viewport;
 }
-
 } // namespace a3d::qt
 
 // [Private Non-Member Functions]

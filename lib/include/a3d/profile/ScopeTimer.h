@@ -14,7 +14,6 @@
 #include "a3d/profile/Profiler.h"
 
 namespace a3d {
-
 class Profiler;
 
 class ScopeTimer {
@@ -39,7 +38,6 @@ private:
     Profiler::Tag                                      _tag;
     std::chrono::time_point<std::chrono::steady_clock> _start;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PROFILE_SCOPETIMER_H

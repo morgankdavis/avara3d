@@ -14,7 +14,6 @@
 #include <string>
 
 namespace a3d {
-
 class Profiler {
 
 public:
@@ -59,7 +58,6 @@ private:
     std::map<Tag, std::chrono::nanoseconds>         _taggedSamples;
     std::map<std::string, std::chrono::nanoseconds> _keyedSamples;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PROFILE_PROFILER_H

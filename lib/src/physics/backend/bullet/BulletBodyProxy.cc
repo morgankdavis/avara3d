@@ -31,9 +31,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
@@ -43,7 +41,6 @@ namespace {
                                     const btVector3&  inertia);
     void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
     void ActivateDynamicBody(btRigidBody& body);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -733,7 +730,6 @@ void BulletBodyProxy::syncRollingFrictionAnisotropy() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
@@ -781,7 +777,5 @@ namespace {
             body.activate(true);
         }
     }
-
 } // namespace
-
 } // namespace a3d

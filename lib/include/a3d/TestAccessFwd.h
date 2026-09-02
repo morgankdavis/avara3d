@@ -7,10 +7,8 @@
 #define AVARA3D_TEST_ACCESS_FWD_H
 
 namespace a3d::testing {
-
 class ApplicationTestAccess;
 class RunnerTestAccess;
-
 } // namespace a3d::testing
 
 #endif // AVARA3D_TEST_ACCESS_FWD_H

@@ -28,7 +28,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 PhysicsWorld::PhysicsWorld():
@@ -214,5 +213,4 @@ void PhysicsWorld::appendDebugLines(vector<Line>& out) const {
 PhysicsWorldProxy* PhysicsWorld::proxy() const {
     return _proxy.get();
 }
-
 } // namespace a3d

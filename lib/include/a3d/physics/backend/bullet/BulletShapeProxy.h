@@ -20,7 +20,6 @@ class btRigidBody;
 class btTriangleIndexVertexArray;
 
 namespace a3d {
-
 class BulletShapeProxy : public PhysicsShapeProxy {
 
 public:
@@ -42,7 +41,6 @@ private:
     std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
     std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSHAPEPROXY_H

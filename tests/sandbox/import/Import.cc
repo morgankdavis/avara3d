@@ -30,7 +30,6 @@ const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 
 namespace sandbox::import {
-
 // [Public Lifecycle Functions]
 
 Import::Import(int argc, char* argv[]):
@@ -105,5 +104,4 @@ void Import::inputDidUpdate(Runner&       runner,
         _window->close();
     }
 }
-
 } // namespace sandbox::import

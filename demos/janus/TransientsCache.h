@@ -15,15 +15,12 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Mesh;
 class Node;
 class PhysicsShape;
-
-}
+} // namespace a3d
 
 namespace demo::janus {
-
 class TransientsCache {
 
 public:
@@ -68,7 +65,6 @@ private:
     Entry              _hula;
     Entry              _duck;
 };
-
-}
+} // namespace demo::janus
 
 #endif // AVARA3D_DEMO_JANUS_TRANSIENTSCACHE_H

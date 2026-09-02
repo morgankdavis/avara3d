@@ -22,7 +22,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Static Member Functions]
 
 shared_ptr<PhysicsShape> PhysicsShape::BoundingBoxShape(const shared_ptr<Mesh>& mesh) {
@@ -227,5 +226,4 @@ PhysicsShape::PhysicsShape():
     _margin {},
     _source {},
     _bodies {} {}
-
 } // namespace a3d

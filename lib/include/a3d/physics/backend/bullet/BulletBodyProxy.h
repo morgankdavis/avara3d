@@ -17,7 +17,6 @@ class btCompoundShape;
 class btRigidBody;
 
 namespace a3d {
-
 class BulletMotionState;
 
 class BulletBodyProxy : public PhysicsBodyProxy {
@@ -141,7 +140,6 @@ private:
     float                              _ccdMotionThreshold;
     float                              _ccdSweptSphereRadius;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETBODYPROXY_H

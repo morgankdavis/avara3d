@@ -15,7 +15,6 @@
 #include <optional>
 
 namespace a3d::util {
-
     /**
      * @brief Invokes a callback at fixed intervals along a caller-supplied time line.
      *
@@ -23,9 +22,9 @@ namespace a3d::util {
      * elapsed trigger time. Supplying a time earlier than the previous update resets
      * the schedule automatically.
      */
-    class PeriodicTrigger {
+class PeriodicTrigger {
 
-    public:
+public:
         // [Public Lifecycle Functions]
 
         /**
@@ -36,7 +35,7 @@ namespace a3d::util {
          *
          * @throws std::invalid_argument if @p interval is less than or equal to zero.
          */
-        explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
+    explicit PeriodicTrigger(std::chrono::duration<double> interval, bool deferFirstFire = false);
 
         // [Public Member Functions]
 
@@ -47,34 +46,33 @@ namespace a3d::util {
          * @param function Callable invoked for every due interval.
          * @return Number of callback invocations due at this update.
          */
-        template<typename Function>
-        std::size_t update(double time, Function&& function) {
+    template<typename Function>
+    std::size_t update(double time, Function&& function) {
 
-            const auto count = dueCount(time);
+        const auto count = dueCount(time);
 
-            for (std::size_t i = 0; i < count; ++i) {
-                std::invoke(function);
-            }
-
-            return count;
+        for (std::size_t i = 0; i < count; ++i) {
+            std::invoke(function);
         }
 
-        /** @brief Clears timing history so the next update establishes a new schedule. */
-        void reset() noexcept;
+        return count;
+    }
 
-    private:
+        /** @brief Clears timing history so the next update establishes a new schedule. */
+    void reset() noexcept;
+
+private:
         // [Private Member Functions]
 
-        std::size_t           dueCount(double time);
+    std::size_t           dueCount(double time);
 
         // [Private Member Variables]
 
-        double                _interval;
-        bool                  _deferFirstFire;
-        std::optional<double> _nextFireTime;
-        std::optional<double> _lastTime;
-    };
-
+    double                _interval;
+    bool                  _deferFirstFire;
+    std::optional<double> _nextFireTime;
+    std::optional<double> _lastTime;
+};
 } // namespace a3d::util
 
 #endif // AVARA3D_UTIL_PERIODICTRIGGER_H

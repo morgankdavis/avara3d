@@ -17,7 +17,7 @@ NamespaceIndentation: Inner
 CompactNamespaces: false
 FixNamespaceComments: true
 ShortNamespaceLines: 0
-WrapNamespaceBodyWithEmptyLines: Always
+WrapNamespaceBodyWithEmptyLines: Never
 
 AccessModifierOffset: -4
 IndentAccessModifiers: false

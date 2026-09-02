@@ -12,7 +12,6 @@
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
-
 /** @brief Finite rectangular collision plane centered at the local origin in the XY plane. */
 class FinitePlanePhysicsShape : public PhysicsShape {
 
@@ -48,7 +47,6 @@ private:
     float _width;
     float _height;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_FINITEPLANEPHYSICSSHAPE_H

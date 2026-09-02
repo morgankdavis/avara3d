@@ -29,9 +29,7 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
 #ifdef A3D_WEB
@@ -41,7 +39,6 @@ namespace {
                                                const EmscriptenVisibilityChangeEvent* event,
                                                void*                                  userData);
 #endif
-
 } // namespace
 
 // [Public Static Member Functions]
@@ -360,7 +357,6 @@ void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const Physic
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
 #ifdef A3D_WEB
@@ -404,6 +400,5 @@ namespace {
     }
 
 #endif
-
 } // namespace
 } // namespace a3d

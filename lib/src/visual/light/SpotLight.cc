@@ -15,7 +15,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 SpotLight::SpotLight():
@@ -95,5 +94,4 @@ float SpotLight::innerAngleCos() const {
 float SpotLight::outerAngleCos() const {
     return _outerAngleCos;
 }
-
 } // namespace a3d

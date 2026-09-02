@@ -16,7 +16,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Mesh;
 class MeshElement;
 class Node;
@@ -102,7 +101,6 @@ private:
     math::vec3              _worldNormal;
     math::mat4              _modelTransform;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_SCENE_HITTESTRESULT_H

@@ -14,7 +14,6 @@
 #include "a3d/log/sink/LogSink.h"
 
 namespace a3d::log {
-
 /** @brief LogSink that writes ordinary messages to standard output and errors to standard error. */
 class StdOutLogSink : public LogSink {
 
@@ -42,7 +41,6 @@ public:
     /** @brief Writes Error and Fatal output to standard error and lower severities to standard output. */
     void write(const std::string& output, Level level) override;
 };
-
 } // namespace a3d::log
 
 #endif // AVARA3D_LOG_SINK_STDOUTLOGSINK_H

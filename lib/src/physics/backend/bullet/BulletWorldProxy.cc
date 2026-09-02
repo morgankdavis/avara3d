@@ -59,9 +59,7 @@ using namespace std;
 #endif
 
 namespace a3d {
-
 namespace {
-
     // [Private Constants]
 
     // ! btCollisionDispatcherMt is known to be buggy. leave it off.
@@ -110,7 +108,6 @@ namespace {
 
         vector<RawContactResult> results;
     };
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -1011,7 +1008,6 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
@@ -1100,7 +1096,5 @@ namespace {
         // bullet MT often benefits from "not all cores", but start simple...
         return math::clamp(hw, 1, maxT);
     }
-
 } // namespace
-
 } // namespace a3d

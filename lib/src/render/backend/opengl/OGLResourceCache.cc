@@ -30,9 +30,7 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
@@ -49,7 +47,6 @@ namespace {
     GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
     uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
     uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -345,7 +342,6 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
@@ -668,7 +664,5 @@ namespace {
             },
             texture.contents());
     }
-
 } // namespace
-
 } // namespace a3d

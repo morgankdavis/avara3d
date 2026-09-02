@@ -21,7 +21,6 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
-
 class Texture;
 
 /**
@@ -272,10 +271,8 @@ private:
 };
 
 namespace util::bitmask {
-
     template<>
     struct enable_ops<Material::DirtyMask> : std::true_type {};
-
 } // namespace util::bitmask
 } // namespace a3d
 

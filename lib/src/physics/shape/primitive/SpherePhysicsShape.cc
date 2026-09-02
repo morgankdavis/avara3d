@@ -10,9 +10,7 @@
 
 #include <stdexcept>
 
-
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 SpherePhysicsShape::SpherePhysicsShape(float radius):
@@ -39,5 +37,4 @@ void SpherePhysicsShape::type(PhysicsShape::Type type) {
 bool SpherePhysicsShape::supportsMargin() const {
     return false;
 }
-
 } // namespace a3d

@@ -37,7 +37,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Static Member Functions]
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
@@ -65,11 +64,9 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const shared_ptr<PhysicsShape
 }
 
 namespace {
-
     // [Private Non-Member Prototypes]
 
     shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -703,7 +700,6 @@ void PhysicsBody::checkAddToWorld() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
@@ -746,7 +742,5 @@ namespace {
 
         return nullptr;
     }
-
 } // namespace
-
 } // namespace a3d

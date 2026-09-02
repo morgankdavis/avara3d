@@ -13,9 +13,7 @@
 #include "a3d/mesh/VertexFormats.h"
 
 namespace a3d {
-
 namespace {
-
     constexpr VertexAttribDesc PNT_DESC[] =
         {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, position)},
          {VertexSemantic::Normal, 1, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, normal)},
@@ -25,7 +23,6 @@ namespace {
                                              (uint16_t) offsetof(VertexPC, position)},
                                             {VertexSemantic::Color0, 1, VertexAttribFormat::F32x3,
                                              (uint16_t) offsetof(VertexPC, color)}};
-
 } // namespace
 
 const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout) {
@@ -42,5 +39,4 @@ const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout) {
             return NONE;
     }
 }
-
 } // namespace a3d

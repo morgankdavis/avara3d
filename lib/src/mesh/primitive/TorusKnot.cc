@@ -20,7 +20,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Pubic Static Members]
 
 shared_ptr<Mesh> TorusKnot::Mesh(unsigned                   p,
@@ -83,5 +82,4 @@ unsigned TorusKnot::slices() const {
 unsigned TorusKnot::segments() const {
     return _segments;
 }
-
 } // namespace a3d

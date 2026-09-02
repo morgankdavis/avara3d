@@ -15,15 +15,12 @@
 #include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
-
 class Node;
 class Scene;
 class Window;
-
-}
+} // namespace a3d
 
 namespace sandbox::matlights {
-
 class MatLights : public a3d::Application {
 
 public:
@@ -58,7 +55,6 @@ private:
     std::weak_ptr<a3d::Node>      _pointLightNode;
     float                         _pointLightOrbitRadius;
 };
-
-}
+} // namespace sandbox::matlights
 
 #endif // AVARA3D_TEST_SANDBOX_MATLIGHTS_H

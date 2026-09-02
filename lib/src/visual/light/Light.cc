@@ -18,7 +18,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Static Member Functions]
 
 shared_ptr<AmbientLight> Light::Ambient() {
@@ -105,5 +104,4 @@ const Color& Light::color() const {
 void Light::color(const Color& color) {
     _color = color;
 }
-
 } // namespace a3d

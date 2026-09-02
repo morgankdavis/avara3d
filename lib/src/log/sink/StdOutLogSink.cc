@@ -18,7 +18,6 @@
 using namespace std;
 
 namespace a3d::log {
-
 // [Public Lifecycle Functions]
 
 StdOutLogSink::StdOutLogSink() {
@@ -60,5 +59,4 @@ void StdOutLogSink::write(const string& output, Level level) {
     OutputDebugStringA((const char*) output.c_str()); // this broke with C++20.  trying to include windows.h ^^
 #endif
 }
-
 } // namespace a3d::log

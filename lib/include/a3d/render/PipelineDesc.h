@@ -16,7 +16,6 @@
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
-
 // [Internal Types]
 
 using PipelineId                                = uint32_t;
@@ -73,7 +72,6 @@ struct PipelineDesc {
 struct PipelineDescHash { // for unordered_map
     size_t operator()(const PipelineDesc& desc) const noexcept;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_PIPELINEDESC_H

@@ -16,7 +16,6 @@ using namespace std;
 using namespace a3d::math;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 Camera::Camera():
@@ -44,5 +43,4 @@ const optional<string>& Camera::name() const {
 void Camera::name(const string& name) {
     _name = name;
 }
-
 } // namespace a3d

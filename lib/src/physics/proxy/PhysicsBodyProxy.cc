@@ -10,9 +10,7 @@
 
 #include "a3d/log/Log.h"
 
-
 namespace a3d {
-
 // [Internal Lifecycle Functions]
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
@@ -64,5 +62,4 @@ void PhysicsBodyProxy::detachedFromBody(PhysicsBody& body) {
 
     _body = nullptr;
 }
-
 } // namespace a3d

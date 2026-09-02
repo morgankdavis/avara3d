@@ -23,7 +23,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 Image::Image(const filesystem::path& path, bool flipVertical, bool flipHorizontal):
@@ -288,5 +287,4 @@ void Image::flipHorizontal() { // "mirror"
         }
     }
 }
-
 } // namespace a3d

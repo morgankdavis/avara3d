@@ -20,7 +20,6 @@
 using namespace std;
 
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 Buffer::Buffer(const std::filesystem::path& path):
@@ -124,5 +123,4 @@ byte* Buffer::operator*() const {
 byte Buffer::operator[](size_t idx) const {
     return _data[idx];
 }
-
 } // namespace a3d

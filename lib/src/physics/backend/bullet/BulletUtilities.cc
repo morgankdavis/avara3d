@@ -15,7 +15,6 @@
 using namespace a3d::math;
 
 namespace a3d {
-
 vec3 A3DVec3FromBTVector3(const btVector3& from) {
     return {from.x(), from.y(), from.z()};
 }
@@ -100,5 +99,4 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 //	identityTransform.setIdentity();
 //	return identityTransform;
 //}
-
 } // namespace a3d

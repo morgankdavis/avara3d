@@ -34,7 +34,6 @@
 #endif
 
 namespace a3d::detail {
-
 [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func);
 
 [[noreturn]] void assert_fail_msg(const char* expr,
@@ -42,7 +41,6 @@ namespace a3d::detail {
                                   int         line,
                                   const char* func,
                                   const char* msg);
-
 } // namespace a3d::detail
 
 // ----------------------------------------------------------------------------

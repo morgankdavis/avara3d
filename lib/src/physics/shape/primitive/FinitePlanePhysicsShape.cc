@@ -10,9 +10,7 @@
 
 #include <stdexcept>
 
-
 namespace a3d {
-
 // [Public Lifecycle Functions]
 
 FinitePlanePhysicsShape::FinitePlanePhysicsShape(float width, float height):
@@ -38,5 +36,4 @@ PhysicsShape::Type FinitePlanePhysicsShape::type() const {
 void FinitePlanePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for FinitePlanePhysicsShape.");
 }
-
 } // namespace a3d

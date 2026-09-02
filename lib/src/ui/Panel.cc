@@ -23,9 +23,7 @@
 using namespace std;
 
 namespace a3d::ui {
-
 namespace {
-
     // [Private Constants]
 
     constexpr float PANEL_FONT_SIZE {15.0f};
@@ -45,7 +43,6 @@ namespace {
     void DrawShadowedText(const ImVec2& position, const std::string& text, ImU32 color, float wrapWidth = 0.0f);
 
     void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color, float thickness);
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -901,7 +898,6 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     float SnapPixel(float value) {
@@ -932,7 +928,5 @@ namespace {
                           thickness);
         drawList->AddLine(start, end, color, thickness);
     }
-
 } // namespace
-
 } // namespace a3d::ui

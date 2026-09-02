@@ -41,9 +41,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Constants]
 
     const bool USE_HIGHRES_CONVEX_HULL {false};
@@ -95,7 +93,6 @@ namespace {
     void                            ValidateBTShapeMarginRec(const btCollisionShape& shape);
     void                            SetBTShapeMarginRec(btCollisionShape& shape, btScalar margin);
     void AccumulateBTShapeMarginRec(const btCollisionShape& shape, btScalar& margin, bool& foundMargin);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -202,7 +199,6 @@ const vector<unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     unique_ptr<btCollisionShape> BTShapeFromSourceMesh(Mesh&                                 mesh,
@@ -773,7 +769,5 @@ namespace {
             throw logic_error("PhysicsShape collision components do not use a uniform margin.");
         }
     }
-
 } // namespace
-
 } // namespace a3d

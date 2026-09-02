@@ -14,7 +14,6 @@
 struct ImFont;
 
 namespace a3d {
-
 struct FrameStats;
 
 class FrameStatsHistory;
@@ -53,7 +52,6 @@ private:
     ImFont* _titleImFont;
     ImFont* _bodyImFont;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_BACKEND_OPENGL_STATSOVERLAY_H

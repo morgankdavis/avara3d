@@ -17,7 +17,6 @@
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
-
 /**
  * @brief Cone-shaped light located and oriented by its containing Node.
  *
@@ -104,7 +103,6 @@ private:
     float          _intensity;
     Attenuation    _attenuation;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H

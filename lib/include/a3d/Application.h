@@ -24,7 +24,6 @@
 #include "log/Log.h"
 
 namespace a3d {
-
 /**
  * @brief Base class and top-level entry point for A3D applications.
  *
@@ -278,9 +277,7 @@ private:
     std::vector<SceneCommand> _scenePostStepQueue;
     bool                      _didShutdown;
     util::Timer               _startupTimer;
-
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_APPLICATION_H

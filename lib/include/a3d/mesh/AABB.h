@@ -12,7 +12,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 /** @brief Axis-aligned bounding box defined by minimum and maximum corners. */
 struct AABB {
 
@@ -57,7 +56,6 @@ AABB operator|(AABB a, const AABB& b);
 
 /** @brief Returns @p a expanded to include @p p. */
 AABB operator|(AABB a, const math::vec3& p);
-
 } // namespace a3d
 
 #endif // AVARA3D_MESH_AABB_H

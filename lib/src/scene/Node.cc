@@ -25,7 +25,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Public Static Member Functions]
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
@@ -867,5 +866,4 @@ Node::DirtyMask Node::dirtyMask() const {
 void Node::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
-
 } // namespace a3d

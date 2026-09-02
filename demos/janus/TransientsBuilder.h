@@ -17,13 +17,10 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Node;
-
-}
+} // namespace a3d
 
 namespace demo::janus {
-
 class TransientsBuilder {
 
 public:
@@ -49,7 +46,6 @@ private:
 
     TransientsCache _cache;
 };
-
-}
+} // namespace demo::janus
 
 #endif // AVARA3D_DEMO_JANUS_TRANSIENTSBUILDER_H

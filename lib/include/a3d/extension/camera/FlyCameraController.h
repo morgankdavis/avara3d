@@ -12,13 +12,10 @@
 #include "a3d/input/DesktopInputContext.h"
 
 namespace a3d {
-
 class Node;
-
 } // namespace a3d
 
 namespace a3d::ext {
-
 /**
  * @brief Applies free-flight keyboard and pointer controls to a point-of-view Node.
  *
@@ -88,7 +85,6 @@ private:
 
     Config _config;
 };
-
 } // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_CAMERA_FLYCAMERACONTROLLER_H

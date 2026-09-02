@@ -8,13 +8,10 @@
 
 #include "a3d/physics/proxy/PhysicsWorldProxy.h"
 
-
 namespace a3d {
-
 // [Internal Lifecycle Functions]
 
 PhysicsWorldProxy::PhysicsWorldProxy(PhysicsWorld& world) {}
 
 PhysicsWorldProxy::~PhysicsWorldProxy() {}
-
 } // namespace a3d

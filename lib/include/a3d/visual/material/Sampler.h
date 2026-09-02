@@ -15,7 +15,6 @@
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
-
 class Color;
 class Image;
 
@@ -134,10 +133,8 @@ private:
 };
 
 namespace util::bitmask {
-
     template<>
     struct enable_ops<Sampler::DirtyMask> : std::true_type {};
-
 } // namespace util::bitmask
 } // namespace a3d
 

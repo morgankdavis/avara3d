@@ -17,7 +17,6 @@
 class IVHACD;
 
 namespace a3d {
-
 class MeshElement;
 
 class ConvexDecomposer {
@@ -58,7 +57,6 @@ private:
     Options      _options;
     MeshElement* _sourceElement;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_MESH_CONVEXDECOMPOSER_H

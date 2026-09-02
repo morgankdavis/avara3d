@@ -20,7 +20,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Wedge::Mesh(float                      length,
@@ -316,5 +315,4 @@ unsigned Wedge::widthSegments() const {
 unsigned Wedge::riseSegments() const {
     return _riseSegments;
 }
-
 } // namespace a3d

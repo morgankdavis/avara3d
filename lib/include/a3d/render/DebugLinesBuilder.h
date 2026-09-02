@@ -14,7 +14,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 struct AABB;
 
 class Color;
@@ -32,7 +31,6 @@ public:
                                        const Color&       color);
     static void AppendFrame(std::vector<Line>& out, const math::mat4& transform, const math::vec3& size);
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_RENDER_DEBUGLINESBUILDER_H

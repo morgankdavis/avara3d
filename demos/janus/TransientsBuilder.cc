@@ -15,14 +15,15 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-static pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
-                                            const vec3&   cellSize,
-                                            const u8vec3& gridSize,
-                                            float         gap);
-
 namespace demo::janus {
+namespace {
+    // [Private Non-Member Prototypes]
+
+    pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
+                                         const vec3&   cellSize,
+                                         const u8vec3& gridSize,
+                                         float         gap);
+} // namespace
 
 // [Public Member Functions]
 
@@ -320,21 +321,24 @@ shared_ptr<Node> TransientsBuilder::duck(const vec3& location, const vec3& veloc
     return node;
 }
 
-} // namespace demo::janus
-
+namespace {
 // [Private Non-Member Functions]
 
-pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
-                                     const vec3&   cellSize,
-                                     const u8vec3& gridSize,
-                                     float         gap) {
+    pair<vec3, vec3> CalculateGridLayout(const vec3&   location,
+                                         const vec3&   cellSize,
+                                         const u8vec3& gridSize,
+                                         float         gap) {
 
-    const vec3 step = cellSize + vec3 {gap};
+        const vec3 step = cellSize + vec3 {gap};
 
-    const float totalX = cellSize.x * static_cast<float>(gridSize.x) + gap * static_cast<float>(gridSize.x - 1);
-    const float totalZ = cellSize.z * static_cast<float>(gridSize.z) + gap * static_cast<float>(gridSize.z - 1);
+        const float totalX =
+            cellSize.x * static_cast<float>(gridSize.x) + gap * static_cast<float>(gridSize.x - 1);
+        const float totalZ =
+            cellSize.z * static_cast<float>(gridSize.z) + gap * static_cast<float>(gridSize.z - 1);
 
-    return {{location.x - totalX * 0.5f + cellSize.x * 0.5f, location.y + cellSize.y * 0.5f,
-             location.z - totalZ * 0.5f + cellSize.z * 0.5f},
-            step};
-}
+        return {{location.x - totalX * 0.5f + cellSize.x * 0.5f, location.y + cellSize.y * 0.5f,
+                 location.z - totalZ * 0.5f + cellSize.z * 0.5f},
+                step};
+    }
+} // namespace
+} // namespace demo::janus

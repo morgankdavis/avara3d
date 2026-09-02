@@ -16,7 +16,6 @@
 using namespace std;
 
 namespace a3d::log {
-
 // [Public Lifecycle Functions]
 
 FileLogSink::FileLogSink(const filesystem::path& relPath, int maxFiles, int maxFilesize):
@@ -189,5 +188,4 @@ void FileLogSink::rotate() {
 
     openStream();
 }
-
 } // namespace a3d::log

@@ -20,7 +20,6 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 // [Pubic Static Members]
 
 shared_ptr<Mesh> Spring::Mesh(float                      minorRadius,
@@ -96,5 +95,4 @@ unsigned Spring::slices() const {
 unsigned Spring::segments() const {
     return _segments;
 }
-
 } // namespace a3d

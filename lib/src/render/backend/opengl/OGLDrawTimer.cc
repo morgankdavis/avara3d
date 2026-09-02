@@ -20,13 +20,10 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     unsigned MinBufferSize(unsigned bufferedFrames);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -224,7 +221,6 @@ void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     unsigned MinBufferSize(unsigned bufferedFrames) {
@@ -234,7 +230,5 @@ namespace {
         return math::max(unsigned(2), bufferedFrames);
 #endif
     }
-
 } // namespace
-
 } // namespace a3d

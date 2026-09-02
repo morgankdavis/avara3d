@@ -12,7 +12,6 @@
 #include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
-
 /**
  * @brief Infinite collision plane through the local origin with normal along +Z.
  *
@@ -43,7 +42,6 @@ public:
     bool supportsBodyType(PhysicsBody::Type type) const override;
     bool supportsMargin() const override;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_INFINITEPLANEPHYSICSSHAPE_H

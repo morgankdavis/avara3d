@@ -12,13 +12,10 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Node;
-
 } // namespace a3d
 
 namespace a3d::ext {
-
 /**
  * @brief Applies smoothly varying random rotation to a Node.
  *
@@ -34,7 +31,7 @@ public:
     float maxInterval {2.5f}; ///< Maximum time between target changes, in seconds.
     float minSpeed {0.5f};    ///< Minimum target angular speed, in radians per second.
     float maxSpeed {1.0f};    ///< Maximum target angular speed, in radians per second.
-    float smoothing {1.0f};   ///< Smoothing rate toward target angular velocity; larger values respond faster.
+    float smoothing {1.0f}; ///< Smoothing rate toward target angular velocity; larger values respond faster.
 
     // [Public Member Functions]
 
@@ -54,7 +51,6 @@ private:
     math::vec3 _angularVelocity {0.0f, 0.0f, 0.0f};
     math::vec3 _targetAngularVelocity {0.0f, 0.0f, 0.0f};
 };
-
 } // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_WANDERROTATOR_H

@@ -16,7 +16,6 @@
 #include "a3d/profile/FrameStats.h"
 
 namespace a3d {
-
 class FrameStatsHistory {
 
 public:
@@ -50,7 +49,6 @@ private:
     std::chrono::milliseconds                           _historyTime;
     std::deque<std::tuple<SteadyTimePoint, FrameStats>> _samples;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PROFILE_FRAMESTATSHISTORY_H

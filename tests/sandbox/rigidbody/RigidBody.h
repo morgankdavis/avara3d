@@ -18,23 +18,18 @@
 #include "a3d/util/PeriodicTrigger.h"
 
 namespace a3d {
-
 class Mesh;
 class Node;
 class PhysicsShape;
 class Scene;
 class Window;
-
-}
+} // namespace a3d
 
 namespace a3d::ext {
-
 struct WanderRotator;
-
-}
+} // namespace a3d::ext
 
 namespace sandbox::rigidbody {
-
 class RigidBody : public a3d::Application {
 
 public:
@@ -79,7 +74,6 @@ private:
     std::weak_ptr<a3d::Node>                 _contactTestC;
     std::weak_ptr<a3d::Node>                 _contactTestD;
 };
-
-}
+} // namespace sandbox::rigidbody
 
 #endif // AVARA3D_TEST_SANDBOX_RIGIDBODY_H

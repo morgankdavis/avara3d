@@ -16,13 +16,10 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Node;
-
 } // namespace a3d
 
 namespace a3d::ext {
-
 /**
  * @brief Moves a Node along a smooth deterministic path within a configurable box.
  *
@@ -109,7 +106,6 @@ private:
 
     double              _phase {0.0};
 };
-
 } // namespace a3d::ext
 
 #endif // AVARA3D_EXTENSION_WANDERER_H

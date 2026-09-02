@@ -14,7 +14,6 @@
 #include <memory>
 
 namespace a3d {
-
 class Image;
 
 /**
@@ -81,7 +80,6 @@ private:
     unsigned                              _height;
     unsigned                              _bytesPerPixel;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_CUBEIMAGE_H

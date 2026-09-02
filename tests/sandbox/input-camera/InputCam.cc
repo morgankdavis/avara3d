@@ -31,7 +31,6 @@ const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 
 namespace sandbox::inputcam {
-
 // [Public Lifecycle Functions]
 
 InputCam::InputCam(int argc, char* argv[]):
@@ -100,5 +99,4 @@ void InputCam::inputDidUpdate(Runner&                         runner,
         _cameraController.update(*pov, *input, info.deltaTime);
     }
 }
-
 } // namespace sandbox::inputcam

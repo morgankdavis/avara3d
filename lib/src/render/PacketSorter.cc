@@ -17,16 +17,13 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Non-Member Prototypes]
 
     uint32_t PtrHash32(const void* p);
     uint16_t PtrHash16(const void* p);
     uint32_t FoldHash32(size_t h);
     void     SortItems(vector<DrawItem>& items);
-
 } // namespace
 
 // [Internal Static Member Functions]
@@ -56,7 +53,6 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     uint32_t PtrHash32(const void* p) {
@@ -116,7 +112,5 @@ namespace {
             return a.sequence < b.sequence;
         });
     }
-
 } // namespace
-
 } // namespace a3d

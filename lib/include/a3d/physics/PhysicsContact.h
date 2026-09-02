@@ -14,7 +14,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Node;
 
 /**
@@ -73,7 +72,6 @@ private:
     float               _penetrationDistance;
     float               _sweepTestFraction;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PHYSICSCONTACT_H

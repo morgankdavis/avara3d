@@ -23,14 +23,11 @@
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Constants]
 
     // duration of sample history to keep
     constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
-
 } // namespace
 
 // [Public Lifecycle Functions]
@@ -460,5 +457,4 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
     ++_renderedFrameCount;
     return true;
 }
-
 } // namespace a3d

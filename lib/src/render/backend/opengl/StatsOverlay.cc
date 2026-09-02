@@ -41,9 +41,7 @@ using namespace a3d::math;
 using namespace std;
 
 namespace a3d {
-
 namespace {
-
     // [Private Constants]
 
     const std::string STATS_TITLE_FONT {"Neuropol Nova Xp.ttf"};
@@ -169,7 +167,6 @@ namespace {
                        bool         disabled);
 
     string FormatMemorySize(uint64_t bytes);
-
 } // namespace
 
 // [Internal Lifecycle Functions]
@@ -212,7 +209,6 @@ void StatsOverlay::draw(const RenderContext&     context,
 }
 
 namespace {
-
     // [Private Non-Member Functions]
 
     void DrawOverlay(const RenderContext&     context,
@@ -948,7 +944,5 @@ namespace {
 
         return std::format("{}B", bytes);
     }
-
 } // namespace
-
 } // namespace a3d

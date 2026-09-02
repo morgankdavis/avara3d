@@ -14,7 +14,6 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-
 class Mesh;
 class Node;
 class PhysicsWorld;
@@ -403,7 +402,6 @@ private:
     // either a pointer to the world we are currently in or null.
     PhysicsWorld*                     _world;
 };
-
 } // namespace a3d
 
 #endif // AVARA3D_PHYSICS_PHYSICSBODY_H
