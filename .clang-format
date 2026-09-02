@@ -15,7 +15,8 @@ UseTab: Never
 
 NamespaceIndentation: Inner
 CompactNamespaces: false
-FixNamespaceComments: false
+FixNamespaceComments: true
+ShortNamespaceLines: 0
 WrapNamespaceBodyWithEmptyLines: Always
 
 AccessModifierOffset: -4

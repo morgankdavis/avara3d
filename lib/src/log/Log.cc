@@ -26,21 +26,27 @@ static_assert(_MSVC_LANG >= 202002L, "C++20 (/std:c++20) is required for std::so
 static_assert(__cplusplus >= 202002L, "C++20 is required for std::source_location");
 #endif
 
-using namespace a3d;
-using namespace a3d::log;
 using namespace std;
 
-// [Private Non-Member Variables]
+namespace a3d::log {
 
 namespace {
 
+    // [Private Non-Member Variables]
+
     unique_ptr<Log> _appLog {};
+
+    // [Private Non-Member Prototypes]
+
+    string TimestampString();
+    string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo);
+    string HeaderString(const string& logName, Level level);
 
 } // namespace
 
 // [Public Functions]
 
-Log& log::AppLog() {
+Log& AppLog() {
     if (_appLog) {
         return *_appLog;
     }
@@ -48,20 +54,14 @@ Log& log::AppLog() {
     return MainLog();
 }
 
-void log::AppLog(unique_ptr<Log> log) {
+void AppLog(unique_ptr<Log> log) {
     _appLog = std::move(log);
 }
 
-Log& log::MainLog() {
-    static Log main {"a3d", std::make_unique<a3d::log::StdOutLogSink>()};
+Log& MainLog() {
+    static Log main {"a3d", std::make_unique<StdOutLogSink>()};
     return main;
 }
-
-// [Private Non-Member Prototypes]
-
-static string TimestampString();
-static string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo);
-static string HeaderString(const string& logName, Level level);
 
 // [Public Types]
 
@@ -208,7 +208,7 @@ Log::Entry Log::fatal(std::source_location where) {
     return Entry {*this, Level::Fatal, MakeSourceInfo(where)};
 }
 
-void Log::write(log::Level level, const SourceInfo& sourceInfo, string_view msg) {
+void Log::write(Level level, const SourceInfo& sourceInfo, string_view msg) {
     if (!enabled(level)) {
         return;
     }
@@ -224,7 +224,7 @@ void Log::write(log::Level level, const SourceInfo& sourceInfo, string_view msg)
     dispatch(level, out);
 }
 
-void Log::write(log::Level level, string_view msg) {
+void Log::write(Level level, string_view msg) {
     if (!enabled(level)) {
         return;
     }
@@ -289,7 +289,7 @@ Log::Log(const string& name):
 
 // [Private Member Functions]
 
-void Log::log(log::Level level, const string& msg) {
+void Log::log(Level level, const string& msg) {
     if (!enabled(level)) {
         return;
     }
@@ -306,63 +306,63 @@ void Log::log(log::Level level, const string& msg) {
     dispatch(level, line);
 }
 
-void Log::dispatch(log::Level level, string& output) {
+void Log::dispatch(Level level, string& output) {
     for (auto& sink : _sinks) {
         sink->write(output, level);
     }
 
-    if (static_cast<std::underlying_type_t<log::Level>>(level)
-        >= static_cast<std::underlying_type_t<log::Level>>(_flushLevel)) {
+    if (static_cast<std::underlying_type_t<Level>>(level)
+        >= static_cast<std::underlying_type_t<Level>>(_flushLevel)) {
         flush();
     }
 }
 
-bool Log::enabled(log::Level level) const {
+bool Log::enabled(Level level) const {
     if (level == Level::Off) {
         return false;
     }
     if (_level == Level::Off) {
         return false;
     }
-    return static_cast<std::underlying_type_t<log::Level>>(level)
-           >= static_cast<std::underlying_type_t<log::Level>>(_level);
+    return static_cast<std::underlying_type_t<Level>>(level)
+           >= static_cast<std::underlying_type_t<Level>>(_level);
 }
 
 // [Private Non-Member Functions]
 
-static string TimestampString() {
-    constexpr size_t BUF_SIZE = 256;
-    char             buf[BUF_SIZE];
+namespace {
+
+    string TimestampString() {
+        constexpr size_t BUF_SIZE = 256;
+        char             buf[BUF_SIZE];
 
 #ifdef A3D_WINDOWS
-    time_t     rawtime;
-    struct tm* timeinfo;
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %I:%M:%S", timeinfo);
-    return string(buf);
+        time_t     rawtime;
+        struct tm* timeinfo;
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+        strftime(buf, sizeof(buf), "%Y-%m-%d %I:%M:%S", timeinfo);
+        return string(buf);
 #else
-    timeval curTime;
-    gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
-    const int milli = curTime.tv_usec / 1000;
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-    char msBuf[std::strlen(buf) + 5];
-    snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
-    return string(msBuf);
+        timeval curTime;
+        gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
+        const int milli = curTime.tv_usec / 1000;
+        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
+        char msBuf[std::strlen(buf) + 5];
+        snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
+        return string(msBuf);
 #endif
-}
+    }
 
-static string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo) {
-    return std::format("{} [{}] [{}] [{}:{}] [{}()]", TimestampString(), logName, util::enums::enum_name(level),
-                       sourceInfo.filename, sourceInfo.line, sourceInfo.function);
-}
+    string HeaderString(const string& logName, Level level, const Log::SourceInfo& sourceInfo) {
+        return std::format("{} [{}] [{}] [{}:{}] [{}()]", TimestampString(), logName,
+                           util::enums::enum_name(level), sourceInfo.filename, sourceInfo.line,
+                           sourceInfo.function);
+    }
 
-// [Private Static Member Variables]
+    string HeaderString(const string& logName, Level level) {
+        return std::format("{} [{}] [{}]", TimestampString(), logName, util::enums::enum_name(level));
+    }
 
-// unique_ptr<Log> Log::_appLog {};
-
-// [Private Static Member Functions]
-
-static string HeaderString(const string& logName, Level level) {
-    return std::format("{} [{}] [{}]", TimestampString(), logName, util::enums::enum_name(level));
-}
+} // namespace
+} // namespace a3d::log
