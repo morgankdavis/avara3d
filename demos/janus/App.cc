@@ -43,7 +43,6 @@ namespace {
     void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
     shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
     shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
-    shared_ptr<Node>          CreateCursorMarker();
     optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
                                    const vec2&                screenPosition,
                                    const vector<const Node*>& ignoredNodes = {},
@@ -64,8 +63,6 @@ App::App(int argc, char* argv[]):
     _cameraController {},
     _hoveredNode {},
     _selection {},
-    _cursorMarker {nullptr},
-    _actionTarget {},
     _action {Action::Drop},
     _dropAction {DropAction::Rocks},
     _throwAction {ThrowAction::Hammer},
@@ -177,14 +174,6 @@ std::unique_ptr<Scene> App::init() {
         _cameraNode = CreateCamera(_cameraController);
         scene->rootNode()->addChild(_cameraNode);
         scene->visualWorld()->pointOfView(_cameraNode);
-
-        // create the action target marker
-
-        const bool ENABLE_CURSOR_MARKER {false};
-        if (ENABLE_CURSOR_MARKER) {
-            _cursorMarker = CreateCursorMarker();
-            scene->rootNode()->addChild(_cursorMarker);
-        }
 
         // create the wandering orbs
 
@@ -305,44 +294,14 @@ void App::frameDidBegin(Runner&                        runner,
         _cameraController.apply(*_cameraNode);
     }
 
-    bool hovered = drawPanel();
+    const bool hovered = drawPanel();
 
     if (_window->cursorCaptured() || hovered) {
-
         hover(nullptr);
-
-        _actionTarget.reset();
-        if (_cursorMarker) {
-            _cursorMarker->hidden(true);
-        }
     }
     else {
-
         auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
-
-        const auto screenPosition = input.mousePosition();
-
-        hover(visualWorld, screenPosition);
-
-        _actionTarget = target(scene, screenPosition);
-
-        if (_actionTarget) {
-
-            if (_cursorMarker) {
-                _cursorMarker->position(_actionTarget->hitPosition);
-                _cursorMarker->hidden(false);
-            }
-        }
-        else {
-
-            if (_cursorMarker) {
-                _cursorMarker->hidden(true);
-            }
-        }
-    }
-
-    if (_cursorMarker) {
-        _window->cursorHidden(!_cursorMarker->hidden());
+        hover(visualWorld, input.mousePosition());
     }
 }
 
@@ -442,20 +401,8 @@ void App::queueAction(const vec2& screenPosition) {
 
     auto actionTarget = target(scene, screenPosition);
 
-    _actionTarget = actionTarget;
-
     if (!actionTarget) {
-
-        if (_cursorMarker) {
-            _cursorMarker->hidden(true);
-        }
-
         return;
-    }
-
-    if (_cursorMarker) {
-        _cursorMarker->position(actionTarget->hitPosition);
-        _cursorMarker->hidden(false);
     }
 
     auto visualWorld = scene.visualWorld();
@@ -614,11 +561,7 @@ void App::performAction(const PendingAction& action) {
 vector<const Node*> App::pickIgnoredNodes(PickPurpose purpose) const {
 
     vector<const Node*> nodes;
-    nodes.reserve(_pickIgnores.size() + 1);
-
-    if (_cursorMarker) {
-        nodes.push_back(_cursorMarker.get());
-    }
+    nodes.reserve(_pickIgnores.size());
 
     for (const auto& entry : _pickIgnores) {
 
@@ -670,15 +613,9 @@ void App::reset() {
 
     restoreDynamics();
 
-    _actionTarget.reset();
-
     erase_if(_pickIgnores, [](const PickIgnore& ignore) {
         return ignore.remainingTime.has_value();
     });
-
-    if (_cursorMarker) {
-        _cursorMarker->hidden(true);
-    }
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
@@ -963,23 +900,6 @@ namespace {
         }
 
         return orbGroup;
-    }
-
-    shared_ptr<Node> CreateCursorMarker() {
-
-        const float CURSOR_MARKER_RADIUS {0.1f};
-        auto        material = Material::EmissionMaterial(Color::Yellow());
-        material->depthTestEnabled(false);
-        material->depthWriteEnabled(false);
-
-        auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
-
-        auto marker = Node::MeshNode(mesh);
-        marker->name("marker");
-        marker->renderOrder(100);
-        marker->hidden(true);
-
-        return marker;
     }
 
     optional<App::PickResult> Pick(const VisualWorld&         visualWorld,

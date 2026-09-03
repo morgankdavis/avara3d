@@ -149,8 +149,6 @@ private:
     a3d::ext::TurntableCameraController _cameraController;
     std::weak_ptr<a3d::Node>            _hoveredNode;
     std::optional<PickResult>           _selection;
-    std::shared_ptr<a3d::Node>          _cursorMarker;
-    std::optional<PickResult>           _actionTarget;
     Action                              _action;
     DropAction                          _dropAction;
     ThrowAction                         _throwAction;
