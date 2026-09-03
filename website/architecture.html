@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Avara3D architecture: ownership, fixed-step simulation, rendering, physics integration, and selected engine systems.">
+    <meta name="description"
+          content="Avara3D architecture: ownership, fixed-step simulation, rendering, physics integration, and selected engine systems.">
     <title>Architecture · Avara3D</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/architecture.css">
@@ -35,97 +36,224 @@
 
     <main class="site-width inner-page architecture-page">
         <header class="page-hero architecture-hero">
-<!--            <h1>From scene to simulation, physics, and rendering.</h1>-->
+            <!--            <h1>From scene to simulation, physics, and rendering.</h1>-->
             <h1>
                 From <span class="architecture-title-accent">scene</span>
                 to <span class="architecture-title-accent">simulation</span>,
                 <span class="architecture-title-accent">physics</span>, and
                 <span class="architecture-title-accent">rendering</span>.
             </h1>
-            <p>How A3D handles object lifetime, fixed-step simulation, rendering, physics synchronization, and cross-platform execution.</p>
+            <p>How A3D handles object lifetime, fixed-step simulation, rendering, physics synchronization, and cross-platform
+                execution.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
                 <a href="#ownership">Ownership</a>
-                <a href="#scheduling">Scheduling</a>
+                <a href="#simulation">Simulation</a>
                 <a href="#physics">Physics</a><a
                     href="#rendering">Rendering</a>
-<!--                <a href="#details">Other details</a>-->
+                <!--                <a href="#details">Other details</a>-->
             </nav>
         </header>
-
-
 
 
         <section class="architecture-section" id="ownership" aria-labelledby="ownership-heading">
             <div class="architecture-copy">
                 <p class="arch-overline">Ownership</p>
-<!--                <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>-->
-<!--                <p>The <code>Application</code> class owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>-->
-<!--                <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>-->
-<!--                <h2 id="ownership-heading">Separation of ownership and scheduling.</h2>-->
+                <!--                <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>-->
+                <!--                <p>The <code>Application</code> class owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>-->
+                <!--                <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>-->
+                <!--                <h2 id="ownership-heading">Separation of ownership and scheduling.</h2>-->
 
                 <h2 id="ownership-heading">Division of responsibilities.</h2>
 
-                <p><code>Application</code> is the top-level owner of an A3D application. It owns the active <code>Scene</code>
-                    and the <code>Runner</code> responsible for driving it.</p>
+                <p><code>Application</code> is A3D's default top-level owner, owning the active <code>Scene</code> and the
+                    <code>Runner</code> that drives it.</p>
 
-                <p><code>Runner</code> holds only a non-owning reference to the <code>Scene</code>. This keeps simulation
-                    scheduling—frame-driven updates, fixed-step execution, pausing, and stepping—separate from the lifetime and
-                    contents of the scene itself.</p>
+                <p><code>Runner</code> holds only a non-owning reference to the <code>Scene</code>, driving simulation without
+                    participating in scene ownership.</p>
 
-                <p><code>Scene</code> owns the root node hierarchy and the major systems that operate on it, including the
-                    visual, physics, and input worlds. These systems remain independently configurable and replaceable.</p>
+                <p><code>Scene</code> owns the node graph and scene content — including meshes, materials, lights, and cameras —
+                    and the major systems that operate on them: <code>VisualWorld</code>, <code>PhysicsWorld</code>, and
+                    <code>InputContext</code>. These systems remain independently configurable and replaceable.</p>
+
+                <p><code>Application</code> is provided as the default application host. <code>Runner</code> and
+                    <code>Scene</code> can also be embedded directly into arbitrary application frameworks.</p>
 
             </div>
 
 
+            <!--            <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">-->
+            <!--                <div class="arch-node primary">Application<small>lifetime root</small></div>-->
+            <!--                <div class="ownership-pair">-->
+            <!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Runner<small>scheduling + control</small></div></div>&ndash;&gt;-->
+            <!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Scene<small>state + subsystem root</small></div></div>&ndash;&gt;-->
+            <!--                    <div>-->
+            <!--                        <div class="arch-node">Runner<small>scheduling + control</small></div>-->
+            <!--                    </div>-->
+            <!--                    <div>-->
+            <!--                        <div class="arch-node">Scene<small>state + subsystem root</small></div>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--&lt;!&ndash;                <div class="drives"><code>Runner</code><span>drives through <code>Scene&amp;</code></span><code>Scene</code></div>&ndash;&gt;-->
+            <!--                <div class="scene-owns">Scene owns / retains</div>-->
+            <!--                <div class="ownership-children">-->
+            <!--                    <div class="arch-node compact">VisualWorld</div><div class="arch-node compact">PhysicsWorld</div><div class="arch-node compact">InputContext</div><div class="arch-node compact">Root Node</div>-->
+            <!--                </div>-->
+            <!--            </div>-->
 
 
-
-<!--            <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">-->
-<!--                <div class="arch-node primary">Application<small>lifetime root</small></div>-->
-<!--                <div class="ownership-pair">-->
-<!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Runner<small>scheduling + control</small></div></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Scene<small>state + subsystem root</small></div></div>&ndash;&gt;-->
-<!--                    <div>-->
-<!--                        <div class="arch-node">Runner<small>scheduling + control</small></div>-->
-<!--                    </div>-->
-<!--                    <div>-->
-<!--                        <div class="arch-node">Scene<small>state + subsystem root</small></div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--&lt;!&ndash;                <div class="drives"><code>Runner</code><span>drives through <code>Scene&amp;</code></span><code>Scene</code></div>&ndash;&gt;-->
-<!--                <div class="scene-owns">Scene owns / retains</div>-->
-<!--                <div class="ownership-children">-->
-<!--                    <div class="arch-node compact">VisualWorld</div><div class="arch-node compact">PhysicsWorld</div><div class="arch-node compact">InputContext</div><div class="arch-node compact">Root Node</div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <!--            <div class="arch-card ownership-v2 placeholder-card" role="img"></div>-->
 
 
-            <div class="arch-card ownership-v2 placeholder-card" role="img"></div>
+            <figure class="ownership-diagram">
+
+                <div class="ownership-overview"
+                     role="img"
+                     aria-label="Application owns Runner and Scene. Solid connections show ownership. The dotted connection from Runner to Scene is non-owning. Scene owns VisualWorld, PhysicsWorld, InputContext, and the node graph.">
+
+                    <div class="arch-node ownership-application">Application</div>
+
+                    <div class="ownership-app-bus" aria-hidden="true">
+                        <span class="ownership-app-drop ownership-app-drop-runner"></span>
+                        <span class="ownership-app-drop ownership-app-drop-scene"></span>
+                    </div>
+
+                    <div class="ownership-main-row">
+
+                        <div class="arch-node ownership-runner">Runner</div>
+
+                        <div class="ownership-reference" aria-hidden="true"></div>
+
+                        <div class="ownership-scene-stack">
+                            <div class="arch-node ownership-scene-node">Scene</div>
+
+                            <div class="ownership-scene-bus" aria-hidden="true">
+                                <div class="ownership-child-row">
+                                    <div class="arch-node compact">VisualWorld</div>
+                                    <div class="arch-node compact">PhysicsWorld</div>
+                                </div>
+
+                                <div class="ownership-child-row">
+                                    <div class="arch-node compact">InputContext</div>
+                                    <div class="arch-node compact">Node Graph</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="ownership-details">
+
+                    <section class="ownership-detail-column">
+                        <h3 class="ownership-detail-heading">Systems</h3>
+
+                        <div class="ownership-system-list">
+
+                            <article class="ownership-system-item">
+                                <code class="ownership-system-name">VisualWorld</code>
+                                <p>visual configuration &amp; rendering</p>
+
+                                <div class="ownership-backend">
+                                    <span class="ownership-backend-label">backend</span>
+                                    <code>RenderContext</code>
+                                    <span class="ownership-backend-arrow">→</span>
+                                    <code>Renderer</code>
+                                    <span class="ownership-backend-arrow">→</span>
+                                    <code>OpenGL</code>
+                                </div>
+                            </article>
+
+                            <article class="ownership-system-item">
+                                <code class="ownership-system-name">PhysicsWorld</code>
+                                <p>physics configuration &amp; simulation</p>
+
+                                <div class="ownership-backend">
+                                    <span class="ownership-backend-label">backend</span>
+                                    <code>PhysicsWorldProxy</code>
+                                    <span class="ownership-backend-arrow">→</span>
+                                    <code>Bullet</code>
+                                </div>
+                            </article>
+
+                            <article class="ownership-system-item">
+                                <code class="ownership-system-name">InputContext</code>
+                                <p>input polling &amp; mapping</p>
+
+                                <div class="ownership-backend">
+                                    <span class="ownership-backend-label">backend</span>
+                                    <code>GLFW</code>
+                                </div>
+                            </article>
+
+                        </div>
+                    </section>
+
+                    <section class="ownership-detail-column ownership-node-column">
+                        <h3 class="ownership-detail-heading">Node Graph</h3>
+
+                        <div class="ownership-node-tree" aria-label="Node graph content">
+                            <div class="ownership-tree-root ownership-system-item">
+                                <code class="ownership-system-name">Node</code>
+                            </div>
+
+                            <ul class="ownership-tree ownership-tree-root-list">
+                                <li>
+                                    <div class="ownership-tree-label"><code>Mesh</code></div>
+                                    <ul class="ownership-tree">
+                                        <li>
+                                            <div class="ownership-tree-label"><code>MeshElement</code></div>
+                                        </li>
+                                        <li>
+                                            <div class="ownership-tree-label"><code>Material</code></div>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li>
+                                    <div class="ownership-tree-label"><code>PhysicsBody</code></div>
+                                    <ul class="ownership-tree">
+                                        <li>
+                                            <div class="ownership-tree-label"><code>PhysicsShape</code></div>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li>
+                                    <div class="ownership-tree-label"><code>Light</code></div>
+                                </li>
+
+                                <li>
+                                    <div class="ownership-tree-label"><code>Camera</code></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+
+                </div>
+
+            </figure>
 
 
         </section>
 
 
-
-
-        <section class="architecture-section architecture-section-stacked" id="scheduling" aria-labelledby="simulation-heading">
+        <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">
             <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Scheduling</p>
+                <p class="arch-overline">Simulation</p>
                 <h2 id="simulation-heading">Fixed simulation, variable rendering.</h2>
                 <p><code>Scene</code> traversal gathers the visible state needed to render a frame into its
                     <code>VisualWorld</code>, producing an immutable snapshot. That state is resolved to GPU resources,
                     converted into render packets, and passed to the OpenGL rendering backend for execution.</p>
 
             </div>
-<!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
-<!--                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>-->
-<!--                <li><b>02</b><strong>Poll events</strong><small>Window + platform</small></li>-->
-<!--                <li><b>03</b><strong>Update input</strong><small>State + callback</small></li>-->
-<!--                <li><b>04</b><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
-<!--                <li><b>05</b><strong>Render</strong><small>Completed state</small></li>-->
-<!--                <li><b>06</b><strong>Present</strong><small>Swap buffers</small></li>-->
-<!--            </ol>-->
+            <!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
+            <!--                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>-->
+            <!--                <li><b>02</b><strong>Poll events</strong><small>Window + platform</small></li>-->
+            <!--                <li><b>03</b><strong>Update input</strong><small>State + callback</small></li>-->
+            <!--                <li><b>04</b><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
+            <!--                <li><b>05</b><strong>Render</strong><small>Completed state</small></li>-->
+            <!--                <li><b>06</b><strong>Present</strong><small>Swap buffers</small></li>-->
+            <!--            </ol>-->
             <ol class="arch-flow host-flow" aria-label="One host update">
                 <li><strong>Application update</strong><small>Variable-rate policy</small></li>
                 <li><strong>Poll events</strong><small>Window + platform</small></li>
@@ -137,16 +265,39 @@
             <div class="arch-two-column">
                 <div class="arch-card scheduler-card">
                     <h3>Bounded fixed-step scheduling</h3>
-                    <dl><div><dt>Host delta</dt><dd>16.67 ms</dd></div><div><dt>Fixed step</dt><dd>8.33 ms</dd></div><div><dt>Scheduled</dt><dd>2 steps</dd></div><div><dt>Catch-up</dt><dd>capped</dd></div></dl>
+                    <dl>
+                        <div>
+                            <dt>Host delta</dt>
+                            <dd>16.67 ms</dd>
+                        </div>
+                        <div>
+                            <dt>Fixed step</dt>
+                            <dd>8.33 ms</dd>
+                        </div>
+                        <div>
+                            <dt>Scheduled</dt>
+                            <dd>2 steps</dd>
+                        </div>
+                        <div>
+                            <dt>Catch-up</dt>
+                            <dd>capped</dd>
+                        </div>
+                    </dl>
                     <div class="ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                    <p>Pause, explicit single-step, resettable simulation time, and discarded-time accounting remain part of the scheduler rather than ad hoc demo behavior.</p>
+                    <p>Pause, explicit single-step, resettable simulation time, and discarded-time accounting remain part of the
+                        scheduler rather than ad hoc demo behavior.</p>
                 </div>
                 <div class="arch-card">
                     <h3>One simulation step</h3>
                     <ol class="step-flow" aria-label="Simulation step ordering">
-                        <li>Pre-step commands</li><li><code>sceneWillStep</code></li><li>Bullet step + contacts</li><li>Post-step commands</li><li><code>sceneDidStep</code></li>
+                        <li>Pre-step commands</li>
+                        <li><code>sceneWillStep</code></li>
+                        <li>Bullet step + contacts</li>
+                        <li>Post-step commands</li>
+                        <li><code>sceneDidStep</code></li>
                     </ol>
-                    <p>Commands originating from input or UI are moved into explicit simulation queues. Each queue is exchanged before execution, so work enqueued by a running command waits for a later step.</p>
+                    <p>Commands originating from input or UI are moved into explicit simulation queues. Each queue is exchanged
+                        before execution, so work enqueued by a running command waits for a later step.</p>
                 </div>
             </div>
         </section>
@@ -156,9 +307,9 @@
             <div class="architecture-copy architecture-copy-wide">
                 <p class="arch-overline">Physics</p>
                 <h2 id="physics-heading">Physics powered by Bullet.</h2>
-<!--                <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D-->
-<!--                    types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without-->
-<!--                    becoming the public object model.</p>-->
+                <!--                <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D-->
+                <!--                    types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without-->
+                <!--                    becoming the public object model.</p>-->
                 <p>A <code>Node</code> owns its <code>PhysicsBody</code>, while bodies may share <code>PhysicsShape</code>
                     objects. Public A3D types delegate through internal proxy interfaces, allowing Bullet to implement worlds,
                     bodies, and shapes without becoming part of A3D's public object model.</p>
@@ -205,71 +356,73 @@
         </section>
 
 
-
-
-
         <section class="architecture-section architecture-section-stacked" id="rendering" aria-labelledby="rendering-heading">
             <div class="architecture-copy architecture-copy-wide">
                 <p class="arch-overline">Rendering</p>
                 <h2 id="rendering-heading">Turning a scene into a frame.</h2>
-                <p><code>VisualWorld</code> coordinates the frame, but scene objects are not submitted directly as graphics commands. Gathering extracts visible state, packetization converts it into backend-oriented work, and Renderer owns OpenGL/WebGL execution.</p>
+                <p><code>VisualWorld</code> coordinates the frame, but scene objects are not submitted directly as graphics
+                    commands. Gathering extracts visible state, packetization converts it into backend-oriented work, and
+                    Renderer owns OpenGL/WebGL execution.</p>
             </div>
-            <div class="render-pipeline" role="img" aria-label="Scene graph flows through RenderGatherer, GatherOutput, DrawPacketizer, DrawPacket, Renderer, and OpenGL or WebGL.">
-                <div><small>Scene state</small><strong>Scene graph</strong></div><span>→</span>
-                <div><small>Traversal</small><strong>RenderGatherer</strong></div><span>→</span>
-                <div><small>Extracted state</small><strong>GatherOutput</strong></div><span>→</span>
-                <div><small>Transformation</small><strong>DrawPacketizer</strong></div><span>→</span>
-                <div><small>Frame work</small><strong>DrawPacket</strong></div><span>→</span>
-                <div><small>Backend</small><strong>Renderer</strong></div><span>→</span>
+            <div class="render-pipeline" role="img"
+                 aria-label="Scene graph flows through RenderGatherer, GatherOutput, DrawPacketizer, DrawPacket, Renderer, and OpenGL or WebGL.">
+                <div><small>Scene state</small><strong>Scene graph</strong></div>
+                <span>→</span>
+                <div><small>Traversal</small><strong>RenderGatherer</strong></div>
+                <span>→</span>
+                <div><small>Extracted state</small><strong>GatherOutput</strong></div>
+                <span>→</span>
+                <div><small>Transformation</small><strong>DrawPacketizer</strong></div>
+                <span>→</span>
+                <div><small>Frame work</small><strong>DrawPacket</strong></div>
+                <span>→</span>
+                <div><small>Backend</small><strong>Renderer</strong></div>
+                <span>→</span>
                 <div><small>Execution</small><strong>OpenGL / WebGL</strong></div>
             </div>
             <ol class="frame-envelope" aria-label="Render frame envelope">
-                <li>Begin frame</li><li>Application frame callback</li><li>Pre-traversal</li><li>Gather + packetize</li><li>Render packet</li><li>End frame + present</li>
+                <li>Begin frame</li>
+                <li>Application frame callback</li>
+                <li>Pre-traversal</li>
+                <li>Gather + packetize</li>
+                <li>Render packet</li>
+                <li>End frame + present</li>
             </ol>
         </section>
 
 
+        <!--        <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">-->
+        <!--            <div class="architecture-copy architecture-copy-wide">-->
+        <!--                <p class="arch-overline">Other design details</p>-->
+        <!--                <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>-->
+        <!--            </div>-->
+        <!--            <div class="other-detail-grid">-->
+        <!--                <article><p class="detail-label">Native + web</p><h3>One application model, two host loops.</h3><div class="mini-fork"><code>Application::Run</code><span>↓</span><div><code>while (update())</code><code>emscripten main loop</code></div></div><p>Native builds block in the host loop; web builds install the same update path into the browser. Visibility changes suspend the simulation clock so hidden-page time does not become catch-up work.</p></article>-->
+        <!--                <article><p class="detail-label">Runtime instrumentation</p><h3>Timing is built into the frame lifecycle.</h3><div class="metric-cloud"><span>Application</span><span>Physics</span><span>Engine CPU</span><span>Render CPU</span><span>Render GPU</span><span>Frame</span></div><p>Runner also records step counts, simulation time, discarded catch-up time, contacts, body types, and collision-shape inventory for the live statistics overlay.</p></article>-->
+        <!--                <article><p class="detail-label">Hit testing</p><h3>Viewport query → broad phase → exact geometry.</h3><ol class="mini-flow"><li>Logical point</li><li>World segment</li><li>Scene traversal</li><li>Mesh-local segment</li><li>Element AABB</li><li>Triangle test</li></ol><p>Search modes return any, closest, or all near-to-far hits. Bounds-only queries can stop before the two-sided Möller–Trumbore triangle stage.</p></article>-->
+        <!--                <article><p class="detail-label">Scene importing</p><h3>glTF becomes ordinary A3D scene state.</h3><div class="mini-import"><code>glTF / GLB</code><span>→</span><code>fastgltf</code><span>→</span><code>GlTFImporter</code><span>→</span><code>Scene + Nodes</code></div><p>Import options independently select meshes, materials, cameras, and lights. Imported hierarchy and transforms enter the same representation used by programmatically assembled scenes.</p></article>-->
+        <!--            </div>-->
+        <!--        </section>-->
 
 
-
-
-
-
-
-<!--        <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">-->
-<!--            <div class="architecture-copy architecture-copy-wide">-->
-<!--                <p class="arch-overline">Other design details</p>-->
-<!--                <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>-->
-<!--            </div>-->
-<!--            <div class="other-detail-grid">-->
-<!--                <article><p class="detail-label">Native + web</p><h3>One application model, two host loops.</h3><div class="mini-fork"><code>Application::Run</code><span>↓</span><div><code>while (update())</code><code>emscripten main loop</code></div></div><p>Native builds block in the host loop; web builds install the same update path into the browser. Visibility changes suspend the simulation clock so hidden-page time does not become catch-up work.</p></article>-->
-<!--                <article><p class="detail-label">Runtime instrumentation</p><h3>Timing is built into the frame lifecycle.</h3><div class="metric-cloud"><span>Application</span><span>Physics</span><span>Engine CPU</span><span>Render CPU</span><span>Render GPU</span><span>Frame</span></div><p>Runner also records step counts, simulation time, discarded catch-up time, contacts, body types, and collision-shape inventory for the live statistics overlay.</p></article>-->
-<!--                <article><p class="detail-label">Hit testing</p><h3>Viewport query → broad phase → exact geometry.</h3><ol class="mini-flow"><li>Logical point</li><li>World segment</li><li>Scene traversal</li><li>Mesh-local segment</li><li>Element AABB</li><li>Triangle test</li></ol><p>Search modes return any, closest, or all near-to-far hits. Bounds-only queries can stop before the two-sided Möller–Trumbore triangle stage.</p></article>-->
-<!--                <article><p class="detail-label">Scene importing</p><h3>glTF becomes ordinary A3D scene state.</h3><div class="mini-import"><code>glTF / GLB</code><span>→</span><code>fastgltf</code><span>→</span><code>GlTFImporter</code><span>→</span><code>Scene + Nodes</code></div><p>Import options independently select meshes, materials, cameras, and lights. Imported hierarchy and transforms enter the same representation used by programmatically assembled scenes.</p></article>-->
-<!--            </div>-->
-<!--        </section>-->
-
-
-
-
-<!--        <section class="final-callout architecture-callout">-->
-<!--            <p class="arch-overline">Reference and proof</p>-->
-<!--            <h2>Continue from design intent into exact contracts or running application code.</h2>-->
-<!--            <div class="hero-actions">-->
-<!--                <a class="button button-primary" href="demo_source.html">Open demo source</a>-->
-<!--                <a class="button button-secondary" href="api/">API reference</a>-->
-<!--                <a class="button button-secondary" href="api/conventions.html">Conventions</a>-->
-<!--            </div>-->
-<!--        </section>-->
+        <!--        <section class="final-callout architecture-callout">-->
+        <!--            <p class="arch-overline">Reference and proof</p>-->
+        <!--            <h2>Continue from design intent into exact contracts or running application code.</h2>-->
+        <!--            <div class="hero-actions">-->
+        <!--                <a class="button button-primary" href="demo_source.html">Open demo source</a>-->
+        <!--                <a class="button button-secondary" href="api/">API reference</a>-->
+        <!--                <a class="button button-secondary" href="api/conventions.html">Conventions</a>-->
+        <!--            </div>-->
+        <!--        </section>-->
     </main>
 
     <footer class="site-footer">
         <div class="site-width footer-inner">
             <p>
-                Avara3D · 3D visualization and simulation
+                Avara3D<span class="footer-desktop-only"> · 3D visualization and simulation</span>
             </p>
             <p>
-                Copyright © <span data-current-year></span>
+                <span class="footer-desktop-only">Copyright </span>© <span data-current-year></span>
                 <a href="https://mkd.net/"
                    target="_blank"
                    rel="noopener noreferrer">Morgan Davis</a>

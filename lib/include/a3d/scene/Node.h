@@ -102,18 +102,6 @@ public:
     /** @brief Sets the node name. */
     void                              name(const std::string& name);
 
-    /** @brief Returns the light attached to this node, or nullptr if none is attached. */
-    const std::shared_ptr<Light>&     light() const;
-
-    /** @brief Replaces the light attached to this node; nullptr removes it. */
-    void                              light(const std::shared_ptr<Light>& light);
-
-    /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
-    const std::shared_ptr<Camera>&    camera() const;
-
-    /** @brief Replaces the camera attached to this node; nullptr removes it. */
-    void                              camera(const std::shared_ptr<Camera>& camera);
-
     /** @brief Returns the mesh attached to this node, or nullptr if none is attached. */
     const std::shared_ptr<Mesh>&      mesh() const;
 
@@ -133,6 +121,32 @@ public:
      * and @p mesh contains no elements.
      */
     void                              mesh(const std::shared_ptr<Mesh>& mesh);
+
+    /** @brief Returns the light attached to this node, or nullptr if none is attached. */
+    const std::shared_ptr<Light>&     light() const;
+
+    /** @brief Replaces the light attached to this node; nullptr removes it. */
+    void                              light(const std::shared_ptr<Light>& light);
+
+    /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
+    const std::shared_ptr<Camera>&    camera() const;
+
+    /** @brief Replaces the camera attached to this node; nullptr removes it. */
+    void                              camera(const std::shared_ptr<Camera>& camera);
+
+    /** @brief Returns the physics body owned by this node, or nullptr if none is attached. */
+    PhysicsBody*                      physicsBody() const;
+
+    /**
+     * @brief Replaces the physics body owned by this node; nullptr removes it.
+     *
+     * If @p body has no PhysicsShape, A3D may automatically derive one from this
+     * node's Mesh or hierarchy.
+     *
+     * @throws std::invalid_argument if automatic collision-shape creation is required
+     * from a Mesh with no elements.
+     */
+    void                              physicsBody(std::unique_ptr<PhysicsBody> body);
 
     /** @brief Returns the node position in parent coordinates. */
     const math::vec3&                 position() const;
@@ -278,20 +292,6 @@ public:
      * @return The first matching child, or nullptr if no match is found.
      */
     std::shared_ptr<Node>              childNamed(const std::string& name, bool recursive = false) const;
-
-    /** @brief Returns the physics body owned by this node, or nullptr if none is attached. */
-    PhysicsBody*                       physicsBody() const;
-
-    /**
-     * @brief Replaces the physics body owned by this node; nullptr removes it.
-     *
-     * If @p body has no PhysicsShape, A3D may automatically derive one from this
-     * node's Mesh or hierarchy.
-     *
-     * @throws std::invalid_argument if automatic collision-shape creation is required
-     * from a Mesh with no elements.
-     */
-    void                               physicsBody(std::unique_ptr<PhysicsBody> body);
 
     /** @brief Returns true when this node is hidden from rendering. */
     bool                               hidden() const;

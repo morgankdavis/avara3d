@@ -111,22 +111,6 @@ void Node::name(const string& name) {
     _name = name;
 }
 
-const shared_ptr<Light>& Node::light() const {
-    return _light;
-}
-
-void Node::light(const shared_ptr<Light>& light) {
-    _light = light;
-}
-
-const shared_ptr<Camera>& Node::camera() const {
-    return _camera;
-}
-
-void Node::camera(const shared_ptr<Camera>& camera) {
-    _camera = camera;
-}
-
 const shared_ptr<Mesh>& Node::mesh() const {
     return _mesh;
 }
@@ -154,6 +138,41 @@ void Node::mesh(const shared_ptr<Mesh>& mesh) {
     }
 
     _physicsBody->meshDidChangeOnNode(node, _mesh);
+}
+
+const shared_ptr<Light>& Node::light() const {
+    return _light;
+}
+
+void Node::light(const shared_ptr<Light>& light) {
+    _light = light;
+}
+
+const shared_ptr<Camera>& Node::camera() const {
+    return _camera;
+}
+
+void Node::camera(const shared_ptr<Camera>& camera) {
+    _camera = camera;
+}
+
+PhysicsBody* Node::physicsBody() const {
+    return _physicsBody.get();
+}
+
+void Node::physicsBody(unique_ptr<PhysicsBody> body) {
+
+    if (_physicsBody) {
+        checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
+        _physicsBody->detachedFromNode(shared_from_this());
+    }
+
+    _physicsBody = std::move(body);
+
+    if (_physicsBody) {
+        _physicsBody->attachedToNode(shared_from_this());
+        checkNotifyPhysicsBodyOfReachablePhysicsWorld();
+    }
 }
 
 const vec3& Node::position() const {
@@ -440,25 +459,6 @@ shared_ptr<Node> Node::childNamed(const string& name, bool recursive) const {
         }
     }
     return nullptr;
-}
-
-PhysicsBody* Node::physicsBody() const {
-    return _physicsBody.get();
-}
-
-void Node::physicsBody(unique_ptr<PhysicsBody> body) {
-
-    if (_physicsBody) {
-        checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
-        _physicsBody->detachedFromNode(shared_from_this());
-    }
-
-    _physicsBody = std::move(body);
-
-    if (_physicsBody) {
-        _physicsBody->attachedToNode(shared_from_this());
-        checkNotifyPhysicsBodyOfReachablePhysicsWorld();
-    }
 }
 
 bool Node::hidden() const {

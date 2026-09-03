@@ -154,11 +154,6 @@ std::unique_ptr<Scene> App::init() {
         _transientsBuilder.init(*transientAssetsNode);
         transientAssetsNode->removeFromParent();
 
-        // create a root for spawned transient objects
-
-        _transientsRoot = Node::NamedNode("transients");
-        scene->rootNode()->addChild(_transientsRoot);
-
         // create and configure the ground
 
         scene->rootNode()->addChild(CreateGroundNode());
@@ -167,7 +162,12 @@ std::unique_ptr<Scene> App::init() {
 
         scene->rootNode()->addChild(Node::LightNode(Light::Ambient(Color {0.075f})));
 
-        // setup transient node groups
+        // create a transient objects root
+
+        _transientsRoot = Node::NamedNode("transients");
+        scene->rootNode()->addChild(_transientsRoot);
+
+        // setup transient tracker groups
 
         ConfigureTransientsTracker(_transientsTracker);
 
@@ -280,14 +280,16 @@ void App::frameDidBegin(Runner&                        runner,
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
     }
 
+    const float BACKGROUND_START_ANGLE {radians(210.0f)};
     const float BACKGROUND_ROTATION_SPEED {radians(0.25f)};
     const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
     const float angle =
-        radians(180.0f) + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
+        BACKGROUND_START_ANGLE + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
 
     if (const auto& current = visualWorld.background()) {
         auto background = *current;
+        auto angDeg = degrees(angle);
         background.orientation = quaternion(BACKGROUND_ROTATION_AXIS, angle);
         visualWorld.background(background);
     }
