@@ -15,8 +15,6 @@
 
 #include "QtViewport.h"
 
-using namespace std;
-
 namespace a3d::qt {
 
 namespace {

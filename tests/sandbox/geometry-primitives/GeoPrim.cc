@@ -14,19 +14,23 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Constants]
-
-const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
-const uvec2                       WINDOW_SIZE {1280, 768};
-const bool                        FULLSCREEN {false};
-const bool                        ENABLE_HIGH_DPI {true};
-const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
-const bool                        ENABLE_VSYNC {false};
-const bool                        CAPTURE_CURSOR {false};
-const float                       TIMESTEP {1.0 / 120.0};
-const bool                        DARK {false};
-
 namespace sandbox::geoprim {
+
+namespace {
+
+    // [Private Constants]
+
+    const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
+    const uvec2                       WINDOW_SIZE {1280, 768};
+    const bool                        FULLSCREEN {false};
+    const bool                        ENABLE_HIGH_DPI {true};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+    const bool                        ENABLE_VSYNC {false};
+    const bool                        CAPTURE_CURSOR {false};
+    const float                       TIMESTEP {1.0 / 120.0};
+    const bool                        DARK {false};
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -37,7 +41,7 @@ GeoPrim::~GeoPrim() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> GeoPrim::init() {
+unique_ptr<Scene> GeoPrim::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);

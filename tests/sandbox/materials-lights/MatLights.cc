@@ -14,26 +14,30 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [Private Non-Member Prototypes]
-
-void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
-void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
-
-// [Private Constants]
-
-const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
-const uvec2                       WINDOW_SIZE {1280, 768};
-const bool                        FULLSCREEN {false};
-const bool                        ENABLE_HIGH_DPI {true};
-const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
-const bool                        ENABLE_VSYNC {false};
-const bool                        CAPTURE_CURSOR {false};
-const bool                        ORTHO_CAMERA {false};
-
-const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
-const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
-
 namespace sandbox::matlights {
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
+    void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
+
+    // [Private Constants]
+
+    const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
+    const uvec2                       WINDOW_SIZE {1280, 768};
+    const bool                        FULLSCREEN {false};
+    const bool                        ENABLE_HIGH_DPI {true};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+    const bool                        ENABLE_VSYNC {false};
+    const bool                        CAPTURE_CURSOR {false};
+    const bool                        ORTHO_CAMERA {false};
+
+    const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
+    const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
+
+} // namespace
 
 // [Public Lifecycle Functions]
 
@@ -46,7 +50,7 @@ MatLights::~MatLights() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> MatLights::init() {
+unique_ptr<Scene> MatLights::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -272,53 +276,57 @@ void MatLights::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const V
     }
 }
 
+namespace {
+
+    // [Private Non-Member Functions]
+
+    void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
+
+        log::app::i()("SetAllFilterModes: {}", (unsigned) mode);
+
+        for (auto& node : scene.rootNode()->children(true)) {
+
+            auto geometry = node->mesh();
+            if (geometry) {
+
+                for (auto& material : geometry->materials()) {
+
+                    for (auto& [property, type] : material->properties()) {
+
+                        if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+                            auto sampler = (*texture)->sampler();
+                            sampler->minificationFilter(mode);
+                            sampler->magnificationFilter(mode);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
+
+        log::app::i()("SetAllMaxAnisotropy: {}", anisotropy);
+
+        for (auto& node : scene.rootNode()->children(true)) {
+
+            auto geometry = node->mesh();
+            if (geometry) {
+
+                for (auto& material : geometry->materials()) {
+
+                    for (auto& [property, type] : material->properties()) {
+
+                        if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+                            auto sampler = (*texture)->sampler();
+                            sampler->maxAnisotropy(anisotropy);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+} // namespace
+
 } // namespace sandbox::matlights
-
-// [Private Non-Member Functions]
-
-void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
-
-    log::app::i()("SetAllFilterModes: {}", (unsigned) mode);
-
-    for (auto& node : scene.rootNode()->children(true)) {
-
-        auto geometry = node->mesh();
-        if (geometry) {
-
-            for (auto& material : geometry->materials()) {
-
-                for (auto& [property, type] : material->properties()) {
-
-                    if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-                        auto sampler = (*texture)->sampler();
-                        sampler->minificationFilter(mode);
-                        sampler->magnificationFilter(mode);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
-
-    log::app::i()("SetAllMaxAnisotropy: {}", anisotropy);
-
-    for (auto& node : scene.rootNode()->children(true)) {
-
-        auto geometry = node->mesh();
-        if (geometry) {
-
-            for (auto& material : geometry->materials()) {
-
-                for (auto& [property, type] : material->properties()) {
-
-                    if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-                        auto sampler = (*texture)->sampler();
-                        sampler->maxAnisotropy(anisotropy);
-                    }
-                }
-            }
-        }
-    }
-}

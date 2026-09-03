@@ -382,8 +382,6 @@ namespace {
 
     ImGuiKey ImGuiKeyFromQtKey(int qtKey) {
 
-        using IK = ImGuiKey;
-
         switch (qtKey) {
             case Qt::Key_Backspace:
                 return ImGuiKey_Backspace;
