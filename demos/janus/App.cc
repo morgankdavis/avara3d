@@ -136,18 +136,26 @@ std::unique_ptr<Scene> App::init() {
                         ...
          */
 
+        // configure the environment nodes
+
         auto environmentRoot = scene->rootNode()->childNamed("environment");
         for (const auto hoverIgnoreNode : ConfigureEnvironmentNodes(*environmentRoot)) {
             _pickIgnores.push_back({.node = hoverIgnoreNode, .purposes = PickPurpose::Hover});
         }
 
+        // configure the permanent dynamic nodes
+
         _dynamicsRoot = scene->rootNode()->childNamed("dynamics");
         ConfigureDynamicsNodes(*_dynamicsRoot);
         saveDynamicsTransforms();
 
+        // cache the transient object assets
+
         auto transientAssetsNode = scene->rootNode()->childNamed("transient_assets");
         _transientsBuilder.init(*transientAssetsNode);
         transientAssetsNode->removeFromParent();
+
+        // create a root for spawned transient objects
 
         _transientsRoot = Node::NamedNode("transients");
         scene->rootNode()->addChild(_transientsRoot);
@@ -571,6 +579,10 @@ void App::performAction(const PendingAction& action) {
         case Action::Poke: {
 
             auto node = action.target.node.lock();
+            if (!node) {
+                return;
+            }
+
             auto body = node->physicsBody();
 
             if (!body || body->type() != PhysicsBody::Type::Dynamic) {
@@ -719,11 +731,11 @@ namespace {
                               .radialFade = radialFade,
                               .horizonHaze = horizonHaze});
 
-        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .5};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = 0.5f};
 
         auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
-        world->atmosphere(Atmosphere {.scaleHeight = 1.0, .haze = atmosphericHaze, .limbGlow = limbGlow});
+        world->atmosphere(Atmosphere {.scaleHeight = 1.0f, .haze = atmosphericHaze, .limbGlow = limbGlow});
 
         return world;
     }

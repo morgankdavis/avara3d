@@ -159,10 +159,6 @@ bool App::drawDemoPanel() {
 
         if (auto body = node->physicsBody()) {
 
-            static auto formatVec3 = [](const vec3& value) {
-                return std::format("{:.1f}, {:.1f}, {:.1f}", value.x, value.y, value.z);
-            };
-
             static auto bodyTypeName = [](PhysicsBody::Type type) -> std::string_view {
                 switch (type) {
                     case PhysicsBody::Type::Static:
@@ -355,44 +351,6 @@ bool App::drawDevPanel() {
             visualWorld.ground(ground);
         }
     }
-
-    panel.section("rendering");
-
-    bool defaultLighting = visualWorld.defaultLightingEnabled();
-    if (panel.toggle("default lighting", defaultLighting)) {
-        visualWorld.defaultLightingEnabled(defaultLighting);
-    }
-
-    using DebugOptions = Scene::DebugOptions;
-
-    auto debugOptions = scene.debugOptions();
-
-    auto debugToggle = [&](const char* title, DebugOptions option) {
-        bool enabled = util::bitmask::contains(debugOptions, option);
-
-        if (panel.toggle(title, enabled)) {
-            if (enabled) {
-                util::bitmask::add_inplace(debugOptions, option);
-            }
-            else {
-                util::bitmask::remove_inplace(debugOptions, option);
-            }
-
-            scene.debugOptions(debugOptions);
-        }
-    };
-
-    debugToggle("stats", DebugOptions::ShowStatsOverlay);
-    debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
-    debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
-
-    if (visualWorld.capabilities().wireframeRendering) {
-        debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
-    }
-
-    debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
-    debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
-    debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
 
     panel.spacer(12.0f);
 

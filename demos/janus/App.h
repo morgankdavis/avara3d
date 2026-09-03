@@ -9,8 +9,6 @@
 #ifndef AVARA3D_DEMO_JANUS_APP_H
 #define AVARA3D_DEMO_JANUS_APP_H
 
-#include "TransientsCache.h"
-
 #include <cstdint>
 #include <memory>
 #include <optional>

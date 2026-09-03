@@ -1,5 +1,5 @@
 //
-//  main.cpp
+//  main.cc
 //  janus
 //
 //  Created by Morgan Davis on 8/4/26.

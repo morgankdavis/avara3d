@@ -35,7 +35,7 @@ void TransientsBuilder::init(const Node& assetsRoot) {
 
 vector<shared_ptr<Node>> TransientsBuilder::rocks(const vec3& location, const u8vec3& stackSize, float gap) {
 
-    auto rocks = _cache.rocks();
+    const auto& rocks = _cache.rocks();
 
     float maxDim = 0.0f;
     for (const auto& entry : rocks) {
