@@ -36,12 +36,13 @@ namespace {
 
     // [Private Non-Member Prototypes]
 
-    void                      ConfigureVisualWorld(VisualWorld& world);
+    unique_ptr<VisualWorld>   CreateVisualWorld(RenderContext& context);
     vector<shared_ptr<Node>>  ConfigureEnvironmentNodes(const Node& root);
     void                      ConfigureDynamicsNodes(const Node& root);
+    shared_ptr<Node>          CreateGroundNode();
+    void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
     shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
     shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
-    void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
     shared_ptr<Node>          CreateCursorMarker();
     optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
                                    const vec2&                screenPosition,
@@ -90,8 +91,7 @@ std::unique_ptr<Scene> App::init() {
 
         // create and configure the visual world
 
-        auto visualWorld = make_unique<VisualWorld>(*_window);
-        ConfigureVisualWorld(*visualWorld);
+        auto visualWorld = CreateVisualWorld(*_window);
 
         // create the physics world
 
@@ -154,20 +154,11 @@ std::unique_ptr<Scene> App::init() {
 
         // create and configure the ground
 
-        auto groundNode = Node::NamedNode("ground");
-        groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
-        auto shape = make_shared<InfinitePlanePhysicsShape>();
-        auto body = PhysicsBody::StaticBody(shape);
-        body->friction(STONE_FRICTION);
-        body->restitution(0.25f);
-        groundNode->physicsBody(std::move(body));
-        scene->rootNode()->addChild(groundNode);
+        scene->rootNode()->addChild(CreateGroundNode());
 
         // setup ambient lighting
 
-        auto ambientLight = make_shared<AmbientLight>(Color {0.075f});
-        auto ambientLightNode = Node::LightNode(ambientLight);
-        scene->rootNode()->addChild(ambientLightNode);
+        scene->rootNode()->addChild(Node::LightNode(Light::Ambient(Color {0.075f})));
 
         // setup transient node groups
 
@@ -692,11 +683,13 @@ namespace {
 
     // [Private Non-Member Functions]
 
-    void ConfigureVisualWorld(VisualWorld& world) {
+    unique_ptr<VisualWorld> CreateVisualWorld(RenderContext& context) {
 
-        world.background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
+        auto world = make_unique<VisualWorld>(context);
 
-        world.surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
+        world->background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
+
+        world->surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
         auto gridMinor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
                                                             .spacing = 1.0f,
@@ -720,21 +713,19 @@ namespace {
                                               .endDistance = 100.0f};
 
         auto horizonHaze =
-            Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.3f}, .angularWidth = math::radians(4.0f)};
+            Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.35f}, .angularWidth = math::radians(4.0f)};
 
-        world.ground(Ground {.fill = Ground::Procedural {.content = grid},
-                             .radialFade = radialFade,
-                             .horizonHaze = horizonHaze});
+        world->ground(Ground {.fill = Ground::Procedural {.content = grid},
+                              .radialFade = radialFade,
+                              .horizonHaze = horizonHaze});
 
-        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .35}; // og
-        //auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.5}, .density = 0.75};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = .5};
 
         auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
-        world.atmosphere(Atmosphere {.scaleHeight = 1.00f,
-                                     .haze = atmosphericHaze,
-                                     .limbGlow = limbGlow}); // og
-        //world.atmosphere(Atmosphere {.scaleHeight = 0.5f, .haze = atmosphericHaze, .limbGlow = limbGlow});
+        world->atmosphere(Atmosphere {.scaleHeight = 1.0, .haze = atmosphericHaze, .limbGlow = limbGlow});
+
+        return world;
     }
 
     vector<shared_ptr<Node>> ConfigureEnvironmentNodes(const Node& root) {
@@ -863,6 +854,42 @@ namespace {
         }
     }
 
+    shared_ptr<Node> CreateGroundNode() {
+
+        auto node = Node::NamedNode("ground");
+
+        node->orientation(quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
+
+        auto shape = make_shared<InfinitePlanePhysicsShape>();
+        auto body = PhysicsBody::StaticBody(shape);
+
+        body->friction(STONE_FRICTION);
+        body->restitution(0.25f);
+
+        node->physicsBody(std::move(body));
+
+        return node;
+    }
+
+    void ConfigureTransientsTracker(ext::TransientsTracker& tracker) {
+
+        tracker.groupPolicy("rocks",
+                            {.maxCount = (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
+        tracker.groupPolicy("coins",
+                            {.maxCount = (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
+        tracker.groupPolicy("balls",
+                            {.maxCount = (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
+        tracker.groupPolicy("hammers",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+        tracker.groupPolicy("hulas",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+        tracker.groupPolicy("ducks",
+                            {.maxCount = 10,
+                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
+    }
+
     shared_ptr<Node> CreateCamera(ext::TurntableCameraController& controller) {
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
@@ -905,9 +932,6 @@ namespace {
 
         for (size_t i = 0; i < ORB_COUNT; ++i) {
             auto light = make_shared<PointLight>(Color::White());
-            // light->attenuation(Attenuation {
-            //     .quadratic = 0.5f
-            // });
             light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
 
             auto orb = Node::LightNode(light);
@@ -927,25 +951,6 @@ namespace {
         }
 
         return orbGroup;
-    }
-
-    void ConfigureTransientsTracker(ext::TransientsTracker& tracker) {
-
-        tracker.groupPolicy("rocks",
-                            {.maxCount = (ROCK_GRID_SIZE.x * ROCK_GRID_SIZE.y * ROCK_GRID_SIZE.z) * 1.5});
-        tracker.groupPolicy("coins",
-                            {.maxCount = (COIN_GRID_SIZE.x * COIN_GRID_SIZE.y * COIN_GRID_SIZE.z) * 2.5});
-        tracker.groupPolicy("balls",
-                            {.maxCount = (BALL_GRID_SIZE.x * BALL_GRID_SIZE.y * BALL_GRID_SIZE.z) * 2.5});
-        tracker.groupPolicy("hammers",
-                            {.maxCount = 10,
-                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
-        tracker.groupPolicy("hulas",
-                            {.maxCount = 10,
-                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
-        tracker.groupPolicy("ducks",
-                            {.maxCount = 10,
-                             .distanceLimit = ext::TransientsTracker::DistanceLimit {.radius = 100.0f}});
     }
 
     shared_ptr<Node> CreateCursorMarker() {

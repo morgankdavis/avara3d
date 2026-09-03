@@ -20,6 +20,17 @@ namespace demo::janus {
 
 bool App::drawPanel() {
 
+    auto& input = static_cast<DesktopInputContext&>(*scene().inputContext());
+
+    if (input.keyDown(DesktopInputContext::Key::D)) {
+        return drawDevPanel();
+    }
+
+    return drawDemoPanel();
+}
+
+bool App::drawDemoPanel() {
+
     const float PANEL_WIDTH {180.0f};
 
     auto& runner = App::runner();
@@ -85,7 +96,6 @@ bool App::drawPanel() {
         physicsWorld.gravity(GRAVITY_ZERO);
     }
 
-    //panel.spacer(12.0f);
     panel.section("action");
 
     panel.segmentedRow(3);
@@ -145,11 +155,7 @@ bool App::drawPanel() {
     }
     else if (auto node = _selection->node.lock()) {
 
-        // node
-
         panel.value("name", node->name().value_or("(unnamed)"));
-
-        // physics body
 
         if (auto body = node->physicsBody()) {
 
@@ -188,48 +194,20 @@ bool App::drawPanel() {
             panel.spacer(6.0f);
 
             panel.value("body", bodyTypeName(body->type()));
-
-            if (const auto& shape = body->shape()) {
-                panel.value("shape", shapeTypeName(shape->type()));
-            }
-            else {
-                panel.value("shape", "none");
-            }
+            panel.value("shape", body->shape() ? shapeTypeName(body->shape()->type()) : "none");
 
             panel.spacer(6.0f);
 
             panel.value("mass", std::format("{:.1f}", body->mass()));
-
-            // panel.value("velocity", formatVec3(body->linearVelocity()));
-            // panel.value("angular", formatVec3(body->angularVelocity()));
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("inertia", FormatVec3(body->momentOfInertia()));
-            // panel.value("COM", FormatVec3(body->centerOfMass()));
-            //
-            // panel.value("linear damping", std::format("{:.3f}", body->linearDamping()));
-            // panel.value("angular damping", std::format("{:.3f}", body->angularDamping()));
-
             panel.value("friction", std::format("{:.1f}", body->friction()));
             panel.value("restitution", std::format("{:.1f}", body->restitution()));
-
-            const auto contacts = physicsWorld.contactTest(*body);
-            panel.value("contacts", std::format("{}", contacts.size()));
-
+            panel.value("contacts", std::format("{}", physicsWorld.contactTest(*body).size()));
             panel.value("resting", body->resting() ? "yes" : "no");
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("force", FormatVec3(body->totalForce()));
-            // panel.value("torque", FormatVec3(body->totalTorque()));
         }
         else {
             panel.spacer(6.0f);
-            panel.value("body", "none", {.top = 6.0f} /*{0.0f, 0.0f, 0.0f, 0.0f}*/);
+            panel.value("body", "none", {.top = 6.0f});
         }
-
-        // mesh
 
         if (const auto& mesh = node->mesh()) {
 
@@ -241,7 +219,6 @@ bool App::drawPanel() {
                 polygons += e->indexCount() / 3u;
             }
             panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
-            // panel.value("elements", std::format("{}", mesh->elements().size()));
             panel.value("materials", std::format("{}", mesh->materials().size()));
         }
     }
@@ -251,153 +228,186 @@ bool App::drawPanel() {
         panel.text("click an object to inspect");
     }
 
-    //panel.spacer(12.0f);
     panel.section("debug");
 
     using DebugOptions = Scene::DebugOptions;
 
     auto debugOptions = scene.debugOptions();
 
-    // {
-    //     bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-    //     if (panel.toggle("stats", stats)) {
-    //         debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
-    //                              : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
-    //         scene.debugOptions(debugOptions);
-    //     }
-    //
-    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
-    //     if (panel.toggle("default lighting", defaultLighting)) {
-    //         visualWorld.defaultLightingEnabled(defaultLighting);
-    //     }
-    //
-    //     bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshBounds);
-    //     if (panel.toggle("mesh bounds", meshBounds)) {
-    //         scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
-    //     }
-    //
-    //     bool meshFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshFrames);
-    //     if (panel.toggle("mesh frames", meshFrames)) {
-    //         scene.debugOptions(meshFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshFrames)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshFrames));
-    //     }
-    //
-    //     if (visualWorld.capabilities().wireframeRendering) {
-    //         bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
-    //         if (panel.toggle("mesh wireframes", meshWireframes)) {
-    //             scene.debugOptions(meshWireframes
-    //                                    ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes)
-    //                                    : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
-    //         }
-    //     }
-    //     else {
-    //         panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    //     }
-    //
-    //     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBounds);
-    //     if (panel.toggle("physics bounds", physBounds)) {
-    //         scene.debugOptions(physBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
-    //     }
-    //
-    //     bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);
-    //     if (panel.toggle("physics frames", physFrames)) {
-    //         scene.debugOptions(physFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsFrames)
-    //                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsFrames));
-    //     }
-    //
-    //     bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
-    //     if (panel.toggle("physics wireframes", physWireframes)) {
-    //         scene.debugOptions(physWireframes
-    //                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
-    //                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
-    //     }
-    // }
-
-    // {
-    //     struct DebugToggle {
-    //         const char*  title;
-    //         DebugOptions option;
-    //         bool         available {true};
-    //     };
-    //
-    //     const std::array debugToggles {
-    //         DebugToggle {"stats", DebugOptions::ShowStatsOverlay},
-    //         DebugToggle {"mesh bounds", DebugOptions::ShowMeshBounds},
-    //         DebugToggle {"mesh frames", DebugOptions::ShowMeshFrames},
-    //         DebugToggle {"mesh wireframes", DebugOptions::ShowMeshWireframes,
-    //                      visualWorld.capabilities().wireframeRendering},
-    //         DebugToggle {"physics bounds", DebugOptions::ShowPhysicsBounds},
-    //         DebugToggle {"physics frames", DebugOptions::ShowPhysicsFrames},
-    //         DebugToggle {"physics wireframes", DebugOptions::ShowPhysicsWireframes},
-    //     };
-    //
-    //     bool debugOptionsChanged = false;
-    //
-    //     for (const auto& toggle : debugToggles) {
-    //
-    //         if (!toggle.available) {
-    //             panel.value(toggle.title, "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    //             continue;
-    //         }
-    //
-    //         bool enabled = util::bitmask::contains(debugOptions, toggle.option);
-    //         if (panel.toggle(toggle.title, enabled)) {
-    //             if (enabled) {
-    //                 util::bitmask::add_inplace(debugOptions, toggle.option);
-    //             }
-    //             else {
-    //                 util::bitmask::remove_inplace(debugOptions, toggle.option);
-    //             }
-    //             debugOptionsChanged = true;
-    //         }
-    //     }
-    //
-    //     if (debugOptionsChanged) {
-    //         scene.debugOptions(debugOptions);
-    //     }
-    //
-    //     bool defaultLighting = visualWorld.defaultLightingEnabled();
-    //     if (panel.toggle("default lighting", defaultLighting)) {
-    //         visualWorld.defaultLightingEnabled(defaultLighting);
-    //     }
-    // }
-
-    {
-        auto debugToggle = [&](const char* title, DebugOptions option) {
-            bool enabled = util::bitmask::contains(debugOptions, option);
-            if (panel.toggle(title, enabled)) {
-                if (enabled) {
-                    util::bitmask::add_inplace(debugOptions, option);
-                }
-                else {
-                    util::bitmask::remove_inplace(debugOptions, option);
-                }
-                scene.debugOptions(debugOptions);
+    auto debugToggle = [&](const char* title, DebugOptions option) {
+        bool enabled = util::bitmask::contains(debugOptions, option);
+        if (panel.toggle(title, enabled)) {
+            if (enabled) {
+                util::bitmask::add_inplace(debugOptions, option);
             }
-        };
+            else {
+                util::bitmask::remove_inplace(debugOptions, option);
+            }
+            scene.debugOptions(debugOptions);
+        }
+    };
 
-        debugToggle("stats", DebugOptions::ShowStatsOverlay);
+    debugToggle("stats", DebugOptions::ShowStatsOverlay);
 
-        bool defaultLighting = visualWorld.defaultLightingEnabled();
-        if (panel.toggle("default lighting", defaultLighting)) {
-            visualWorld.defaultLightingEnabled(defaultLighting);
+    bool defaultLighting = visualWorld.defaultLightingEnabled();
+    if (panel.toggle("default lighting", defaultLighting)) {
+        visualWorld.defaultLightingEnabled(defaultLighting);
+    }
+
+    debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
+    debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
+
+    if (visualWorld.capabilities().wireframeRendering) {
+        debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
+    }
+    else {
+        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+    }
+
+    debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
+    debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
+    debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
+
+    return panel.hovered();
+}
+
+bool App::drawDevPanel() {
+
+    const float PANEL_WIDTH {220.0f};
+
+    auto& scene = App::scene();
+    auto& visualWorld = *scene.visualWorld();
+
+    ui::Panel panel("dev", {.width = PANEL_WIDTH, .margin = 12.0f});
+
+    panel.section("atmosphere", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
+
+    if (visualWorld.atmosphere()) {
+
+        auto atmosphere = *visualWorld.atmosphere();
+        bool changed = false;
+
+        if (atmosphere.haze) {
+
+            float alpha = atmosphere.haze->color.a();
+
+            if (panel.slider("haze alpha", alpha, 0.0f, 1.0f, "%.2f")) {
+                const auto rgb = atmosphere.haze->color.rgb();
+                atmosphere.haze->color = Color {rgb.x, rgb.y, rgb.z, alpha};
+                changed = true;
+            }
+
+            changed |= panel.slider("haze density", atmosphere.haze->density, 0.0f, 1.5f, "%.2f");
         }
 
-        debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
-        debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
+        changed |= panel.slider("scale height", atmosphere.scaleHeight, 0.1f, 5.0f, "%.2f");
 
-        if (visualWorld.capabilities().wireframeRendering) {
-            debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
-        }
-        else {
-            panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+        if (atmosphere.limbGlow) {
+
+            float alpha = atmosphere.limbGlow->color.a();
+
+            if (panel.slider("limb alpha", alpha, 0.0f, 1.0f, "%.2f")) {
+                const auto rgb = atmosphere.limbGlow->color.rgb();
+                atmosphere.limbGlow->color = Color {rgb.x, rgb.y, rgb.z, alpha};
+                changed = true;
+            }
+
+            changed |= panel.slider("limb intensity", atmosphere.limbGlow->intensity, 0.0f, 2.0f, "%.2f");
         }
 
-        debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
-        debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
-        debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
+        if (changed) {
+            visualWorld.atmosphere(atmosphere);
+        }
+    }
+
+    panel.section("ground");
+
+    if (visualWorld.ground()) {
+
+        auto ground = *visualWorld.ground();
+        bool changed = false;
+
+        if (ground.horizonHaze) {
+
+            float alpha = ground.horizonHaze->color.a();
+
+            if (panel.slider("horizon alpha", alpha, 0.0f, 1.0f, "%.2f")) {
+                const auto rgb = ground.horizonHaze->color.rgb();
+                ground.horizonHaze->color = Color {rgb.x, rgb.y, rgb.z, alpha};
+                changed = true;
+            }
+
+            float angularWidth = degrees(ground.horizonHaze->angularWidth);
+
+            if (panel.slider("horizon width", angularWidth, 0.1f, 15.0f, "%.1f deg")) {
+                ground.horizonHaze->angularWidth = radians(angularWidth);
+                changed = true;
+            }
+        }
+
+        if (ground.radialFade) {
+            auto& fade = *ground.radialFade;
+            changed |= panel.slider("fade start", fade.startDistance, 0.0f, fade.endDistance - 0.1f, "%.1f");
+            changed |= panel.slider("fade end", fade.endDistance, fade.startDistance + 0.1f, 250.0f, "%.1f");
+        }
+
+        if (changed) {
+            visualWorld.ground(ground);
+        }
+    }
+
+    panel.section("rendering");
+
+    bool defaultLighting = visualWorld.defaultLightingEnabled();
+    if (panel.toggle("default lighting", defaultLighting)) {
+        visualWorld.defaultLightingEnabled(defaultLighting);
+    }
+
+    using DebugOptions = Scene::DebugOptions;
+
+    auto debugOptions = scene.debugOptions();
+
+    auto debugToggle = [&](const char* title, DebugOptions option) {
+        bool enabled = util::bitmask::contains(debugOptions, option);
+
+        if (panel.toggle(title, enabled)) {
+            if (enabled) {
+                util::bitmask::add_inplace(debugOptions, option);
+            }
+            else {
+                util::bitmask::remove_inplace(debugOptions, option);
+            }
+
+            scene.debugOptions(debugOptions);
+        }
+    };
+
+    debugToggle("stats", DebugOptions::ShowStatsOverlay);
+    debugToggle("mesh bounds", DebugOptions::ShowMeshBounds);
+    debugToggle("mesh frames", DebugOptions::ShowMeshFrames);
+
+    if (visualWorld.capabilities().wireframeRendering) {
+        debugToggle("mesh wireframes", DebugOptions::ShowMeshWireframes);
+    }
+
+    debugToggle("physics bounds", DebugOptions::ShowPhysicsBounds);
+    debugToggle("physics frames", DebugOptions::ShowPhysicsFrames);
+    debugToggle("physics wireframes", DebugOptions::ShowPhysicsWireframes);
+
+    panel.spacer(12.0f);
+
+    if (panel.button("Print Camera")) {
+
+        const auto& view = _cameraController.view();
+        const auto& target = std::get<vec3>(view.target);
+
+        log::app::d()("controller.view({{\n"
+                      "    .target = vec3 {{{}f, {}f, {}f}},\n"
+                      "    .yaw = radians({}f),\n"
+                      "    .pitch = radians({}f),\n"
+                      "    .distance = {}f\n"
+                      "}});",
+                      target.x, target.y, target.z, degrees(view.yaw), degrees(view.pitch), view.distance);
     }
 
     return panel.hovered();

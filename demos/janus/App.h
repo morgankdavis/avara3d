@@ -128,6 +128,8 @@ private:
     // [Private Member Functions]
 
     bool drawPanel();
+    bool drawDemoPanel();
+    bool drawDevPanel();
     void hover(const a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
     void hover(const std::shared_ptr<a3d::Node>& node);
     void select(const a3d::VisualWorld& visualWorld, const a3d::math::vec2& screenPosition);
