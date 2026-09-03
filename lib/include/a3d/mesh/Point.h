@@ -20,9 +20,9 @@ class Color;
 
 class Point {
 
-// [Internal Lifecycle Functions]
-
 public:
+    // [Internal Lifecycle Functions]
+
     explicit Point(const math::vec3& location);
     Point(const math::vec3& location, const Color& color);
 

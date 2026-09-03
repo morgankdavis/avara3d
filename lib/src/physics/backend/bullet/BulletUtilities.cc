@@ -85,7 +85,6 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
 
     decompose(m, scale, orientation, translation);
 
-    //scaled = !utils::Equal(scale, {1, 1, 1});
     scaled = scale != vec3(1.0f); // a3d::math
     if (scaled) {
         return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
@@ -94,11 +93,5 @@ mat4 TransformByRemovingScale(const mat4& m, bool& scaled) {
         return m;
     }
 }
-
-//btTransform& a3d::BTIdentityTransform() {
-//	static auto identityTransform = btTransform();
-//	identityTransform.setIdentity();
-//	return identityTransform;
-//}
 
 } // namespace a3d

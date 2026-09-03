@@ -18,9 +18,9 @@ namespace a3d {
 
 class Line {
 
-// [Internal Lifecycle Functions]
-
 public:
+    // [Internal Lifecycle Functions]
+    
     Line(const math::vec3& fromLocation, const math::vec3& toLocation);
     Line(const math::vec3& fromLocation, const math::vec3& toLocation, const Color& color);
     Line(const math::vec3& fromLocation,

@@ -19,7 +19,7 @@ using namespace std;
 
 namespace a3d {
 
-// [Internal Lifescycle]
+// [Internal Lifescycle Functions]
 
 Renderer::Renderer() {}
 

@@ -171,7 +171,7 @@ public:
     PhysicsShapeProxy*                      proxy() const;
 
 protected:
-    // [Protected Lifecycle]
+    // [Protected Lifecycle Functions]
 
     PhysicsShape();
 

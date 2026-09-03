@@ -21,6 +21,8 @@ class Node;
 
 namespace a3d::util::string {
 
+// [Public Functions]
+
 void                     Replace(std::string& str, const std::string& oldStr, const std::string& newStr);
 std::vector<std::string> Split(const std::string& s, std::string delim);
 std::string              Uppercase(std::string_view s);

@@ -53,7 +53,7 @@ shared_ptr<SpotLight> Light::Spot(const Color& color) {
     return make_unique<a3d::SpotLight>(color);
 }
 
-// [protected Lifecycle Functions]
+// [Protected Lifecycle Functions]
 
 Light::Light():
     _name {nullopt},

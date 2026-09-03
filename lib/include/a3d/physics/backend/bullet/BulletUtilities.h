@@ -26,7 +26,6 @@ btVector4    BTVector4FromA3DVec4(const math::vec4& from);
 btQuaternion BTQuaternionFromA3DQuat(const math::quat& from);
 btTransform  BTTransformFromA3DMat4(const math::mat4& from);
 math::mat4   TransformByRemovingScale(const math::mat4& m, bool& scaled);
-//	btTransform&	BTIdentityTransform();
 
 } // namespace a3d
 

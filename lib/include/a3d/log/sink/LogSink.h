@@ -18,9 +18,9 @@ namespace a3d::log {
 /** @brief Interface for destinations that receive formatted Log output. */
 class LogSink {
 
-// [Public Lifecycle Functions]
-
 public:
+    // [Public Lifecycle Functions]
+
     virtual ~LogSink() = 0;
 
     // [Public Member Functions]

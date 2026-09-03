@@ -399,32 +399,6 @@ void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
     }
 }
 
-//void Node::removeFromParent() {
-//
-//	if (auto parent = _parent.lock()) {
-//		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
-//		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
-//		// http://en.cppreference.com/w/cpp/algorithm/remove
-//		// new: https://stackoverflow.com/questions/875103/how-do-i-erase-an-element-from-stdvector-by-index
-//
-//		auto existingChildren = parent->_children;
-//		auto newChildren = vector<shared_ptr<Node>>();
-//		newChildren.reserve(existingChildren.size()-1);
-//		for (auto& child : existingChildren) {
-//			if (child.get() != this) {
-//				newChildren.push_back(child);
-//			}
-//		}
-//		parent->_children = newChildren;
-//
-//		detachedFromParent(*parent);
-//	}
-//	else {
-//		log::w()("Parent is gone!");
-//		// TODO: throw?
-//	}
-//}
-
 void Node::removeFromParent() {
 
     auto parent = _parent.lock();
@@ -550,9 +524,9 @@ void Node::detachedFromParent(Node& parent) {
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeDetachedFromParent(parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeDetachedFromParent(parent);
+    // }
 
     for (auto& child : _children) {
         child->ancestorDetachedFromParent(*this, parent);
@@ -564,9 +538,9 @@ void Node::detachedFromParent(Node& parent) {
 void Node::attachedToScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeAttachedToScene(scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeAttachedToScene(scene);
+    // }
 
     _scene = &scene;
 
@@ -580,9 +554,9 @@ void Node::attachedToScene(Scene& scene) {
 void Node::detachedFromScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeDetachedFromScene(scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeDetachedFromScene(scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -596,9 +570,9 @@ void Node::detachedFromScene(Scene& scene) {
 void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
     log::t()("ancestor: {:p}, parent: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&parent));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorAttachedToParent(ancestor, parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorAttachedToParent(ancestor, parent);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -610,9 +584,9 @@ void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
 void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
     log::t()("ancestor: {:p}, parent: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&parent));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorDetachedFromParent(ancestor, parent);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -624,9 +598,9 @@ void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
 void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
     log::t()("ancestor: {:p}, scene: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorAttachedToScene(ancestor, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorAttachedToScene(ancestor, scene);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -638,9 +612,9 @@ void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
 void Node::ancestorDetachedFromScene(Node& ancestor, Scene& scene) {
     log::t()("ancestor: {:p}, scene: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorDetachedFromScene(ancestor, scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -668,9 +642,9 @@ void Node::visualWorldDetachedFromScene(VisualWorld& world, Scene& scene) {
 void Node::physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
     log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->physicsWorldAttachedToScene(world, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->physicsWorldAttachedToScene(world, scene);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -682,9 +656,9 @@ void Node::physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
 void Node::physicsWorldDetachedFromScene(PhysicsWorld& world, Scene& scene) {
     log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->physicsWorldDetachedFromScene(world, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->physicsWorldDetachedFromScene(world, scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -765,13 +739,6 @@ vec3 Node::extent(bool vertfit) const {
 }
 
 void Node::applyPhysicsTransform(const mat4& transform) {
-
-    // if (auto parent = _parent.lock()) {
-    //     this->transform(inverse(parent->worldTransform()) * transform);
-    // }
-    // else {
-    //     this->transform(transform);
-    // }
 
     if (auto parent = _parent.lock()) {
         setTransformComponents(inverse(parent->worldTransform()) * transform);

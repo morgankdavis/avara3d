@@ -41,7 +41,7 @@ Scratch::~Scratch() = default;
 
 // [Application Protected Member Functions]
 
-std::unique_ptr<Scene> Scratch::init() {
+unique_ptr<Scene> Scratch::init() {
     try {
         _window = make_unique<Window>(WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
@@ -203,7 +203,7 @@ void Scratch::inputDidUpdate(Runner&                         runner,
     if (input.keyPressed(Key::One)) {
 
         //auto cameraNodes = vector<Node*>();
-        auto cameraNodes = vector<std::shared_ptr<Node>>();
+        auto cameraNodes = vector<shared_ptr<Node>>();
         for (auto& node : scene.rootNode()->children(true)) {
             auto camera = node->camera();
             if (camera) {
@@ -216,7 +216,7 @@ void Scratch::inputDidUpdate(Runner&                         runner,
 
     if (input.keyPressed(Key::Two)) {
 
-        auto cameraNodes = vector<std::shared_ptr<Node>>();
+        auto cameraNodes = vector<shared_ptr<Node>>();
         for (auto& node : scene.rootNode()->children(true)) {
             auto camera = node->camera();
             if (camera) {
@@ -229,7 +229,7 @@ void Scratch::inputDidUpdate(Runner&                         runner,
 
     if (input.keyPressed(Key::Three)) {
 
-        auto cameraNodes = vector<std::shared_ptr<Node>>();
+        auto cameraNodes = vector<shared_ptr<Node>>();
         for (auto& node : scene.rootNode()->children(true)) {
             auto camera = node->camera();
             if (camera) {

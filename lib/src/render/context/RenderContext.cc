@@ -25,14 +25,6 @@ namespace a3d {
 
 // [Public Member Functions]
 
-//bool RenderContext::vSyncEnabled() const {
-//	return _vSyncEnabled;
-//}
-//
-//void RenderContext::vSyncEnabled(bool enabled) {
-//	_vSyncEnabled = enabled;
-//}
-
 RenderContext::Antialiasing RenderContext::antialiasing() const {
     return _antialiasing;
 }
@@ -48,7 +40,7 @@ VisualWorld* RenderContext::visualWorld() const {
     return _visualWorld;
 }
 
-// [Internal Lifescycle]
+// [Internal Lifescycle Functions]
 
 RenderContext::RenderContext():
     _antialiasing {Antialiasing::None},

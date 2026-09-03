@@ -207,7 +207,7 @@ private:
     static std::string_view ShortFunction(std::string_view s, int keepScopes = 2);
     static SourceInfo       MakeSourceInfo(const std::source_location& where);
 
-    // [Private Lifecycle]
+    // [Private Lifecycle Functions]
 
     Log(const std::string& name);
 

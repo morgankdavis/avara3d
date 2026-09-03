@@ -78,7 +78,7 @@ void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
     if (_hasMousePosition) {
         _pendingMousePositionDelta.x += position.x - _mousePosition.x;
 
-        // Preserve A3D's existing mouse-delta convention:
+        // preserve A3D's existing mouse-delta convention:
         // positive Y means upward mouse motion.
         _pendingMousePositionDelta.y += _mousePosition.y - position.y;
     }

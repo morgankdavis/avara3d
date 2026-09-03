@@ -357,7 +357,7 @@ void MeshElement::genLocalAABB() {
     }
 }
 
-// [Protected Lifecycle]
+// [Protected Lifecycle Functions]
 
 MeshElement::MeshElement():
     _topology {PrimitiveTopology::Triangles},

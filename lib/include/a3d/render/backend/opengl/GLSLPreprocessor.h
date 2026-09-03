@@ -22,7 +22,7 @@ public:
 
     using IncludeResolver = std::function<std::optional<std::string>(const std::string&)>;
 
-    // [Internal Static Functions]
+    // [Internal Static member Functions]
 
     static std::string Process(const std::string&     source,
                                const std::string&     sourceName,

@@ -67,24 +67,21 @@ vector<Line> BulletDebugDrawer::lines() {
     return std::move(_lines);
 }
 
-//void BulletDebugDrawer::draw(Renderer& renderer,
-//							 const RenderContext& context,
-//							 const mat4& viewMat,
-//							 const mat4& projectionMat) {
+// void BulletDebugDrawer::draw(Renderer&            renderer,
+//                              const RenderContext& context,
+//                              const mat4&          viewMat,
+//                              const mat4&          projectionMat) {
 //
-//	static const auto M4_I = mat4(1.0);
-//	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-//		//renderer.render(_lines, context, M4_I, viewMat, projectionMat);
-//	}
-//}
-
-//std::vector<Line> BulletDebugDrawer::lines(Renderer& renderer,
-//						const RenderContext& context,
-//						const math::mat4& viewMat,
-//						const math::mat4& projectionMat) {
+//     static const auto M4_I = mat4(1.0);
+//     if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+//         //renderer.render(_lines, context, M4_I, viewMat, projectionMat);
+//     }
+// }
 //
-//
-//}
+// std::vector<Line> BulletDebugDrawer::lines(Renderer&            renderer,
+//                                            const RenderContext& context,
+//                                            const math::mat4&    viewMat,
+//                                            const math::mat4&    projectionMat) {}
 
 // [btIDebugDraw Members]
 
@@ -102,28 +99,21 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
                           A3DVec3FromBTVector3(toColor)));
 }
 
-/*
-void BulletDebugDrawer::drawSphere(btScalar radius,
-								   const btTransform& transform,
-								   const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawSphere(const btVector3& p,
-								   btScalar radius,
-								   const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawTriangle(const btVector3& v0,
-									 const btVector3& v1,
-									 const btVector3& v2,
-									 const btVector3& color,
-									 btScalar alpha) {
-	log::w()("(Not implemented)");
-}
-
-*/
+// void BulletDebugDrawer::drawSphere(btScalar radius, const btTransform& transform, const btVector3& color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawSphere(const btVector3& p, btScalar radius, const btVector3& color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawTriangle(const btVector3& v0,
+//                                      const btVector3& v1,
+//                                      const btVector3& v2,
+//                                      const btVector3& color,
+//                                      btScalar         alpha) {
+//     log::w()("(Not implemented)");
+// }
 
 // these three are pure virtual and must be implemented
 
@@ -156,91 +146,83 @@ void BulletDebugDrawer::draw3dText(const btVector3& location, const char* textSt
     log::w()("(Not implemented)");
 }
 
-/*
-
 // if implemented, called instead of drawLine()
-//void BulletDebugDrawer::drawAabb(const btVector3 &from,
-//								  const btVector3 &to,
-//								  const btVector3 &color) {
-//	log::w()("(Not implemented)");
-//}
-
-void BulletDebugDrawer::drawTransform(const btTransform &transform,
-									  btScalar orthoLen) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawArc(const btVector3& center,
-								const btVector3& normal,
-								const btVector3& axis,
-								btScalar radiusA,
-								btScalar radiusB,
-								btScalar minAngle,
-								btScalar maxAngle,
-								const btVector3& color,
-								bool drawSect,
-								btScalar stepDegrees) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
-										const btVector3& up,
-										const btVector3& axis,
-										btScalar radius,
-										btScalar minTh,
-										btScalar maxTh,
-										btScalar minPs,
-										btScalar maxPs,
-										const btVector3& color,
-										btScalar stepDegrees,
-										bool drawCenter) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawBox(const btVector3& bbMin,
-								const btVector3& bbMax,
-								const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawBox(const btVector3& bbMin,
-								const btVector3& bbMax,
-								const btTransform& trans,
-								const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawCapsule(btScalar radius,
-									btScalar halfHeight,
-									int upAxis,
-									const btTransform& transform,
-									const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawCylinder(btScalar radius,
-									 btScalar halfHeight,
-									 int upAxis,
-									 const btTransform& transform,
-									 const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawCone(btScalar radius,
-								 btScalar height,
-								 int upAxis,
-								 const btTransform& transform,
-								 const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-
-void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
-								  btScalar planeConst,
-								  const btTransform& transform,
-								  const btVector3& color) {
-	log::w()("(Not implemented)");
-}
-*/
+// void BulletDebugDrawer::drawAabb(const btVector3& from, const btVector3& to, const btVector3& color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawTransform(const btTransform& transform, btScalar orthoLen) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawArc(const btVector3& center,
+//                                 const btVector3& normal,
+//                                 const btVector3& axis,
+//                                 btScalar         radiusA,
+//                                 btScalar         radiusB,
+//                                 btScalar         minAngle,
+//                                 btScalar         maxAngle,
+//                                 const btVector3& color,
+//                                 bool             drawSect,
+//                                 btScalar         stepDegrees) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
+//                                         const btVector3& up,
+//                                         const btVector3& axis,
+//                                         btScalar         radius,
+//                                         btScalar         minTh,
+//                                         btScalar         maxTh,
+//                                         btScalar         minPs,
+//                                         btScalar         maxPs,
+//                                         const btVector3& color,
+//                                         btScalar         stepDegrees,
+//                                         bool             drawCenter) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawBox(const btVector3&   bbMin,
+//                                 const btVector3&   bbMax,
+//                                 const btTransform& trans,
+//                                 const btVector3&   color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawCapsule(btScalar           radius,
+//                                     btScalar           halfHeight,
+//                                     int                upAxis,
+//                                     const btTransform& transform,
+//                                     const btVector3&   color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawCylinder(btScalar           radius,
+//                                      btScalar           halfHeight,
+//                                      int                upAxis,
+//                                      const btTransform& transform,
+//                                      const btVector3&   color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawCone(btScalar           radius,
+//                                  btScalar           height,
+//                                  int                upAxis,
+//                                  const btTransform& transform,
+//                                  const btVector3&   color) {
+//     log::w()("(Not implemented)");
+// }
+//
+// void BulletDebugDrawer::drawPlane(const btVector3&   planeNormal,
+//                                   btScalar           planeConst,
+//                                   const btTransform& transform,
+//                                   const btVector3&   color) {
+//     log::w()("(Not implemented)");
+// }
 
 void BulletDebugDrawer::setDebugMode(int debugMode) {
     _debugMode = debugMode;

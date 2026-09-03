@@ -430,11 +430,7 @@ int GLSLProgram::getUniformLocation(const char* name) {
     if (location < 0) {
         log::e()("Could not find uniform location: {}", name);
     }
-        // _uniformLocationCache[name] = location;
-    // }
-    // else {
-    // 	location = _uniformLocationCache[name];
-    // }
+
     return location;
 }
 

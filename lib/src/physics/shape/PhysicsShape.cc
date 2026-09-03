@@ -219,7 +219,7 @@ PhysicsShapeProxy* PhysicsShape::proxy() const {
     return _proxy.get();
 }
 
-// [Protected Lifecycle]
+// [Protected Lifecycle Functions]
 
 PhysicsShape::PhysicsShape():
     _type {Type::Primitive},

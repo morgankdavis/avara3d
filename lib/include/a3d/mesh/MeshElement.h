@@ -121,7 +121,7 @@ protected:
 
     void genLocalAABB();
 
-    // [Protected Lifecycle]
+    // [Protected Lifecycle Functions]
 
     MeshElement();
 

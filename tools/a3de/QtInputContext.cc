@@ -179,9 +179,10 @@ namespace {
             case Qt::Key_QuoteLeft:
                 return K::GraveAccent;
 
-            // world keys (Qt defines World_0..World_35; map a couple)
-            //		case Qt::Key_World_1:     return K::World1;
-            //		case Qt::Key_World_2:     return K::World2;
+            //  world keys(Qt defines World_0..World_35; map a couple) case Qt::Key_World_1:
+            //     return K::World1;
+            // case Qt::Key_World_2:
+            //     return K::World2;
 
             // function / navigation / editing
             case Qt::Key_Escape:

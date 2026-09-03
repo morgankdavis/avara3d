@@ -210,7 +210,7 @@ void Mesh::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
 
-// Protected Member Functions ///
+// [Protected Member Functions]
 
 void Mesh::genLocalAABB() {
 

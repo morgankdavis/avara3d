@@ -108,7 +108,9 @@ Scene::~Scene() {
     if (_physicsWorld) {
         _physicsWorld->detachedFromScene(*this);
     }
-    //	if (_inputContext) _inputContext->detachedFromScene(*this);
+    // if (_inputContext) {
+    //     _inputContext->detachedFromScene(*this);
+    // }
 }
 
 // [Public Member Functions]
@@ -204,9 +206,9 @@ InputContext* Scene::inputContext() const {
 
 void Scene::inputContext(unique_ptr<InputContext> inputContext) {
 
-    if (_inputContext) {
-        //		_inputContext->detachedFromScene(*this);
-    }
+    // if (_inputContext) {
+    //     _inputContext->detachedFromScene(*this);
+    // }
 
     _inputContext = std::move(inputContext);
 

@@ -279,7 +279,7 @@ Log::SourceInfo Log::MakeSourceInfo(const std::source_location& where) {
     return SourceInfo {file, static_cast<unsigned>(where.line()), func};
 }
 
-// [Private Lifecycle]
+// [Private Lifecycle Functions]
 
 Log::Log(const string& name):
     _name(name),

@@ -39,7 +39,7 @@ public:
         bool      shrinkWrap {true};
         FILL_MODE fillMode {FILL_MODE::FLOOD_FILL};
         uint32_t  maxNumVerticesPerHull {64};
-//			bool		asyncACD 				{true};
+        // bool      asyncACD {true};
         uint32_t  minEdgeLength {2};
         bool      findBestPlane {false};
     };

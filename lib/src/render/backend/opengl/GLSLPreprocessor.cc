@@ -42,7 +42,7 @@ namespace {
 
 } // namespace
 
-// [Internal Static Functions]
+// [Internal Static Member Functions]
 
 string GLSLPreprocessor::Process(const string&          source,
                                  const string&          sourceName,

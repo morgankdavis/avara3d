@@ -70,9 +70,9 @@ Viewport::QtViewport(Antialiasing antialiasingMode, QWidget* parent):
     setFocus();
 }
 
-//Viewport::~QtViewport() {
-//	//ImGui::DestroyContext();
-//}
+// Viewport::~QtViewport() {
+//     //ImGui::DestroyContext();
+// }
 
 // [Public Member Functions]
 

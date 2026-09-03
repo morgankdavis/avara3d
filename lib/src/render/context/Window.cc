@@ -65,7 +65,7 @@ unique_ptr<DesktopInputContext> Window::InputContext() {
     return std::make_unique<GLFWInputContext>();
 }
 
-// [Public Lifescycle]
+// [Public Lifescycle Functions]
 
 Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialiasing antialiasing):
     RenderContext {},
@@ -723,8 +723,6 @@ namespace {
 #endif
 
     void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-        //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-        //			  static_cast<void*>(glfwWindow), width, height);
 
         auto window = (Window*) glfwGetWindowUserPointer(glfwWindow);
         window->size(uvec2(width, height));
@@ -738,11 +736,10 @@ namespace {
     }
 
     void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-        //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
-        //			  static_cast<void*>(glfwWindow), width, height);
-
-        //	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-        //	window->renderer()->viewportScaleChanged(*window);
+        // 	log::d()("glfwWindow: {:p}, width: {}, height: {}", static_cast<void*>(glfwWindow), width, height);
+        //
+        // auto window = (GLFWWindow*) glfwGetWindowUserPointer(glfwWindow);
+        // window->renderer()->viewportScaleChanged(*window);
     }
 
     void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {

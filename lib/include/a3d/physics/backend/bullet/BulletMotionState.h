@@ -39,7 +39,6 @@ public:
 private:
     // [Private Member Variables]
 
-//		btTransform 		_visualWorldTransform;
     PhysicsBody* _body;
 };
 
