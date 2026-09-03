@@ -673,7 +673,7 @@ namespace {
 
         auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
-        world->atmosphere(Atmosphere {.scaleHeight = 1.0f, .haze = atmosphericHaze, .limbGlow = limbGlow});
+        world->atmosphere(Atmosphere {.scaleHeight = 0.9f, .haze = atmosphericHaze, .limbGlow = limbGlow});
 
         return world;
     }
