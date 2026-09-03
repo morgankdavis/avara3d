@@ -12,8 +12,6 @@
 #include <memory>
 #include <vector>
 
-#include "a3d/Math.h"
-
 namespace a3d {
 
 class Mesh;

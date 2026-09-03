@@ -59,6 +59,7 @@ App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _window {nullptr},
     _dynamicsRoot {nullptr},
+    _transientsRoot {nullptr},
     _cameraNode {nullptr},
     _cameraController {},
     _hoveredNode {},
@@ -187,7 +188,7 @@ std::unique_ptr<Scene> App::init() {
 
         return scene;
     }
-    catch (std::exception& e) {
+    catch (const std::exception& e) {
         log::app::f()("Exception: {}", e.what());
         return nullptr;
     }

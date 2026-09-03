@@ -210,11 +210,11 @@ bool App::drawDemoPanel() {
             panel.spacer(6.0f);
 
             panel.value("mesh", mesh->name().value_or("(unnamed)"));
-            uint64_t polygons = 0;
+            std::uint64_t polygons = 0;
             for (const auto& e : mesh->elements()) {
                 polygons += e->indexCount() / 3u;
             }
-            panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
+            panel.value("polygons", std::format("{:.1f}k", static_cast<float>(polygons) / 1000.0f));
             panel.value("materials", std::format("{}", mesh->materials().size()));
         }
     }
