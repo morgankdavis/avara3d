@@ -7,13 +7,14 @@
 //
 
 #include "App.h"
-#include "Constants.h"
-#include "TransientsBuilder.h"
 
 #include <algorithm>
 #include <cmath>
 
 #include "a3d/a3d.h"
+
+#include "Constants.h"
+#include "TransientsBuilder.h"
 
 using namespace a3d;
 using namespace a3d::math;

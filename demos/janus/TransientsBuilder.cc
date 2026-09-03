@@ -7,9 +7,10 @@
 //
 
 #include "TransientsBuilder.h"
-#include "Constants.h"
 
 #include "a3d/a3d.h"
+
+#include "Constants.h"
 
 using namespace a3d;
 using namespace a3d::math;
