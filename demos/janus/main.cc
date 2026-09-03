@@ -7,7 +7,9 @@
 //
 
 #include <memory>
+
 #include "a3d/Application.h"
+
 #include "App.h"
 
 int main(int argc, char* argv[]) {
