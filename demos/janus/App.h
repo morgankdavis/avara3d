@@ -39,7 +39,6 @@ public:
     struct PickResult {
         std::weak_ptr<a3d::Node> node;
         a3d::math::vec3          hitPosition;
-        a3d::math::vec3          hitNormal;
     };
 
     // [Public Lifecycle Functions]

@@ -27,7 +27,7 @@ namespace {
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
     const uvec2                       WINDOW_SIZE {1280, 768};
     const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
-    const float                       TIME_STEP {1.0 / 120.0};
+    const double                      TIME_STEP {1.0 / 120.0};
     const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
     const u8vec3 ROCK_GRID_SIZE {3, 3, 3};
@@ -385,7 +385,7 @@ optional<App::PickResult> App::target(const Scene& scene, const vec2& screenPosi
             continue;
         }
 
-        return PickResult {.node = node, .hitPosition = hit.worldCoordinates(), .hitNormal = hit.worldNormal()};
+        return PickResult {.node = node, .hitPosition = hit.worldCoordinates()};
     }
 
     return {};
@@ -668,7 +668,7 @@ namespace {
                               .radialFade = radialFade,
                               .horizonHaze = horizonHaze});
 
-        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3}, .density = 0.5f};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3f}, .density = 0.5f};
 
         auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
 
@@ -749,7 +749,7 @@ namespace {
             body->mass(50.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-            body->angularSleepingThreshold(0.25);
+            body->angularSleepingThreshold(0.25f);
 
             auto extent = node->mesh()->localExtent();
             body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.0f, -0.025f});
@@ -766,7 +766,7 @@ namespace {
             body->mass(55.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-            body->angularSleepingThreshold(0.25);
+            body->angularSleepingThreshold(0.25f);
 
             auto extent = node->mesh()->localExtent();
             body->centerOfMass(body->centerOfMass() + extent * vec3 {0.1f, 0.05f, -0.15f});
@@ -783,7 +783,7 @@ namespace {
             body->friction(0.5f);
             body->restitution(0.2f);
             body->rollingFriction(0.05f);
-            body->spinningFriction(0.05);
+            body->spinningFriction(0.05f);
             body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
@@ -875,7 +875,7 @@ namespace {
         orbGroup->position(ORB_GROUP_POSITION);
 
         auto orbMaterial = Material::EmissionMaterial(Color::White());
-        auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
+        auto orbMesh = Sphere::Mesh(0.1f, 3, orbMaterial);
 
         wanderers.reserve(ORB_COUNT);
 
@@ -919,9 +919,7 @@ namespace {
                 continue;
             }
 
-            return App::PickResult {.node = node,
-                                    .hitPosition = hit.worldCoordinates(),
-                                    .hitNormal = hit.worldNormal()};
+            return App::PickResult {.node = node, .hitPosition = hit.worldCoordinates()};
         }
 
         return {};

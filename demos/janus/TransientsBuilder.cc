@@ -79,7 +79,7 @@ vector<shared_ptr<Node>> TransientsBuilder::rocks(const vec3& location, const u8
                 body->restitution(STONE_RESTITUTION);
                 body->rollingFriction(0.01f);
                 body->spinningFriction(0.015f);
-                body->angularSleepingThreshold(.25f);
+                body->angularSleepingThreshold(0.25f);
 
                 const float ANGULAR_VARIANCE = radians(30.0f);
                 body->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
@@ -129,9 +129,9 @@ vector<shared_ptr<Node>> TransientsBuilder::coins(const vec3& location, const u8
                 auto body = PhysicsBody::DynamicBody(shape);
                 body->mass(20.0f);
                 body->friction(0.35f);
-                body->restitution(0.1);
+                body->restitution(0.1f);
                 body->rollingFriction(0.15f);
-                body->spinningFriction(0.1);
+                body->spinningFriction(0.1f);
                 body->angularDamping(0.4f);
 
                 const float ANGULAR_VARIANCE = radians(180.0f);
@@ -213,14 +213,19 @@ shared_ptr<Node> TransientsBuilder::hammer(const vec3& location, const vec3& vel
 
     auto body = PhysicsBody::DynamicBody(shape);
     body->mass(5.0f);
-    body->restitution(0.10);
+    body->restitution(0.10f);
     body->friction(0.65f);
-    body->rollingFriction(0.003);
+    body->rollingFriction(0.003f);
 
-    static const auto extent = mesh->localExtent();
+    const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.3f, 0.0f});
 
-    const vec3 throwForward = math::normalize(vec3 {velocity.x, 0.0f, velocity.z});
+    const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
+
+    vec3 throwForward {0.0f, 0.0f, -1.0f};
+    if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
+        throwForward = normalize(horizontalVelocity);
+    }
     // node forward is -Z, so yaw -Z toward the horizontal throw direction
     const float        yaw = math::atan2(-throwForward.x, -throwForward.z);
     static const float START_PITCH = radians(20.0f);
@@ -254,12 +259,12 @@ shared_ptr<Node> TransientsBuilder::hula(const vec3& location, const vec3& veloc
     body->mass(1.0f);
     body->friction(0.35f);
     body->restitution(0.3f);
-    body->spinningFriction(0.05);
+    body->spinningFriction(0.05f);
 
-    static const auto extent = mesh->localExtent();
-    body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
+    const auto extent = mesh->localExtent();
+    body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, 0.1f, 0.0f});
 
-    static const float minExtent = math::min(extent);
+    const float minExtent = math::min(extent);
     body->ccdMotionThreshold(minExtent * 0.25f);
     body->ccdSweptSphereRadius(minExtent * 0.20f);
     body->ccdEnabled(true);
@@ -304,11 +309,11 @@ shared_ptr<Node> TransientsBuilder::duck(const vec3& location, const vec3& veloc
     body->mass(1.0f);
     body->friction(0.6f);
     body->restitution(0.4f);
-    body->rollingFriction(0.1);
-    body->spinningFriction(0.1);
-    body->angularSleepingThreshold(0.25);
+    body->rollingFriction(0.1f);
+    body->spinningFriction(0.1f);
+    body->angularSleepingThreshold(0.25f);
 
-    static const auto extent = mesh->localExtent();
+    const auto extent = mesh->localExtent();
     body->centerOfMass(body->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
 
     node->eulerAngles(uniform_linear(vec3 {0.0f}, vec3 {TWO_PI}));
