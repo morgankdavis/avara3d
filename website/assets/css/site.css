@@ -692,7 +692,7 @@ kbd,
 
 .source-browser {
     display: grid;
-    grid-template-columns: 230px minmax(0, 1fr);
+    grid-template-columns: 240px minmax(0, 1fr);
      height: clamp(690px, 80dvh, 920px);
     overflow: hidden;
     border: 1px solid var(--line-strong);
@@ -1035,7 +1035,7 @@ kbd,
     }
 
     .source-browser {
-        grid-template-columns: 190px minmax(0, 1fr);
+        grid-template-columns: 240px minmax(0, 1fr);
     }
 }
 
