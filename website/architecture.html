@@ -42,6 +42,7 @@
                 <span class="architecture-title-accent">physics</span>, and
                 <span class="architecture-title-accent">rendering</span>.
             </h1>
+            </h1>
             <p>How A3D handles ownership, simulation scheduling, rigid-body physics, and rendering.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
                 <a href="#ownership">Ownership</a>
@@ -72,29 +73,6 @@
                     <code>Scene</code> can also be embedded directly into arbitrary application frameworks.</p>
 
             </div>
-
-
-            <!--            <div class="arch-card ownership-v2" role="img" aria-label="Application owns Runner and Scene. Runner drives Scene through a reference. Scene owns VisualWorld, PhysicsWorld, InputContext, and retains the root Node.">-->
-            <!--                <div class="arch-node primary">Application<small>lifetime root</small></div>-->
-            <!--                <div class="ownership-pair">-->
-            <!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Runner<small>scheduling + control</small></div></div>&ndash;&gt;-->
-            <!--&lt;!&ndash;                    <div><span>owns</span><div class="arch-node">Scene<small>state + subsystem root</small></div></div>&ndash;&gt;-->
-            <!--                    <div>-->
-            <!--                        <div class="arch-node">Runner<small>scheduling + control</small></div>-->
-            <!--                    </div>-->
-            <!--                    <div>-->
-            <!--                        <div class="arch-node">Scene<small>state + subsystem root</small></div>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--&lt;!&ndash;                <div class="drives"><code>Runner</code><span>drives through <code>Scene&amp;</code></span><code>Scene</code></div>&ndash;&gt;-->
-            <!--                <div class="scene-owns">Scene owns / retains</div>-->
-            <!--                <div class="ownership-children">-->
-            <!--                    <div class="arch-node compact">VisualWorld</div><div class="arch-node compact">PhysicsWorld</div><div class="arch-node compact">InputContext</div><div class="arch-node compact">Root Node</div>-->
-            <!--                </div>-->
-            <!--            </div>-->
-
-
-            <!--            <div class="arch-card ownership-v2 placeholder-card" role="img"></div>-->
 
 
             <figure class="ownership-diagram">
@@ -218,77 +196,7 @@
 
             </figure>
 
-
         </section>
-
-
-        <!--        <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">-->
-        <!--            <div class="architecture-copy architecture-copy-wide">-->
-        <!--                <p class="arch-overline">Simulation</p>-->
-        <!--                <h2 id="simulation-heading">Fixed simulation, variable host rate.</h2>-->
-
-        <!--                <p><code>Runner</code> decouples host updates, rendering, and physics/simulation timing. Each host update-->
-        <!--                    measures elapsed time, processes application and input work, then schedules zero, one, or up to a configured maximum-->
-        <!--                    number of fixed-duration simulation steps. Physics and application simulation therefore see a stable-->
-        <!--                    timestep even as frame timing varies. Once the scheduled steps are complete, rendering observes the latest completed-->
-        <!--                    simulation state and a frame is presented.</p>-->
-
-        <!--                <p>Catch-up is bounded: if the host falls behind, <code>Runner</code> performs only a limited number of-->
-        <!--                    simulation steps rather than allowing an ever-growing backlog. Excess accumulated time is discarded and recorded.-->
-        <!--                    Pause, single-step, reset, and the simulation clock and step count are handled by the scheduler itself rather than-->
-        <!--                    being left to the application.</p>-->
-
-        <!--                <p>Within each simulation step, execution follows a defined order. Queued pre-step work runs before application-->
-        <!--                    callbacks and physics, while post-step work runs afterward. This gives application code predictable places-->
-        <!--                    to modify and observe simulation state, while keeping physics updates and other step-sensitive changes from-->
-        <!--                    occurring at arbitrary points in the cycle.</p>-->
-
-        <!--            </div>-->
-
-        <!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
-        <!--                <li><strong>Application update</strong><small>Variable-rate policy</small></li>-->
-        <!--                <li><strong>Poll events</strong><small>Window + platform</small></li>-->
-        <!--                <li><strong>Update input</strong><small>State + callback</small></li>-->
-        <!--                <li><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
-        <!--                <li><strong>Render</strong><small>Completed state</small></li>-->
-        <!--                <li><strong>Present</strong><small>Swap buffers</small></li>-->
-        <!--            </ol>-->
-        <!--            <div class="arch-two-column">-->
-        <!--                <div class="arch-card scheduler-card">-->
-        <!--                    <h3>Fixed-step scheduling</h3>-->
-        <!--                    <dl>-->
-        <!--                        <div>-->
-        <!--                            <dt>Host delta</dt>-->
-        <!--                            <dd>16.67 ms</dd>-->
-        <!--                        </div>-->
-        <!--                        <div>-->
-        <!--                            <dt>Fixed step</dt>-->
-        <!--                            <dd>8.33 ms</dd>-->
-        <!--                        </div>-->
-        <!--                        <div>-->
-        <!--                            <dt>Scheduled</dt>-->
-        <!--                            <dd>2 steps</dd>-->
-        <!--                        </div>-->
-        <!--                        <div>-->
-        <!--                            <dt>Catch-up</dt>-->
-        <!--                            <dd>≤ 8 steps</dd>-->
-        <!--                        </div>-->
-        <!--                    </dl>-->
-        <!--                    <div class="ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>-->
-        <!--                </div>-->
-        <!--                <div class="arch-card">-->
-        <!--                    <h3>One simulation step</h3>-->
-
-        <!--                    <ol class="step-flow" aria-label="Fixed simulation step ordering">-->
-        <!--                        <li>Queued pre-step commands</li>-->
-        <!--                        <li><code>sceneWillStep</code> callback</li>-->
-        <!--                        <li>Rigid-body step</li>-->
-        <!--                        <li>Queued post-step commands</li>-->
-        <!--                        <li><code>sceneDidStep</code> callback</li>-->
-        <!--                    </ol>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </section>-->
 
 
         <section class="architecture-section architecture-section-stacked"
@@ -317,32 +225,6 @@
                         predictable places to modify and observe simulation state, while keeping physics updates and other
                         step-sensitive changes from occurring at arbitrary points in the cycle.</p>
 
-                    <!--                    <ol class="arch-flow host-flow simulation-host-flow" aria-label="One host update">-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Application update</strong>-->
-                    <!--                            <small>Variable-rate policy</small>-->
-                    <!--                        </li>-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Poll events</strong>-->
-                    <!--                            <small>Window + platform</small>-->
-                    <!--                        </li>-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Update input</strong>-->
-                    <!--                            <small>State + callback</small>-->
-                    <!--                        </li>-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Schedule</strong>-->
-                    <!--                            <small>0…N fixed steps</small>-->
-                    <!--                        </li>-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Render</strong>-->
-                    <!--                            <small>Completed state</small>-->
-                    <!--                        </li>-->
-                    <!--                        <li>-->
-                    <!--                            <strong>Present</strong>-->
-                    <!--                            <small>Swap buffers</small>-->
-                    <!--                        </li>-->
-                    <!--                    </ol>-->
                     <ol class="arch-flow host-flow simulation-host-flow" aria-label="One host update">
                         <li><strong>Application update</strong></li>
                         <li><strong>Update input</strong></li>

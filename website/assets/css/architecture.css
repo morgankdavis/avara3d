@@ -1136,18 +1136,48 @@
     }
 }
 
-/*.architecture-title-accent {*/
-/*    color: #596fb8;*/
-/*}*/
-
 .architecture-title-accent {
     color: #6f79b8;
 }
 
-
 /*.architecture-title-accent {*/
-/*    color: color-mix(in srgb, var(--blue) 58%, #252b45);*/
+/*    color: transparent;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            #668ed9,*/
+/*            #8b7bd0*/
+/*    );*/
+/*    background-clip: text;*/
+/*    -webkit-background-clip: text;*/
 /*}*/
+
+/*.architecture-title {*/
+/*    color: var(--text);*/
+/*}*/
+
+/*.architecture-title-gradient {*/
+/*    display: inline-block;*/
+/*    max-width: 100%;*/
+/*    color: transparent;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            #628bd3 0%,*/
+/*            #7185cd 24%,*/
+/*            #986b7e 52%,*/
+/*            #8a6b9d 72%,*/
+/*            #7e73c8 100%*/
+/*    );*/
+/*    background-repeat: no-repeat;*/
+/*    background-size: 100% 100%;*/
+/*    background-clip: text;*/
+/*    -webkit-background-clip: text;*/
+/*    -webkit-text-fill-color: transparent;*/
+/*}*/
+
+.architecture-title-plain {
+    color: var(--text);
+    -webkit-text-fill-color: var(--text);
+}
 
 .architecture-section {
     align-items: stretch;
@@ -1188,6 +1218,11 @@
 
 .ownership-overview {
     padding: 26px 22px 24px;
+    background: linear-gradient(
+            180deg,
+            rgba(92, 116, 196, 0.045),
+            transparent 72%
+    );
 }
 
 .ownership-application {
@@ -1430,7 +1465,7 @@
 /* Scene detail ------------------------------------------------------------ */
 
 .ownership-diagram {
-    --ownership-detail-line: rgba(166, 140, 255, 0.58);
+    --ownership-detail-line: rgba(166, 140, 255, 0.52);
 }
 
 .ownership-details {
@@ -1481,15 +1516,14 @@
 }
 
 .ownership-overview .arch-node {
-    border-color: rgba(166, 140, 255, 0.5);
+    border-color: rgba(105, 145, 235, 0.78);
     color: var(--text);
     background: linear-gradient(
             135deg,
-            rgba(84, 61, 188, 0.3),
-            rgba(33, 33, 42, 0.95)
+            rgba(55, 83, 160, 0.46),
+            rgba(29, 34, 55, 0.95)
     );
 }
-
 
 /* Systems ----------------------------------------------------------------- */
 
