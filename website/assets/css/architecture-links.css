@@ -1,0 +1,38 @@
+/* API type links ----------------------------------------------------------- */
+
+.architecture-page .arch-api-link {
+    --arch-api-link-hover: var(--violet);
+    color: inherit;
+    text-decoration: none;
+}
+
+.architecture-page .arch-api-link,
+.architecture-page .arch-api-link code {
+    transition: color 120ms ease;
+}
+
+.architecture-page .arch-api-link:hover,
+.architecture-page .arch-api-link:focus-visible,
+.architecture-page .arch-api-link:hover code,
+.architecture-page .arch-api-link:focus-visible code {
+    color: var(--arch-api-link-hover);
+}
+
+.ownership-overview .arch-api-link {
+    --arch-api-link-hover: var(--blue);
+}
+
+.ownership-details .arch-api-link,
+.physics-backend-card .arch-api-link {
+    --arch-api-link-hover: var(--violet);
+}
+
+.render-pipeline .arch-api-link {
+    --arch-api-link-hover: var(--pink);
+}
+
+.architecture-page .arch-api-link:focus-visible {
+    border-radius: 2px;
+    outline: 1px solid var(--arch-api-link-hover);
+    outline-offset: 3px;
+}
