@@ -475,11 +475,15 @@
                 <h2 id="rendering-heading">Turning a scene into a frame.</h2>
 
                 <p class="rendering-summary"><code>VisualWorld</code> coordinates rendering for the active scene. Each frame,
-                    scene traversal gathers the visible cameras, lights, meshes, materials, and transforms into an immutable snapshot
+                    scene traversal gathers the visible cameras, lights, meshes, materials, and transforms into an immutable
+                    snapshot
                     needed to render the frame. This keeps the mutable scene graph as the application-facing model while giving
-                    rendering a stable set of inputs. The gathered state is then resolved to graphics resources and converted into
-                    backend-oriented render packets. Packets are sorted by pipeline state before execution, reducing unnecessary graphics-state
-                    changes. Those packets are consumed by <code>Renderer</code>, which owns OpenGL/WebGL execution through the active
+                    rendering a stable set of inputs. The gathered state is then resolved to graphics resources and converted
+                    into
+                    backend-oriented render packets. Packets are sorted by pipeline state before execution, reducing unnecessary
+                    graphics-state
+                    changes. Those packets are consumed by <code>Renderer</code>, which owns OpenGL/WebGL execution through the
+                    active
                     <code>RenderContext</code>. The result is a staged pipeline from scene representation to extracted frame
                     state to GPU work, rather than rendering logic being embedded throughout scene objects.</p>
             </div>

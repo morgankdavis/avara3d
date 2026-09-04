@@ -695,7 +695,6 @@
 }
 
 
-
 .frame-envelope {
     display: grid;
     grid-template-columns:repeat(6, 1fr);
@@ -1318,6 +1317,10 @@
 
 /* Scene detail ------------------------------------------------------------ */
 
+.ownership-diagram {
+    --ownership-detail-line: rgba(166, 140, 255, 0.82);
+}
+
 .ownership-details {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -1383,17 +1386,7 @@
 }
 
 .ownership-system-list::before {
-    position: absolute;
-    top: 14px;
-    bottom: 7px;
-    left: 4px;
-    width: 1px;
-    content: "";
-    background: linear-gradient(
-            to bottom,
-            rgba(166, 140, 255, 0.48),
-            rgba(255, 255, 255, 0.08)
-    );
+    display: none;
 }
 
 .ownership-system-item {
@@ -1405,22 +1398,35 @@
     margin-top: 22px;
 }
 
-.ownership-system-item::before {
+/* Draw only the connector to the next system; the final item has no tail. */
+.ownership-system-item:not(:last-child)::after {
     position: absolute;
-    top: 0.64rem;
-    left: 0;
-    width: 7px;
-    height: 7px;
-    border: 1px solid rgba(166, 140, 255, 0.72);
-    border-radius: 50%;
+    z-index: 0;
+    top: calc(0.64rem + 9px);
+    bottom: calc(-22px - 0.64rem);
+    left: 4px;
+    width: 2px;
     content: "";
-    background: #0a0a0d;
-    box-shadow: 0 0 8px rgba(166, 140, 255, 0.22);
+    background: var(--ownership-detail-line);
 }
 
-.ownership-system-name {
+.ownership-system-item::before {
+    position: absolute;
+    z-index: 1;
+    top: 0.64rem;
+    left: 0;
+    width: 9px;
+    height: 9px;
+    border: 0;
+    border-radius: 50%;
+    content: "";
+    background: var(--violet);
+    box-shadow: 0 0 12px rgba(166, 140, 255, .42);
+}
+
+.architecture-page .ownership-system-name {
     color: var(--text);
-    font-size: 0.74rem;
+    font-size: .92rem;
     font-weight: 600;
 }
 
@@ -1498,8 +1504,7 @@
 }
 
 /*
- * Node uses the exact same item/title classes as VisualWorld, so its text and
- * circle align with the first item in the Systems column.
+ * Node uses the same title/dot treatment as the Systems entries.
  */
 .ownership-tree-root {
     margin: 0;
@@ -1510,18 +1515,9 @@
 }
 
 /*
- * Top-level tree:
- *
- *       ┌─ Mesh
- *       │    ├─ MeshElement
- *       │    └─ Material
- *       ├─ Light
- *       ├─ Camera
- *       └─ PhysicsBody
- *            └─ PhysicsShape
- *
- * The trunk begins below Node; it is intentionally NOT connected to Node's
- * purple circle.
+ * Each tree level owns one continuous vertical trunk.  Horizontal branches
+ * begin immediately after the 2px trunk, so the two lines touch without
+ * overlapping and producing a brighter junction.
  */
 .ownership-tree {
     position: relative;
@@ -1530,33 +1526,36 @@
     list-style: none;
 }
 
-.ownership-tree-root-list {
-    margin-top: 3px;
-    margin-left: 21px;
+.ownership-tree::before {
+    position: absolute;
+    top: 0;
+    bottom: 14px;
+    left: 0;
+    width: 2px;
+    content: "";
+    background: var(--ownership-detail-line);
 }
 
 /*
- * Nested trees are indented relative to their parent label.  Because each
- * parent label is already 20px to the right of its trunk, 27px puts the child
- * trunk only 7px to the right of the parent text, matching the mockup.
+ * Align the top-level trunk directly beneath the Node dot.  The small
+ * negative top connects the trunk to the bottom of the dot.
+ */
+.ownership-tree-root-list {
+    margin-top: 3px;
+    margin-left: 4px;
+}
+
+.ownership-tree-root-list::before {
+    top: -4px;
+}
+
+/*
+ * Nested trees form the square-ish wedges under Mesh and PhysicsBody.
+ * 14px of vertical lead-in + a 14px horizontal arm gives the elbows the
+ * proportions shown in the mockup.
  */
 .ownership-tree .ownership-tree {
     margin-left: 27px;
-}
-
-/*
- * A nested group gets a short vertical lead-in before its first branch.
- * There is no lead-in on the top-level group, which gives Mesh the top "┌"
- * shape instead of connecting the tree back to Node.
- */
-.ownership-tree:not(.ownership-tree-root-list)::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 15px;
-    content: "";
-    background: rgba(166, 140, 255, 0.52);
 }
 
 .ownership-tree > li {
@@ -1565,22 +1564,6 @@
     padding: 0;
 }
 
-/*
- * Every non-last sibling carries the vertical trunk from its own branch point
- * to the next sibling's branch point.  If an item contains children, its li
- * grows to contain them, so this line naturally spans around those children.
- */
-.ownership-tree > li:not(:last-child)::before {
-    position: absolute;
-    top: 14px;
-    bottom: -15px;
-    left: 0;
-    width: 1px;
-    content: "";
-    background: rgba(166, 140, 255, 0.52);
-}
-
-/* One 30px row and one short horizontal branch per label. */
 .ownership-tree-label {
     position: relative;
     display: flex;
@@ -1592,15 +1575,15 @@
 .ownership-tree-label::before {
     position: absolute;
     top: 14px;
-    left: 1px;
-    width: 11px;
-    height: 1px;
+    left: 2px;
+    width: 10px;
+    height: 2px;
     content: "";
-    background: linear-gradient(
-            90deg,
-            rgba(166, 140, 255, 0.82),
-            rgba(255, 255, 255, 0.18)
-    );
+    background: var(--ownership-detail-line);
+}
+
+.ownership-tree .ownership-tree > li > .ownership-tree-label::before {
+    width: 14px;
 }
 
 .ownership-tree-label code {
