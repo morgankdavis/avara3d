@@ -43,8 +43,7 @@
                 <span class="architecture-title-accent">physics</span>, and
                 <span class="architecture-title-accent">rendering</span>.
             </h1>
-            <p>How A3D handles object lifetime, fixed-step simulation, rendering, physics synchronization, and cross-platform
-                execution.</p>
+            <p>How A3D handles ownership, fixed-step simulation, physics, and rendering.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
                 <a href="#ownership">Ownership</a>
                 <a href="#simulation">Simulation</a>
@@ -237,122 +236,242 @@
         </section>
 
 
-        <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">
-            <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Simulation</p>
-                <h2 id="simulation-heading">Fixed simulation, variable rendering.</h2>
-                <p><code>Scene</code> traversal gathers the visible state needed to render a frame into its
-                    <code>VisualWorld</code>, producing an immutable snapshot. That state is resolved to GPU resources,
-                    converted into render packets, and passed to the OpenGL rendering backend for execution.</p>
+        <!--        <section class="architecture-section architecture-section-stacked" id="simulation" aria-labelledby="simulation-heading">-->
+        <!--            <div class="architecture-copy architecture-copy-wide">-->
+        <!--                <p class="arch-overline">Simulation</p>-->
+        <!--                <h2 id="simulation-heading">Fixed simulation, variable host rate.</h2>-->
+
+        <!--                <p><code>Runner</code> decouples host updates, rendering, and physics/simulation timing. Each host update-->
+        <!--                    measures elapsed time, processes application and input work, then schedules zero, one, or up to a configured maximum-->
+        <!--                    number of fixed-duration simulation steps. Physics and application simulation therefore see a stable-->
+        <!--                    timestep even as frame timing varies. Once the scheduled steps are complete, rendering observes the latest completed-->
+        <!--                    simulation state and a frame is presented.</p>-->
+
+        <!--                <p>Catch-up is bounded: if the host falls behind, <code>Runner</code> performs only a limited number of-->
+        <!--                    simulation steps rather than allowing an ever-growing backlog. Excess accumulated time is discarded and recorded.-->
+        <!--                    Pause, single-step, reset, and the simulation clock and step count are handled by the scheduler itself rather than-->
+        <!--                    being left to the application.</p>-->
+
+        <!--                <p>Within each simulation step, execution follows a defined order. Queued pre-step work runs before application-->
+        <!--                    callbacks and physics, while post-step work runs afterward. This gives application code predictable places-->
+        <!--                    to modify and observe simulation state, while keeping physics updates and other step-sensitive changes from-->
+        <!--                    occurring at arbitrary points in the cycle.</p>-->
+
+        <!--            </div>-->
+
+        <!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
+        <!--                <li><strong>Application update</strong><small>Variable-rate policy</small></li>-->
+        <!--                <li><strong>Poll events</strong><small>Window + platform</small></li>-->
+        <!--                <li><strong>Update input</strong><small>State + callback</small></li>-->
+        <!--                <li><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
+        <!--                <li><strong>Render</strong><small>Completed state</small></li>-->
+        <!--                <li><strong>Present</strong><small>Swap buffers</small></li>-->
+        <!--            </ol>-->
+        <!--            <div class="arch-two-column">-->
+        <!--                <div class="arch-card scheduler-card">-->
+        <!--                    <h3>Fixed-step scheduling</h3>-->
+        <!--                    <dl>-->
+        <!--                        <div>-->
+        <!--                            <dt>Host delta</dt>-->
+        <!--                            <dd>16.67 ms</dd>-->
+        <!--                        </div>-->
+        <!--                        <div>-->
+        <!--                            <dt>Fixed step</dt>-->
+        <!--                            <dd>8.33 ms</dd>-->
+        <!--                        </div>-->
+        <!--                        <div>-->
+        <!--                            <dt>Scheduled</dt>-->
+        <!--                            <dd>2 steps</dd>-->
+        <!--                        </div>-->
+        <!--                        <div>-->
+        <!--                            <dt>Catch-up</dt>-->
+        <!--                            <dd>≤ 8 steps</dd>-->
+        <!--                        </div>-->
+        <!--                    </dl>-->
+        <!--                    <div class="ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>-->
+        <!--                </div>-->
+        <!--                <div class="arch-card">-->
+        <!--                    <h3>One simulation step</h3>-->
+
+        <!--                    <ol class="step-flow" aria-label="Fixed simulation step ordering">-->
+        <!--                        <li>Queued pre-step commands</li>-->
+        <!--                        <li><code>sceneWillStep</code> callback</li>-->
+        <!--                        <li>Rigid-body step</li>-->
+        <!--                        <li>Queued post-step commands</li>-->
+        <!--                        <li><code>sceneDidStep</code> callback</li>-->
+        <!--                    </ol>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </section>-->
+
+
+        <section class="architecture-section architecture-section-stacked"
+                 id="simulation"
+                 aria-labelledby="simulation-heading">
+
+            <div class="simulation-layout">
+
+                <div class="simulation-copy">
+                    <p class="arch-overline">Simulation</p>
+                    <h2 id="simulation-heading">Fixed simulation, variable host rate.</h2>
+
+                    <p><code>Runner</code> decouples host updates, rendering, and physics/simulation timing. Each host update
+                        measures elapsed time, processes application and input work, then schedules zero, one, or up to a
+                        configured maximum number of fixed-duration simulation steps. Physics and application simulation
+                        therefore see a stable timestep even as frame timing varies. Once the scheduled steps are complete,
+                        rendering observes the latest completed simulation state and a frame is presented.</p>
+
+                    <p>Catch-up is bounded: if the host falls behind, <code>Runner</code> performs only a limited number of
+                        simulation steps rather than allowing an ever-growing backlog. Excess accumulated time is discarded
+                        and recorded. Pause, single-step, reset, and the simulation clock and step count are handled by the
+                        scheduler itself rather than being left to the application.</p>
+
+                    <p>Within each simulation step, execution follows a defined order. Queued pre-step work runs before
+                        application callbacks and physics, while post-step work runs afterward. This gives application code
+                        predictable places to modify and observe simulation state, while keeping physics updates and other
+                        step-sensitive changes from occurring at arbitrary points in the cycle.</p>
+
+                    <!--                    <ol class="arch-flow host-flow simulation-host-flow" aria-label="One host update">-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Application update</strong>-->
+                    <!--                            <small>Variable-rate policy</small>-->
+                    <!--                        </li>-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Poll events</strong>-->
+                    <!--                            <small>Window + platform</small>-->
+                    <!--                        </li>-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Update input</strong>-->
+                    <!--                            <small>State + callback</small>-->
+                    <!--                        </li>-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Schedule</strong>-->
+                    <!--                            <small>0…N fixed steps</small>-->
+                    <!--                        </li>-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Render</strong>-->
+                    <!--                            <small>Completed state</small>-->
+                    <!--                        </li>-->
+                    <!--                        <li>-->
+                    <!--                            <strong>Present</strong>-->
+                    <!--                            <small>Swap buffers</small>-->
+                    <!--                        </li>-->
+                    <!--                    </ol>-->
+                    <ol class="arch-flow host-flow simulation-host-flow" aria-label="One host update">
+                        <li><strong>Application update</strong></li>
+                        <li><strong>Update input</strong></li>
+                        <li><strong>Step</strong></li>
+                        <li><strong>Render</strong></li>
+                        <li><strong>Present</strong></li>
+                    </ol>
+                </div>
+
+                <div class="simulation-detail-stack">
+
+                    <div class="arch-card scheduler-card">
+                        <h3>Step scheduling</h3>
+
+                        <dl>
+                            <div>
+                                <dt>Host delta</dt>
+                                <dd>16.67 ms</dd>
+                            </div>
+                            <div>
+                                <dt>Fixed step</dt>
+                                <dd>8.33 ms</dd>
+                            </div>
+                            <div>
+                                <dt>Scheduled</dt>
+                                <dd>2 steps</dd>
+                            </div>
+                            <div>
+                                <dt>Catch-up</dt>
+                                <dd>≤ 8 steps</dd>
+                            </div>
+                        </dl>
+
+                        <div class="ticks" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+                    </div>
+
+                    <div class="arch-card simulation-step-card">
+                        <h3>One simulation step</h3>
+
+                        <ol class="step-flow" aria-label="Simulation step ordering">
+                            <li>Queued pre-step commands</li>
+                            <li><code>sceneWillStep</code> callback</li>
+                            <li>Rigid-body step</li>
+                            <li>Queued post-step commands</li>
+                            <li><code>sceneDidStep</code> callback</li>
+                        </ol>
+                    </div>
+
+                </div>
 
             </div>
-            <!--            <ol class="arch-flow host-flow" aria-label="One host update">-->
-            <!--                <li><b>01</b><strong>Application update</strong><small>Variable-rate policy</small></li>-->
-            <!--                <li><b>02</b><strong>Poll events</strong><small>Window + platform</small></li>-->
-            <!--                <li><b>03</b><strong>Update input</strong><small>State + callback</small></li>-->
-            <!--                <li><b>04</b><strong>Schedule</strong><small>0…N fixed steps</small></li>-->
-            <!--                <li><b>05</b><strong>Render</strong><small>Completed state</small></li>-->
-            <!--                <li><b>06</b><strong>Present</strong><small>Swap buffers</small></li>-->
-            <!--            </ol>-->
-            <ol class="arch-flow host-flow" aria-label="One host update">
-                <li><strong>Application update</strong><small>Variable-rate policy</small></li>
-                <li><strong>Poll events</strong><small>Window + platform</small></li>
-                <li><strong>Update input</strong><small>State + callback</small></li>
-                <li><strong>Schedule</strong><small>0…N fixed steps</small></li>
-                <li><strong>Render</strong><small>Completed state</small></li>
-                <li><strong>Present</strong><small>Swap buffers</small></li>
-            </ol>
-            <div class="arch-two-column">
-                <div class="arch-card scheduler-card">
-                    <h3>Bounded fixed-step scheduling</h3>
-                    <dl>
-                        <div>
-                            <dt>Host delta</dt>
-                            <dd>16.67 ms</dd>
-                        </div>
-                        <div>
-                            <dt>Fixed step</dt>
-                            <dd>8.33 ms</dd>
-                        </div>
-                        <div>
-                            <dt>Scheduled</dt>
-                            <dd>2 steps</dd>
-                        </div>
-                        <div>
-                            <dt>Catch-up</dt>
-                            <dd>capped</dd>
-                        </div>
-                    </dl>
-                    <div class="ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                    <p>Pause, explicit single-step, resettable simulation time, and discarded-time accounting remain part of the
-                        scheduler rather than ad hoc demo behavior.</p>
-                </div>
-                <div class="arch-card">
-                    <h3>One simulation step</h3>
-                    <ol class="step-flow" aria-label="Simulation step ordering">
-                        <li>Pre-step commands</li>
-                        <li><code>sceneWillStep</code></li>
-                        <li>Bullet step + contacts</li>
-                        <li>Post-step commands</li>
-                        <li><code>sceneDidStep</code></li>
-                    </ol>
-                    <p>Commands originating from input or UI are moved into explicit simulation queues. Each queue is exchanged
-                        before execution, so work enqueued by a running command waits for a later step.</p>
-                </div>
-            </div>
+
         </section>
 
 
-        <section class="architecture-section architecture-section-stacked" id="physics" aria-labelledby="physics-heading">
-            <div class="architecture-copy architecture-copy-wide">
-                <p class="arch-overline">Physics</p>
-                <h2 id="physics-heading">Physics powered by Bullet.</h2>
-                <!--                <p>A Node owns its <code>PhysicsBody</code>; bodies may share <code>PhysicsShape</code> objects. Public A3D-->
-                <!--                    types delegate through proxy interfaces, allowing Bullet to implement worlds, bodies, and shapes without-->
-                <!--                    becoming the public object model.</p>-->
-                <p>A <code>Node</code> owns its <code>PhysicsBody</code>, while bodies may share <code>PhysicsShape</code>
-                    objects. Public A3D types delegate through internal proxy interfaces, allowing Bullet to implement worlds,
-                    bodies, and shapes without becoming part of A3D's public object model.</p>
-            </div>
-            <div class="arch-two-column physics-columns">
-                <div class="arch-card backend-map" role="img"
-                     aria-label="A3D physics classes delegate through proxy classes to Bullet classes.">
-                    <h3>Backend boundary</h3>
-                    <div><code>PhysicsWorld</code><span>→</span><code>PhysicsWorldProxy</code><span>→</span><code>btDynamicsWorld</code>
-                    </div>
+        <section class="architecture-section architecture-section-stacked" id="physics"
+                 aria-labelledby="physics-heading">
+
+            <div class="physics-layout">
+
+                <div class="architecture-copy">
+                    <p class="arch-overline">Physics</p>
+                    <h2 id="physics-heading">Physics powered by Bullet.</h2>
+
+                    <p>Physics is integrated directly with the scene graph. A <code>Node</code> may own a
+                        <code>PhysicsBody</code>, which references a shareable <code>PhysicsShape</code>. As nodes enter or
+                        leave the active scene, their bodies are added to or removed from the scene's <code>PhysicsWorld</code>
+                        automatically.</p>
+
+                    <p><code>PhysicsBody</code> instances are automatically maintained by the <code>PhysicsWorld</code> as their
+                        nodes are added to or removed from the scene. Public physics types delegate through internal proxies to
+                        Bullet,
+                        keeping backend-specific types out of the public object model.</p>
+                </div>
+
+                <div class="arch-card backend-map physics-backend-card"
+                     role="img"
+                     aria-label="A3D physics classes map to Bullet backend classes.">
+                    <h3>Backend mapping</h3>
+
                     <div>
-                        <code>PhysicsBody</code><span>→</span><code>PhysicsBodyProxy</code><span>→</span><code>btRigidBody</code>
+                        <code>PhysicsWorld</code>
+                        <span>→</span>
+                        <code>btDynamicsWorld</code>
                     </div>
-                    <div><code>PhysicsShape</code><span>→</span><code>PhysicsShapeProxy</code><span>→</span><code>btCollisionShape</code>
+
+                    <div>
+                        <code>PhysicsBody</code>
+                        <span>→</span>
+                        <code>btRigidBody</code>
+                    </div>
+
+                    <div>
+                        <code>PhysicsShape</code>
+                        <span>→</span>
+                        <code>btCollisionShape</code>
                     </div>
                 </div>
-                <div class="arch-card transform-map" role="img"
-                     aria-label="Node model transform is converted to Bullet center-of-mass transform and dynamic results are converted back.">
-                    <h3>Model origin ↔ center of mass</h3>
-                    <div class="transform-lane">
-                        <div class="arch-node">Node model transform</div>
-                        <span>+ local COM offset →</span>
-                        <div class="arch-node accent">Bullet COM transform</div>
-                    </div>
-                    <div class="transform-lane reverse">
-                        <div class="arch-node">Node model transform</div>
-                        <span>← remove COM offset</span>
-                        <div class="arch-node accent">Bullet COM transform</div>
-                    </div>
-                    <p>Scene edits synchronize position and orientation toward Bullet. Dynamic results return through Bullet's
-                        motion state, with the local COM offset removed before the owning Node is updated.</p>
-                </div>
+
             </div>
-            <div class="authority-grid">
-                <article><h3>Static</h3>
-                    <p>Scene placement establishes fixed collision geometry.</p></article>
-                <article><h3>Kinematic</h3>
-                    <p>Application-driven Node transforms move the Bullet body.</p></article>
-                <article><h3>Dynamic</h3>
-                    <p>Bullet simulation updates the Node through the motion-state bridge.</p></article>
-                <article><h3>Collision shape</h3>
-                    <p>Explicit or derived from primitive, convex-hull, or concave scene geometry.</p></article>
+
+            <div class="physics-summary-grid">
+                <article>
+                    <h3>Body types</h3>
+                    <p>Static · Kinematic · Dynamic</p>
+                </article>
+
+                <article>
+                    <h3>Collision shapes</h3>
+                    <p>Convex hull · Concave decomposition · Primitive</p>
+                </article>
             </div>
+
         </section>
 
 
@@ -360,60 +479,70 @@
             <div class="architecture-copy architecture-copy-wide">
                 <p class="arch-overline">Rendering</p>
                 <h2 id="rendering-heading">Turning a scene into a frame.</h2>
-                <p><code>VisualWorld</code> coordinates the frame, but scene objects are not submitted directly as graphics
-                    commands. Gathering extracts visible state, packetization converts it into backend-oriented work, and
-                    Renderer owns OpenGL/WebGL execution.</p>
+
+                <p class="rendering-summary"><code>VisualWorld</code> coordinates rendering for the active scene. Each frame,
+                    scene traversal gathers the visible cameras, lights, meshes, materials, and transforms into an immutable snapshot
+                    needed to render the frame. This keeps the mutable scene graph as the application-facing model while giving
+                    rendering a stable set of inputs. The gathered state is then resolved to graphics resources and converted into
+                    backend-oriented render packets. Packets are sorted by pipeline state before execution, reducing unnecessary graphics-state
+                    changes. Those packets are consumed by <code>Renderer</code>, which owns OpenGL/WebGL execution through the active
+                    <code>RenderContext</code>. The result is a staged pipeline from scene representation to extracted frame
+                    state to GPU work, rather than rendering logic being embedded throughout scene objects.</p>
             </div>
-            <div class="render-pipeline" role="img"
+            <div class="render-pipeline"
+                 role="img"
                  aria-label="Scene graph flows through RenderGatherer, GatherOutput, DrawPacketizer, DrawPacket, Renderer, and OpenGL or WebGL.">
-                <div><small>Scene state</small><strong>Scene graph</strong></div>
+
+                <div>
+                    <small>Scene state</small>
+                    <strong>Scene graph</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Traversal</small><strong>RenderGatherer</strong></div>
+
+                <div>
+                    <small>Gathering</small>
+                    <strong>RenderGatherer</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Extracted state</small><strong>GatherOutput</strong></div>
+
+                <div>
+                    <small>Frame snapshot</small>
+                    <strong>GatherOutput</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Transformation</small><strong>DrawPacketizer</strong></div>
+
+                <div>
+                    <small>Packetization</small>
+                    <strong>DrawPacketizer</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Frame work</small><strong>DrawPacket</strong></div>
+
+                <div>
+                    <small>Render packet</small>
+                    <strong>DrawPacket</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Backend</small><strong>Renderer</strong></div>
+
+                <div>
+                    <small>Execution</small>
+                    <strong>Renderer</strong>
+                </div>
+
                 <span>→</span>
-                <div><small>Execution</small><strong>OpenGL / WebGL</strong></div>
+
+                <div>
+                    <small>Graphics API</small>
+                    <strong>OpenGL / WebGL</strong>
+                </div>
+
             </div>
-            <ol class="frame-envelope" aria-label="Render frame envelope">
-                <li>Begin frame</li>
-                <li>Application frame callback</li>
-                <li>Pre-traversal</li>
-                <li>Gather + packetize</li>
-                <li>Render packet</li>
-                <li>End frame + present</li>
-            </ol>
         </section>
 
-
-        <!--        <section class="architecture-section architecture-section-stacked" id="details" aria-labelledby="details-heading">-->
-        <!--            <div class="architecture-copy architecture-copy-wide">-->
-        <!--                <p class="arch-overline">Other design details</p>-->
-        <!--                <h2 id="details-heading">Smaller systems that follow the same preference for explicit boundaries.</h2>-->
-        <!--            </div>-->
-        <!--            <div class="other-detail-grid">-->
-        <!--                <article><p class="detail-label">Native + web</p><h3>One application model, two host loops.</h3><div class="mini-fork"><code>Application::Run</code><span>↓</span><div><code>while (update())</code><code>emscripten main loop</code></div></div><p>Native builds block in the host loop; web builds install the same update path into the browser. Visibility changes suspend the simulation clock so hidden-page time does not become catch-up work.</p></article>-->
-        <!--                <article><p class="detail-label">Runtime instrumentation</p><h3>Timing is built into the frame lifecycle.</h3><div class="metric-cloud"><span>Application</span><span>Physics</span><span>Engine CPU</span><span>Render CPU</span><span>Render GPU</span><span>Frame</span></div><p>Runner also records step counts, simulation time, discarded catch-up time, contacts, body types, and collision-shape inventory for the live statistics overlay.</p></article>-->
-        <!--                <article><p class="detail-label">Hit testing</p><h3>Viewport query → broad phase → exact geometry.</h3><ol class="mini-flow"><li>Logical point</li><li>World segment</li><li>Scene traversal</li><li>Mesh-local segment</li><li>Element AABB</li><li>Triangle test</li></ol><p>Search modes return any, closest, or all near-to-far hits. Bounds-only queries can stop before the two-sided Möller–Trumbore triangle stage.</p></article>-->
-        <!--                <article><p class="detail-label">Scene importing</p><h3>glTF becomes ordinary A3D scene state.</h3><div class="mini-import"><code>glTF / GLB</code><span>→</span><code>fastgltf</code><span>→</span><code>GlTFImporter</code><span>→</span><code>Scene + Nodes</code></div><p>Import options independently select meshes, materials, cameras, and lights. Imported hierarchy and transforms enter the same representation used by programmatically assembled scenes.</p></article>-->
-        <!--            </div>-->
-        <!--        </section>-->
-
-
-        <!--        <section class="final-callout architecture-callout">-->
-        <!--            <p class="arch-overline">Reference and proof</p>-->
-        <!--            <h2>Continue from design intent into exact contracts or running application code.</h2>-->
-        <!--            <div class="hero-actions">-->
-        <!--                <a class="button button-primary" href="demo_source.html">Open demo source</a>-->
-        <!--                <a class="button button-secondary" href="api/">API reference</a>-->
-        <!--                <a class="button button-secondary" href="api/conventions.html">Conventions</a>-->
-        <!--            </div>-->
-        <!--        </section>-->
     </main>
 
     <footer class="site-footer">

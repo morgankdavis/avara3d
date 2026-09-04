@@ -289,7 +289,6 @@ void App::frameDidBegin(Runner&                        runner,
 
     if (const auto& current = visualWorld.background()) {
         auto background = *current;
-        auto angDeg = degrees(angle);
         background.orientation = quaternion(BACKGROUND_ROTATION_AXIS, angle);
         visualWorld.background(background);
     }
