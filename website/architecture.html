@@ -36,20 +36,18 @@
 
     <main class="site-width inner-page architecture-page">
         <header class="page-hero architecture-hero">
-            <!--            <h1>From scene to simulation, physics, and rendering.</h1>-->
             <h1>
                 From <span class="architecture-title-accent">scene</span>
                 to <span class="architecture-title-accent">simulation</span>,
                 <span class="architecture-title-accent">physics</span>, and
                 <span class="architecture-title-accent">rendering</span>.
             </h1>
-            <p>How A3D handles ownership, fixed-step simulation, physics, and rendering.</p>
+            <p>How A3D handles ownership, simulation scheduling, rigid-body physics, and rendering.</p>
             <nav class="architecture-toc" aria-label="Architecture sections">
                 <a href="#ownership">Ownership</a>
                 <a href="#simulation">Simulation</a>
                 <a href="#physics">Physics</a><a
                     href="#rendering">Rendering</a>
-                <!--                <a href="#details">Other details</a>-->
             </nav>
         </header>
 
@@ -57,10 +55,6 @@
         <section class="architecture-section" id="ownership" aria-labelledby="ownership-heading">
             <div class="architecture-copy">
                 <p class="arch-overline">Ownership</p>
-                <!--                <h2 id="ownership-heading">Lifetime is centralized without making scheduling own scene state.</h2>-->
-                <!--                <p>The <code>Application</code> class owns both the active <code>Scene</code> and the <code>Runner</code> that drives it. Runner retains a non-owning <code>Scene&amp;</code>, separating update policy from ownership of simulation state.</p>-->
-                <!--                <p>Scene retains the root hierarchy and owns independently replaceable visual, physics, and input systems. The important classes are introduced through these responsibilities rather than repeated as a catalog.</p>-->
-                <!--                <h2 id="ownership-heading">Separation of ownership and scheduling.</h2>-->
 
                 <h2 id="ownership-heading">Division of responsibilities.</h2>
 

@@ -305,16 +305,17 @@
 
 .architecture-toc a {
     padding: 8px 12px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-strong);
     border-radius: 999px;
-    color: var(--muted);
+    color: var(--text-soft);
     font-size: .78rem;
     text-decoration: none;
 }
 
-.architecture-toc a:hover, .architecture-toc a:focus-visible {
+.architecture-toc a:hover,
+.architecture-toc a:focus-visible {
     color: var(--text);
-    border-color: var(--line-strong);
+    border-color: rgba(166, 140, 255, .55);
     outline: none;
 }
 
@@ -606,16 +607,20 @@
 .render-pipeline small {
     color: var(--muted);
     font-family: var(--mono);
-    font-size: .6rem;
+    font-size: .67rem;
+    font-weight: 700;
+    letter-spacing: .08em;
     text-transform: uppercase;
 }
 
 .render-pipeline strong {
     margin-top: 10px;
+    color: var(--text);
     font-family: var(--mono);
-    font-size: .7rem;
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1.25;
 }
-
 
 /* Render-pipeline phase colors -------------------------------------------- */
 
@@ -713,7 +718,7 @@
 }
 
 .frame-envelope li::before {
-    position: absolute;
+    position: relative;
     top: 0;
     right: 0;
     left: 0;
@@ -1858,3 +1863,8 @@
 .simulation-host-flow li:nth-child(5)::before {
     background: var(--pink);
 }
+
+.architecture-hero > h1 + p {
+    max-width: none;
+}
+
