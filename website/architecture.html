@@ -8,6 +8,7 @@
     <title>Architecture · Avara3D</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/architecture.css">
+    <link rel="stylesheet" href="assets/css/architecture-links.css">
     <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
 </head>
@@ -59,18 +60,18 @@
 
                 <h2 id="ownership-heading">Division of responsibilities.</h2>
 
-                <p><code>Application</code> is A3D's default top-level owner, owning the active <code>Scene</code> and the
-                    <code>Runner</code> that drives it.</p>
+                <p><a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a> is A3D's default top-level owner, owning the active <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> and the
+                    <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> that drives it.</p>
 
-                <p><code>Runner</code> holds only a non-owning reference to the <code>Scene</code>, driving simulation without
+                <p><a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> holds only a non-owning reference to the <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>, driving simulation without
                     participating in scene ownership.</p>
 
-                <p><code>Scene</code> owns the node graph and scene content — including meshes, materials, lights, and cameras —
-                    and the major systems that operate on them: <code>VisualWorld</code>, <code>PhysicsWorld</code>, and
-                    <code>InputContext</code>. These systems remain independently configurable and replaceable.</p>
+                <p><a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> owns the node graph and scene content — including meshes, materials, lights, and cameras —
+                    and the major systems that operate on them: <a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code>VisualWorld</code></a>, <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>, and
+                    <a class="arch-api-link" href="api/classa3d_1_1InputContext.html"><code>InputContext</code></a>. These systems remain independently configurable and replaceable.</p>
 
-                <p><code>Application</code> is provided as the default application host. <code>Runner</code> and
-                    <code>Scene</code> can also be embedded directly into arbitrary application frameworks.</p>
+                <p><a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a> is provided as the default application host. <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> and
+                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> can also be embedded directly into arbitrary application frameworks.</p>
 
             </div>
 
@@ -81,7 +82,7 @@
                      role="img"
                      aria-label="Application owns Runner and Scene. Solid connections show ownership. The dotted connection from Runner to Scene is non-owning. Scene owns VisualWorld, PhysicsWorld, InputContext, and the node graph.">
 
-                    <div class="arch-node ownership-application">Application</div>
+                    <div class="arch-node ownership-application"><a class="arch-api-link" href="api/classa3d_1_1Application.html">Application</a></div>
 
                     <div class="ownership-app-bus" aria-hidden="true">
                         <span class="ownership-app-drop ownership-app-drop-runner"></span>
@@ -89,16 +90,16 @@
                     </div>
 
                     <div class="ownership-main-row">
-                        <div class="arch-node ownership-runner">Runner</div>
+                        <div class="arch-node ownership-runner"><a class="arch-api-link" href="api/classa3d_1_1Runner.html">Runner</a></div>
                         <div class="ownership-reference" aria-hidden="true"></div>
-                        <div class="arch-node ownership-scene-node">Scene</div>
+                        <div class="arch-node ownership-scene-node"><a class="arch-api-link" href="api/classa3d_1_1Scene.html">Scene</a></div>
                     </div>
 
                     <div class="ownership-scene-bus">
                         <div class="ownership-child-row">
-                            <div class="arch-node compact">VisualWorld</div>
-                            <div class="arch-node compact">PhysicsWorld</div>
-                            <div class="arch-node compact">InputContext</div>
+                            <div class="arch-node compact"><a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html">VisualWorld</a></div>
+                            <div class="arch-node compact"><a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html">PhysicsWorld</a></div>
+                            <div class="arch-node compact"><a class="arch-api-link" href="api/classa3d_1_1InputContext.html">InputContext</a></div>
                             <div class="arch-node compact">Node Graph</div>
                         </div>
                     </div>
@@ -111,21 +112,21 @@
                         <div class="ownership-system-list">
 
                             <article class="ownership-system-item">
-                                <code class="ownership-system-name">VisualWorld</code>
+                                <a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code class="ownership-system-name">VisualWorld</code></a>
                                 <p>Visual configuration &amp; rendering</p>
 
                                 <div class="ownership-backend">
                                     <span class="ownership-backend-label">backend</span>
-                                    <code>RenderContext</code>
+                                    <a class="arch-api-link" href="api/classa3d_1_1RenderContext.html"><code>RenderContext</code></a>
                                     <span class="ownership-backend-arrow">→</span>
-                                    <code>Renderer</code>
+                                    <a class="arch-api-link" href="api/classa3d_1_1Renderer.html"><code>Renderer</code></a>
                                     <span class="ownership-backend-arrow">→</span>
                                     <code>OpenGL</code>
                                 </div>
                             </article>
 
                             <article class="ownership-system-item">
-                                <code class="ownership-system-name">PhysicsWorld</code>
+                                <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code class="ownership-system-name">PhysicsWorld</code></a>
                                 <p>Physics configuration &amp; simulation</p>
 
                                 <div class="ownership-backend">
@@ -137,7 +138,7 @@
                             </article>
 
                             <article class="ownership-system-item">
-                                <code class="ownership-system-name">InputContext</code>
+                                <a class="arch-api-link" href="api/classa3d_1_1InputContext.html"><code class="ownership-system-name">InputContext</code></a>
                                 <p>Input polling &amp; mapping</p>
 
                                 <div class="ownership-backend">
@@ -152,37 +153,37 @@
                     <section class="ownership-detail-column ownership-node-column">
                         <div class="ownership-node-tree" aria-label="Node graph content">
                             <div class="ownership-tree-root ownership-system-item">
-                                <code class="ownership-system-name">Node</code>
+                                <a class="arch-api-link" href="api/classa3d_1_1Node.html"><code class="ownership-system-name">Node</code></a>
                             </div>
 
                             <ul class="ownership-tree ownership-tree-root-list">
                                 <li>
-                                    <div class="ownership-tree-label"><code>Mesh</code></div>
+                                    <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1Mesh.html"><code>Mesh</code></a></div>
                                     <ul class="ownership-tree">
                                         <li>
-                                            <div class="ownership-tree-label"><code>MeshElement</code></div>
+                                            <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1MeshElement.html"><code>MeshElement</code></a></div>
                                         </li>
                                         <li>
-                                            <div class="ownership-tree-label"><code>Material</code></div>
+                                            <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1Material.html"><code>Material</code></a></div>
                                         </li>
                                     </ul>
                                 </li>
 
                                 <li>
-                                    <div class="ownership-tree-label"><code>PhysicsBody</code></div>
+                                    <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1PhysicsBody.html"><code>PhysicsBody</code></a></div>
                                     <ul class="ownership-tree">
                                         <li>
-                                            <div class="ownership-tree-label"><code>PhysicsShape</code></div>
+                                            <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1PhysicsShape.html"><code>PhysicsShape</code></a></div>
                                         </li>
                                     </ul>
                                 </li>
 
                                 <li>
-                                    <div class="ownership-tree-label"><code>Light</code></div>
+                                    <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1Light.html"><code>Light</code></a></div>
                                 </li>
 
                                 <li>
-                                    <div class="ownership-tree-label"><code>Camera</code></div>
+                                    <div class="ownership-tree-label"><a class="arch-api-link" href="api/classa3d_1_1Camera.html"><code>Camera</code></a></div>
                                 </li>
 
                                 <li>
@@ -209,13 +210,13 @@
                     <p class="arch-overline">Simulation</p>
                     <h2 id="simulation-heading">Fixed simulation, variable host rate.</h2>
 
-                    <p><code>Runner</code> decouples host updates, rendering, and physics/simulation timing. Each host update
+                    <p><a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> decouples host updates, rendering, and physics/simulation timing. Each host update
                         measures elapsed time, processes application and input work, then schedules zero, one, or up to a
                         configured maximum number of fixed-duration simulation steps. Physics and application simulation
                         therefore see a stable timestep even as frame timing varies. Once the scheduled steps are complete,
                         rendering observes the latest completed simulation state and a frame is presented.</p>
 
-                    <p>Catch-up is bounded: if the host falls behind, <code>Runner</code> performs only a limited number of
+                    <p>Catch-up is bounded: if the host falls behind, <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> performs only a limited number of
                         simulation steps rather than allowing an ever-growing backlog. Excess accumulated time is discarded
                         and recorded. Pause, single-step, reset, and the simulation clock and step count are handled by the
                         scheduler itself rather than being left to the application.</p>
@@ -291,12 +292,12 @@
                     <p class="arch-overline">Physics</p>
                     <h2 id="physics-heading">Physics powered by Bullet.</h2>
 
-                    <p>Physics is integrated directly with the scene graph. A <code>Node</code> may own a
-                        <code>PhysicsBody</code>, which references a shareable <code>PhysicsShape</code>. As nodes enter or
-                        leave the active scene, their bodies are added to or removed from the scene's <code>PhysicsWorld</code>
+                    <p>Physics is integrated directly with the scene graph. A <a class="arch-api-link" href="api/classa3d_1_1Node.html"><code>Node</code></a> may own a
+                        <a class="arch-api-link" href="api/classa3d_1_1PhysicsBody.html"><code>PhysicsBody</code></a>, which references a shareable <a class="arch-api-link" href="api/classa3d_1_1PhysicsShape.html"><code>PhysicsShape</code></a>. As nodes enter or
+                        leave the active scene, their bodies are added to or removed from the scene's <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>
                         automatically.</p>
 
-                    <p><code>PhysicsBody</code> instances are automatically maintained by the <code>PhysicsWorld</code> as their
+                    <p><a class="arch-api-link" href="api/classa3d_1_1PhysicsBody.html"><code>PhysicsBody</code></a> instances are automatically maintained by the <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a> as their
                         nodes are added to or removed from the scene. Public physics types delegate through internal proxies to
                         Bullet,
                         keeping backend-specific types out of the public object model.</p>
@@ -308,19 +309,19 @@
                     <h3>Backend mapping</h3>
 
                     <div>
-                        <code>PhysicsWorld</code>
+                        <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>
                         <span>→</span>
                         <code>btDynamicsWorld</code>
                     </div>
 
                     <div>
-                        <code>PhysicsBody</code>
+                        <a class="arch-api-link" href="api/classa3d_1_1PhysicsBody.html"><code>PhysicsBody</code></a>
                         <span>→</span>
                         <code>btRigidBody</code>
                     </div>
 
                     <div>
-                        <code>PhysicsShape</code>
+                        <a class="arch-api-link" href="api/classa3d_1_1PhysicsShape.html"><code>PhysicsShape</code></a>
                         <span>→</span>
                         <code>btCollisionShape</code>
                     </div>
@@ -348,7 +349,7 @@
                 <p class="arch-overline">Rendering</p>
                 <h2 id="rendering-heading">Turning a scene into a frame.</h2>
 
-                <p class="rendering-summary"><code>VisualWorld</code> coordinates rendering for the active scene. Each frame,
+                <p class="rendering-summary"><a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code>VisualWorld</code></a> coordinates rendering for the active scene. Each frame,
                     scene traversal gathers the visible cameras, lights, meshes, materials, and transforms into an immutable
                     snapshot
                     needed to render the frame. This keeps the mutable scene graph as the application-facing model while giving
@@ -356,9 +357,9 @@
                     into
                     backend-oriented render packets. Packets are sorted by pipeline state before execution, reducing unnecessary
                     graphics-state
-                    changes. Those packets are consumed by <code>Renderer</code>, which owns OpenGL/WebGL execution through the
+                    changes. Those packets are consumed by <a class="arch-api-link" href="api/classa3d_1_1Renderer.html"><code>Renderer</code></a>, which owns OpenGL/WebGL execution through the
                     active
-                    <code>RenderContext</code>. The result is a staged pipeline from scene representation to extracted frame
+                    <a class="arch-api-link" href="api/classa3d_1_1RenderContext.html"><code>RenderContext</code></a>. The result is a staged pipeline from scene representation to extracted frame
                     state to GPU work, rather than rendering logic being embedded throughout scene objects.</p>
             </div>
             <div class="render-pipeline"
@@ -402,7 +403,7 @@
 
                 <div>
                     <small>Execution</small>
-                    <strong>Renderer</strong>
+                    <strong><a class="arch-api-link" href="api/classa3d_1_1Renderer.html">Renderer</a></strong>
                 </div>
 
                 <span>→</span>
