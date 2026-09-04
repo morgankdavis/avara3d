@@ -1311,27 +1311,20 @@
     transform: translateY(-50%);
 }
 
-
 /* Scene -> major scene systems ------------------------------------------- */
 
-/*
- * Scene is centered at 75% of the overview while the four-child bus is
- * centered at 50%.  This elbow brings Scene into the center of that bus,
- * matching the mockup without moving the Scene box.
- */
 .ownership-scene-bus {
     position: relative;
-    padding-top: 24px;
+    padding-top: 17px;
 }
 
+/* Straight vertical drop from Scene to the child-row bus. */
 .ownership-scene-bus::before {
     position: absolute;
     top: 0;
-    left: 50%;
-    width: calc(25% + 16px);
-    height: 12px;
-    border-right: 1px solid var(--line-strong);
-    border-bottom: 1px solid var(--line-strong);
+    left: calc(75% + 16px);
+    height: 17px;
+    border-left: 1px solid var(--line-strong);
     content: "";
 }
 
@@ -1340,7 +1333,7 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 30px;
-    padding-top: 12px;
+    padding-top: 17px;
 }
 
 /* Horizontal bus from the center of the first child to the fourth. */
@@ -1353,14 +1346,9 @@
     content: "";
 }
 
-/* Continue the Scene elbow down into the center of the child bus. */
+/* No extra center drop anymore. */
 .ownership-child-row::after {
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    height: 12px;
-    border-left: 1px solid var(--line-strong);
-    content: "";
+    display: none;
 }
 
 .ownership-child-row .arch-node {
@@ -1373,13 +1361,12 @@
 /* One drop from the horizontal bus into each child box. */
 .ownership-child-row .arch-node::before {
     position: absolute;
-    top: -12px;
+    top: -17px;
     left: 50%;
-    height: 12px;
+    height: 17px;
     border-left: 1px solid var(--line-strong);
     content: "";
 }
-
 
 /* Responsive -------------------------------------------------------------- */
 
