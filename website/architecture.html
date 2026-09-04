@@ -58,20 +58,54 @@
             <div class="architecture-copy">
                 <p class="arch-overline">Ownership</p>
 
-                <h2 id="ownership-heading">Division of responsibilities.</h2>
+                <h2>Division of responsibilities.</h2>
 
-                <p><a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a> is A3D's default top-level owner, owning the active <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> and the
-                    <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> that drives it.</p>
+                <p>
+                    <a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a>
+                    is A3D's default top-level owner, owning the active
+                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>
+                    and the
+                    <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a>
+                    that drives it.
+                </p>
 
-                <p><a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> holds only a non-owning reference to the <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>, driving simulation without
-                    participating in scene ownership.</p>
+                <p>
+                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>
+                    is the central container for simulation state. It owns the node graph and scene content —
+                    including meshes, physics bodies, materials, lights, and cameras — along with the major
+                    systems that operate on them:
+                    <a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code>VisualWorld</code></a>,
+                    <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>,
+                    and
+                    <a class="arch-api-link" href="api/classa3d_1_1InputContext.html"><code>InputContext</code></a>.
+                </p>
 
-                <p><a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> owns the node graph and scene content — including meshes, materials, lights, and cameras —
-                    and the major systems that operate on them: <a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code>VisualWorld</code></a>, <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>, and
-                    <a class="arch-api-link" href="api/classa3d_1_1InputContext.html"><code>InputContext</code></a>. These systems remain independently configurable and replaceable.</p>
+                <p>
+                    <a class="arch-api-link" href="api/classa3d_1_1VisualWorld.html"><code>VisualWorld</code></a>
+                    drives the rendering stack,
+                    <a class="arch-api-link" href="api/classa3d_1_1PhysicsWorld.html"><code>PhysicsWorld</code></a>
+                    delegates rigid-body simulation to Bullet, and
+                    <a class="arch-api-link" href="api/classa3d_1_1InputContext.html"><code>InputContext</code></a>
+                    provides polling and mapping of platform input. The node graph hierarchically organizes all
+                    scene content.
+                </p>
 
-                <p><a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a> is provided as the default application host. <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a> and
-                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a> can also be embedded directly into arbitrary application frameworks.</p>
+                <p>
+                    <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a>
+                    is responsible for advancing the
+                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>
+                    without owning it, keeping simulation scheduling separate from scene lifetime and state
+                    ownership.
+                </p>
+
+                <p>
+                    <a class="arch-api-link" href="api/classa3d_1_1Application.html"><code>Application</code></a>
+                    is provided as the default application host, but
+                    <a class="arch-api-link" href="api/classa3d_1_1Runner.html"><code>Runner</code></a>
+                    and
+                    <a class="arch-api-link" href="api/classa3d_1_1Scene.html"><code>Scene</code></a>
+                    can also be embedded directly into arbitrary application frameworks.
+                </p>
 
             </div>
 
