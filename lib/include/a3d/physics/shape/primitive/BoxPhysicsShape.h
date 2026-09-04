@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H
@@ -13,37 +13,46 @@
 
 namespace a3d {
 
-    class BoxPhysicsShape : public PhysicsShape {
+/** @brief Box collision shape centered at the local origin, with width along X, height along Y, and length along Z. */
+class BoxPhysicsShape : public PhysicsShape {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        BoxPhysicsShape(float width, float height, float length);
+    /** @brief Creates a box collision shape with the supplied full dimensions. */
+    BoxPhysicsShape(float width, float height, float length);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float width() const;
-        void  width(float width);
+    /** @brief Returns the configured full width along X. */
+    float width() const;
 
-        float height() const;
-        void  height(float height);
+    /** @brief Returns the configured full height along Y. */
+    float height() const;
 
-        float length() const;
-        void  length(float length);
+    /** @brief Returns the configured full length along Z. */
+    float length() const;
 
-        /// PhysicsShape Public Member Functions ///
+    // [Public PhysicsShape Member Functions]
 
-        Type  type() const override;
-        void  type(Type type) override;
+    /** @brief Returns PhysicsShape::Type::Primitive. */
+    Type  type() const override;
 
-    private:
-        /// Private Member Variables ///
+    /**
+     * @brief Rejects attempts to change the fixed primitive shape type.
+     *
+     * @throws std::logic_error always; BoxPhysicsShape has a fixed type.
+     */
+    void  type(Type type) override;
 
-        float _width;
-        float _height;
-        float _length;
-    };
+private:
+    // [Private Member Variables]
 
-}
+    float _width;
+    float _height;
+    float _length;
+};
 
-#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H

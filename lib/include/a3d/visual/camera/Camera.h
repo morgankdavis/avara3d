@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUAL_CAMERA_CAMERA_H
@@ -17,44 +17,51 @@
 
 namespace a3d {
 
-    class Camera {
+/**
+ * @brief Base class for camera projection models used by VisualWorld.
+ *
+ * A Camera is attached to a Node; the Node's world transform supplies the
+ * camera pose while the concrete Camera supplies the projection.
+ */
+class Camera {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        Camera();
-        explicit Camera(const std::string& name);
+    /** @brief Creates an unnamed Camera. */
+    Camera();
 
-        virtual ~Camera() = 0;
+    /** @brief Creates a Camera with @p name. */
+    explicit Camera(const std::string& name);
 
-        /// Public Member Functions ///
+    virtual ~Camera() = 0;
 
-        const std::optional<std::string>& name() const;
-        void                              name(const std::string& name);
+    // [Public Member Functions]
 
-        /// Internal Member Functions ///
+    /** @brief Returns the optional camera name. */
+    const std::optional<std::string>& name() const;
 
-        virtual math::mat4                projection() const = 0;
+    /** @brief Sets the camera name. */
+    void                              name(const std::string& name);
 
-    protected:
-        /// Protected Lifecycle Functions ///
+    // [Internal Member Functions]
 
-        Camera(const Camera&)            = default;
-        Camera& operator=(const Camera&) = default;
+    virtual math::mat4                projection(const math::uvec2& viewportSize) const = 0;
 
-        Camera(Camera&&) noexcept                               = default;
-        Camera&                    operator=(Camera&&) noexcept = default;
+protected:
+    // [Protected Lifecycle Functions]
 
-        /// Protected Member Functions ///
+    Camera(const Camera&)            = default;
+    Camera& operator=(const Camera&) = default;
 
-//		virtual void 						constructProjectionMatrix() = 0;
+    Camera(Camera&&) noexcept                               = default;
+    Camera&                    operator=(Camera&&) noexcept = default;
 
-        /// Protected Member Variables ///
+    // [Protected Member Variables]
 
-        std::optional<std::string> _name;
-//		math::mat4							_projection;
-    };
+    std::optional<std::string> _name;
+};
 
-}
+} // namespace a3d
 
-#endif /* AVARA3D_VISUAL_CAMERA_CAMERA_H */
+#endif // AVARA3D_VISUAL_CAMERA_CAMERA_H

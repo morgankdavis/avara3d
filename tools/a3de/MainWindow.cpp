@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "MainWindow.h"
@@ -15,21 +15,29 @@
 #include "QtInputContext.h"
 
 using namespace a3d;
-using namespace a3de;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
-const uvec2                           WINDOW_SIZE {1280, 768};
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
-const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
+namespace a3de {
+
+namespace {
+
+    // [Private Constants]
+
+    const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
+    const uvec2                       WINDOW_SIZE {1280, 768};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+    const bool                        CAPTURE_CURSOR {false};
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
-    _viewport(new qt::QtViewport(RenderContext::RenderingApi::OpenGL, ANTIALIAS_MODE, this)),
+    _viewport(new qt::QtViewport(ANTIALIASING, this)),
     _scene {},
     _runner {} {
 
@@ -58,6 +66,8 @@ MainWindow::~MainWindow() {
     delete _ui;
 }
 
+// [Private Member Functions]
+
 void MainWindow::initA3D() {
 
     if (_scene) {
@@ -68,18 +78,18 @@ void MainWindow::initA3D() {
         initLog(APP_LOG_LEVEL);
 
         auto visualWorld = make_unique<VisualWorld>(*_viewport);
-        auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
-        visualWorld->background(backgroundColor);
+        visualWorld->background(Background {Color(u8vec3 {109, 136, 164})});
+        visualWorld->defaultLightingEnabled(true);
 
         _scene = make_unique<Scene>(std::move(visualWorld), nullptr, qt::QtViewport::InputContext());
         _scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
         _viewport->cursorCaptured(CAPTURE_CURSOR);
 
-        _bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
-        auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        _bananaNode->orientation(rot90X * rot90Y);
+        _bananaNode = Node::MeshNode(util::fs::MeshAt("banana_lod/banana_lod.gltf"));
+        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        _bananaNode->orientation(rx * ry);
         _scene->rootNode()->addChild(_bananaNode);
 
         _runner = make_unique<Runner>(*_scene);
@@ -107,20 +117,20 @@ void MainWindow::updateA3D() {
     }
 }
 
-void MainWindow::initLog(Log::Level level) {
+void MainWindow::initLog(log::Level level) {
 
-    Log::MainLog().level(level);
+    log::MainLog().level(level);
 
-    string executableName = *util::filesystem::ExecutableName();
+    string executableName = *util::fs::ExecutableName();
 
-    auto nativeSink = make_unique<StdOutLogSink>();
-    auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
-                                             / (executableName + string(".log")));
-    auto sinks = vector<unique_ptr<LogSink>>();
+    auto nativeSink = make_unique<log::StdOutLogSink>();
+    auto fileSink =
+        make_unique<log::FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
+    auto sinks = vector<unique_ptr<log::LogSink>>();
     sinks.push_back(std::move(nativeSink));
     sinks.push_back(std::move(fileSink));
 
-    Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
+    log::AppLog(make_unique<log::Log>(executableName, std::move(sinks), level));
 
     const auto& buildInfo = BuildInfo::Info();
     log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
@@ -129,7 +139,7 @@ void MainWindow::initLog(Log::Level level) {
     log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
-/// Runner Callbacks ///
+// [Runner Callbacks]
 
 void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
@@ -150,3 +160,5 @@ void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         _bananaNode->orientation(rotY * _bananaNode->orientation());
     }
 }
+
+} // namespace a3de

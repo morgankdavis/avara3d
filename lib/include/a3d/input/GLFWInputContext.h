@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
-//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_INPUT_GLFWINPUTCONTEXT_H
@@ -18,47 +18,51 @@ struct GLFWwindow;
 
 namespace a3d {
 
-    class Window;
+class Window;
 
-    class GLFWInputContext : public DesktopInputContext {
+class GLFWInputContext : public DesktopInputContext {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Internal Lifecycle Functions]
 
-        GLFWInputContext();
-        ~GLFWInputContext() override;
+    GLFWInputContext();
+    ~GLFWInputContext() override;
 
-        GLFWInputContext(const InputContext& other)            = delete;
-        GLFWInputContext& operator=(const InputContext& other) = delete;
+    GLFWInputContext(const InputContext& other)            = delete;
+    GLFWInputContext& operator=(const InputContext& other) = delete;
 
-        /// InputContext Internal Member Functions ///
+    // [InputContext Internal Member Functions]
 
-        void              update(const InputContext::UpdateInfo& info) override;
-        void              attachedToScene(Scene& scene) override;
-        void              visualWorldAttachedToScene(Scene& scene) override;
+    void              attachedToScene(Scene& scene) override;
+    void              visualWorldAttachedToScene(Scene& scene) override;
 
-        /// Internal Member Functions ///
+    // [DesktopInputContext Internal Member Functions]
 
-        void              glfwMouseDeltaEvent(double xDelta, double yDelta);
-        void              glfwMouseButtonEvent(int button, int action, int mods);
-        void              glfwScrollEvent(double xOffset, double yOffset);
-        void              glfwKeyEvent(int key, int scanCode, int action, int mods);
+    void              rebaseMouseMotion() override;
 
-        void              detachedFromWindow(Window& window);
+    // [Internal Member Functions]
 
-    private:
-        /// Private Member Functions ///
+    void              glfwCursorPositionEvent(double xPos, double yPos);
+    void              glfwMouseButtonEvent(int button, int action, int mods);
+    void              glfwScrollEvent(double xOffset, double yOffset);
+    void              glfwKeyEvent(int key, int scanCode, int action, int mods);
 
-        void    window(Window* window);
-        Window* window() const;
+    void              detachedFromWindow(Window& window);
 
-        void    initMouseInput();
+private:
+    // [Private Member Functions]
 
-        /// Private Member Variables ///
+    void    window(Window* window);
+    Window* window() const;
 
-        Window* _window;
-    };
+    void    initMouseInput();
 
-}
+    // [Private Member Variables]
 
-#endif /* AVARA3D_INPUT_GLFWINPUTCONTEXT_H */
+    Window* _window;
+    bool    _hasMousePosition;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_INPUT_GLFWINPUTCONTEXT_H

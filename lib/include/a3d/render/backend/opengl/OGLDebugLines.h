@@ -17,22 +17,36 @@
 
 namespace a3d {
 
-    struct DebugLineVertex {
+class OGLMemoryTracker;
+
+struct OGLDebugLines {
+
+    // [Internal Types]
+
+    struct Vertex {
         math::vec3 pos;
         math::vec3 color;
     };
 
-    struct OGLDebugLines {
-        gl::uint_t                   vbo         = 0;
-        gl::uint_t                   vao         = 0;
-        gl::sizei_t                  vertexCount = 0;
-        std::vector<DebugLineVertex> cpuVerts    = {};
+    // [Internal Lifecycle Functions]
 
-        void                         ensureBuffers();          // create vao/vbo once
-        void                         upload(const std::vector<Line>& lines); // fill cpuVerts + stream to vbo
-        void                         destroy();
-    };
+    explicit OGLDebugLines(OGLMemoryTracker& memoryTracker);
 
-}
+    // [Internal Member Functions]
 
-#endif //AVARA3D_RENDER_BACKEND_OPENGL_OGLDEBUGLINES_H
+    void                ensureBuffers();
+    void                upload(const std::vector<Line>& lines);
+    void                destroy();
+
+    // [Internal Member Variables]
+
+    OGLMemoryTracker&   memoryTracker;
+    gl::uint_t          vbo         = 0;
+    gl::uint_t          vao         = 0;
+    gl::sizei_t         vertexCount = 0;
+    std::vector<Vertex> cpuVerts    = {};
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLDEBUGLINES_H

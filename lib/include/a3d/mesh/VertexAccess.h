@@ -20,36 +20,36 @@
 
 namespace a3d {
 
-    class MeshElement;
+class MeshElement;
 
-    struct VertexStreamView {
-        const std::byte* base   = nullptr;
-        uint32_t         count  = 0;
-        uint16_t         offset = 0; // attribute offset
-        VertexLayout     layout = VertexLayout::None;
-    };
+struct VertexStreamView {
+    const std::byte* base   = nullptr;
+    uint32_t         count  = 0;
+    uint16_t         offset = 0; // attribute offset
+    VertexLayout     layout = VertexLayout::None;
+};
 
-    inline uint16_t VertexStreamStride(const VertexStreamView& v) {
-        return GetVertexLayoutDesc(v.layout).stride;
-    }
-
-    inline const std::byte* VertexBaseAt(const VertexStreamView& v, uint32_t i) {
-        return v.base + std::size_t(i) * std::size_t(VertexStreamStride(v));
-    }
-
-    struct VertexAccess {
-
-        static const VertexAttribDesc* FindAttrib(const VertexLayoutDesc& desc, VertexSemantic semantic);
-        static const VertexAttribDesc* GetPositionAttribF32x3(VertexLayout layout);
-        static math::vec3              ReadVec3(const std::byte* base, uint16_t offset);
-        static void                    WriteVec3(std::byte* base, uint16_t offset, const math::vec3& vec);
-        static std::optional<VertexStreamView> GetStreamView(const MeshElement& element,
-                                                             VertexSemantic     semantic,
-                                                             VertexAttribFormat expectedFormat);
-
-        static std::optional<VertexStreamView> GetPositionStreamView(const MeshElement& element);
-    };
-
+inline uint16_t VertexStreamStride(const VertexStreamView& v) {
+    return GetVertexLayoutDesc(v.layout).stride;
 }
 
-#endif //AVARA3D_MESH_VERTEXACCESS_H
+inline const std::byte* VertexBaseAt(const VertexStreamView& v, uint32_t i) {
+    return v.base + std::size_t(i) * std::size_t(VertexStreamStride(v));
+}
+
+struct VertexAccess {
+
+    static const VertexAttribDesc*         FindAttrib(const VertexLayoutDesc& desc, VertexSemantic semantic);
+    static const VertexAttribDesc*         GetPositionAttribF32x3(VertexLayout layout);
+    static math::vec3                      ReadVec3(const std::byte* base, uint16_t offset);
+    static void                            WriteVec3(std::byte* base, uint16_t offset, const math::vec3& vec);
+    static std::optional<VertexStreamView> GetStreamView(const MeshElement& element,
+                                                         VertexSemantic     semantic,
+                                                         VertexAttribFormat expectedFormat);
+
+    static std::optional<VertexStreamView> GetPositionStreamView(const MeshElement& element);
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_MESH_VERTEXACCESS_H

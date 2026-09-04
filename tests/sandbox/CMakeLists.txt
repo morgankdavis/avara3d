@@ -1,0 +1,6 @@
+add_subdirectory(scratch)
+add_subdirectory(import)
+add_subdirectory(input-camera)
+add_subdirectory(geometry-primitives)
+add_subdirectory(materials-lights)
+add_subdirectory(rigidbody)

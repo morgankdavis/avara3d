@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 4/30/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/CubeImage.h"
@@ -14,10 +14,11 @@
 
 #include "a3d/Image.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
     _faces {},
@@ -54,7 +55,7 @@ CubeImage& CubeImage::operator=(CubeImage&&) noexcept = default;
 
 CubeImage::~CubeImage() = default;
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned CubeImage::width() const {
     return _width;
@@ -71,3 +72,5 @@ unsigned CubeImage::bytesPerPixel() const {
 Image* CubeImage::face(Face face) const {
     return _faces[(size_t) face].get();
 }
+
+} // namespace a3d

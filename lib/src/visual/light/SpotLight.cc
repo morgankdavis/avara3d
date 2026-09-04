@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 7/31/2024.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/visual/light/SpotLight.h"
@@ -11,18 +11,21 @@
 #include "a3d/Color.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 SpotLight::SpotLight():
-    Light() {
+    Light(),
+    _featherMode {FeatheringMode::Linear},
+    _intensity {1.0f} {
+
     // see DeVries 16.5
-    _innerAngleCos = static_cast<float>(math::cos(10.0));
-    _outerAngleCos = static_cast<float>(math::cos(15.0));
-    _featherMode = FeatheringMode::Linear;
+    innerAngle(math::radians(15.0f));
+    outerAngle(math::radians(25.0f));
 }
 
 SpotLight::SpotLight(const string& name):
@@ -30,28 +33,18 @@ SpotLight::SpotLight(const string& name):
     _name = name;
 }
 
-SpotLight::SpotLight(const shared_ptr<Color>& color):
+SpotLight::SpotLight(const Color& color):
     SpotLight() {
     _color = color;
 }
 
-SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
+SpotLight::SpotLight(const string& name, const Color& color):
     SpotLight() {
     _name = name;
     _color = color;
 }
 
-//Light::~Light() {
-//
-//	if (_name != nullopt) {
-//		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
-//	}
-//	else {
-//		log::d()("Destroying Light {:p}", static_cast<void*>(this));
-//	}
-//}
-
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float SpotLight::innerAngle() const {
     return math::acos(_innerAngleCos);
@@ -77,6 +70,14 @@ void SpotLight::featheringMode(FeatheringMode mode) {
     _featherMode = mode;
 }
 
+float SpotLight::intensity() const {
+    return _intensity;
+}
+
+void SpotLight::intensity(float intensity) {
+    _intensity = intensity;
+}
+
 const Attenuation& SpotLight::attenuation() const {
     return _attenuation;
 }
@@ -85,7 +86,7 @@ void SpotLight::attenuation(const Attenuation& attenuation) {
     _attenuation = attenuation;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 float SpotLight::innerAngleCos() const {
     return _innerAngleCos;
@@ -95,8 +96,4 @@ float SpotLight::outerAngleCos() const {
     return _outerAngleCos;
 }
 
-/// Private Lifecycle Functions ///
-
-//SpotLight::SpotLight():
-//		_innerAngle{10.0},
-//		_outerAngle{15.0} {}
+} // namespace a3d

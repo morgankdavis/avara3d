@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/MeshElement.h"
@@ -18,9 +18,10 @@
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/util/Bitmask.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+namespace a3d {
 
 MeshElement::MeshElement(VertexLayout               layout,
                          std::span<const std::byte> vbytes,
@@ -77,7 +78,7 @@ MeshElement::~MeshElement() {
     log::d()("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 PrimitiveTopology MeshElement::topology() const {
     return _topology;
@@ -111,7 +112,7 @@ std::span<const std::byte> MeshElement::indexBytes() const {
     return {_indexData.data(), _indexData.size()};
 }
 
-AABB MeshElement::localAABB() const {
+const AABB& MeshElement::localAABB() const {
     return _localAABB;
 }
 
@@ -131,8 +132,8 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
         const VertexAttribDesc* posA = VertexAccess::FindAttrib(desc, VertexSemantic::Position);
         A3D_ASSERT(posA && posA->format == VertexAttribFormat::F32x3);
 
-        static const float maxFloat = math::f32_max();
-        static const float minFloat = math::f32_lowest();
+        static const float maxFloat = math::F32_MAX;
+        static const float minFloat = math::F32_LOWEST;
         AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (uint32_t i = 0; i < vcount; ++i) {
@@ -188,8 +189,6 @@ void MeshElement::beginBuild(VertexLayout      layout,
     _indexFormat = indexFormat;
     _indexCount = 0;
     _indexData.clear();
-
-//	_faces.clear(); // legacy bridge (remove in Phase B)
 
     if (reserveVerts) {
         _vertexData.reserve(size_t(reserveVerts) * size_t(vertexStride));
@@ -338,7 +337,7 @@ void MeshElement::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 void MeshElement::genLocalAABB() {
     if (_vertexCount == 0) {
@@ -358,7 +357,7 @@ void MeshElement::genLocalAABB() {
     }
 }
 
-/// Protected Lifecycle ///
+// [Protected Lifecycle Functions]
 
 MeshElement::MeshElement():
     _topology {PrimitiveTopology::Triangles},
@@ -371,3 +370,5 @@ MeshElement::MeshElement():
     _indexCount {0},
     _localAABB {AABB::Invalid()},
     _dirtyMask {DirtyMask::All} {}
+
+} // namespace a3d

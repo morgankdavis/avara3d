@@ -3,38 +3,44 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 7/31/2024.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H
 
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
 
-    class Color;
+/** @brief Uniform light that contributes independent of position, direction, or distance. */
+class AmbientLight : public Light {
 
-    class AmbientLight : public Light {
+public:
+    // [Public Lifecycle Functions]
 
-    public:
-        /// Public Lifecycle Functions ///
+    /** @brief Creates an unnamed white AmbientLight. */
+    AmbientLight();
 
-        AmbientLight();
-        explicit AmbientLight(const std::string& name);
-        explicit AmbientLight(const std::shared_ptr<Color>& color);
-        AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
+    /** @brief Creates a named white AmbientLight. */
+    explicit AmbientLight(const std::string& name);
 
-        AmbientLight(const AmbientLight&)            = default;
-        AmbientLight& operator=(const AmbientLight&) = default;
+    /** @brief Creates an unnamed AmbientLight with @p color. */
+    explicit AmbientLight(const Color& color);
 
-        AmbientLight(AmbientLight&&) noexcept            = default;
-        AmbientLight& operator=(AmbientLight&&) noexcept = default;
-    };
+    /** @brief Creates an AmbientLight with @p name and @p color. */
+    AmbientLight(const std::string& name, const Color& color);
 
-}
+    AmbientLight(const AmbientLight&)            = default;
+    AmbientLight& operator=(const AmbientLight&) = default;
 
-#endif //AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H */
+    AmbientLight(AmbientLight&&) noexcept            = default;
+    AmbientLight& operator=(AmbientLight&&) noexcept = default;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H

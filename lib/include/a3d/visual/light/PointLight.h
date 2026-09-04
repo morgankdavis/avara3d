@@ -3,49 +3,70 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 7/31/2024.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
 
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Attenuation.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
 
-    class Color;
+/**
+ * @brief Omnidirectional light located at its containing Node's world position.
+ *
+ * Light contribution is reduced with distance according to the configured
+ * Attenuation coefficients.
+ */
+class PointLight : public Light {
 
-    class PointLight : public Light {
+public:
+    // [Public Lifecycle Functions]
 
-    public:
-        /// Public Lifecycle Functions ///
+    /** @brief Creates an unnamed white PointLight. */
+    PointLight();
 
-        PointLight();
-        explicit PointLight(const std::string& name);
-        explicit PointLight(const std::shared_ptr<Color>& color);
-        PointLight(const std::string& name, const std::shared_ptr<Color>& color);
+    /** @brief Creates a named white PointLight. */
+    explicit PointLight(const std::string& name);
 
-        PointLight(const PointLight&)            = default;
-        PointLight& operator=(const PointLight&) = default;
+    /** @brief Creates an unnamed PointLight with @p color. */
+    explicit PointLight(const Color& color);
 
-        PointLight(PointLight&&) noexcept                   = default;
-        PointLight&        operator=(PointLight&&) noexcept = default;
+    /** @brief Creates a PointLight with @p name and @p color. */
+    PointLight(const std::string& name, const Color& color);
 
-        /// Public Member Functions ///
+    PointLight(const PointLight&)            = default;
+    PointLight& operator=(const PointLight&) = default;
 
-        const Attenuation& attenuation() const;
-        void               attenuation(const Attenuation& attenuation);
+    PointLight(PointLight&&) noexcept                   = default;
+    PointLight&        operator=(PointLight&&) noexcept = default;
 
-    private:
-        /// Private Member Variables ///
+    // [Public Member Functions]
 
-        Attenuation _attenuation;
-    };
+    /** @brief Returns the light intensity multiplier. */
+    float              intensity() const;
 
-}
+    /** @brief Sets the light intensity multiplier; 1 is the default intensity. */
+    void               intensity(float intensity);
 
-#endif //AVARA3D_VISUAL_LIGHT_POINTLIGHT_H */
+    /** @brief Returns the distance-attenuation coefficients. */
+    const Attenuation& attenuation() const;
+
+    /** @brief Sets the distance-attenuation coefficients. */
+    void               attenuation(const Attenuation& attenuation);
+
+private:
+    // [Private Member Variables]
+
+    float       _intensity;
+    Attenuation _attenuation;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_VISUAL_LIGHT_POINTLIGHT_H

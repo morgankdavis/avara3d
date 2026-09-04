@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Font.h"
@@ -13,10 +13,11 @@
 #include "a3d/Buffer.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 Font::Font(const filesystem::path& path):
     _name {},
@@ -69,7 +70,7 @@ Font::~Font() {
     log::d()("Destroying Font {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Font::name() const {
     return _name;
@@ -82,3 +83,5 @@ Font::Type Font::type() const {
 const Buffer* Font::buffer() const {
     return _buffer.get();
 }
+
+} // namespace a3d

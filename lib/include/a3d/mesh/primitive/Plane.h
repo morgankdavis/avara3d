@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_MESH_PRIMITIVE_PLANE_H
@@ -15,47 +15,61 @@
 
 namespace a3d {
 
-    class Mesh;
-    class Material;
+class Mesh;
+class Material;
 
-    class Plane : public MeshElement {
+/**
+ * @brief Rectangular grid mesh element centered at the origin in the XY plane.
+ *
+ * Width spans X, height spans Y, and generated normals point along +Z.
+ */
+class Plane : public MeshElement {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::shared_ptr<Mesh> Mesh(float                     width, // x
-                                          float                     height, // y
-                                          unsigned                  widthSegements = DEFAULT_SEGMENTS,
-                                          unsigned                  heightSegments = DEFAULT_SEGMENTS,
-                                          std::shared_ptr<Material> material       = nullptr);
+    /** @brief Creates a Mesh containing a Plane and optional @p material. */
+    static std::shared_ptr<Mesh> Mesh(float                     width, // x
+                                      float                     height, // y
+                                      unsigned                  widthSegements = DEFAULT_SEGMENTS,
+                                      unsigned                  heightSegments = DEFAULT_SEGMENTS,
+                                      std::shared_ptr<Material> material       = nullptr);
 
-        /// Public Lifecycle Functions ///
+    // [Public Lifecycle Functions]
 
-        Plane(float    width,
-              float    height,
-              unsigned widthSegements = DEFAULT_SEGMENTS,
-              unsigned heightSegments = DEFAULT_SEGMENTS);
+    /** @brief Generates plane geometry with the supplied dimensions and subdivision counts. */
+    Plane(float    width,
+          float    height,
+          unsigned widthSegements = DEFAULT_SEGMENTS,
+          unsigned heightSegments = DEFAULT_SEGMENTS);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float    width() const;
-        float    height() const;
-        unsigned widthSegements() const;
-        unsigned heightSegments() const;
+    /** @brief Returns the configured plane width along X. */
+    float    width() const;
 
-    private:
-        /// Private Constants ///
+    /** @brief Returns the configured plane height along Y. */
+    float    height() const;
 
-        static constexpr unsigned DEFAULT_SEGMENTS = 8;
+    /** @brief Returns the width subdivision count. */
+    unsigned widthSegements() const;
 
-        /// Private Member Variables ///
+    /** @brief Returns the height subdivision count. */
+    unsigned heightSegments() const;
 
-        float                     _width;
-        float                     _height;
-        unsigned                  _widthSegements;
-        unsigned                  _heightSegments;
-    };
+private:
+    // [Private Constants]
 
-}
+    static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
-#endif /* AVARA3D_MESH_PRIMITIVE_PLANE_H */
+    // [Private Member Variables]
+
+    float                     _width;
+    float                     _height;
+    unsigned                  _widthSegements;
+    unsigned                  _heightSegments;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_MESH_PRIMITIVE_PLANE_H

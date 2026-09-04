@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/13/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H
@@ -11,24 +11,29 @@
 
 namespace a3d {
 
-    class PhysicsShape;
+class PhysicsShape;
 
-    class PhysicsShapeProxy {
+class PhysicsShapeProxy {
 
-    public:
-        /// Internal Lifecycle Functions ///
+public:
+    // [Internal Lifecycle Functions]
 
-        explicit PhysicsShapeProxy(PhysicsShape& shape);
+    explicit PhysicsShapeProxy(PhysicsShape& shape);
 
-        PhysicsShapeProxy(const PhysicsShapeProxy&)            = delete;
-        PhysicsShapeProxy& operator=(const PhysicsShapeProxy&) = delete;
+    PhysicsShapeProxy(const PhysicsShapeProxy&)            = delete;
+    PhysicsShapeProxy& operator=(const PhysicsShapeProxy&) = delete;
 
-        PhysicsShapeProxy(PhysicsShapeProxy&&)            = delete;
-        PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
+    PhysicsShapeProxy(PhysicsShapeProxy&&)            = delete;
+    PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
 
-        virtual ~PhysicsShapeProxy() = 0;
-    };
+    virtual ~PhysicsShapeProxy() = 0;
 
-}
+    // [Internal Member Functions]
 
-#endif //AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H
+    virtual float margin() const       = 0;
+    virtual void  margin(float margin) = 0;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H

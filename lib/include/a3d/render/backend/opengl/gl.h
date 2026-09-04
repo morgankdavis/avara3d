@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/31/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 // prevents Qt/GLFW/GLAD include-order conflicts
@@ -27,4 +27,4 @@
     #error "No OpenGL target selected."
 #endif
 
-#endif //AVARA3D_RENDER_BACKEND_OPENGL_GL_H
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_GL_H

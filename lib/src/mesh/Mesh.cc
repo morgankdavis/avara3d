@@ -3,41 +3,37 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/Mesh.h"
 
 #include <utility>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/Color.h"
 #include "a3d/IdGenerator.h"
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/util/Chrono.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
-    // Timer timer {true};
     auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
     auto sceneOpts = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
     auto mesh = GlTFImporter(path, sceneOpts).firstMesh();
-    // log::i()("Loaded Mesh '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
     return mesh;
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Mesh::Mesh(const string& name, unique_ptr<MeshElement> element, const shared_ptr<Material>& material):
     Mesh {std::move(element), material} {
@@ -88,7 +84,7 @@ Mesh::~Mesh() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 optional<string> Mesh::name() const {
     return _name;
@@ -114,12 +110,9 @@ shared_ptr<Material> Mesh::firstMaterial() const {
 }
 
 shared_ptr<Material> Mesh::materialNamed(const string& name) const {
-    for (auto& material : _materials) {
-        auto matName = material->name();
-        if (matName) {
-            if (!((*matName) == name)) {
-                return material;
-            }
+    for (const auto& material : _materials) {
+        if (material->name() == name) {
+            return material;
         }
     }
     return nullptr;
@@ -144,13 +137,13 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
     insertMaterial(replacement, index);
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 MeshId Mesh::id() const noexcept {
     return _id;
 }
 
-AABB Mesh::localAABB() const {
+const AABB& Mesh::localAABB() const {
     return _localAABB;
 }
 
@@ -159,8 +152,8 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
     // TODO: consolidate (MeshElement has the same function)
 
     if (vertfit) {
-        static const float maxFloat = math::f32_max();
-        static const float minFloat = math::f32_lowest();
+        static const float maxFloat = math::F32_MAX;
+        static const float minFloat = math::F32_LOWEST;
         AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (const auto& e : _elements) {
@@ -217,12 +210,12 @@ void Mesh::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
 
-// Protected Member Functions ///
+// [Protected Member Functions]
 
 void Mesh::genLocalAABB() {
 
-    static const float maxFloat = math::f32_max();
-    static const float minFloat = math::f32_lowest();
+    static const float maxFloat = math::F32_MAX;
+    static const float minFloat = math::F32_LOWEST;
     AABB               aabb = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
     for (const auto& element : _elements) {
@@ -234,7 +227,7 @@ void Mesh::genLocalAABB() {
     _localAABB = aabb;
 }
 
-/// Private Lifecycle Functions ///
+// [Private Lifecycle Functions]
 
 Mesh::Mesh():
     _id {IdGenerator<MeshId>::next()},
@@ -242,3 +235,5 @@ Mesh::Mesh():
     _elements {},
     _materials {},
     _dirtyMask {DirtyMask::All} {}
+
+} // namespace a3d

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/6/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Sphere.h"
@@ -16,18 +16,19 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Sphere::Mesh(float radius, unsigned segments, const shared_ptr<Material> material) {
 
     return make_shared<a3d::Mesh>("Sphere", make_unique<Sphere>(radius, segments), material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Sphere::Sphere(float radius, unsigned segments):
     MeshElement {},
@@ -59,7 +60,7 @@ Sphere::Sphere(float radius, unsigned segments):
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Sphere::radius() const {
     return _radius;
@@ -68,3 +69,5 @@ float Sphere::radius() const {
 unsigned Sphere::segments() const {
     return _segments;
 }
+
+} // namespace a3d

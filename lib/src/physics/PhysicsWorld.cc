@@ -3,37 +3,40 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicsWorld.h"
 
 #include <cmath>
+#include <format>
 #include <stdexcept>
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/physics/proxy/PhysicsWorldProxy.h"
 #include "a3d/profile/Profile.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Flow.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 PhysicsWorld::PhysicsWorld():
     _gravity {0, -9.807, 0},
     _scene {},
-    _beginContactCallback {},
-    _continueContactCallback {},
-    _endContactCallback {} {
+    _didBeginContactCallback {},
+    _didContinueContactCallback {},
+    _didEndContactCallback {} {
 
     _proxy = make_unique<BulletWorldProxy>(*this);
 }
@@ -42,79 +45,81 @@ PhysicsWorld::~PhysicsWorld() {
     log::d()("Destroying PhysicsWorld {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const vec3& PhysicsWorld::gravity() const {
     return _gravity;
 }
 
 void PhysicsWorld::gravity(const vec3& gravity) {
+
     _gravity = gravity;
+
+    if (_proxy) {
+        _proxy->gravity(gravity);
+    }
 }
 
-optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
-
-    // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
-
-    return {};
+optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) const {
+    return _proxy->contactTest(bodyA, bodyB);
 }
 
-optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
-
-    // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
-
-    return {};
+vector<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) const {
+    return _proxy->contactTest(body);
 }
 
-optional<HitTestResult> PhysicsWorld::rayTest(const vec3& fromVec, const vec3& toVec) {
-
-    //rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
-
-    return {};
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3& from, const vec3& to) const {
+    return rayTest(from, to, RayTestOptions {});
 }
 
-optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& contact,
-                                                       const mat4&           fromMat,
-                                                       const mat4&           toMat) {
-
-    // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
-
-    return {};
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3&           from,
+                                            const vec3&           to,
+                                            const RayTestOptions& options) const {
+    return _proxy->rayTest(from, to, options.searchMode);
 }
 
-void PhysicsWorld::updateCollisionPairs() {
-    _proxy->updateCollisionPairs();
+vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape&           shape,
+                                                     const mat4&                   fromMat,
+                                                     const mat4&                   toMat,
+                                                     const ConvexSweepTestOptions& options) const {
+    throw runtime_error("Not implemented.");
+}
+
+vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape& shape,
+                                                     const mat4&         fromMat,
+                                                     const mat4&         toMat) const {
+    throw runtime_error("Not implemented.");
 }
 
 Scene* PhysicsWorld::scene() const {
     return _scene;
 }
 
-PhysicsWorld::BeginContactCallback PhysicsWorld::beginContactCallback() const {
-    return _beginContactCallback;
+PhysicsWorld::DidBeginContactCallback PhysicsWorld::didBeginContactCallback() const {
+    return _didBeginContactCallback;
 }
 
-void PhysicsWorld::beginContactCallback(PhysicsWorld::BeginContactCallback function) {
-    _beginContactCallback = function;
+void PhysicsWorld::didBeginContactCallback(PhysicsWorld::DidBeginContactCallback function) {
+    _didBeginContactCallback = function;
 }
 
-PhysicsWorld::ContinueContactCallback PhysicsWorld::continueContactCallback() const {
-    return _continueContactCallback;
+PhysicsWorld::DidContinueContactCallback PhysicsWorld::didContinueContactCallback() const {
+    return _didContinueContactCallback;
 }
 
-void PhysicsWorld::continueContactCallback(PhysicsWorld::ContinueContactCallback function) {
-    _continueContactCallback = function;
+void PhysicsWorld::didContinueContactCallback(PhysicsWorld::DidContinueContactCallback function) {
+    _didContinueContactCallback = function;
 }
 
-PhysicsWorld::EndContactCallback PhysicsWorld::endContactCallback() const {
-    return _endContactCallback;
+PhysicsWorld::DidEndContactCallback PhysicsWorld::didEndContactCallback() const {
+    return _didEndContactCallback;
 }
 
-void PhysicsWorld::endContactCallback(PhysicsWorld::EndContactCallback function) {
-    _endContactCallback = function;
+void PhysicsWorld::didEndContactCallback(PhysicsWorld::DidEndContactCallback function) {
+    _didEndContactCallback = function;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void PhysicsWorld::attachedToScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
@@ -134,7 +139,8 @@ void PhysicsWorld::add(PhysicsBody& body) {
     log::d()("body: {}", static_cast<void*>(&body));
 
     if (_proxy) {
-        //		body.addedToWorld(this);
+        body.syncTransformFromNode();
+
         _proxy->add(body);
         body.addedToWorld(*this);
     }
@@ -155,44 +161,58 @@ void PhysicsWorld::remove(PhysicsBody& body) {
     }
 }
 
-bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
-    return std::isfinite(deltaTime) && deltaTime > 0.0 && _proxy && _proxy->acceptsStepDelta(deltaTime);
-}
+void PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
-PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
-
-    if (!util::flow::edge_guard(_proxy, [&] {
-            log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
-        })) {
-        return {};
+    if (!_proxy) {
+        throw logic_error(std::format("No PhysicsWorldProxy attached to PhysicsWorld {:p}",
+                                      static_cast<void*>(this)));
     }
 
-    if (!acceptsStepDelta(deltaTime)) {
-        throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
+    const auto& contactEvents = _proxy->step(deltaTime, profiler);
+
+    if (contactEvents.empty()
+        || (!_didBeginContactCallback && !_didContinueContactCallback && !_didEndContactCallback)) {
+        return;
     }
 
-    _proxy->step(deltaTime, profiler);
-
-    auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
-        return PhysicsWorld::inventory();
+    prof::profile(profiler, Profiler::Tag::Application, [&] {
+        for (const auto& event : contactEvents) {
+            switch (event.type) {
+                case PhysicsWorldProxy::ContactEventType::Begin:
+                    if (_didBeginContactCallback) {
+                        _didBeginContactCallback(*this, event.contact);
+                    }
+                    break;
+                case PhysicsWorldProxy::ContactEventType::Continue:
+                    if (_didContinueContactCallback) {
+                        _didContinueContactCallback(*this, event.contact);
+                    }
+                    break;
+                case PhysicsWorldProxy::ContactEventType::End:
+                    if (_didEndContactCallback) {
+                        _didEndContactCallback(*this, event.contact);
+                    }
+                    break;
+            }
+        }
     });
-
-    return inventory;
 }
 
-PhysicsInventory PhysicsWorld::inventory() const {
+PhysicsWorld::Inventory PhysicsWorld::inventory() const {
     if (_proxy) {
         return _proxy->inventory();
     }
     return {};
 }
 
-void PhysicsWorld::appendDebugLines(vector<Line>& out, Scene::DebugOptions debugOptions) const {
+void PhysicsWorld::appendDebugLines(vector<Line>& out) const {
     if (_proxy) {
-        _proxy->appendDebugLines(out, debugOptions);
+        _proxy->appendDebugLines(out, _scene->debugOptions()); // HEH
     }
 }
 
 PhysicsWorldProxy* PhysicsWorld::proxy() const {
     return _proxy.get();
 }
+
+} // namespace a3d

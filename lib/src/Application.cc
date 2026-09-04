@@ -14,6 +14,7 @@
 
 #ifdef A3D_WEB
     #include <emscripten/emscripten.h>
+    #include <emscripten/html5.h>
 #endif
 
 #include "a3d/BuildInfo.h"
@@ -25,10 +26,24 @@
 #include "a3d/util/Chrono.h"
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+#ifdef A3D_WEB
+    void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
+    void    UnregisterEmscriptenVisibilityCallbacks();
+    EM_BOOL EmscriptenVisibilityChangeCallback(int,
+                                               const EmscriptenVisibilityChangeEvent* event,
+                                               void*                                  userData);
+#endif
+
+} // namespace
+
+// [Public Static Member Functions]
 
 int Application::Run(unique_ptr<Application> application) {
 
@@ -40,6 +55,8 @@ int Application::Run(unique_ptr<Application> application) {
 
 #ifdef A3D_WEB
 
+    RegisterEmscriptenVisibilityCallbacks(application->runner());
+
     auto* context = application.release();
 
     emscripten_set_main_loop_arg(
@@ -48,6 +65,8 @@ int Application::Run(unique_ptr<Application> application) {
 
             if (!application->update()) {
                 emscripten_cancel_main_loop();
+
+                UnregisterEmscriptenVisibilityCallbacks();
 
                 application->shutdown();
                 delete application;
@@ -69,12 +88,14 @@ int Application::Run(unique_ptr<Application> application) {
 #endif
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
-Application::Application(int argc, char* argv[], Log::Level logLevel):
+Application::Application(int argc, char* argv[], log::Level logLevel):
     _args(argv + 1, argv + argc),
     _scene {},
     _runner {},
+    _scenePreStepQueue {},
+    _scenePostStepQueue {},
     _didShutdown {false},
     _startupTimer {true} {
     initLog(logLevel);
@@ -82,7 +103,7 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
 
 Application::~Application() = default;
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 SimulationConfig Application::simulationConfig() const {
     return {};
@@ -130,54 +151,79 @@ const Scene& Application::scene() const {
     return *_scene;
 }
 
+void Application::queueScenePreStepCommand(SceneCommand command) {
+
+    if (!command) {
+        throw invalid_argument("Application pre-step Scene command must not be empty.");
+    }
+
+    _scenePreStepQueue.push_back(std::move(command));
+}
+
+void Application::queueScenePostStepCommand(SceneCommand command) {
+
+    if (!command) {
+        throw invalid_argument("Application post-step Scene command must not be empty.");
+    }
+
+    _scenePostStepQueue.push_back(std::move(command));
+}
+
 const vector<string>& Application::args() const {
     return _args;
 }
 
-/// Runner Callbacks ///
-
-void Application::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
-
-/// InputContext Callbacks ///
+void Application::runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
 
 void Application::inputDidUpdate(Runner&       runner,
                                  Scene&        scene,
                                  InputContext& inputContext,
                                  const InputContext::UpdateInfo&) {}
 
-/// Scene Callbacks ///
-
 void Application::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
 
 void Application::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
-
-/// VisualWorld Callbacks ///
 
 void Application::frameDidBegin(Runner&                        runner,
                                 Scene&                         scene,
                                 VisualWorld&                   visualWorld,
                                 const VisualWorld::RenderInfo& info) {}
 
-/// Private Member Functions ///
+void Application::contactDidBegin(Runner&               runner,
+                                  Scene&                scene,
+                                  PhysicsWorld&         physicsWorld,
+                                  const PhysicsContact& contact) {}
 
-void Application::initLog(Log::Level level) {
+void Application::contactDidContinue(Runner&               runner,
+                                     Scene&                scene,
+                                     PhysicsWorld&         physicsWorld,
+                                     const PhysicsContact& contact) {}
 
-    Log::MainLog().level(level);
+void Application::contactDidEnd(Runner&               runner,
+                                Scene&                scene,
+                                PhysicsWorld&         physicsWorld,
+                                const PhysicsContact& contact) {}
 
-    string executableName = *util::filesystem::ExecutableName();
+// [Private Member Functions]
 
-    auto sinks = vector<unique_ptr<LogSink>>();
+void Application::initLog(log::Level level) {
 
-    auto nativeSink = make_unique<StdOutLogSink>();
+    log::MainLog().level(level);
+
+    string executableName = *util::fs::ExecutableName();
+
+    auto sinks = vector<unique_ptr<log::LogSink>>();
+
+    auto nativeSink = make_unique<log::StdOutLogSink>();
     sinks.push_back(std::move(nativeSink));
 
 #ifndef A3D_WEB
-    auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
-                                             / (executableName + string(".log")));
+    auto fileSink =
+        make_unique<log::FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
     sinks.push_back(std::move(fileSink));
 #endif
 
-    Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
+    log::AppLog(make_unique<log::Log>(executableName, std::move(sinks), level));
 
     const auto& buildInfo = BuildInfo::Info();
     log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
@@ -191,7 +237,7 @@ void Application::prepare() {
     _scene = init();
 
     if (!_scene) {
-        throw runtime_error("Application::initialize() returned a null Scene.");
+        throw runtime_error("Application::init() returned a null Scene.");
     }
 
     _runner = make_unique<Runner>(*_scene, simulationConfig());
@@ -243,7 +289,7 @@ void Application::registerCallbacks() {
 
     using namespace std::placeholders;
 
-    _runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+    _runner->updateCallback(bind(&Application::dispatchRunnerUpdate, this, _1, _2));
 
     if (auto* inputContext = _scene->inputContext()) {
         inputContext->didUpdateCallback(bind(&Application::dispatchInputContextDidUpdate, this, _1, _2));
@@ -252,9 +298,28 @@ void Application::registerCallbacks() {
     _scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
     _scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
-    if (auto* world = _scene->visualWorld()) {
-        world->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
+    if (auto* visualWorld = _scene->visualWorld()) {
+        visualWorld->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
     }
+
+    if (auto* physicsWorld = _scene->physicsWorld()) {
+        physicsWorld->didBeginContactCallback(bind(&Application::dispatchContactDidBegin, this, _1, _2));
+        physicsWorld->didContinueContactCallback(bind(&Application::dispatchContactDidContinue, this, _1, _2));
+        physicsWorld->didEndContactCallback(bind(&Application::dispatchContactDidEnd, this, _1, _2));
+    }
+}
+
+void Application::executeSceneCommands(vector<SceneCommand>& queue, Scene& scene) {
+
+    auto commands = exchange(queue, vector<SceneCommand> {});
+
+    for (auto& command : commands) {
+        command(scene);
+    }
+}
+
+void Application::dispatchRunnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+    runnerUpdate(runner, *_scene, info);
 }
 
 void Application::dispatchInputContextDidUpdate(InputContext&                   inputContext,
@@ -262,15 +327,15 @@ void Application::dispatchInputContextDidUpdate(InputContext&                   
     inputDidUpdate(*_runner, *_scene, inputContext, info);
 }
 
-void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
-    hostUpdate(runner, *_scene, info);
-}
-
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
+
+    executeSceneCommands(_scenePreStepQueue, scene);
     sceneWillStep(*_runner, scene, info);
 }
 
 void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info) {
+
+    executeSceneCommands(_scenePostStepQueue, scene);
     sceneDidStep(*_runner, scene, info);
 }
 
@@ -280,3 +345,64 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
     }
     frameDidBegin(*_runner, *_scene, visualWorld, info);
 }
+
+void Application::dispatchContactDidBegin(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidBegin(*_runner, *_scene, physicsWorld, contact);
+}
+
+void Application::dispatchContactDidContinue(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidContinue(*_runner, *_scene, physicsWorld, contact);
+}
+
+void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidEnd(*_runner, *_scene, physicsWorld, contact);
+}
+
+namespace {
+
+    // [Private Non-Member Functions]
+
+#ifdef A3D_WEB
+
+    void RegisterEmscriptenVisibilityCallbacks(Runner& runner) {
+
+        const auto result =
+            emscripten_set_visibilitychange_callback(&runner, false, EmscriptenVisibilityChangeCallback);
+
+        if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+            throw runtime_error("Failed to register Emscripten visibility callback.");
+        }
+
+        // handle the unlikely case that we started while already hidden.
+        EmscriptenVisibilityChangeEvent visibility {};
+
+        if (emscripten_get_visibility_status(&visibility) == EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden) {
+            runner.simulationClockSuspended(true);
+        }
+    }
+
+    void UnregisterEmscriptenVisibilityCallbacks() {
+
+        emscripten_set_visibilitychange_callback(nullptr, false, nullptr);
+    }
+
+    EM_BOOL EmscriptenVisibilityChangeCallback(int,
+                                               const EmscriptenVisibilityChangeEvent* event,
+                                               void*                                  userData) {
+
+        auto& runner = *static_cast<Runner*>(userData);
+
+        if (event->hidden) {
+            runner.simulationClockSuspended(true);
+        }
+        else {
+            runner.simulationClockSuspended(false);
+        }
+
+        return EM_FALSE;
+    }
+
+#endif
+
+} // namespace
+} // namespace a3d

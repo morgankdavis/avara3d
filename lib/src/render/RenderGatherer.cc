@@ -3,12 +3,13 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/24/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/render/RenderGatherer.h"
 
 #include "a3d/Color.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsWorld.h"
@@ -21,11 +22,24 @@
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Member Functions ///
+namespace a3d {
+namespace {
+
+    // [Private Constants]
+
+    const Color     MESH_OBB_COLOR {0.5f, 0.5f, 0.5f, 1.0f};
+    const Color     MESH_AABB_COLOR {1.0f, 0.0f, 0.0f, 1.0f};
+    const Color     SCENE_AABB_COLOR {0.0f, 0.5f, 0.0f, 1.0f};
+    const Color     HIGHLIGHT_BOX_COLOR {1.0f, 1.0f, 0.0f, 1.0f};
+    const vec4      HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
+    constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
+
+} // namespace
+
+// [Internal Static Member Functions]
 
 // "gather / collect / cull"
 GatherOutput RenderGatherer::Gather(const Scene&               scene,
@@ -47,15 +61,18 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     stack.reserve(256);
     stack.push_back({scene.rootNode().get(), mat4(1.0)});
 
-    const bool showBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+    const bool showMeshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshBounds);
+    const bool showMeshFrames = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshFrames);
+    auto       visibleMeshAABB = AABB::Invalid();
 
     output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
+    if (const auto& background = scene.visualWorld()->background()) {
+        output.backgroundOrientation = background->orientation;
+    }
+
+    output.ground = scene.visualWorld()->ground();
 
     output.scene = &scene; // TODO: maybe change to AABB directly?
-
-    if (showBounds) {
-        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), *Color::Green());
-    }
 
     while (!stack.empty()) {
         auto [n, parentWorld] = stack.back();
@@ -68,7 +85,11 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
         }
 
         const mat4 world = parentWorld * n->transform();
-        const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
+        const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshWireframes);
+        const bool showHighlightBox =
+            util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightBox);
+        const bool showHighlightTint =
+            util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightTint);
 
         if (auto* mesh = n->mesh().get()) {
 
@@ -95,9 +116,14 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 item.material = mat;
                 item.model = world;
                 item.aabb = element->worldAABB(world, false);
+                item.renderOrder = n->renderOrder();
                 item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
-                // ! temnporary !
+                if (showHighlightTint) {
+                    item.tint = HIGHLIGHT_TINT_COLOR;
+                }
+
+                // ! TEMPORARY !
                 if (wireframe) {
                     item.style = RenderStyle::Wireframe; // TODO: test WireframeOverlay
                 }
@@ -113,7 +139,6 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 output.renderItems.push_back(item);
 
                 ++stats.elements;
-//				stats.numPolygons += element->faces().size();
                 if (element->indexCount() > 0) {
                     stats.polygons += element->indexCount() / 3u;
                 }
@@ -122,10 +147,37 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 }
             }
 
-            if (showBounds) {
+            if (showMeshBounds) {
+
+                const auto meshAABB = mesh->worldAABB(world, false);
+                visibleMeshAABB |= meshAABB;
+
+                if (!showHighlightBox) {
+                    DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
+                                                              MESH_OBB_COLOR);
+                }
+
+                DebugLinesBuilder::AppendAABB(output.debugLines, meshAABB, MESH_AABB_COLOR);
+            }
+
+            if (showMeshFrames) {
+
+                const auto& aabb = mesh->localAABB();
+                const vec3  extent = aabb.max - aabb.min;
+                const vec3  margin = extent * MESH_DEBUG_FRAME_MARGIN;
+
+                const vec3 frameSize {
+                    math::max(0.0f, aabb.max.x) + margin.x,
+                    math::max(0.0f, aabb.max.y) + margin.y,
+                    math::max(0.0f, aabb.max.z) + margin.z,
+                };
+
+                DebugLinesBuilder::AppendFrame(output.debugLines, world, frameSize);
+            }
+
+            if (showHighlightBox) {
                 DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
-                                                          *Color::Gray());
-                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false), *Color::Red());
+                                                          HIGHLIGHT_BOX_COLOR);
             }
 
             ++stats.meshes;
@@ -142,8 +194,15 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     }
 
     if (physicsWorld) {
-        physicsWorld->appendDebugLines(output.debugLines, debugOptions);
+        physicsWorld->appendDebugLines(output.debugLines);
+    }
+
+    if (showMeshBounds && visibleMeshAABB.valid()) {
+        // TODO: maybe give this its own debug option
+        DebugLinesBuilder::AppendAABB(output.debugLines, visibleMeshAABB, SCENE_AABB_COLOR);
     }
 
     return output;
 }
+
+} // namespace a3d

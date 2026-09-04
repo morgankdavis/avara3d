@@ -3,15 +3,16 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/6/25.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/profile/FrameStatsHistory.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
                                     chrono::nanoseconds&     frame,
@@ -57,12 +58,12 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
     }
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 FrameStatsHistory::FrameStatsHistory(chrono::milliseconds historyTime):
     _historyTime(historyTime) {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void FrameStatsHistory::add(FrameStats stats) {
 
@@ -80,3 +81,5 @@ void FrameStatsHistory::add(FrameStats stats) {
 const deque<tuple<FrameStatsHistory::SteadyTimePoint, FrameStats>>& FrameStatsHistory::samples() const {
     return _samples;
 }
+
+} // namespace a3d

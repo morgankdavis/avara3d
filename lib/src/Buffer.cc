@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Buffer.h"
@@ -17,10 +17,11 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 
-///  Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 Buffer::Buffer(const std::filesystem::path& path):
     _data {},
@@ -106,7 +107,7 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
     return *this;
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 byte* Buffer::data() const {
     return _data.get();
@@ -123,3 +124,5 @@ byte* Buffer::operator*() const {
 byte Buffer::operator[](size_t idx) const {
     return _data[idx];
 }
+
+} // namespace a3d

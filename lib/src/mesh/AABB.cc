@@ -8,11 +8,7 @@
 
 #include "a3d/mesh/AABB.h"
 
-using namespace a3d;
-
-bool AABB::valid() const {
-    return min.x <= max.x && min.y <= max.y && min.z <= max.z;
-}
+namespace a3d {
 
 AABB AABB::Zero() {
     return {{0, 0, 0}, {0, 0, 0}};
@@ -46,6 +42,10 @@ math::vec3 AABB::Center(const AABB& a) {
     return (a.min + a.max) * 0.5f;
 }
 
+bool AABB::valid() const {
+    return min.x <= max.x && min.y <= max.y && min.z <= max.z;
+}
+
 AABB& AABB::operator|=(const AABB& b) {
     *this = Union(*this, b);
     return *this;
@@ -56,12 +56,14 @@ AABB& AABB::operator|=(const math::vec3& p) {
     return *this;
 }
 
-AABB a3d::operator|(AABB a, const AABB& b) {
+AABB operator|(AABB a, const AABB& b) {
     a |= b;
     return a;
 }
 
-AABB a3d::operator|(AABB a, const math::vec3& p) {
+AABB operator|(AABB a, const math::vec3& p) {
     a |= p;
     return a;
 }
+
+} // namespace a3d

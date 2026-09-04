@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 3/6/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/RoundedBox.h"
@@ -16,11 +16,12 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> RoundedBox::Mesh(float                      radius,
                                   float                      length,
@@ -38,7 +39,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float                      radius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 RoundedBox::RoundedBox(float    radius,
                        float    length,
@@ -92,7 +93,7 @@ RoundedBox::RoundedBox(float    radius,
     burnTransform(xRotation, true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float RoundedBox::radius() const {
     return _radius;
@@ -125,3 +126,5 @@ unsigned RoundedBox::widthSegments() const {
 unsigned RoundedBox::heightSegments() const {
     return _heightSegments;
 }
+
+} // namespace a3d

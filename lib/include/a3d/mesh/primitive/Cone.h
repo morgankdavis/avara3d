@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_MESH_PRIMITIVE_CONE_H
@@ -15,53 +15,71 @@
 
 namespace a3d {
 
-    class Mesh;
-    class Material;
+class Mesh;
+class Material;
 
-    class Cone : public MeshElement {
+/**
+ * @brief Capped cone mesh element centered at the origin and aligned along the Y axis.
+ *
+ * Radius describes the circular base and height is the full axial length. Slices
+ * subdivide around the cone, segments subdivide along its axis, and rings
+ * subdivide the cap radially.
+ */
+class Cone : public MeshElement {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::shared_ptr<Mesh> Mesh(float                     radius,
-                                          float                     height,
-                                          unsigned                  slices   = DEFAULT_SLICES,
-                                          unsigned                  segments = DEFAULT_SEGMENTS,
-                                          unsigned                  rings    = DEFAULT_RINGS,
-                                          std::shared_ptr<Material> material = nullptr);
+    /** @brief Creates a Mesh containing a Cone and optional @p material. */
+    static std::shared_ptr<Mesh> Mesh(float                     radius,
+                                      float                     height,
+                                      unsigned                  slices   = DEFAULT_SLICES,
+                                      unsigned                  segments = DEFAULT_SEGMENTS,
+                                      unsigned                  rings    = DEFAULT_RINGS,
+                                      std::shared_ptr<Material> material = nullptr);
 
-        /// Public Lifecycle Functions ///
+    // [Public Lifecycle Functions]
 
-        Cone(float    radius,
-             float    height,
-             unsigned slices   = DEFAULT_SLICES,
-             unsigned segments = DEFAULT_SEGMENTS,
-             unsigned rings    = DEFAULT_RINGS);
+    /** @brief Generates capped cone geometry with the supplied dimensions and subdivisions. */
+    Cone(float    radius,
+         float    height,
+         unsigned slices   = DEFAULT_SLICES,
+         unsigned segments = DEFAULT_SEGMENTS,
+         unsigned rings    = DEFAULT_RINGS);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float    radius() const;
-        float    height() const;
-        unsigned slices() const;
-        unsigned segments() const;
-        unsigned rings() const;
+    /** @brief Returns the configured base radius. */
+    float    radius() const;
 
-    private:
-        /// Private Constants ///
+    /** @brief Returns the configured axial height. */
+    float    height() const;
 
-        static constexpr unsigned DEFAULT_SLICES   = 32;
-        static constexpr unsigned DEFAULT_SEGMENTS = 8;
-        static constexpr unsigned DEFAULT_RINGS    = 4;
+    /** @brief Returns the circumferential subdivision count. */
+    unsigned slices() const;
 
-        /// Private Member Variables ///
+    /** @brief Returns the axial subdivision count. */
+    unsigned segments() const;
 
-        float                     _radius;
-        float                     _height;
-        unsigned                  _slices;
-        unsigned                  _segments;
-        unsigned                  _rings;
-    };
+    /** @brief Returns the radial cap subdivision count. */
+    unsigned rings() const;
 
-}
+private:
+    // [Private Constants]
 
-#endif /* AVARA3D_MESH_PRIMITIVE_CONE_H */
+    static constexpr unsigned DEFAULT_SLICES   = 32;
+    static constexpr unsigned DEFAULT_SEGMENTS = 8;
+    static constexpr unsigned DEFAULT_RINGS    = 4;
+
+    // [Private Member Variables]
+
+    float                     _radius;
+    float                     _height;
+    unsigned                  _slices;
+    unsigned                  _segments;
+    unsigned                  _rings;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_MESH_PRIMITIVE_CONE_H

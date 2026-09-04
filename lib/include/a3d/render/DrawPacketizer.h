@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/28/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_RENDER_DRAWPACKETIZER_H
@@ -11,17 +11,17 @@
 
 namespace a3d {
 
-    struct DrawPacket;
-    struct GatherOutput;
+struct DrawPacket;
+struct GatherOutput;
 
-    class DrawPacketizer {
+class DrawPacketizer {
 
-    public:
-        /// Internal Static Member Functions ///
+public:
+    // [Internal Static Member Functions]
 
-        static DrawPacket Packetize(GatherOutput& gatherOutput);
-    };
+    static DrawPacket Packetize(GatherOutput& gatherOutput);
+};
 
-}
+} // namespace a3d
 
-#endif //AVARA3D_RENDER_DRAWPACKETIZER_H
+#endif // AVARA3D_RENDER_DRAWPACKETIZER_H

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 1/19/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/BuildInfo.h"
@@ -12,14 +12,15 @@
 #include <cstdio>
 #include <format>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "BuildInfo.cmake.h"
+#include "a3d/Math.h"
+#include "a3d/util/Enum.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 const BuildInfo& BuildInfo::Info() {
 
@@ -55,7 +56,7 @@ string BuildInfo::OriginString(Origin origin) {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 unsigned BuildInfo::number() const {
     return _number;
@@ -77,15 +78,15 @@ const std::tm& BuildInfo::time() const {
     return _time;
 }
 
-/// Private Lifecycle Functions ///
+// [Private Lifecycle Functions]
 
 BuildInfo::BuildInfo() {
 
     _number = A3D_BUILD_NUMBER;
     _version = {A3D_VERSION_MAJOR, A3D_VERSION_MINOR, A3D_VERSION_PATCH};
-    auto typeOpt = magic_enum::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
+    auto typeOpt = util::enums::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
     _type = typeOpt.value_or(BuildInfo::Type::Unknown);
-    auto originOpt = magic_enum::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
+    auto originOpt = util::enums::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
     _origin = originOpt.value_or(BuildInfo::Origin::AdHoc);
 
     // ISO 8601
@@ -94,9 +95,11 @@ BuildInfo::BuildInfo() {
     sscanf(A3D_BUILD_TIME, "%d-%d-%dT%d:%d:%dZ", &y, &M, &d, &h, &m, &s);
     _time = {};
     _time.tm_year = y - 1900;
-    _time.tm_mon = std::max(0, M - 1);
+    _time.tm_mon = math::max(0, M - 1);
     _time.tm_mday = d;
     _time.tm_hour = h;
     _time.tm_min = m;
     _time.tm_sec = s;
 }
+
+} // namespace a3d

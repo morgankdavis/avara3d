@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/17/25.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PROFILE_SCOPETIMER_H
@@ -15,31 +15,31 @@
 
 namespace a3d {
 
-    class Profiler;
+class Profiler;
 
-    class ScopeTimer {
+class ScopeTimer {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Internal Lifecycle Functions]
 
-        ScopeTimer(Profiler& profiler, Profiler::Tag tag);
+    ScopeTimer(Profiler& profiler, Profiler::Tag tag);
 
-        ScopeTimer(const ScopeTimer&)            = delete;
-        ScopeTimer& operator=(const ScopeTimer&) = delete;
+    ScopeTimer(const ScopeTimer&)            = delete;
+    ScopeTimer& operator=(const ScopeTimer&) = delete;
 
-        ScopeTimer(ScopeTimer&&)            = delete;
-        ScopeTimer& operator=(ScopeTimer&&) = delete;
+    ScopeTimer(ScopeTimer&&)            = delete;
+    ScopeTimer& operator=(ScopeTimer&&) = delete;
 
-        ~ScopeTimer();
+    ~ScopeTimer();
 
-    private:
-        /// Private Member Variables ///
+private:
+    // [Private Member Variables]
 
-        Profiler*                                          _profiler;
-        Profiler::Tag                                      _tag;
-        std::chrono::time_point<std::chrono::steady_clock> _start;
-    };
+    Profiler*                                          _profiler;
+    Profiler::Tag                                      _tag;
+    std::chrono::time_point<std::chrono::steady_clock> _start;
+};
 
-}
+} // namespace a3d
 
-#endif //AVARA3D_PROFILE_SCOPETIMER_H
+#endif // AVARA3D_PROFILE_SCOPETIMER_H

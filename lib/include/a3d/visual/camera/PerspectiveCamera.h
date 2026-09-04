@@ -3,65 +3,72 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/22/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H
 #define AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H
 
+#include "a3d/Math.h"
 #include "a3d/visual/camera/Camera.h"
 
 namespace a3d {
 
-    class PerspectiveCamera : public Camera {
+/** @brief Camera using a perspective projection with a vertical field of view. */
+class PerspectiveCamera : public Camera {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        PerspectiveCamera();
-        PerspectiveCamera(float zNear, float zFar, float yFov);
-        PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
+    /** @brief Creates an unnamed camera with a 0.1 near plane, 1000 far plane, and 45-degree vertical FOV. */
+    PerspectiveCamera();
 
-        PerspectiveCamera(const PerspectiveCamera&)            = default;
-        PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
+    /** @brief Creates an unnamed perspective camera with the supplied clipping distances and vertical FOV. */
+    PerspectiveCamera(float zNear, float zFar, float yFov);
 
-        PerspectiveCamera(PerspectiveCamera&&) noexcept            = default;
-        PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
+    /** @brief Creates a named perspective camera with the supplied clipping distances and vertical FOV. */
+    PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 
-        ~PerspectiveCamera() override;
+    PerspectiveCamera(const PerspectiveCamera&)            = default;
+    PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
 
-        /// Public Member Functions ///
+    PerspectiveCamera(PerspectiveCamera&&) noexcept            = default;
+    PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
 
-        float      zNear() const;
-        void       zNear(float zNear);
+    ~PerspectiveCamera() override;
 
-        float      zFar() const;
-        void       zFar(float zFar);
+    // [Public Member Functions]
 
-        float      yFov() const;
-        void       yFov(float fov);
+    /** @brief Returns the near clipping distance. */
+    float      zNear() const;
 
-        float      aspectRatio() const;
-        void       aspectRatio(float ratio);
+    /** @brief Sets the near clipping distance. */
+    void       zNear(float zNear);
 
-        /// Camera Internal Member Functions ///
+    /** @brief Returns the far clipping distance. */
+    float      zFar() const;
 
-        math::mat4 projection() const override;
+    /** @brief Sets the far clipping distance. */
+    void       zFar(float zFar);
 
-    protected:
-        /// Camera Protected Member Functions ///
+    /** @brief Returns the vertical field of view in radians. */
+    float      yFov() const;
 
-//		void 			constructProjectionMatrix() override;
+    /** @brief Sets the vertical field of view in radians. */
+    void       yFov(float fov);
 
-    private:
-        /// Private Member Variables ///
+    // [Camera Internal Member Functions]
 
-        float _zNear;
-        float _zFar;
-        float _yFov;
-        float _aspectRatio;
-    };
+    math::mat4 projection(const math::uvec2& framebufferSize) const override;
 
-}
+private:
+    // [Private Member Variables]
 
-#endif /* AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H */
+    float _zNear;
+    float _zFar;
+    float _yFov;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H

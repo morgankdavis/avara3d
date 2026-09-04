@@ -3,118 +3,130 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Color.h"
 
-using namespace a3d;
+#include <cctype>
+#include <stdexcept>
+
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
 
-std::shared_ptr<Color> Color::Black() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 0.0f, 1.0f});
+// [Public Static Member Functions]
+
+Color Color::Black() {
+    return {0.0f, 0.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::DarkGray() {
-    return make_unique<Color>(vec4 {0.25f, 0.25f, 0.25f, 1.0f});
+Color Color::DarkGray() {
+    return {0.25f, 0.25f, 0.25f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Gray() {
-    return make_unique<Color>(vec4 {0.5f, 0.5, 0.5f, 1.0f});
+Color Color::Gray() {
+    return {0.5f, 0.5f, 0.5f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::LightGray() {
-    return make_unique<Color>(vec4 {0.75f, 0.75f, 0.75f, 1.0f});
+Color Color::LightGray() {
+    return {0.75f, 0.75f, 0.75f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::White() {
-    return make_unique<Color>(vec4 {1.0f, 1.0f, 1.0f, 1.0f});
+Color Color::White() {
+    return {1.0f, 1.0f, 1.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Maroon() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 0.0f, 0.0f, 1.0f});
+Color Color::Maroon() {
+    return {128.0f / 255.0f, 0.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Red() {
-    return make_unique<Color>(vec4 {1.0f, 0.0f, 0.0f, 1.0f});
+Color Color::Red() {
+    return {1.0f, 0.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Orange() {
-    return make_unique<Color>(vec4 {1.0f, 165.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Orange() {
+    return {1.0f, 165.0f / 255.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Yellow() {
-    return make_unique<Color>(vec4 {1.0f, 1.0f, 0.0f, 1.0f});
+Color Color::Yellow() {
+    return {1.0f, 1.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Olive() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Olive() {
+    return {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Lime() {
-    return make_unique<Color>(vec4 {0.0f, 1.0f, 0.0f, 1.0f});
+Color Color::Lime() {
+    return {0.0f, 1.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Green() {
-    return make_unique<Color>(vec4 {0.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Green() {
+    return {0.0f, 128.0f / 255.0f, 0.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Cyan() {
-    return make_unique<Color>(vec4 {0.0f, 1.0f, 1.0f, 1.0f});
+Color Color::Cyan() {
+    return {0.0f, 1.0f, 1.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Blue() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 1.0f, 1.0f});
+Color Color::Blue() {
+    return {0.0f, 0.0f, 1.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Navy() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Navy() {
+    return {0.0f, 0.0f, 128.0f / 255.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Teal() {
-    return make_unique<Color>(vec4 {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Teal() {
+    return {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Magenta() {
-    return make_unique<Color>(vec4 {1.0f, 0.0f, 1.0f, 1.0f});
+Color Color::Magenta() {
+    return {1.0f, 0.0f, 1.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Purple() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Purple() {
+    return {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f};
 }
 
-std::shared_ptr<Color> Color::Brown() {
-    return make_unique<Color>(vec4 {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f});
+Color Color::Brown() {
+    return {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f};
 }
 
-shared_ptr<Color> Color::Random() {
-    return make_unique<Color>(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
+Color Color::Random() {
+    return Color(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
 }
 
-/// Private Static Non-Member Prototypes ///
+namespace {
 
-static bool ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
-static bool ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
-//static u32 ParseHexRgb(const char* s);   // "RRGGBB" or "#RRGGBB"
-//static u32 ParseHexRgba(const char* s);  // "RRGGBBAA" or "#RRGGBBAA"
-static int         HexNibble(char c);
-static const char* SkipWs(const char* s);
-static bool        ParseHexByte(const char* s, u8& out);
-static uint8_t     FloatToU8(float x);
+    // [Private Non-Member Prototypes]
 
-/// Public Lifecycle Functions ///
+    bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
+    bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
+    int         HexNibble(char c);
+    const char* SkipWs(const char* s);
+    bool        ParseHexByte(const char* s, u8& out);
+    uint8_t     FloatToU8(float x);
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 Color::Color():
     _rgba {1.0, 1.0, 1.0, 1.0} {}
 
 Color::Color(const vec3& rgb):
-    _rgba {vec4(rgb, 1.0)} {}
+    _rgba {vec4 {math::clamp_01(rgb), 1.0f}} {}
+
+Color::Color(float r, float g, float b):
+    Color(math::vec3 {r, g, b}) {}
 
 Color::Color(const vec4& rgba):
-    _rgba {rgba} {}
+    _rgba {math::clamp_01(rgba)} {}
+
+Color::Color(float r, float g, float b, float a):
+    Color(math::vec4 {r, g, b, a}) {}
 
 Color::Color(const u8vec3& irgb):
     _rgba {(float) irgb.r / 255.0f, (float) irgb.g / 255.0f, (float) irgb.b / 255.0f, 1.0} {}
@@ -124,27 +136,57 @@ Color::Color(const u8vec4& irgba):
            (float) irgba.a / 255.0f} {}
 
 Color::Color(float white):
-    _rgba {white, white, white, 1.0} {}
+    _rgba {math::clamp_01(white), math::clamp_01(white), math::clamp_01(white), 1.0f} {}
 
 Color::Color(uint32_t color):
     _rgba {(float) ((color & 0xFF000000) >> 24) / 255.0f, (float) ((color & 0x00FF0000) >> 16) / 255.0f,
            (float) ((color & 0x0000FF00) >> 8) / 255.0f, (float) ((color & 0x000000FF) >> 0) / 255.0f} {}
 
 Color::Color(const string& hexString) {
-    if (hexString.length() > 7) { // assume this means it has alpha...
-        u8vec4 u8rgba;
-        ParseHexRgba(hexString.c_str(), u8rgba);
-        _rgba = {float(u8rgba.r) / 255.0f, float(u8rgba.g) / 255.0f, float(u8rgba.b) / 255.0f,
-                 float(u8rgba.a) / 255.0f};
+
+    const bool rgb = hexString.length() == 6 || (hexString.length() == 7 && hexString.front() == '#');
+    const bool rgba = hexString.length() == 8 || (hexString.length() == 9 && hexString.front() == '#');
+
+    if (rgb) {
+
+        u8vec3 value;
+
+        if (!ParseHexRgb(hexString.c_str(), value)) {
+            throw invalid_argument("Invalid hexadecimal color string.");
+        }
+
+        _rgba = {
+            float(value.r) / 255.0f,
+            float(value.g) / 255.0f,
+            float(value.b) / 255.0f,
+            1.0f,
+        };
+
+        return;
     }
-    else {
-        u8vec3 u8rgb;
-        ParseHexRgb(hexString.c_str(), u8rgb);
-        _rgba = {float(u8rgb.r) / 255.0f, float(u8rgb.g) / 255.0f, float(u8rgb.b) / 255.0f, 1.0f};
+
+    if (rgba) {
+
+        u8vec4 value;
+
+        if (!ParseHexRgba(hexString.c_str(), value)) {
+            throw invalid_argument("Invalid hexadecimal color string.");
+        }
+
+        _rgba = {
+            float(value.r) / 255.0f,
+            float(value.g) / 255.0f,
+            float(value.b) / 255.0f,
+            float(value.a) / 255.0f,
+        };
+
+        return;
     }
+
+    throw invalid_argument("Invalid hexadecimal color string.");
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Color::r() const {
     return _rgba.r;
@@ -194,127 +236,105 @@ u8vec4 Color::u8rgba() const {
     return u8vec4 {u8r(), u8g(), u8b(), u8a()};
 }
 
-/// Private Static Non-Members ///
+namespace {
 
-bool ParseHexRgb(const char* s, u8vec3& rgb) {
-    s = SkipWs(s);
-    if (!s) {
-        return false;
-    }
-    if (*s == '#') {
-        ++s;
-    }
+    // [Private Non-Member Functions]
 
-    u8 r = 0, g = 0, b = 0;
-    if (!ParseHexByte(s + 0, r)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 2, g)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 4, b)) {
-        return false;
-    }
+    bool ParseHexRgb(const char* s, u8vec3& rgb) {
+        s = SkipWs(s);
+        if (!s) {
+            return false;
+        }
+        if (*s == '#') {
+            ++s;
+        }
 
-    rgb.r = r;
-    rgb.g = g;
-    rgb.b = b;
+        u8 r = 0, g = 0, b = 0;
+        if (!ParseHexByte(s + 0, r)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 2, g)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 4, b)) {
+            return false;
+        }
 
-    return true;
-}
+        rgb.r = r;
+        rgb.g = g;
+        rgb.b = b;
 
-bool ParseHexRgba(const char* s, u8vec4& rgba) {
-    s = SkipWs(s);
-    if (!s) {
-        return 0;
-    }
-    if (*s == '#') {
-        ++s;
+        return true;
     }
 
-    u8 r = 0, g = 0, b = 0, a = 0;
-    if (!ParseHexByte(s + 0, r)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 2, g)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 4, b)) {
-        return false;
-    }
-    if (!ParseHexByte(s + 6, a)) {
-        return false;
+    bool ParseHexRgba(const char* s, u8vec4& rgba) {
+        s = SkipWs(s);
+        if (!s) {
+            return 0;
+        }
+        if (*s == '#') {
+            ++s;
+        }
+
+        u8 r = 0, g = 0, b = 0, a = 0;
+        if (!ParseHexByte(s + 0, r)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 2, g)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 4, b)) {
+            return false;
+        }
+        if (!ParseHexByte(s + 6, a)) {
+            return false;
+        }
+
+        rgba.r = r;
+        rgba.g = g;
+        rgba.b = b;
+        rgba.a = a;
+
+        return true;
     }
 
-    rgba.r = r;
-    rgba.g = g;
-    rgba.b = b;
-    rgba.a = a;
-
-    return true;
-}
-
-//u32 ParseHexRgb(const char* s) {
-//	s = SkipWs(s);
-//	if (!s) return 0;
-//	if (*s == '#') ++s;
-//
-//	u8 r=0,g=0,b=0;
-//	if (!ParseHexByte(s + 0, r)) return 0;
-//	if (!ParseHexByte(s + 2, g)) return 0;
-//	if (!ParseHexByte(s + 4, b)) return 0;
-//
-//	return (u32(r) << 16) | (u32(g) << 8) | (u32(b) << 0); // 0xRRGGBB
-//}
-//
-//u32 ParseHexRgba(const char* s) {
-//	s = SkipWs(s);
-//	if (!s) return 0;
-//	if (*s == '#') ++s;
-//
-//	u8 r=0,g=0,b=0,a=0;
-//	if (!ParseHexByte(s + 0, r)) return 0;
-//	if (!ParseHexByte(s + 2, g)) return 0;
-//	if (!ParseHexByte(s + 4, b)) return 0;
-//	if (!ParseHexByte(s + 6, a)) return 0;
-//
-//	return (u32(r) << 24) | (u32(g) << 16) | (u32(b) << 8) | (u32(a) << 0); // 0xRRGGBBAA
-//}
-
-int HexNibble(char c) {
-    if (c >= '0' && c <= '9') {
-        return c - '0';
+    int HexNibble(char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return 10 + (c - 'a');
+        }
+        if (c >= 'A' && c <= 'F') {
+            return 10 + (c - 'A');
+        }
+        return -1;
     }
-    if (c >= 'a' && c <= 'f') {
-        return 10 + (c - 'a');
-    }
-    if (c >= 'A' && c <= 'F') {
-        return 10 + (c - 'A');
-    }
-    return -1;
-}
 
-const char* SkipWs(const char* s) {
-    while (s && *s && std::isspace(static_cast<unsigned char>(*s))) {
-        ++s;
+    const char* SkipWs(const char* s) {
+        while (s && *s && std::isspace(static_cast<unsigned char>(*s))) {
+            ++s;
+        }
+        return s;
     }
-    return s;
-}
 
-bool ParseHexByte(const char* s, u8& out) {
-    const int hi = HexNibble(s[0]);
-    const int lo = HexNibble(s[1]);
-    if (hi < 0 || lo < 0) {
-        return false;
+    bool ParseHexByte(const char* s, u8& out) {
+        const int hi = HexNibble(s[0]);
+        const int lo = HexNibble(s[1]);
+        if (hi < 0 || lo < 0) {
+            return false;
+        }
+        out = static_cast<u8>((hi << 4) | lo);
+        return true;
     }
-    out = static_cast<u8>((hi << 4) | lo);
-    return true;
-}
 
-static uint8_t FloatToU8(float x) {
-    if (!math::is_finite(x)) {
-        return 0;
+    uint8_t FloatToU8(float x) {
+        if (!math::is_finite(x)) {
+            return 0;
+        }
+        x = math::clamp(x, 0.0f, 1.0f);
+        return static_cast<uint8_t>(math::round(x * 255.0f));
     }
-    x = math::clamp(x, 0.0f, 1.0f);
-    return static_cast<uint8_t>(math::round(x * 255.0f));
-}
+
+} // namespace
+} // namespace a3d

@@ -10,7 +10,7 @@
         return;
     }
 
-    const scriptPath = stage.dataset.demoScript || "demo/001-physics-sandbox.js";
+    const scriptPath = stage.dataset.demoScript || "demo/janus.js";
     let runtimeReady = false;
 
     canvas.addEventListener("click", () => canvas.focus());
@@ -30,13 +30,28 @@
     const showFailure = () => {
         stage.dataset.failed = "true";
         status.classList.add("demo-status-error");
-        statusText.innerHTML = "Web build not found. Build and install <code>001-physics-sandbox</code>, then refresh.";
+        statusText.innerHTML = "Web build not found. Build and install <code>janus</code>, then refresh.";
     };
+
+    const r2DemoBaseByHost = {
+        "staging.avara3d.net":
+            "https://cdn.avara3d.net/staging/demo/",
+        "avara3d.net":
+            "https://cdn.avara3d.net/production/demo/"
+    };
+
+    const r2DemoBase = r2DemoBaseByHost[window.location.hostname];
 
     window.Module = {
         canvas,
         noExitRuntime: true,
         locateFile(path) {
+            if (r2DemoBase &&
+                (path.endsWith(".wasm") || path.endsWith(".data"))) {
+
+                return new URL(path, r2DemoBase).href;
+            }
+
             return new URL(`demo/${path}`, window.location.href).href;
         },
         print(text) {

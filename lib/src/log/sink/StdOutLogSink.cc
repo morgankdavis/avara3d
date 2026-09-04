@@ -2,8 +2,8 @@
 //  StdOutLogSink.cc
 //  avara3d
 //
-//  Created by Morgan Davis on 111/9/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 11/9/23.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/log/sink/StdOutLogSink.h"
@@ -15,10 +15,11 @@
     #undef ERROR // see note at LOG_LEVEL
 #endif
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d::log {
+
+// [Public Lifecycle Functions]
 
 StdOutLogSink::StdOutLogSink() {
     // on Windows, output often just kinda stops unless you manually flush it...
@@ -34,7 +35,7 @@ StdOutLogSink::~StdOutLogSink() {
     flush();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void StdOutLogSink::flush() {
 
@@ -43,12 +44,12 @@ void StdOutLogSink::flush() {
     cerr.flush();
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
-void StdOutLogSink::write(const string& output, Log::Level level) {
+void StdOutLogSink::write(const string& output, Level level) {
 
-    if (static_cast<underlying_type<Log::Level>::type>(level)
-        >= static_cast<underlying_type<Log::Level>::type>(Log::Level::Error)) {
+    if (static_cast<underlying_type<Level>::type>(level)
+        >= static_cast<underlying_type<Level>::type>(Level::Error)) {
         cerr << output;
     }
     else {
@@ -59,3 +60,5 @@ void StdOutLogSink::write(const string& output, Log::Level level) {
     OutputDebugStringA((const char*) output.c_str()); // this broke with C++20.  trying to include windows.h ^^
 #endif
 }
+
+} // namespace a3d::log

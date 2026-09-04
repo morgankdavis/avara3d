@@ -3,54 +3,74 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/22/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 #define AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 
-#include "a3d/mesh/AABB.h"
+#include <string>
+
+#include "a3d/Math.h"
 #include "a3d/visual/camera/Camera.h"
 
 namespace a3d {
 
-    class OrthographicCamera : public Camera {
+/** @brief Camera using a centered orthographic projection with a fixed vertical size. */
+class OrthographicCamera : public Camera {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        OrthographicCamera();
-        explicit OrthographicCamera(const AABB& extent);
-        OrthographicCamera(const std::string& name, const AABB& extent);
+    /** @brief Creates an unnamed camera with a 0.1 near plane, 1000 far plane, and vertical size of 2. */
+    OrthographicCamera();
 
-        OrthographicCamera(const OrthographicCamera&)            = default;
-        OrthographicCamera& operator=(const OrthographicCamera&) = default;
+    /** @brief Creates an unnamed orthographic camera with the supplied clipping distances and vertical size. */
+    OrthographicCamera(float zNear, float zFar, float ySize);
 
-        OrthographicCamera(OrthographicCamera&&) noexcept            = default;
-        OrthographicCamera& operator=(OrthographicCamera&&) noexcept = default;
+    /** @brief Creates a named orthographic camera with the supplied clipping distances and vertical size. */
+    OrthographicCamera(const std::string& name, float zNear, float zFar, float ySize);
 
-        ~OrthographicCamera() override;
+    OrthographicCamera(const OrthographicCamera&)            = default;
+    OrthographicCamera& operator=(const OrthographicCamera&) = default;
 
-        /// Public Member Functions ///
+    OrthographicCamera(OrthographicCamera&&) noexcept            = default;
+    OrthographicCamera& operator=(OrthographicCamera&&) noexcept = default;
 
-        AABB       extent() const;
-        void       extent(const AABB& e);
+    ~OrthographicCamera() override;
 
-        /// Camera Internal Member Functions ///
+    // [Public Member Functions]
 
-        math::mat4 projection() const override;
+    /** @brief Returns the near clipping distance. */
+    float      zNear() const;
 
-    protected:
-        /// Camera Protected Member Functions ///
+    /** @brief Sets the near clipping distance. */
+    void       zNear(float zNear);
 
-//		void 		constructProjectionMatrix() override;
+    /** @brief Returns the far clipping distance. */
+    float      zFar() const;
 
-    private:
-        /// Private Member Variables ///
+    /** @brief Sets the far clipping distance. */
+    void       zFar(float zFar);
 
-        AABB _extent;
-    };
+    /** @brief Returns the vertical size of the projection in scene units. */
+    float      ySize() const;
 
-}
+    /** @brief Sets the vertical size of the projection in scene units. */
+    void       ySize(float ySize);
 
-#endif /* AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H */
+    // [Camera Internal Member Functions]
+
+    math::mat4 projection(const math::uvec2& viewportSize) const override;
+
+private:
+    // [Private Member Variables]
+
+    float _zNear;
+    float _zFar;
+    float _ySize;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H

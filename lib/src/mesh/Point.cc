@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/Point.h"
@@ -11,11 +11,12 @@
 #include "a3d/Color.h"
 #include "a3d/Math.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Lifecycle Functions ///
+namespace a3d {
+
+// [Internal Lifecycle Functions]
 
 Point::Point(const vec3& location):
     Point {location, Color {1.0f}} {}
@@ -24,7 +25,7 @@ Point::Point(const vec3& location, const Color& color):
     _location {location},
     _color {color} {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 const vec3& Point::location() const {
     return _location;
@@ -41,3 +42,5 @@ const Color& Point::color() const {
 void Point::color(const Color& color) {
     _color = color;
 }
+
+} // namespace a3d

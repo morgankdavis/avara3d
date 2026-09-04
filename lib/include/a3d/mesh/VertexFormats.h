@@ -14,17 +14,17 @@
 
 namespace a3d {
 
-    struct VertexPNT {
-        math::vec3 position;
-        math::vec3 normal;
-        math::vec2 texCoord;
-    };
+struct VertexPNT {
+    math::vec3 position;
+    math::vec3 normal;
+    math::vec2 texCoord;
+};
 
-    struct VertexPC {
-        math::vec3 position;
-        math::vec3 color;
-    };
+struct VertexPC {
+    math::vec3 position;
+    math::vec3 color;
+};
 
-}
+} // namespace a3d
 
-#endif //AVARA3D_MESH_VERTEXFORMATS_H
+#endif // AVARA3D_MESH_VERTEXFORMATS_H

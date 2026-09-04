@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/render/backend/opengl/GLSLProgram.h"
@@ -13,26 +13,25 @@
 
 #include "a3d/render/backend/opengl/gl.h" // MOVE?
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/log/Log.h"
+#include "a3d/render/backend/opengl/GLSLPreprocessor.h"
+#include "a3d/util/Enum.h"
 #include "a3d/util/Filesystem.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+namespace a3d {
+namespace {
 
-static constexpr const char* A3DShaderHeaderToken = "<#A3D_SHADER_HEADER#>";
+    // [Private Non-Member Prototypes]
 
-static size_t      SkipUtf8Bom(const std::string& source);
-static std::string PlatformShaderHeader();
-static std::string PatchedShaderHeader(const std::string& source,
-                                       const std::string& programName,
-                                       ShaderType         type);
+    optional<string> ShaderSourceAt(const string& name, ShaderType type);
+    optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
 
-/// Internal Lifecycle Functions ///
+} // namespace
+
+// [Internal Lifecycle Functions]
 
 GLSLProgram::GLSLProgram(const string& name):
     _name {name},
@@ -80,7 +79,7 @@ GLSLProgram::~GLSLProgram() {
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 bool GLSLProgram::compile() {
     if (!compile(_vertexShaderSource, ShaderType::Vertex)) {
@@ -168,11 +167,10 @@ bool GLSLProgram::validate() {
 void GLSLProgram::use() {
 
     if (_glID <= 0 || (!_isLinked)) {
-        log::e()("Program '{}' not ready.", _name);
+        throw logic_error(std::format("Program '{}' not ready.", _name));
     }
-    else {
-        glUseProgram(_glID);
-    }
+
+    glUseProgram(_glID);
 }
 
 void GLSLProgram::unuse() {
@@ -287,17 +285,6 @@ void GLSLProgram::setUniform(const char* name, float val) {
     }
 }
 
-//void Program::bindUniformBlock(const char* name, GLuint location) {
-//
-//	GLint blockIndex = glGetUniformBlockIndex(_glID, name);
-//	if (blockIndex != GL_INVALID_INDEX) {
-//		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
-//	}
-//	else {
-//		log::e()("Uniform block '{}' not found.", name);
-//	}
-//}
-
 void GLSLProgram::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
     GLuint blockIndex = glGetUniformBlockIndex(_glID, blockName);
     if (blockIndex == GL_INVALID_INDEX) {
@@ -335,17 +322,27 @@ bool GLSLProgram::isLinked() const {
     return _isLinked;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) {
 
-    auto source = util::filesystem::ShaderSource(name, type);
+    auto source = ShaderSourceAt(name, type);
 
     if (!source) {
         return nullopt;
     }
 
-    return PatchedShaderHeader(*source, name, type);
+    string sourceName;
+    switch (type) {
+        case ShaderType::Vertex:
+            sourceName = name + ".vert";
+            break;
+        case ShaderType::Fragment:
+            sourceName = name + ".frag";
+            break;
+    }
+
+    return GLSLPreprocessor::Process(*source, sourceName, ShaderIncludeSourceAt);
 }
 
 void GLSLProgram::prepare() {
@@ -375,7 +372,7 @@ void GLSLProgram::prepare() {
 
 bool GLSLProgram::compile(const string& source, ShaderType type) {
 
-    log::d()("Compiling {} shader for program '{}'...", magic_enum::enum_name(type), name());
+    log::d()("Compiling {} shader for program '{}'...", util::enums::enum_name(type), name());
 
     GLuint shaderID = 0;
 
@@ -406,7 +403,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
             vector<GLchar> c_log(logSize);
             glGetShaderInfoLog(shaderID, logSize, nullptr, c_log.data());
             _logString = string(c_log.data());
-            log::e()("Failed to compile {} shader program '{}':\n{}", magic_enum::enum_name(type), name(),
+            log::e()("Failed to compile {} shader program '{}':\n{}", util::enums::enum_name(type), name(),
                      *_logString);
         }
 
@@ -418,7 +415,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
         glAttachShader(_glID, shaderID);
         glDeleteShader(shaderID);
 
-        log::i()("{} shader {}' compiled.", magic_enum::enum_name(type), name());
+        log::i()("{} shader {}' compiled.", util::enums::enum_name(type), name());
 
         return true;
     }
@@ -433,11 +430,7 @@ int GLSLProgram::getUniformLocation(const char* name) {
     if (location < 0) {
         log::e()("Could not find uniform location: {}", name);
     }
-        // _uniformLocationCache[name] = location;
-    // }
-    // else {
-    // 	location = _uniformLocationCache[name];
-    // }
+
     return location;
 }
 
@@ -449,55 +442,30 @@ void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
 
-/// Private Non-Member Functions ///
+namespace {
 
-size_t SkipUtf8Bom(const std::string& source) {
+    // [Private Non-Member Functions]
 
-    if (source.size() >= 3 && static_cast<unsigned char>(source[0]) == 0xEF
-        && static_cast<unsigned char>(source[1]) == 0xBB && static_cast<unsigned char>(source[2]) == 0xBF) {
+    optional<string> ShaderSourceAt(const string& name, ShaderType type) {
 
-        return 3;
+        const auto extension = type == ShaderType::Vertex ? ".vert" : ".frag";
+        return util::fs::TextAt(filesystem::path("shaders") / (name + extension));
     }
 
-    return 0;
-}
+    optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
 
-std::string PlatformShaderHeader() {
+        if (filename.empty() || filename.has_root_path()) {
+            return nullopt;
+        }
 
-#if defined(A3D_GL_WEB) || defined(A3D_GL_ES)
-    return "#version 300 es\n"
-           "#define A3D_GLSL_ES 1\n"
-           "precision highp float;\n"
-           "precision highp int;\n"
-           "#line 2\n";
-#else
-    return "#version 330 core\n"
-           "#define A3D_GLSL_DESKTOP 1\n"
-           "#line 2\n";
-#endif
-}
+        for (const auto& component : filename) {
+            if (component == "..") {
+                return nullopt;
+            }
+        }
 
-std::string PatchedShaderHeader(const std::string& source, const std::string& programName, ShaderType type) {
-
-    const size_t tokenLength = std::char_traits<char>::length(A3DShaderHeaderToken);
-    const size_t tokenPosition = SkipUtf8Bom(source);
-
-    if (source.compare(tokenPosition, tokenLength, A3DShaderHeaderToken) != 0) {
-        throw std::runtime_error(std::format("Shader '{}.{}' must begin with '{}'.", programName,
-                                             magic_enum::enum_name(type), A3DShaderHeaderToken));
+        return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
     }
 
-    const size_t lineEnd = source.find('\n', tokenPosition);
-
-    if (lineEnd == std::string::npos) {
-        return PlatformShaderHeader();
-    }
-
-    std::string patched;
-    patched.reserve(source.size() + 128);
-
-    patched += PlatformShaderHeader();
-    patched += source.substr(lineEnd + 1);
-
-    return patched;
-}
+} // namespace
+} // namespace a3d

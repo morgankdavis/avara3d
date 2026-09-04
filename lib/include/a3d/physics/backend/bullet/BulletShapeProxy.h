@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/29/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSHAPEPROXY_H
@@ -21,25 +21,28 @@ class btTriangleIndexVertexArray;
 
 namespace a3d {
 
-    class BulletShapeProxy : public PhysicsShapeProxy {
+class BulletShapeProxy : public PhysicsShapeProxy {
 
-    public:
-        /// Internal Lifecycle Functions ///
+public:
+    // [Internal Lifecycle Functions]
 
-        explicit BulletShapeProxy(PhysicsShape& shape);
-        ~BulletShapeProxy() override;
+    explicit BulletShapeProxy(PhysicsShape& shape);
+    ~BulletShapeProxy() override;
 
-        /// Internal Member Functions ///
+    // [Internal Member Functions]
 
-        const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
+    float                                                 margin() const override;
+    void                                                  margin(float margin) override;
 
-    private:
-        ///  Private Member Variables ///
+    const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
-        std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
-        std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
-    };
+private:
+    // [Private Member Variables]
 
-}
+    std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
+    std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;
+};
 
-#endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSHAPEPROXY_H
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSHAPEPROXY_H

@@ -9,20 +9,19 @@
 #ifndef AVARA3D_UTIL_SNAPSHOT_H
 #define AVARA3D_UTIL_SNAPSHOT_H
 
-#include "a3d/Math.h"
-
 namespace a3d {
 
-    class RenderContext;
+class RenderContext;
 
-}
+} // namespace a3d
 
 namespace a3d::util::snapshot {
 
-    void SaveSnapshot(RenderContext& context);
-    void StartGIFRecording(RenderContext& context, math::uvec2 fitInside, unsigned maxFramerate);
-    void StopGIFRecording(RenderContext& context);
+// [Public Functions]
 
-}
+/** @brief Attempts to save a timestamped PNG snapshot of @p context beside the current executable. */
+void SaveSnapshot(RenderContext& context);
 
-#endif //AVARA3D_UTIL_SNAPSHOT_H
+} // namespace a3d::util::snapshot
+
+#endif // AVARA3D_UTIL_SNAPSHOT_H

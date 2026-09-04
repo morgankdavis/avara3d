@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# ex: serve.sh 8000 cmake-build-web-debug
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,29 +16,39 @@ absolute_from_repo() {
     fi
 }
 SITE_DIR="${REPO_ROOT}/website"
-DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-001-physics-sandbox}"
+DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-janus}"
 PORT="${A3D_WEBSITE_PORT:-${1:-8000}}"
 WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${2:-build-web-release}}")"
 DEMO_SOURCE_DIR="${REPO_ROOT}/demos/${DEMO_NAME}"
 DEMO_LINK="${SITE_DIR}/demo"
 SOURCE_LINK="${SITE_DIR}/source"
+SOURCE_MANIFEST_FILE="${SITE_DIR}/source-manifest.json"
 BUILD_INFO_FILE="${SITE_DIR}/build-info.json"
 
 find_demo_directory() {
     if [[ -n "${A3D_WEB_DEMO_DIR:-}" ]]; then
-        absolute_from_repo "${A3D_WEB_DEMO_DIR}"
-        return
+        local requested
+        requested="$(absolute_from_repo "${A3D_WEB_DEMO_DIR}")"
+
+        if [[ -f "${requested}/${DEMO_NAME}.js" &&
+              -f "${requested}/${DEMO_NAME}.wasm" ]]; then
+            printf '%s\n' "${requested}"
+            return
+        fi
+
+        return 1
     fi
 
     local candidates=(
+        "${WEB_BUILD_DIR}/demos/${DEMO_NAME}"
         "${WEB_BUILD_DIR}/packaged/avara3d/web/release/demos/${DEMO_NAME}"
         "${WEB_BUILD_DIR}/packaged/avara3d/web/debug/demos/${DEMO_NAME}"
-        "${WEB_BUILD_DIR}/demos/${DEMO_NAME}"
     )
 
     local candidate
     for candidate in "${candidates[@]}"; do
-        if [[ -f "${candidate}/${DEMO_NAME}.js" && -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
+        if [[ -f "${candidate}/${DEMO_NAME}.js" &&
+              -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
             printf '%s\n' "${candidate}"
             return
         fi
@@ -45,11 +57,27 @@ find_demo_directory() {
     return 1
 }
 
+find_documentation_directory() {
+    local requested
+    if [[ -n "${A3D_DOCUMENTATION_DIR:-}" ]]; then
+        requested="$(absolute_from_repo "${A3D_DOCUMENTATION_DIR}")"
+    else
+        requested="${REPO_ROOT}/build-documentation/docs/html"
+    fi
+
+    if [[ -f "${requested}/index.html" ]]; then
+        (cd -- "${requested}" && pwd -P)
+        return
+    fi
+
+    return 1
+}
+
 SERVER_PID=""
 
 cleanup() {
     rm -rf -- "${DEMO_LINK}" "${SOURCE_LINK}"
-    rm -f -- "${BUILD_INFO_FILE}"
+    rm -f -- "${SOURCE_MANIFEST_FILE}" "${BUILD_INFO_FILE}"
 }
 
 stop_server() {
@@ -74,7 +102,12 @@ if [[ ! -d "${DEMO_SOURCE_DIR}" ]]; then
 fi
 
 rm -rf -- "${DEMO_LINK}" "${SOURCE_LINK}"
+rm -f -- "${SOURCE_MANIFEST_FILE}"
 ln -s -- "${DEMO_SOURCE_DIR}" "${SOURCE_LINK}"
+python3 \
+    "${SCRIPT_DIR}/generate-source-manifest.py" \
+    "${DEMO_SOURCE_DIR}" \
+    "${SOURCE_MANIFEST_FILE}"
 
 if DEMO_DIRECTORY="$(find_demo_directory)"; then
     ln -s -- "${DEMO_DIRECTORY}" "${DEMO_LINK}"
@@ -84,22 +117,33 @@ else
     printf '         the page will remain usable and show the missing-build state\n' >&2
 fi
 
-GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD 2>/dev/null || printf 'unknown')"
-GIT_BRANCH="$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
+API_DOCUMENTATION_AVAILABLE=false
+API_DOCUMENTATION_DIRECTORY=""
+if API_DOCUMENTATION_DIRECTORY="$(find_documentation_directory)"; then
+    API_DOCUMENTATION_AVAILABLE=true
+    printf 'API documentation: %s\n' "${API_DOCUMENTATION_DIRECTORY}"
+else
+    printf 'warning: generated API documentation was not found\n' >&2
+    printf '         /api/ will show the tracked placeholder page\n' >&2
+fi
+
+GIT_COMMIT="${CI_COMMIT_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD 2>/dev/null || printf 'unknown')}"
+GIT_BRANCH="${CI_COMMIT_BRANCH:-$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')}"
 
 cat > "${BUILD_INFO_FILE}" <<JSON
 {
     "branch": "${GIT_BRANCH}",
     "commit": "${GIT_COMMIT}",
     "assembledAt": "local",
-    "demo": "${DEMO_NAME}"
+    "demo": "${DEMO_NAME}",
+    "apiDocumentation": ${API_DOCUMENTATION_AVAILABLE}
 }
 JSON
 
-printf 'Serving tracked website source at http://127.0.0.1:%s/\n' "${PORT}"
+printf 'Serving tracked website source on port %s\n' "${PORT}"
 printf 'HTML/CSS/JS changes appear on normal browser refresh. Press Ctrl+C to stop.\n\n'
 
-python3 - "${SITE_DIR}" "${PORT}" <<'PY' &
+python3 - "${SITE_DIR}" "${PORT}" "${API_DOCUMENTATION_DIRECTORY}" <<'PY' &
 from __future__ import annotations
 
 import functools
@@ -107,16 +151,32 @@ import http.server
 import mimetypes
 import socketserver
 import sys
+import urllib.parse
 from pathlib import Path
 
 site_directory = Path(sys.argv[1]).resolve()
 port = int(sys.argv[2])
+documentation_directory = Path(sys.argv[3]).resolve() if sys.argv[3] else None
 
 mimetypes.add_type("application/wasm", ".wasm")
 mimetypes.add_type("text/javascript; charset=utf-8", ".js")
 mimetypes.add_type("application/octet-stream", ".data")
 
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def translate_path(self, path: str) -> str:
+        if documentation_directory is not None:
+            request_path = urllib.parse.unquote(urllib.parse.urlsplit(path).path)
+            if request_path == "/api" or request_path.startswith("/api/"):
+                relative_path = request_path[len("/api"):].lstrip("/")
+                try:
+                    candidate = (documentation_directory / relative_path).resolve()
+                    candidate.relative_to(documentation_directory)
+                except (OSError, RuntimeError, ValueError):
+                    return str(documentation_directory / ".a3d-invalid-request")
+                return str(candidate)
+
+        return super().translate_path(path)
+
     def end_headers(self) -> None:
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
@@ -132,7 +192,7 @@ class ReusableThreadingServer(socketserver.ThreadingTCPServer):
 
 handler = functools.partial(NoCacheHandler, directory=str(site_directory))
 
-with ReusableThreadingServer(("127.0.0.1", port), handler) as server:
+with ReusableThreadingServer(("0.0.0.0", port), handler) as server:
     try:
         server.serve_forever()
     except KeyboardInterrupt:

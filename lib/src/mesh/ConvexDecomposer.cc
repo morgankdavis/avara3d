@@ -3,15 +3,15 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/5/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/ConvexDecomposer.h"
 
 #include <cstring>
 #include <span>
+#include <stdexcept>
 
-#include <magic_enum/magic_enum.hpp>
 #include <v-hacd/VHACD.h>
 
 #include "a3d/mesh/IndexAccess.h"
@@ -22,17 +22,25 @@
 #include "a3d/mesh/VertexLayout.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
-/// Internal Lifecycle Functions ///
+namespace a3d {
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
+
+} // namespace
+
+// [Internal Lifecycle Functions]
 
 ConvexDecomposer::ConvexDecomposer(MeshElement& element, Options& options):
     _sourceElement {&element},
     _options {options} {}
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
@@ -40,8 +48,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
     VHACD::IVHACD* vhacd = CreateVHACD();
 
-    int             a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
-    VHACD::FillMode vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
+    VHACD::FillMode vhacdFillMode = VHACDFillModeFromA3DFillMode(_options.fillMode);
 
     VHACD::IVHACD::Parameters params = {nullptr,
                                         nullptr,
@@ -173,3 +180,26 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
     return out;
 }
+
+namespace {
+
+    // [Private Non-Member Functions]
+
+    VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
+
+        using FillMode = ConvexDecomposer::FILL_MODE;
+
+        switch (fillMode) {
+            case FillMode::FLOOD_FILL:
+                return VHACD::FillMode::FLOOD_FILL;
+            case FillMode::SURFACE_ONLY:
+                return VHACD::FillMode::SURFACE_ONLY;
+            case FillMode::RAYCAST_FILL:
+                return VHACD::FillMode::RAYCAST_FILL;
+        }
+
+        throw invalid_argument("Invalid ConvexDecomposer fill mode.");
+    }
+
+} // namespace
+} // namespace a3d

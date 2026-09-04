@@ -3,14 +3,13 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/28/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/render/DrawPacketizer.h"
 
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/MeshElement.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/GatherOutput.h"
 #include "a3d/render/PacketSorter.h"
@@ -19,11 +18,12 @@
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Member Functions ///
+namespace a3d {
+
+// [Internal Static Member Functions]
 
 DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
@@ -35,6 +35,12 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
     packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
     packet.backgroundPass.desc = PipelineDescBuilder::MakeBackgroundDesc();
     packet.backgroundPass.material = gatherOutput.backgroundMaterial;
+    packet.backgroundPass.orientation = gatherOutput.backgroundOrientation;
+
+    if (gatherOutput.ground) {
+        packet.groundPass.desc = PipelineDescBuilder::MakeGroundDesc();
+        packet.groundPass.ground = std::move(gatherOutput.ground);
+    }
 
     for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -47,8 +53,10 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.elementIndex = ri.elementIndex;
             di.element = ri.element;
             di.material = ri.material;
+            di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
+            di.renderOrder = ri.renderOrder;
 
             switch (ri.material->alphaMode()) {
                 case Material::AlphaMode::Opaque: {
@@ -82,8 +90,10 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.elementIndex = ri.elementIndex;
             di.element = ri.element;
             di.material = ri.material; // optional for wire, fine to keep
+            di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
+            di.renderOrder = ri.renderOrder;
             di.pass = PassKind::Wireframe;
 
             di.desc = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
@@ -108,3 +118,5 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
     return packet;
 }
+
+} // namespace a3d

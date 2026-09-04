@@ -18,8 +18,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 const VertexAttribDesc* VertexAccess::FindAttrib(const VertexLayoutDesc& desc, VertexSemantic semantic) {
     for (const auto& a : desc.attribs) {
@@ -97,3 +98,5 @@ std::optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& e
 optional<VertexStreamView> VertexAccess::GetPositionStreamView(const MeshElement& element) {
     return GetStreamView(element, VertexSemantic::Position, VertexAttribFormat::F32x3);
 }
+
+} // namespace a3d

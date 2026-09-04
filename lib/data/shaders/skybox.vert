@@ -1,6 +1,6 @@
-<#A3D_SHADER_HEADER#>
+#header
 
-layout (location = 0) in vec3 vert_vertPos;
+layout(location = 0) in vec3 vert_vertPos;
 
 uniform mat4 viewMat;
 uniform mat4 projMat;

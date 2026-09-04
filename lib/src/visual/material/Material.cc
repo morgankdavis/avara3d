@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/visual/material/Material.h"
@@ -14,18 +14,19 @@
 #include "a3d/IdGenerator.h"
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 shared_ptr<Material> Material::DefaultMaterial() {
     static shared_ptr<Material> material = nullptr;
     if (!material) {
-        auto ambient = make_shared<Color>(0.75f);
-        auto diffuse = make_shared<Color>(0.75f);
-        auto specular = make_shared<Color>(0.85f);
+        auto ambient = Color(0.75f);
+        auto diffuse = Color(0.75f);
+        auto specular = Color(0.85f);
         material = make_shared<Material>(ambient, diffuse, specular);
         material->name("Default material");
         material->doubleSided(true);
@@ -42,7 +43,7 @@ shared_ptr<Material> Material::EmissionMaterial(Property property) {
     return make_shared<Material>(monostate {}, monostate {}, monostate {}, property);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Material::Material():
     _id {IdGenerator<MaterialId>::next()},
@@ -59,6 +60,8 @@ Material::Material():
     _alphaMode {AlphaMode::Opaque},
     _alphaCutoff {0.5f},
     _blendFunction {BlendFunction::Disabled},
+    _depthTestEnabled {true},
+    _depthWriteEnabled {true},
     _dirtyMask {DirtyMask::All} {
 
     log::d()("Creating Material {:p}", static_cast<void*>(this));
@@ -110,6 +113,8 @@ Material& Material::operator=(const Material& other) {
     _alphaMode = other._alphaMode;
     _alphaCutoff = other._alphaCutoff;
     _blendFunction = other._blendFunction;
+    _depthTestEnabled = other._depthTestEnabled;
+    _depthWriteEnabled = other._depthWriteEnabled;
     _dirtyMask = DirtyMask::All;
 
     return *this;
@@ -141,6 +146,8 @@ Material& Material::operator=(Material&& other) noexcept {
     _alphaMode = other._alphaMode;
     _alphaCutoff = other._alphaCutoff;
     _blendFunction = other._blendFunction;
+    _depthTestEnabled = other._depthTestEnabled;
+    _depthWriteEnabled = other._depthWriteEnabled;
     _dirtyMask = DirtyMask::All;
 
     // moving properties changes the source too
@@ -153,7 +160,7 @@ Material::~Material() {
     log::d()("Destroying Material {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Material::name() const {
     return _name;
@@ -193,13 +200,6 @@ const Material::Property& Material::emission() const {
 
 void Material::emission(const Property& property) {
     _emission = property;
-}
-
-Material::PropertyList Material::properties() const {
-    return PropertyList {{&_ambient, PropertyType::Ambient},
-                         {&_diffuse, PropertyType::Diffuse},
-                         {&_specular, PropertyType::Specular},
-                         {&_emission, PropertyType::Emission}};
 }
 
 float Material::specularExponent() const {
@@ -249,6 +249,11 @@ float Material::uvScale() const {
 }
 
 void Material::uvScale(float scale) {
+
+    if (scale <= 0.0f) {
+        throw invalid_argument("Material UV scale must be greater than zero.");
+    }
+
     _uvScale = scale;
 }
 
@@ -276,7 +281,23 @@ void Material::blendFunction(BlendFunction function) {
     _blendFunction = function;
 }
 
-/// Internal Static Member Functions ///
+bool Material::depthTestEnabled() const {
+    return _depthTestEnabled;
+}
+
+void Material::depthTestEnabled(bool enabled) {
+    _depthTestEnabled = enabled;
+}
+
+bool Material::depthWriteEnabled() const {
+    return _depthWriteEnabled;
+}
+
+void Material::depthWriteEnabled(bool enabled) {
+    _depthWriteEnabled = enabled;
+}
+
+// [Internal Static Member Functions]
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
     static shared_ptr<Material> material = nullptr;
@@ -292,7 +313,14 @@ Material::Property Material::MissingTextureProperty() {
     return {Color::Magenta()};
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
+
+Material::PropertyList Material::properties() const {
+    return PropertyList {{&_ambient, PropertyType::Ambient},
+                         {&_diffuse, PropertyType::Diffuse},
+                         {&_specular, PropertyType::Specular},
+                         {&_emission, PropertyType::Emission}};
+}
 
 MaterialId Material::id() const noexcept {
     return _id;
@@ -305,3 +333,5 @@ Material::DirtyMask Material::dirtyMask() const {
 void Material::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

@@ -3,52 +3,50 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_QTINPUTCONTEXT_H
-#define AVARA3D_QTINPUTCONTEXT_H
+#ifndef A3DE_QTINPUTCONTEXT_H
+#define A3DE_QTINPUTCONTEXT_H
 
 #include "a3d/input/DesktopInputContext.h"
 
 namespace a3d::qt {
 
-    class QtViewport;
+class QtViewport;
 
-    class QtInputContext : public DesktopInputContext {
+class QtInputContext : public DesktopInputContext {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        // explicit QtInputContext(QtViewport& viewport);
-        QtInputContext();
+    QtInputContext();
 
-        /// Internal Member Functions ///
+    // [Internal Member Functions]
 
-        void keyPressed(int qtKey, int modifiers);
-        void keyReleased(int qtKey, int modifiers);
-        void mouseMoved(float x, float y);
-        void mouseButtonPressed(int qtButton);
-        void mouseButtonReleased(int qtButton);
-        void mouseWheelScrolled(int x, int y);
+    void keyPressed(int qtKey, int modifiers);
+    void keyReleased(int qtKey, int modifiers);
+    void mouseMoved(float x, float y);
+    void mouseButtonPressed(int qtButton);
+    void mouseButtonReleased(int qtButton);
+    void mouseWheelScrolled(int x, int y);
 
-        /// InputContext Internal Member Functions ///
+    // [InputContext Internal Member Functions]
 
-        void update(const InputContext::UpdateInfo& info) override;
-        void attachedToScene(Scene& scene) override;
-        void visualWorldAttachedToScene(Scene& scene) override;
+    void attachedToScene(Scene& scene) override;
+    void visualWorldAttachedToScene(Scene& scene) override;
 
-    private:
-        /// Private Member Functions ///
+private:
+    // [Private Member Functions]
 
-        void        viewport(QtViewport* viewport);
-        QtViewport* viewport() const;
+    void        viewport(QtViewport* viewport);
+    QtViewport* viewport() const;
 
-        /// Private Member Variables ///
+    // [Private Member Variables]
 
-        QtViewport* _viewport;
-    };
+    QtViewport* _viewport;
+};
 
-}
+} // namespace a3d::qt
 
-#endif //AVARA3D_QTINPUTCONTEXT_H
+#endif // A3DE_QTINPUTCONTEXT_H

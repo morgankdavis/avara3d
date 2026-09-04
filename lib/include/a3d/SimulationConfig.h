@@ -13,21 +13,45 @@
 
 namespace a3d {
 
-    struct SimulationConfig {
+/**
+ * @brief Initial simulation scheduling parameters supplied to a Runner.
+ *
+ * Runner copies this structure at construction. Values are validated when
+ * Runner::start() is called. Runtime-configurable values are exposed
+ * individually by Runner rather than by exposing the copied configuration.
+ *
+ * @see Runner
+ */
+struct SimulationConfig {
 
-        // constant duration of every automatic and requested simulation step
-        double        timeStep {1.0 / 60.0};
+    // [Public Member Variables]
 
-        // maximum automatic steps performed during one Runner::update()
-        std::uint32_t maxCatchUpSteps {8};
+    /**
+     * @brief Initial duration, in seconds, of each simulation step.
+     *
+     * The value must be positive. It is used by both automatic
+     * catch-up steps and explicitly requested paused steps.
+     */
+    double        timeStep {1.0 / 60.0};
 
-        // initial automatic simulation-time rate relative to monotonic update
-        // time. requested steps ignore timeScale.
-        //
-        // Runner owns the mutable runtime value.
-        double        timeScale {1.0};
-    };
+    /**
+     * @brief Initial maximum automatic simulation steps performed by one update.
+     *
+     * The value must be at least one. Any whole accumulated steps remaining
+     * after this limit is reached are discarded while the fractional
+     * remainder is retained.
+     */
+    std::uint32_t maxCatchUpSteps {8};
 
-}
+    /**
+     * @brief Initial multiplier applied to elapsed host time for automatic simulation stepping.
+     *
+     * The value must be positive. A value of 1.0 advances simulation
+     * at the host-time rate. Requested paused steps ignore this scale.
+     */
+    double        timeScale {1.0};
+};
 
-#endif //AVARA3D_SIMULATIONCONFIG_H
+} // namespace a3d
+
+#endif // AVARA3D_SIMULATIONCONFIG_H

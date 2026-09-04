@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Tube.h"
@@ -16,12 +16,13 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace generator;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Tube::Mesh(float                      innerRadius,
                             float                      outerRadius,
@@ -36,7 +37,7 @@ shared_ptr<Mesh> Tube::Mesh(float                      innerRadius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Tube::Tube(float    innerRadius,
            float    outerRadius,
@@ -84,7 +85,7 @@ Tube::Tube(float    innerRadius,
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Tube::innerRadius() const {
     return _innerRadius;
@@ -109,3 +110,5 @@ unsigned Tube::segments() const {
 unsigned Tube::rings() const {
     return _rings;
 }
+
+} // namespace a3d

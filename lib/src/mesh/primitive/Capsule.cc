@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Capsule.h"
@@ -16,11 +16,12 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Capsule::Mesh(float                      radius,
                                float                      height,
@@ -33,7 +34,7 @@ shared_ptr<Mesh> Capsule::Mesh(float                      radius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Capsule::Capsule(float radius, float height, unsigned slices, unsigned segments, unsigned rings):
     MeshElement {},
@@ -76,7 +77,7 @@ Capsule::Capsule(float radius, float height, unsigned slices, unsigned segments,
     burnTransform(xRotation, true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Capsule::radius() const {
     return _radius;
@@ -97,3 +98,5 @@ unsigned Capsule::segments() const {
 unsigned Capsule::rings() const {
     return _rings;
 }
+
+} // namespace a3d

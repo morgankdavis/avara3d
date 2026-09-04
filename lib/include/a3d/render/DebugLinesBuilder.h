@@ -15,23 +15,24 @@
 
 namespace a3d {
 
-    struct AABB;
+struct AABB;
 
-    class Color;
-    class Line;
+class Color;
+class Line;
 
-    class DebugLinesBuilder {
+class DebugLinesBuilder {
 
-    public:
-        /// Internal Static Member Functions ///
+public:
+    // [Internal Static Member Functions]
 
-        static void AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color);
-        static void AppendOBBFromLocalAABB(std::vector<Line>& out,
-                                           const AABB&        local,
-                                           const math::mat4&  model,
-                                           const Color&       color);
-    };
+    static void AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color);
+    static void AppendOBBFromLocalAABB(std::vector<Line>& out,
+                                       const AABB&        local,
+                                       const math::mat4&  model,
+                                       const Color&       color);
+    static void AppendFrame(std::vector<Line>& out, const math::mat4& transform, const math::vec3& size);
+};
 
-}
+} // namespace a3d
 
-#endif //AVARA3D_RENDER_DEBUGLINESBUILDER_H
+#endif // AVARA3D_RENDER_DEBUGLINESBUILDER_H

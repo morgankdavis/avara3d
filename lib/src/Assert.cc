@@ -15,8 +15,9 @@
 #include "a3d/log/Log.h"
 
 namespace a3d::detail {
+namespace {
 
-    static const char* basename(const char* path) {
+    const char* basename(const char* path) {
         if (!path) {
             return "unknown";
         }
@@ -30,7 +31,7 @@ namespace a3d::detail {
         return slash ? (slash + 1) : path;
     }
 
-    [[noreturn]] static void trap_or_abort() {
+    [[noreturn]] void trap_or_abort() {
 #if defined(_MSC_VER)
         __debugbreak();
 #elif defined(__has_builtin)
@@ -46,32 +47,33 @@ namespace a3d::detail {
 #endif
     }
 
-    [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func) {
-        const char* f = basename(file);
+} // namespace
 
-        // Log through your system
-        log::e()("A3D_ASSERT FAILED: expr={} at {}:{} func={}", expr, f, line, func);
+[[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func) {
+    const char* f = basename(file);
 
-        // Also dump to stderr as a last-resort (helps if logging isn't initialized)
-        std::fprintf(stderr, "A3D_ASSERT FAILED: %s (%s:%d %s)\n", expr, f, line, func);
-        std::fflush(stderr);
+    // Log through your system
+    log::e()("A3D_ASSERT FAILED: expr={} at {}:{} func={}", expr, f, line, func);
 
-        trap_or_abort();
-    }
+    // Also dump to stderr as a last-resort (helps if logging isn't initialized)
+    std::fprintf(stderr, "A3D_ASSERT FAILED: %s (%s:%d %s)\n", expr, f, line, func);
+    std::fflush(stderr);
 
-    [[noreturn]] void assert_fail_msg(const char* expr,
-                                      const char* file,
-                                      int         line,
-                                      const char* func,
-                                      const char* msg) {
-        const char* f = basename(file);
-
-        log::e()("A3D_ASSERT FAILED: expr={} at {}:{} func={} msg={}", expr, f, line, func, (msg ? msg : ""));
-        std::fprintf(stderr, "A3D_ASSERT FAILED: %s (%s:%d %s) msg=%s\n", expr, f, line, func,
-                     (msg ? msg : ""));
-        std::fflush(stderr);
-
-        trap_or_abort();
-    }
-
+    trap_or_abort();
 }
+
+[[noreturn]] void assert_fail_msg(const char* expr,
+                                  const char* file,
+                                  int         line,
+                                  const char* func,
+                                  const char* msg) {
+    const char* f = basename(file);
+
+    log::e()("A3D_ASSERT FAILED: expr={} at {}:{} func={} msg={}", expr, f, line, func, (msg ? msg : ""));
+    std::fprintf(stderr, "A3D_ASSERT FAILED: %s (%s:%d %s) msg=%s\n", expr, f, line, func, (msg ? msg : ""));
+    std::fflush(stderr);
+
+    trap_or_abort();
+}
+
+} // namespace a3d::detail

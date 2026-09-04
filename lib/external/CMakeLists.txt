@@ -61,7 +61,6 @@ if(EMSCRIPTEN)
 	)
 endif()
 
-
 ### generator ###
 
 add_subdirectory(generator)
@@ -73,19 +72,6 @@ target_link_libraries(a3d_external_generator INTERFACE generator)
 
 target_include_directories(a3d_external_generator SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/generator/include>")
-
-### gif-h ###
-
-a3d_external_virtual_include_dir(
-		gif-h
-		"${A3D_EXTERNAL_ROOT}/gif-h")
-
-add_library(a3d_external_gif_h INTERFACE)
-add_library(a3d::gif_h ALIAS a3d_external_gif_h)
-
-target_include_directories(a3d_external_gif_h SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/gif-h>")
 
 ### glad ###
 
@@ -144,34 +130,40 @@ if(EMSCRIPTEN)
 	)
 endif()
 
+### libwebp ###
 
-### magic_enum ###
+set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_CWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_DWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_GIF2WEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_IMG2WEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_VWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBPINFO OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_LIBWEBPMUX OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBPMUX OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBP_JS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_FUZZTEST OFF CACHE BOOL "" FORCE)
 
-add_library(a3d_external_magic_enum INTERFACE)
-add_library(a3d::magic_enum ALIAS a3d_external_magic_enum)
+# we don't request libwebp's internal worker-thread decoding.
+set(WEBP_USE_THREAD OFF CACHE BOOL "" FORCE)
 
-target_include_directories(a3d_external_magic_enum SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/magic_enum-0.9.3/include>")
+set(A3D_CMAKE_REQUIRED_QUIET "${CMAKE_REQUIRED_QUIET}")
+set(CMAKE_REQUIRED_QUIET TRUE)
 
-### pugixml - TEMPORARY ###
+add_subdirectory(libwebp-1.6.0 EXCLUDE_FROM_ALL)
 
-set(PUGIXML_BUILD_SHARED_AND_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_REQUIRED_QUIET "${A3D_CMAKE_REQUIRED_QUIET}")
+unset(A3D_CMAKE_REQUIRED_QUIET)
 
-add_subdirectory(pugixml-1.15)
+add_library(a3d_external_webp INTERFACE)
+add_library(a3d::webp ALIAS a3d_external_webp)
 
-a3d_external_virtual_include_dir(
-		pugixml
-		"${A3D_EXTERNAL_ROOT}/pugixml-1.15/src")
+target_link_libraries(a3d_external_webp INTERFACE
+		webpdecoder)
 
-add_library(a3d_external_pugixml INTERFACE)
-add_library(a3d::pugixml ALIAS a3d_external_pugixml)
-
-target_link_libraries(a3d_external_pugixml INTERFACE
-		pugixml::static)
-
-target_include_directories(a3d_external_pugixml SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/pugixml>")
+target_include_directories(a3d_external_webp SYSTEM INTERFACE
+		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/libwebp-1.6.0/src>")
 
 ### stb ###
 

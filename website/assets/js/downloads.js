@@ -1,6 +1,28 @@
 (() => {
     "use strict";
 
+    const r2DownloadsBaseByHost = {
+        "staging.avara3d.net":
+            "https://cdn.avara3d.net/staging/downloads/",
+        "avara3d.net":
+            "https://cdn.avara3d.net/production/downloads/"
+    };
+
+    const downloadsBase =
+        r2DownloadsBaseByHost[window.location.hostname] ||
+        new URL("downloads/", window.location.href).href;
+
+    document
+        .querySelectorAll("[data-download-checksum]")
+        .forEach((link) => {
+            const channel = link.dataset.downloadChecksum;
+
+            link.href = new URL(
+                `${channel}/SHA256SUMS`,
+                downloadsBase
+            ).href;
+        });
+
     document
         .querySelectorAll("[data-download-channel]")
         .forEach((panel) => {
@@ -16,8 +38,8 @@
         }
 
         const manifestUrl = new URL(
-            `downloads/${channel}/manifest.json`,
-            window.location.href
+            `${channel}/manifest.json`,
+            downloadsBase
         );
 
         try {
@@ -72,7 +94,7 @@
                     link.removeAttribute("aria-disabled");
                 });
         } catch (error) {
-            summary.textContent = "Not published yet";
+            summary.textContent = "Not yet published";
 
             panel
                 .querySelectorAll("[data-download-link]")
@@ -103,19 +125,35 @@
     }
 
     function formatSummary(manifest) {
-        const parts = [
-            manifest.publicLabel || manifest.channel
-        ];
+        const parts = [];
 
-        if (manifest.shortCommit) {
+        if (
+            typeof manifest.version === "string" &&
+            /^\d+\.\d+\.\d+$/.test(manifest.version)
+        ) {
+            parts.push(`v${manifest.version}`);
+        }
+
+        const buildNumber = Number.isInteger(manifest.buildNumber)
+            ? manifest.buildNumber
+            : Number.isInteger(manifest.pipelineIid)
+                ? manifest.pipelineIid
+                : null;
+
+        if (buildNumber !== null) {
+            parts.push(`build ${buildNumber}`);
+        }
+
+        if (
+            typeof manifest.shortCommit === "string" &&
+            manifest.shortCommit
+        ) {
             parts.push(manifest.shortCommit);
         }
 
-        if (Number.isInteger(manifest.pipelineIid)) {
-            parts.push(`pipeline ${manifest.pipelineIid}`);
-        }
-
-        return parts.join(" · ");
+        return parts.length > 0
+            ? parts.join(" · ")
+            : manifest.publicLabel || manifest.channel;
     }
 
     function formatBytes(byteCount) {

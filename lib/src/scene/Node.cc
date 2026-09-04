@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/20/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/Node.h"
@@ -17,16 +17,16 @@
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/light/Light.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pulic Static Members ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
     return make_unique<Node>(name);
@@ -44,7 +44,7 @@ shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
     return make_unique<Node>(camera);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Node::Node():
     _name {},
@@ -57,6 +57,8 @@ Node::Node():
     _eulerAngles {},
     _physicsBody {},
     _hidden {false},
+    _renderOrder {0},
+    _debugOptions {DebugOptions::None},
     _scene {},
     _parent {},
     _dirtyMask {DirtyMask::None} {}
@@ -99,7 +101,7 @@ Node::~Node() {
     // if (_physicsBody) _physicsBody->detachedFromNode(*this);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<std::string>& Node::name() const {
     return _name;
@@ -107,6 +109,35 @@ const optional<std::string>& Node::name() const {
 
 void Node::name(const string& name) {
     _name = name;
+}
+
+const shared_ptr<Mesh>& Node::mesh() const {
+    return _mesh;
+}
+
+void Node::mesh(const shared_ptr<Mesh>& mesh) {
+
+    if (!_physicsBody) {
+        _mesh = mesh;
+        return;
+    }
+
+    auto node = shared_from_this();
+    auto oldMesh = _mesh;
+
+    _physicsBody->meshWillChangeOnNode(node, oldMesh);
+
+    if (oldMesh) {
+        _physicsBody->meshDetachedFromNode(node, oldMesh);
+    }
+
+    _mesh = mesh;
+
+    if (_mesh) {
+        _physicsBody->meshAttachedToNode(node, _mesh);
+    }
+
+    _physicsBody->meshDidChangeOnNode(node, _mesh);
 }
 
 const shared_ptr<Light>& Node::light() const {
@@ -125,29 +156,33 @@ void Node::camera(const shared_ptr<Camera>& camera) {
     _camera = camera;
 }
 
-const shared_ptr<Mesh>& Node::mesh() const {
-    return _mesh;
+PhysicsBody* Node::physicsBody() const {
+    return _physicsBody.get();
 }
 
-void Node::mesh(const shared_ptr<Mesh>& mesh) {
+void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
-    if (_physicsBody && _mesh) {
-        _physicsBody->meshDetachedFromNode(mesh);
+    if (_physicsBody) {
+        checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
+        _physicsBody->detachedFromNode(shared_from_this());
     }
 
-    _mesh = mesh;
+    _physicsBody = std::move(body);
 
-    if (_physicsBody && _mesh) {
-        _physicsBody->meshAttachedToNode(mesh);
+    if (_physicsBody) {
+        _physicsBody->attachedToNode(shared_from_this());
+        checkNotifyPhysicsBodyOfReachablePhysicsWorld();
     }
 }
 
-vec3 Node::position() const {
+const vec3& Node::position() const {
     return _position;
 }
 
 void Node::position(const vec3& position) {
+
     _position = position;
+    syncPhysicsTransforms();
 }
 
 vec4 Node::rotation() const {
@@ -155,11 +190,15 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec3& axis, float angle) {
+
     _orientation = quaternion(axis, angle);
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
 vec3 Node::eulerAngles() const {
+
+    // don't return const ref since backing is std::optional
     if (!_eulerAngles) {
         _eulerAngles = euler_angles(_orientation);
     }
@@ -167,11 +206,13 @@ vec3 Node::eulerAngles() const {
 }
 
 void Node::eulerAngles(const vec3& angles) {
+
     _orientation = quaternion(angles);
     _eulerAngles = angles;
+    syncPhysicsTransforms();
 }
 
-quat Node::orientation() const {
+const quat& Node::orientation() const {
     return _orientation;
 }
 
@@ -179,14 +220,17 @@ void Node::orientation(const quat& orientation) {
 
     _orientation = orientation;
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
-vec3 Node::scale() const {
+const vec3& Node::scale() const {
     return _scale;
 }
 
 void Node::scale(const vec3& scale) {
+
     _scale = scale;
+    syncPhysicsTransforms();
 }
 
 mat4 Node::transform() const {
@@ -200,68 +244,38 @@ mat4 Node::transform() const {
 
 vec3 Node::forward() const {
 
-    // method 1
     vec3 localForward {0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{t.c2.x, t.c2.y, t.c2.z});
 }
 
 vec3 Node::up() const {
 
-    // method 1
     vec3 localForward {0.0f, 1.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize({t.c1.x, t.c1.y, t.c1.z });
 }
 
 vec3 Node::right() const {
 
-    // method 1
     vec3 localForward {1.0f, 0.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize(t.c0.x, t.c0.y, t.c0.z});
 }
 
 void Node::transform(const mat4& transform) {
 
-    vec3 scale;
-    quat orientation;
-    vec3 translation;
-
-    decompose(transform, scale, orientation, translation);
-
-    _position = translation;
-    _scale = scale;
-    _orientation = orientation;
-
-    _eulerAngles = std::nullopt;
+    setTransformComponents(transform);
+    syncPhysicsTransforms();
 }
 
 vec3 Node::worldPosition() const {
-
     return vec3 {worldTransform()[3]};
 }
 
 vec4 Node::worldRotation() const {
-
     return axis_angle(worldOrientation());
 }
 
 vec3 Node::worldEulerAngles() const {
-
-    throw std::logic_error("worldEulerAngles() not implemented.");
-    return {0.0, 0.0, 0.0};
+    return euler_angles(worldOrientation());
 }
 
 quat Node::worldOrientation() const {
@@ -282,34 +296,17 @@ vec3 Node::worldScale() const {
 
 vec3 Node::worldForward() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 0.0f, -1.0f})); // local forward is -Z
-
-    // method 2
-    // mat4 w = worldTransform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{w.c2.x, w.c2.y, w.c2.z});
 }
 
 vec3 Node::worldUp() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 1.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c1.x, w.c1.y, w.c1.z});
 }
 
 vec3 Node::worldRight() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {1.0f, 0.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c0.x, w.c0.y, w.c0.z});
 }
 
 mat4 Node::worldTransform() const {
@@ -379,12 +376,34 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
     return worldToTo * (thisWorld * t);
 }
 
-void Node::addChild(const shared_ptr<Node>& node) {
+void Node::addChild(const shared_ptr<Node>& node, bool reparent) {
+
+    if (!node) {
+        throw invalid_argument("Node::addChild() requires a non-null Node.");
+    }
+
+    if (node.get() == this) {
+        throw invalid_argument("A Node cannot be added as a child of itself.");
+    }
+
+    for (auto ancestor = _parent.lock(); ancestor; ancestor = ancestor->_parent.lock()) {
+        if (ancestor.get() == node.get()) {
+            throw invalid_argument("An ancestor Node cannot be added as a child.");
+        }
+    }
+
+    if (reparent && !node->_parent.expired()) {
+        node->removeFromParent();
+    }
 
     if (containsChild(node)) {
-        throw std::runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
-                                             static_cast<void*>(node.get()),
-                                             (node->name() ? *node->name() : "(unnamed)")));
+        throw invalid_argument(std::format("Node already exists in tree: {:p}, (\"{}\")",
+                                           static_cast<void*>(node.get()),
+                                           (node->name() ? *node->name() : "(unnamed)")));
+    }
+
+    if (!node->_parent.expired()) {
+        throw invalid_argument("Node is already attached to another parent.");
     }
 
     _children.push_back(node);
@@ -393,37 +412,11 @@ void Node::addChild(const shared_ptr<Node>& node) {
     node->attachedToParent(*this);
 }
 
-void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
+void Node::addChildren(const vector<shared_ptr<Node>>& nodes, bool reparent) {
     for (auto& node : nodes) {
-        addChild(node);
+        addChild(node, reparent);
     }
 }
-
-//void Node::removeFromParent() {
-//
-//	if (auto parent = _parent.lock()) {
-//		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
-//		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
-//		// http://en.cppreference.com/w/cpp/algorithm/remove
-//		// new: https://stackoverflow.com/questions/875103/how-do-i-erase-an-element-from-stdvector-by-index
-//
-//		auto existingChildren = parent->_children;
-//		auto newChildren = vector<shared_ptr<Node>>();
-//		newChildren.reserve(existingChildren.size()-1);
-//		for (auto& child : existingChildren) {
-//			if (child.get() != this) {
-//				newChildren.push_back(child);
-//			}
-//		}
-//		parent->_children = newChildren;
-//
-//		detachedFromParent(*parent);
-//	}
-//	else {
-//		log::w()("Parent is gone!");
-//		// TODO: throw?
-//	}
-//}
 
 void Node::removeFromParent() {
 
@@ -448,9 +441,9 @@ void Node::removeFromParent() {
     }
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) const {
+vector<shared_ptr<Node>> Node::children(bool recursive) const {
 
-    if (resursive) {
+    if (recursive) {
         return children(*this);
     }
     else {
@@ -458,33 +451,14 @@ vector<shared_ptr<Node>> Node::children(bool resursive) const {
     }
 }
 
-shared_ptr<Node> Node::childNamed(const string& name, bool resursive) const {
+shared_ptr<Node> Node::childNamed(const string& name, bool recursive) const {
 
-    for (auto& child : children(resursive)) {
+    for (auto& child : children(recursive)) {
         if (child->name() != nullopt && *child->name() == name) {
             return child;
         }
     }
     return nullptr;
-}
-
-PhysicsBody* Node::physicsBody() const {
-    return _physicsBody.get();
-}
-
-void Node::physicsBody(unique_ptr<PhysicsBody> body) {
-
-    if (_physicsBody) {
-        checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
-        _physicsBody->detachedFromNode(shared_from_this());
-    }
-
-    _physicsBody = std::move(body);
-
-    if (_physicsBody) {
-        _physicsBody->attachedToNode(shared_from_this());
-        checkNotifyPhysicsBodyOfReachablePhysicsWorld();
-    }
 }
 
 bool Node::hidden() const {
@@ -493,6 +467,22 @@ bool Node::hidden() const {
 
 void Node::hidden(bool hidden) {
     _hidden = hidden;
+}
+
+int Node::renderOrder() const {
+    return _renderOrder;
+}
+
+void Node::renderOrder(int order) {
+    _renderOrder = order;
+}
+
+Node::DebugOptions Node::debugOptions() const {
+    return _debugOptions;
+}
+
+void Node::debugOptions(DebugOptions options) {
+    _debugOptions = options;
 }
 
 Scene* Node::scene() const {
@@ -510,12 +500,10 @@ weak_ptr<Node> Node::parent() const {
     return _parent;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Node::attachedToParent(Node& parent) {
     log::t()("parent: {:p}", static_cast<void*>(&parent));
-
-    // _parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
 
     // the only Node with a direct pointer to the Scene is the root node,
     // and attachedToParent() is never called on the root node.
@@ -536,9 +524,9 @@ void Node::detachedFromParent(Node& parent) {
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeDetachedFromParent(parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeDetachedFromParent(parent);
+    // }
 
     for (auto& child : _children) {
         child->ancestorDetachedFromParent(*this, parent);
@@ -550,9 +538,9 @@ void Node::detachedFromParent(Node& parent) {
 void Node::attachedToScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeAttachedToScene(scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeAttachedToScene(scene);
+    // }
 
     _scene = &scene;
 
@@ -566,9 +554,9 @@ void Node::attachedToScene(Scene& scene) {
 void Node::detachedFromScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->nodeDetachedFromScene(scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->nodeDetachedFromScene(scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -582,9 +570,9 @@ void Node::detachedFromScene(Scene& scene) {
 void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
     log::t()("ancestor: {:p}, parent: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&parent));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorAttachedToParent(ancestor, parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorAttachedToParent(ancestor, parent);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -596,9 +584,9 @@ void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
 void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
     log::t()("ancestor: {:p}, parent: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&parent));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorDetachedFromParent(ancestor, parent);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorDetachedFromParent(ancestor, parent);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -610,9 +598,9 @@ void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
 void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
     log::t()("ancestor: {:p}, scene: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorAttachedToScene(ancestor, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorAttachedToScene(ancestor, scene);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -624,9 +612,9 @@ void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
 void Node::ancestorDetachedFromScene(Node& ancestor, Scene& scene) {
     log::t()("ancestor: {:p}, scene: {:p}", static_cast<void*>(&ancestor), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->ancestorDetachedFromScene(ancestor, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->ancestorDetachedFromScene(ancestor, scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -654,9 +642,9 @@ void Node::visualWorldDetachedFromScene(VisualWorld& world, Scene& scene) {
 void Node::physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
     log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->physicsWorldAttachedToScene(world, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->physicsWorldAttachedToScene(world, scene);
+    // }
 
     checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
@@ -668,9 +656,9 @@ void Node::physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
 void Node::physicsWorldDetachedFromScene(PhysicsWorld& world, Scene& scene) {
     log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
-//	if (_physicsBody) {
-//		_physicsBody->physicsWorldDetachedFromScene(world, scene);
-//	}
+    // if (_physicsBody) {
+    //     _physicsBody->physicsWorldDetachedFromScene(world, scene);
+    // }
 
     checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
@@ -729,16 +717,17 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 }
 
 AABB Node::aabb(bool vertfit) const {
+
     AABB out = AABB::Invalid();
 
-    const mat4 W = worldTransform();
+    const mat4 worldTransform = this->worldTransform();
 
     if (mesh()) {
-        out |= mesh()->worldAABB(W, vertfit);
+        out |= mesh()->worldAABB(worldTransform, vertfit);
     }
 
-    for (auto& child : children()) {
-        out |= child->aabb();
+    for (const auto& child : children()) {
+        out |= child->aabb(vertfit);
     }
 
     return out;
@@ -752,10 +741,10 @@ vec3 Node::extent(bool vertfit) const {
 void Node::applyPhysicsTransform(const mat4& transform) {
 
     if (auto parent = _parent.lock()) {
-        this->transform(inverse(parent->worldTransform()) * transform);
+        setTransformComponents(inverse(parent->worldTransform()) * transform);
     }
     else {
-        this->transform(transform);
+        setTransformComponents(transform);
     }
 }
 
@@ -774,7 +763,7 @@ void Node::_debugPrintRec(Node& node, unsigned level) {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void Node::getAABBRec(AABB& aabb) {
 
@@ -790,6 +779,31 @@ void Node::getAABBRec(AABB& aabb) {
 
     for (auto& child : _children) {
         child->getAABBRec(aabb);
+    }
+}
+
+void Node::setTransformComponents(const mat4& transform) {
+
+    vec3 scale;
+    quat orientation;
+    vec3 translation;
+
+    decompose(transform, scale, orientation, translation);
+
+    _position = translation;
+    _scale = scale;
+    _orientation = orientation;
+    _eulerAngles = std::nullopt;
+}
+
+void Node::syncPhysicsTransforms() {
+
+    if (_physicsBody) {
+        _physicsBody->syncTransformFromNode();
+    }
+
+    for (auto& child : _children) {
+        child->syncPhysicsTransforms();
     }
 }
 
@@ -820,3 +834,5 @@ Node::DirtyMask Node::dirtyMask() const {
 void Node::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

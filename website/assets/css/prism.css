@@ -1,0 +1,169 @@
+.token.comment {
+    color: #70727e;
+    font-style: italic;
+}
+
+.token.punctuation,
+.token.double-colon {
+    color: #a9abb6;
+}
+
+.token.keyword,
+.token.directive {
+    color: #d8a0ff;
+}
+
+.token.class-name,
+.token.type-definition {
+    color: #7ed7ff;
+}
+
+.token.function,
+.token.macro-name {
+    color: #82b8ff;
+}
+
+.token.string,
+.token.char,
+.token.raw-string {
+    color: #a7dfa4;
+}
+
+.token.number,
+.token.boolean {
+    color: #ffbd86;
+}
+
+.token.operator,
+.token.directive-hash {
+    color: #ff8ea8;
+}
+
+.token.macro,
+.token.constant {
+    color: #ffd580;
+}
+
+.token.namespace,
+.token.module {
+    color: #c8c8cf;
+}
+
+.token.property {
+    color: #82b8ff;
+}
+
+
+
+
+/*
+ * Electric Lilac - One Dark Night
+ * CLion -> Prism C/C++
+ */
+
+/*code[class*="language-"] {*/
+/*    color: #899ccb; !* DEFAULT_IDENTIFIER *!*/
+/*}*/
+
+/*!* Comments *!*/
+
+/*.token.comment {*/
+/*    color: #369b86;*/
+/*    font-style: normal;*/
+/*}*/
+
+/*!* Keywords *!*/
+
+/*.token.keyword {*/
+/*    color: #4694D8;*/
+/*    font-weight: 700;*/
+/*}*/
+
+/*!* Preprocessor *!*/
+
+/*.token.macro.property {*/
+/*    color: #6b759a;*/
+/*}*/
+
+/*.token.directive,*/
+/*.token.directive.keyword,*/
+/*.token.directive-hash {*/
+/*    color: #6b759a;*/
+/*    font-weight: 700;*/
+/*}*/
+
+/*.token.macro-name,*/
+/*.token.macro-name.function {*/
+/*    color: #7090b5;*/
+/*    font-weight: 400;*/
+/*}*/
+
+/*!* Types *!*/
+
+/*.token.class-name,*/
+/*.token.namespace,*/
+/*.token.module {*/
+/*    color: #ac7bb9;*/
+/*}*/
+
+/*.token.type-definition {*/
+/*    color: #7278b6;*/
+/*}*/
+
+/*!* Functions *!*/
+
+/*.token.function {*/
+/*    color: #8658a7;*/
+/*}*/
+
+/*!* Parameters *!*/
+
+/*.token.parameter {*/
+/*    color: #26b5d2;*/
+/*}*/
+
+/*!* Strings *!*/
+
+/*.token.string,*/
+/*.token.char,*/
+/*.token.raw-string {*/
+/*    color: #c5568b;*/
+/*}*/
+
+/*.token.escape {*/
+/*    color: #c9325f;*/
+/*}*/
+
+/*!* Numbers *!*/
+
+/*.token.number {*/
+/*    color: #6897bb;*/
+/*}*/
+
+/*.token.boolean {*/
+/*    color: #2d8fd1;*/
+/*    font-weight: 700;*/
+/*}*/
+
+/*!* Operators / punctuation *!*/
+
+/*.token.operator,*/
+/*.token.punctuation,*/
+/*.token.double-colon {*/
+/*    color: #e5e5e5;*/
+/*    font-weight: 700;*/
+/*}*/
+
+/*!* Miscellaneous *!*/
+
+/*.token.constant {*/
+/*    color: #899ccb;*/
+/*}*/
+
+/*.token.label {*/
+/*    color: #8c8d5d;*/
+/*}*/
+
+/*.token.property {*/
+/*    color: #899ccb;*/
+/*}*/

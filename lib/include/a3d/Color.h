@@ -3,83 +3,177 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_COLOR_H
 #define AVARA3D_COLOR_H
 
-#include <memory>
+#include <cstdint>
 #include <string>
 
 #include "a3d/Math.h"
 
 namespace a3d {
 
-    class Color {
+/**
+ * @brief Represents a normalized RGBA color.
+ *
+ * Components are stored as floating-point values in the range [0, 1].
+ * Floating-point inputs outside this range are clamped. Eight-bit
+ * accessors scale the stored components to [0, 255] and round to the
+ * nearest integer.
+ */
+class Color {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::shared_ptr<Color> Black();
-        static std::shared_ptr<Color> DarkGray();
-        static std::shared_ptr<Color> Gray();
-        static std::shared_ptr<Color> LightGray();
-        static std::shared_ptr<Color> White();
-        static std::shared_ptr<Color> Maroon();
-        static std::shared_ptr<Color> Red();
-        static std::shared_ptr<Color> Orange();
-        static std::shared_ptr<Color> Yellow();
-        static std::shared_ptr<Color> Olive();
-        static std::shared_ptr<Color> Lime();
-        static std::shared_ptr<Color> Green();
-        static std::shared_ptr<Color> Cyan();
-        static std::shared_ptr<Color> Blue();
-        static std::shared_ptr<Color> Navy();
-        static std::shared_ptr<Color> Teal();
-        static std::shared_ptr<Color> Magenta();
-        static std::shared_ptr<Color> Purple();
-        static std::shared_ptr<Color> Brown();
+    /** @brief Returns opaque black. */
+    static Color Black();
 
-        static std::shared_ptr<Color> Random();
+    /** @brief Returns opaque dark gray. */
+    static Color DarkGray();
 
-        /// Public Lifecycle Functions ///
+    /** @brief Returns opaque gray. */
+    static Color Gray();
 
-        Color();
-        explicit Color(const math::vec3& rgb);
-        explicit Color(const math::vec4& rgba);
-        explicit Color(const math::u8vec3& irgb);
-        explicit Color(const math::u8vec4& irgba);
-        explicit Color(float white);
-        explicit Color(uint32_t color);
-        explicit Color(const std::string& hexString);
+    /** @brief Returns opaque light gray. */
+    static Color LightGray();
 
-        // TODO: operator*, operator[]
+    /** @brief Returns opaque white. */
+    static Color White();
 
-        /// Public Member Functions ///
+    /** @brief Returns opaque maroon. */
+    static Color Maroon();
 
-        float        r() const;
-        float        g() const;
-        float        b() const;
-        float        a() const;
+    /** @brief Returns opaque red. */
+    static Color Red();
 
-        uint8_t      u8r() const;
-        uint8_t      u8g() const;
-        uint8_t      u8b() const;
-        uint8_t      u8a() const;
+    /** @brief Returns opaque orange. */
+    static Color Orange();
 
-        math::vec3   rgb() const;
-        math::vec4   rgba() const;
+    /** @brief Returns opaque yellow. */
+    static Color Yellow();
 
-        math::u8vec3 u8rgb() const;
-        math::u8vec4 u8rgba() const;
+    /** @brief Returns opaque olive. */
+    static Color Olive();
 
-    private:
-        /// Private Member Variables ///
+    /** @brief Returns opaque lime. */
+    static Color Lime();
 
-        math::vec4 _rgba;
-    };
+    /** @brief Returns opaque green. */
+    static Color Green();
 
-}
+    /** @brief Returns opaque cyan. */
+    static Color Cyan();
 
-#endif /* AVARA3D_COLOR_H */
+    /** @brief Returns opaque blue. */
+    static Color Blue();
+
+    /** @brief Returns opaque navy. */
+    static Color Navy();
+
+    /** @brief Returns opaque teal. */
+    static Color Teal();
+
+    /** @brief Returns opaque magenta. */
+    static Color Magenta();
+
+    /** @brief Returns opaque purple. */
+    static Color Purple();
+
+    /** @brief Returns opaque brown. */
+    static Color Brown();
+
+    /** @brief Returns an opaque color with independently randomized 8-bit RGB channels. */
+    static Color Random();
+
+    // [Public Lifecycle Functions]
+
+    /** @brief Creates opaque white. */
+    Color();
+
+    /** @brief Creates an opaque color from floating-point RGB components. */
+    explicit Color(const math::vec3& rgb);
+
+    /** @brief Creates an opaque color from floating-point RGB components. */
+    Color(float r, float g, float b);
+
+    /** @brief Creates a color from floating-point RGBA components. */
+    explicit Color(const math::vec4& rgba);
+
+    /** @brief Creates a color from floating-point RGBA components. */
+    Color(float r, float g, float b, float a);
+
+    /** @brief Creates an opaque color from 8-bit RGB components. */
+    explicit Color(const math::u8vec3& irgb);
+
+    /** @brief Creates a color from 8-bit RGBA components. */
+    explicit Color(const math::u8vec4& irgba);
+
+    /** @brief Creates an opaque grayscale color with all RGB components set to @p white. */
+    explicit Color(float white);
+
+    /** @brief Creates a color from a packed 0xRRGGBBAA value. */
+    explicit Color(uint32_t color);
+
+    /**
+     * @brief Creates a color from hexadecimal RGB or RGBA text.
+     *
+     * Supported forms are RRGGBB, #RRGGBB, RRGGBBAA, and #RRGGBBAA.
+     *
+     * @throws std::invalid_argument if @p hexString does not use a supported
+     * format or contains non-hexadecimal characters.
+     */
+    explicit Color(const std::string& hexString);
+
+    // TODO: operator*, operator[]
+
+    // [Public Member Functions]
+
+    /** @brief Returns the floating-point red component. */
+    float        r() const;
+
+    /** @brief Returns the floating-point green component. */
+    float        g() const;
+
+    /** @brief Returns the floating-point blue component. */
+    float        b() const;
+
+    /** @brief Returns the floating-point alpha component. */
+    float        a() const;
+
+    /** @brief Returns the red component converted to 8-bit form. */
+    uint8_t      u8r() const;
+
+    /** @brief Returns the green component converted to 8-bit form. */
+    uint8_t      u8g() const;
+
+    /** @brief Returns the blue component converted to 8-bit form. */
+    uint8_t      u8b() const;
+
+    /** @brief Returns the alpha component converted to 8-bit form. */
+    uint8_t      u8a() const;
+
+    /** @brief Returns the floating-point RGB components. */
+    math::vec3   rgb() const;
+
+    /** @brief Returns the floating-point RGBA components. */
+    math::vec4   rgba() const;
+
+    /** @brief Returns the RGB components converted to 8-bit form. */
+    math::u8vec3 u8rgb() const;
+
+    /** @brief Returns the RGBA components converted to 8-bit form. */
+    math::u8vec4 u8rgba() const;
+
+private:
+    // [Private Member Variables]
+
+    math::vec4 _rgba;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_COLOR_H

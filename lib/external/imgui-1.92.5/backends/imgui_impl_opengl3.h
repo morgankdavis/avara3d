@@ -43,6 +43,16 @@ IMGUI_IMPL_API void     ImGui_ImplOpenGL3_DestroyDeviceObjects();
 // (Advanced) Use e.g. if you need to precisely control the timing of texture updates (e.g. for staged rendering), by setting ImDrawData::Textures = NULL to handle this manually.
 IMGUI_IMPL_API void     ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex);
 
+// MKD added
+struct ImGui_ImplOpenGL3_MemoryStats
+{
+    ImU64 VertexBufferBytes;
+    ImU64 IndexBufferBytes;
+    ImU64 TextureBytes;
+};
+
+IMGUI_IMPL_API ImGui_ImplOpenGL3_MemoryStats ImGui_ImplOpenGL3_GetMemoryStats();
+
 // Configuration flags to add in your imconfig file:
 //#define IMGUI_IMPL_OPENGL_ES2     // Enable ES 2 (Auto-detected on Emscripten)
 //#define IMGUI_IMPL_OPENGL_ES3     // Enable ES 3 (Auto-detected on iOS/Android)

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/15/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H
@@ -11,33 +11,37 @@
 
 #include <bullet/LinearMath/btMotionState.h>
 
+#include "a3d/Math.h"
+
 namespace a3d {
 
-    class PhysicsBody;
+class PhysicsBody;
 
-    class BulletMotionState : public btMotionState {
+class BulletMotionState : public btMotionState {
 
-    public:
-        /// Internal Lifecycle Functions ///
+public:
+    // [Internal Lifecycle Functions]
 
-        explicit BulletMotionState(PhysicsBody& body);
+    explicit BulletMotionState(PhysicsBody& body);
 
-        /// btMotionState Members ///
+    // [btMotionState Members]
 
-        void         getWorldTransform(btTransform& transform) const override;
-        void         setWorldTransform(const btTransform& transform) override;
+    void         getWorldTransform(btTransform& transform) const override;
+    void         setWorldTransform(const btTransform& transform) override;
 
-        /// Internal Member Functions ///
+    // [Internal Member Functions]
 
-        PhysicsBody* body() const;
+    btTransform  centerOfMassWorldTransform(const math::mat4& modelWorldTransform) const;
+    math::mat4   modelWorldTransform(const btTransform& centerOfMassWorldTransform) const;
 
-    private:
-        /// Private Member Variables ///
+    PhysicsBody* body() const;
 
-//		btTransform 		_visualWorldTransform;
-        PhysicsBody* _body;
-    };
+private:
+    // [Private Member Variables]
 
-}
+    PhysicsBody* _body;
+};
 
-#endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H

@@ -13,9 +13,10 @@ BracedInitializerIndentWidth: 4
 TabWidth: 4
 UseTab: Never
 
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 CompactNamespaces: false
-FixNamespaceComments: false
+FixNamespaceComments: true
+ShortNamespaceLines: 0
 WrapNamespaceBodyWithEmptyLines: Always
 
 AccessModifierOffset: -4

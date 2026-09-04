@@ -35,15 +35,15 @@
 
 namespace a3d::detail {
 
-    [[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func);
+[[noreturn]] void assert_fail(const char* expr, const char* file, int line, const char* func);
 
-    [[noreturn]] void assert_fail_msg(const char* expr,
-                                      const char* file,
-                                      int         line,
-                                      const char* func,
-                                      const char* msg);
+[[noreturn]] void assert_fail_msg(const char* expr,
+                                  const char* file,
+                                  int         line,
+                                  const char* func,
+                                  const char* msg);
 
-}
+} // namespace a3d::detail
 
 // ----------------------------------------------------------------------------
 // Public macros
@@ -80,4 +80,4 @@ namespace a3d::detail {
 
 #endif
 
-#endif //AVARA3D_ASSERT_H
+#endif // AVARA3D_ASSERT_H

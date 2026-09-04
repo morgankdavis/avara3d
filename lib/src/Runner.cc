@@ -2,6 +2,9 @@
 //  Runner.cc
 //  avara3d
 //
+//  Created by Morgan Davis on 7/10/26.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
+//
 
 #include "a3d/Runner.h"
 
@@ -11,27 +14,32 @@
 #include <utility>
 
 #include "a3d/input/InputContext.h"
-#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
 
-using namespace a3d;
 using namespace std;
 
-///  Private Constants ///
+namespace a3d {
+namespace {
 
-// duration of sample history to keep
-static constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
+    // [Private Constants]
 
-/// Public Lifecycle Functions ///
+    // duration of sample history to keep
+    constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 Runner::Runner(Scene& scene, SimulationConfig config):
     _scene(scene),
     _state(State::Idle),
     _config {config},
+    _timeStep {config.timeStep},
+    _maxCatchUpSteps {config.maxCatchUpSteps},
     _timeScale {config.timeScale},
     _simulationTimeAccumulator {0.0},
     _simulationTime {0.0},
@@ -40,6 +48,7 @@ Runner::Runner(Scene& scene, SimulationConfig config):
     _simulationPaused {false},
     _pendingSimulationSteps {0},
     _skipNextUpdateDelta {false},
+    _simulationClockSuspended {false},
     _startTime {},
     _prevUpdateTime {},
     _updateCount {0},
@@ -52,7 +61,7 @@ Runner::~Runner() {
     stop();
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void Runner::start() {
     start(Clock::now());
@@ -81,33 +90,25 @@ bool Runner::simulationPaused() const {
     return _simulationPaused;
 }
 
-void Runner::pauseSimulation() {
+void Runner::simulationPaused(bool paused) {
 
     if (_state != State::Running) {
-        throw logic_error("Runner::pauseSimulation() requires a running Runner.");
+        throw logic_error("Runner::simulationPaused() requires a running Runner.");
     }
 
-    if (_simulationPaused) {
+    if (_simulationPaused == paused) {
         return;
     }
 
-    _simulationPaused = true;
-    _simulationTimeAccumulator = 0.0;
-}
+    _simulationPaused = paused;
 
-void Runner::resumeSimulation() {
-
-    if (_state != State::Running) {
-        throw logic_error("Runner::resumeSimulation() requires a running Runner.");
+    if (paused) {
+        _simulationTimeAccumulator = 0.0;
     }
-
-    if (!_simulationPaused) {
-        return;
+    else {
+        _pendingSimulationSteps = 0;
+        _skipNextUpdateDelta = true;
     }
-
-    _simulationPaused = false;
-    _pendingSimulationSteps = 0;
-    _skipNextUpdateDelta = true;
 }
 
 void Runner::requestSimulationStep() {
@@ -127,6 +128,22 @@ void Runner::requestSimulationStep() {
     ++_pendingSimulationSteps;
 }
 
+void Runner::resetSimulation() {
+    if (_state != State::Running) {
+        throw logic_error("Runner::resetSimulation() requires a running Runner.");
+    }
+
+    _simulationTimeAccumulator = 0.0;
+    _simulationTime = 0.0;
+    _simulationStepCount = 0;
+    _totalDiscardedSimulationTime = 0.0;
+    _pendingSimulationSteps = 0;
+
+    if (!_simulationPaused) {
+        _skipNextUpdateDelta = true;
+    }
+}
+
 Runner::UpdateCallback Runner::updateCallback() const {
     return _updateCallback;
 }
@@ -135,8 +152,30 @@ void Runner::updateCallback(UpdateCallback callback) {
     _updateCallback = callback;
 }
 
-const SimulationConfig& Runner::config() const {
-    return _config;
+double Runner::timeStep() const {
+    return _timeStep;
+}
+
+void Runner::timeStep(double value) {
+
+    if (value <= 0.0) {
+        throw invalid_argument("Runner time step must be positive.");
+    }
+
+    _timeStep = value;
+}
+
+uint32_t Runner::maxCatchUpSteps() const {
+    return _maxCatchUpSteps;
+}
+
+void Runner::maxCatchUpSteps(uint32_t value) {
+
+    if (value == 0) {
+        throw invalid_argument("Runner maximum catch-up steps must be at least one.");
+    }
+
+    _maxCatchUpSteps = value;
 }
 
 double Runner::timeScale() const {
@@ -145,7 +184,7 @@ double Runner::timeScale() const {
 
 void Runner::timeScale(double value) {
 
-    if (!isfinite(value) || value <= 0.0) {
+    if (value <= 0.0) {
         throw invalid_argument("Runner time scale must be positive.");
     }
 
@@ -172,7 +211,30 @@ const Scene& Runner::scene() const {
     return _scene;
 }
 
-/// Private Member Functions ///
+// [Internal Member Functions]
+
+bool Runner::simulationClockSuspended() const {
+    return _simulationClockSuspended;
+}
+
+void Runner::simulationClockSuspended(bool suspended) {
+
+    if (_state != State::Running) {
+        throw logic_error("Runner::simulationClockSuspended() requires a running Runner.");
+    }
+
+    if (_simulationClockSuspended == suspended) {
+        return;
+    }
+
+    _simulationClockSuspended = suspended;
+
+    if (!suspended) {
+        _skipNextUpdateDelta = true;
+    }
+}
+
+// [Private Member Functions]
 
 void Runner::start(TimePoint now) {
 
@@ -180,11 +242,11 @@ void Runner::start(TimePoint now) {
         throw logic_error("Runner::start() requires an idle Runner.");
     }
 
-    if (!isfinite(_config.timeScale) || _config.timeScale <= 0.0) {
-        throw invalid_argument("Runner requires a positive initial time scale.");
+    if (_config.timeScale <= 0.0) {
+        throw invalid_argument("Runner requires a positive time scale.");
     }
 
-    if (!isfinite(_config.timeStep) || _config.timeStep <= 0.0) {
+    if (_config.timeStep <= 0.0) {
         throw invalid_argument("Runner requires a positive fixed simulation delta.");
     }
 
@@ -192,11 +254,8 @@ void Runner::start(TimePoint now) {
         throw invalid_argument("Runner requires at least one catch-up step.");
     }
 
-    if (auto physicsWorld = _scene.physicsWorld();
-        physicsWorld && !physicsWorld->acceptsStepDelta(_config.timeStep)) {
-        throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
-    }
-
+    _timeStep = _config.timeStep;
+    _maxCatchUpSteps = _config.maxCatchUpSteps;
     _timeScale = _config.timeScale;
     _simulationTimeAccumulator = 0.0;
     _simulationTime = 0.0;
@@ -205,6 +264,7 @@ void Runner::start(TimePoint now) {
     _simulationPaused = false;
     _pendingSimulationSteps = 0;
     _skipNextUpdateDelta = false;
+    _simulationClockSuspended = false;
     _startTime = now;
     _prevUpdateTime = now;
     _updateCount = 0;
@@ -228,8 +288,6 @@ bool Runner::update(TimePoint now) {
     ++_updateCount;
 
     FrameStats stats {};
-    stats.simulationTimeStep = _config.timeStep;
-    stats.maxCatchUpSteps = _config.maxCatchUpSteps;
     stats.simulationStepCount = _simulationStepCount;
     stats.simulationTime = _simulationTime;
     stats.totalDiscardedSimulationTime = _totalDiscardedSimulationTime;
@@ -251,33 +309,40 @@ bool Runner::update(TimePoint now) {
 
         _scene.updateInput(inputInfo, _profiler);
 
-        if (_state == State::Running) {
-            PhysicsInventory inventory {};
+        stats.simulationTimeStep = _timeStep;
+        stats.maxCatchUpSteps = _maxCatchUpSteps;
 
-            if (_simulationPaused) {
-                // a new paused scheduling boundary supersedes suppression
-                // from an earlier resume/pause sequence. a resume that occurs
-                // during the requested batch sets this again and interrupts
-                // the local snapshot
-                _skipNextUpdateDelta = false;
-                inventory = executePendingSimulationSteps(stats);
-            }
-            else if (_skipNextUpdateDelta) {
-                _skipNextUpdateDelta = false;
-                inventory = currentPhysicsInventory();
-            }
-            else {
-                inventory = advanceSimulation(updateInfo, stats);
+        if (_state == State::Running) {
+
+            if (!_simulationClockSuspended) {
+                if (_simulationPaused) {
+                    // a new paused scheduling boundary supersedes suppression
+                    // from an earlier resume/pause sequence. a resume that occurs
+                    // during the requested batch sets this again and interrupts
+                    // the local snapshot
+                    _skipNextUpdateDelta = false;
+                    executePendingSimulationSteps(stats);
+                }
+                else if (_skipNextUpdateDelta) {
+                    _skipNextUpdateDelta = false;
+                }
+                else {
+                    advanceSimulation(updateInfo, stats);
+                }
             }
 
             prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-                stats.staticBodies = inventory.staticBodies;
-                stats.dynamicBodies = inventory.dynamicBodies;
-                stats.kinematicBodies = inventory.kinematicBodies;
-                stats.primitiveShapes = inventory.primitiveShapes;
-                stats.boundingBoxShapes = inventory.boundingBoxShapes;
-                stats.convexHullShapes = inventory.convexHullShapes;
-                stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
+                if (auto physicsWorld = _scene.physicsWorld()) {
+                    const auto inventory = physicsWorld->inventory();
+                    stats.staticBodies = inventory.staticBodies;
+                    stats.dynamicBodies = inventory.dynamicBodies;
+                    stats.kinematicBodies = inventory.kinematicBodies;
+                    stats.activeContacts = inventory.activeContacts;
+                    stats.primitiveShapes = inventory.primitiveShapes;
+                    stats.boundingBoxShapes = inventory.boundingBoxShapes;
+                    stats.convexHullShapes = inventory.convexHullShapes;
+                    stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
+                }
             });
 
             stats.simulationStepCount = _simulationStepCount;
@@ -303,17 +368,17 @@ bool Runner::update(TimePoint now) {
     return _state == State::Running;
 }
 
-PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
-
-    PhysicsInventory inventory {};
-    const double     timeStep = _config.timeStep;
+void Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
 
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 
-    while (_simulationTimeAccumulator >= timeStep && stats.simulationStepsThisUpdate < _config.maxCatchUpSteps
-           && _state == State::Running && !_simulationPaused && !_skipNextUpdateDelta) {
+    while (_simulationTimeAccumulator >= _timeStep && stats.simulationStepsThisUpdate < _maxCatchUpSteps
+           && _state == State::Running && !_simulationPaused && !_simulationClockSuspended
+           && !_skipNextUpdateDelta) {
 
-        inventory = executeSimulationStep();
+        const double timeStep = _timeStep;
+
+        executeSimulationStep();
 
         if (_simulationPaused || _skipNextUpdateDelta) {
             _simulationTimeAccumulator = 0.0;
@@ -325,72 +390,44 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
         ++stats.simulationStepsThisUpdate;
     }
 
-    if (_state == State::Running && stats.simulationStepsThisUpdate == _config.maxCatchUpSteps
-        && _simulationTimeAccumulator >= timeStep) {
-        const double remainder = fmod(_simulationTimeAccumulator, timeStep);
+    if (_state == State::Running && !_simulationClockSuspended
+        && stats.simulationStepsThisUpdate >= _maxCatchUpSteps && _simulationTimeAccumulator >= _timeStep) {
+        const double remainder = fmod(_simulationTimeAccumulator, _timeStep);
         stats.discardedSimulationTime = _simulationTimeAccumulator - remainder;
         _totalDiscardedSimulationTime += stats.discardedSimulationTime;
         _simulationTimeAccumulator = remainder;
     }
-
-    if (stats.simulationStepsThisUpdate == 0) {
-        inventory = currentPhysicsInventory();
-    }
-
-    return inventory;
 }
 
-PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
+void Runner::executePendingSimulationSteps(FrameStats& stats) {
 
-    PhysicsInventory inventory {};
-    const auto       pendingStepCount = std::exchange(_pendingSimulationSteps, std::uint64_t {0});
+    const auto pendingStepCount = std::exchange(_pendingSimulationSteps, std::uint64_t {0});
 
     for (uint64_t i = 0; i < pendingStepCount; ++i) {
 
-        inventory = executeSimulationStep();
+        executeSimulationStep();
         ++stats.simulationStepsThisUpdate;
 
-        if (_state != State::Running || !_simulationPaused || _skipNextUpdateDelta) {
+        if (_state != State::Running || !_simulationPaused || _simulationClockSuspended
+            || _skipNextUpdateDelta) {
             break;
         }
     }
-
-    if (stats.simulationStepsThisUpdate == 0) {
-        inventory = currentPhysicsInventory();
-    }
-
-    return inventory;
 }
 
-PhysicsInventory Runner::executeSimulationStep() {
+void Runner::executeSimulationStep() {
 
-    if (auto physicsWorld = _scene.physicsWorld();
-        physicsWorld && !physicsWorld->acceptsStepDelta(_config.timeStep)) {
-        throw runtime_error("Runner simulation time step rejected by PhysicsWorld.");
-    }
+    const double timeStep = _timeStep;
 
     Scene::StepInfo info {.stepIndex = _simulationStepCount,
-                          .startTime = static_cast<double>(_simulationStepCount) * _config.timeStep,
-                          .endTime = static_cast<double>(_simulationStepCount + 1) * _config.timeStep,
-                          .deltaTime = _config.timeStep};
+                          .startTime = _simulationTime,
+                          .endTime = _simulationTime + timeStep,
+                          .deltaTime = timeStep};
 
-    auto inventory = _scene.stepSimulation(info, _profiler);
+    _scene.stepSimulation(info, _profiler);
 
     _simulationTime = info.endTime;
     ++_simulationStepCount;
-
-    return inventory;
-}
-
-PhysicsInventory Runner::currentPhysicsInventory() {
-
-    if (auto physicsWorld = _scene.physicsWorld()) {
-        return prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-            return physicsWorld->inventory();
-        });
-    }
-
-    return {};
 }
 
 bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
@@ -412,6 +449,15 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
         return false;
     }
 
+    // this is kind of hack-y, but... the first rendered frame can take some time to upload
+    // GPU resources, etc, which can cause a simulation step backlog. so just don't treat
+    // that startup work as elapsed simulation time.
+    if (_renderedFrameCount == 0) {
+        _skipNextUpdateDelta = true;
+    }
+
     ++_renderedFrameCount;
     return true;
 }
+
+} // namespace a3d

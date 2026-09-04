@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/25/25.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PROFILE_PROFILE_H
@@ -18,14 +18,14 @@
 
 namespace a3d::prof {
 
-    // run f() while measuring its duration into `profiler` under `tag`
-    // supports nesting!
-    template<class F>
-    decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
-        ScopeTimer t {profiler, tag};
-        return std::invoke(std::forward<F>(f));
-    }
-
+// run f() while measuring its duration into `profiler` under `tag`
+// supports nesting!
+template<class F>
+decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
+    ScopeTimer t {profiler, tag};
+    return std::invoke(std::forward<F>(f));
 }
+
+} // namespace a3d::prof
 
 #endif // AVARA3D_PROFILE_PROFILE_H

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
-//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_LOG_SINK_STDOUTLOGSINK_H
@@ -13,32 +13,36 @@
 
 #include "a3d/log/sink/LogSink.h"
 
-namespace a3d {
+namespace a3d::log {
 
-    class StdOutLogSink : public LogSink {
+/** @brief LogSink that writes ordinary messages to standard output and errors to standard error. */
+class StdOutLogSink : public LogSink {
 
-    public:
-    /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        StdOutLogSink();
+    /** @brief Creates a standard-stream log sink. */
+    StdOutLogSink();
 
-        StdOutLogSink(const StdOutLogSink&)            = delete;
-        StdOutLogSink& operator=(const StdOutLogSink&) = delete;
+    StdOutLogSink(const StdOutLogSink&)            = delete;
+    StdOutLogSink& operator=(const StdOutLogSink&) = delete;
 
-        StdOutLogSink(StdOutLogSink&&)            = delete;
-        StdOutLogSink& operator=(StdOutLogSink&&) = delete;
+    StdOutLogSink(StdOutLogSink&&)            = delete;
+    StdOutLogSink& operator=(StdOutLogSink&&) = delete;
 
-        ~StdOutLogSink() override;
+    ~StdOutLogSink() override;
 
-    /// Public Member Functions ///
+    // [Public Member Functions]
 
-        void flush() override;
+    /** @brief Flushes buffered standard-stream output. */
+    void flush() override;
 
-    /// Public LogSink Member Functions ///
+    // [Public LogSink Member Functions]
 
-        void write(const std::string& output, Log::Level level) override;
-    };
+    /** @brief Writes Error and Fatal output to standard error and lower severities to standard output. */
+    void write(const std::string& output, Level level) override;
+};
 
-}
+} // namespace a3d::log
 
-#endif //AVARA3D_LOG_SINK_STDOUTLOGSINK_H
+#endif // AVARA3D_LOG_SINK_STDOUTLOGSINK_H

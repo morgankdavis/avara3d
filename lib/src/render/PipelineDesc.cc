@@ -3,14 +3,14 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/render/PipelineDesc.h"
 
-using namespace a3d;
+namespace a3d {
 
-/// Internal Functions ///
+// [Internal Functions]
 
 size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 
@@ -34,3 +34,5 @@ size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 
     return static_cast<size_t>(h);
 }
+
+} // namespace a3d

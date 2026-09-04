@@ -3,21 +3,27 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/input/DesktopInputContext.h"
 
+#include <utility>
+
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-using Key = DesktopInputContext::Key;
-using MouseButton = DesktopInputContext::MouseButton;
+namespace a3d {
+namespace {
 
-/// Public Lifecycle Functions ///
+    using Key = DesktopInputContext::Key;
+    using MouseButton = DesktopInputContext::MouseButton;
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 DesktopInputContext::DesktopInputContext():
     _keysDown {},
@@ -26,14 +32,19 @@ DesktopInputContext::DesktopInputContext():
     _keysPressedCleared {},
     _mouseButtonsPressed {},
     _mouseButtonsPressedCleared {},
+    _keysReleased {},
+    _mouseButtonsReleased {},
+    _mousePosition {0.0f, 0.0f},
     _mousePositionDelta {0.0f, 0.0f},
-    _mouseScrollWheelDelta {0.0f, 0.0f} {}
+    _pendingMousePositionDelta {0.0f, 0.0f},
+    _mouseScrollWheelDelta {0.0f, 0.0f},
+    _pendingMouseScrollWheelDelta {0.0f, 0.0f} {}
 
 DesktopInputContext::~DesktopInputContext() {
     log::d()("Destroying InputContext {:p}", static_cast<void*>(this));
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 bool DesktopInputContext::keyDown(Key key) {
     return _keysDown.count(key);
@@ -61,6 +72,22 @@ bool DesktopInputContext::mouseButtonPressed(MouseButton button) {
     return pressed;
 }
 
+bool DesktopInputContext::keyReleased(Key key) {
+    const bool released = _keysReleased.count(key);
+    if (released) {
+        _keysReleased.erase(key);
+    }
+    return released;
+}
+
+bool DesktopInputContext::mouseButtonReleased(MouseButton button) {
+    const bool released = _mouseButtonsReleased.count(button);
+    if (released) {
+        _mouseButtonsReleased.erase(button);
+    }
+    return released;
+}
+
 unordered_set<Key> DesktopInputContext::keysDown() {
     auto keysDownCopy = _keysDown;
     return keysDownCopy;
@@ -83,24 +110,54 @@ unordered_set<MouseButton> DesktopInputContext::mouseButtonsPressed() {
     return mouseButtonsPressedCopy;
 }
 
-vec2 DesktopInputContext::mousePositionDelta() {
-    auto mouseMoveDeltaCopy = _mousePositionDelta;
-    clearMousePositionDelta();
-    return mouseMoveDeltaCopy;
+const vec2& DesktopInputContext::mousePosition() const {
+
+    return _mousePosition;
 }
 
-vec2 DesktopInputContext::mouseScrollWheelDelta() {
-    auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
-    clearMouseScrollWheelDelta();
-    return mouseScrollWheelDeltaCopy;
+const vec2& DesktopInputContext::mousePositionDelta() const {
+
+    return _mousePositionDelta;
 }
 
-void DesktopInputContext::clearMousePositionDelta() {
-    _mousePositionDelta.x = 0.0f;
-    _mousePositionDelta.y = 0.0f;
+const vec2& DesktopInputContext::mouseScrollWheelDelta() const {
+
+    return _mouseScrollWheelDelta;
 }
 
-void DesktopInputContext::clearMouseScrollWheelDelta() {
-    _mouseScrollWheelDelta.x = 0.0f;
-    _mouseScrollWheelDelta.y = 0.0f;
+// [InputContext Internal Member Functions]
+
+void DesktopInputContext::update(const InputContext::UpdateInfo&) {
+
+    _mousePositionDelta = exchange(_pendingMousePositionDelta, vec2 {0.0f, 0.0f});
+    _mouseScrollWheelDelta = exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
 }
+
+// [Internal Member Functions]
+
+void DesktopInputContext::rebaseMouseMotion() {
+    _mousePositionDelta = {0.0f, 0.0f};
+    _pendingMousePositionDelta = {0.0f, 0.0f};
+}
+
+void DesktopInputContext::releaseAllInputs() {
+
+    _keysReleased.insert(_keysDown.begin(), _keysDown.end());
+    _mouseButtonsReleased.insert(_mouseButtonsDown.begin(), _mouseButtonsDown.end());
+
+    _keysDown.clear();
+    _mouseButtonsDown.clear();
+
+    _keysPressed.clear();
+    _keysPressedCleared.clear();
+
+    _mouseButtonsPressed.clear();
+    _mouseButtonsPressedCleared.clear();
+
+    _mouseScrollWheelDelta = {0.0f, 0.0f};
+    _pendingMouseScrollWheelDelta = {0.0f, 0.0f};
+
+    rebaseMouseMotion();
+}
+
+} // namespace a3d

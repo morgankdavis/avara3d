@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/Scene.h"
@@ -19,29 +19,28 @@
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/profile/Profiler.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/util/Chrono.h"
+#include "a3d/util/Timer.h"
 #include "a3d/visual/VisualWorld.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::filesystem;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
-    // Timer		 timer {true};
     GlTFImporter importer {path, options};
     auto         scene = importer.scene();
-    // log::i()("Loaded Scene '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
     return scene;
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Scene::Scene():
     _name {},
@@ -109,10 +108,12 @@ Scene::~Scene() {
     if (_physicsWorld) {
         _physicsWorld->detachedFromScene(*this);
     }
-    //	if (_inputContext) _inputContext->detachedFromScene(*this);
+    // if (_inputContext) {
+    //     _inputContext->detachedFromScene(*this);
+    // }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const optional<string>& Scene::name() const {
     return _name;
@@ -205,9 +206,9 @@ InputContext* Scene::inputContext() const {
 
 void Scene::inputContext(unique_ptr<InputContext> inputContext) {
 
-    if (_inputContext) {
-        //		_inputContext->detachedFromScene(*this);
-    }
+    // if (_inputContext) {
+    //     _inputContext->detachedFromScene(*this);
+    // }
 
     _inputContext = std::move(inputContext);
 
@@ -217,17 +218,18 @@ void Scene::inputContext(unique_ptr<InputContext> inputContext) {
 }
 
 AABB Scene::aabb(bool vertfit) const {
-    AABB out = AABB::Invalid();
 
-    for (auto& node : rootNode()->children()) {
-        out |= node->aabb();
-    }
-
-    return out;
+    return rootNode()->aabb(vertfit);
 }
 
 vec3 Scene::extent(bool vertfit) const {
-    auto aabb = Scene::aabb(vertfit);
+
+    const auto aabb = Scene::aabb(vertfit);
+
+    if (!aabb.valid()) {
+        return {0.0f, 0.0f, 0.0f};
+    }
+
     return aabb.max - aabb.min;
 }
 
@@ -265,7 +267,7 @@ void Scene::didStepCallback(DidStepCallback callback) {
     _didStepCallback = callback;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void Scene::pollEvents(Profiler& profiler) {
 
@@ -295,7 +297,7 @@ void Scene::updateInput(const InputContext::UpdateInfo& info, Profiler& profiler
     }
 }
 
-PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
+void Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
 
     if (auto callback = willStepCallback()) {
         prof::profile(profiler, Profiler::Tag::Application, [&] {
@@ -303,9 +305,8 @@ PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler)
         });
     }
 
-    PhysicsInventory inventory {};
     if (_physicsWorld) {
-        inventory = _physicsWorld->step(info.deltaTime, profiler);
+        _physicsWorld->step(info.deltaTime, profiler);
     }
 
     if (auto callback = didStepCallback()) {
@@ -313,6 +314,6 @@ PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler)
             callback(*this, info);
         });
     }
-
-    return inventory;
 }
+
+} // namespace a3d

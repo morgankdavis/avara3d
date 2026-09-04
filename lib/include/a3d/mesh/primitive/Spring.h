@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 3/6/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_MESH_PRIMITIVE_SPRING_H
@@ -15,52 +15,71 @@
 
 namespace a3d {
 
-    class Mesh;
-    class Material;
+class Mesh;
+class Material;
 
-    class Spring : public MeshElement {
+/**
+ * @brief Helical spring mesh element aligned along the Z axis.
+ *
+ * Minor radius is the radius of the spring tube itself; major radius is the
+ * distance from the Z axis to the tube centerline. Length is the full axial
+ * length. Slices subdivide the tube cross-section and segments subdivide the
+ * helical path.
+ */
+class Spring : public MeshElement {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
-                                          float                     majorRadius,
-                                          float                     length,
-                                          unsigned                  slices   = DEFAULT_SLICES,
-                                          unsigned                  segments = DEFAULT_SEGMENTS,
-                                          std::shared_ptr<Material> material = nullptr);
+    /** @brief Creates a Mesh containing a Spring and optional @p material. */
+    static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
+                                      float                     majorRadius,
+                                      float                     length,
+                                      unsigned                  slices   = DEFAULT_SLICES,
+                                      unsigned                  segments = DEFAULT_SEGMENTS,
+                                      std::shared_ptr<Material> material = nullptr);
 
-        /// Public Lifecycle Functions ///
+    // [Public Lifecycle Functions]
 
-        Spring(float    minorRadius,
-               float    majorRadius,
-               float    length,
-               unsigned slices   = DEFAULT_SLICES,
-               unsigned segments = DEFAULT_SEGMENTS);
+    /** @brief Generates spring geometry with the supplied dimensions and subdivisions. */
+    Spring(float    minorRadius,
+           float    majorRadius,
+           float    length,
+           unsigned slices   = DEFAULT_SLICES,
+           unsigned segments = DEFAULT_SEGMENTS);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float    minorRadius() const;
-        float    majorRadius() const;
-        float    length() const;
-        unsigned slices() const;
-        unsigned segments() const;
+    /** @brief Returns the configured spring-tube radius. */
+    float    minorRadius() const;
 
-    private:
-        /// Private Constants ///
+    /** @brief Returns the configured radius from the Z axis to the tube centerline. */
+    float    majorRadius() const;
 
-        static constexpr unsigned DEFAULT_SLICES   = 8;
-        static constexpr unsigned DEFAULT_SEGMENTS = 32;
+    /** @brief Returns the configured axial length. */
+    float    length() const;
 
-        /// Private Member Variables ///
+    /** @brief Returns the tube cross-section subdivision count. */
+    unsigned slices() const;
 
-        float                     _minorRadius;
-        float                     _majorRadius;
-        float                     _length;
-        unsigned                  _slices;
-        unsigned                  _segments;
-    };
+    /** @brief Returns the helical-path subdivision count. */
+    unsigned segments() const;
 
-}
+private:
+    // [Private Constants]
 
-#endif //AVARA3D_MESH_PRIMITIVE_SPRING_H
+    static constexpr unsigned DEFAULT_SLICES   = 8;
+    static constexpr unsigned DEFAULT_SEGMENTS = 32;
+
+    // [Private Member Variables]
+
+    float                     _minorRadius;
+    float                     _majorRadius;
+    float                     _length;
+    unsigned                  _slices;
+    unsigned                  _segments;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_MESH_PRIMITIVE_SPRING_H

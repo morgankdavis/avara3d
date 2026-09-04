@@ -1,7 +1,7 @@
-<#A3D_SHADER_HEADER#>
+#header
 
-//layout (location = 0) in vec3 vert_vertPos;
-//layout (location = 1) in vec3 vert_vertColor;
+//layout(location = 0) in vec3 vert_vertPos;
+//layout(location = 1) in vec3 vert_vertColor;
 //
 //uniform mat4 modelMat;
 //uniform mat4 viewMat;
@@ -27,6 +27,6 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 
 void main() {
-	frag_color = vert_vertColor;
-	gl_Position = projMat * viewMat * modelMat * vec4(vert_vertPos, 1.0);
+    frag_color = vert_vertColor;
+    gl_Position = projMat * viewMat * modelMat * vec4(vert_vertPos, 1.0);
 }

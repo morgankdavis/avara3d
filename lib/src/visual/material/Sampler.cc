@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 2/7/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/visual/material/Sampler.h"
@@ -12,10 +12,11 @@
 
 #include "a3d/IdGenerator.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 Sampler::Sampler():
 // TODO: are these sensible?
@@ -76,7 +77,7 @@ Sampler& Sampler::operator=(Sampler&& other) {
 
 Sampler::~Sampler() {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 Sampler::FilterMode Sampler::minificationFilter() const {
     return _minificationFilter;
@@ -146,7 +147,7 @@ void Sampler::wrapR(WrapMode mode) {
     _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::WrapR);
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 SamplerId Sampler::id() const noexcept {
     return _id;
@@ -159,3 +160,5 @@ Sampler::DirtyMask Sampler::dirtyMask() const {
 void Sampler::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

@@ -10,9 +10,11 @@ include(cmake/EnvironmentDetect.cmake)
 include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-option(A3D_BUILD_TESTS "Build A3D tests" ON)
+option(A3D_BUILD_AUTOMATED_TESTS "Build A3D automated tests" ON)
+option(A3D_BUILD_SANDBOX_TESTS   "Build A3D sandbox tests" ON)
 option(A3D_BUILD_DEMOS "Build A3D demos" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
+option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" ON)
 
 # set a default build type only for single-config generators (Ninja/Makefiles)
 # (VS/Xcode ignore CMAKE_BUILD_TYPE)
@@ -67,6 +69,12 @@ set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/
 
 add_subdirectory(lib)
 
+### add documentation ###
+
+if (A3D_BUILD_DOCUMENTATION)
+	add_subdirectory(docs)
+endif()
+
 ### add editor ###
 
 if (A3D_BUILD_EDITOR)
@@ -77,10 +85,13 @@ endif ()
 
 include(cmake/Program.cmake)
 
-if (A3D_BUILD_TESTS)
+if (A3D_BUILD_AUTOMATED_TESTS)
 	enable_testing()
+endif()
+
+if (A3D_BUILD_AUTOMATED_TESTS OR A3D_BUILD_SANDBOX_TESTS)
 	add_subdirectory(tests)
-endif ()
+endif()
 
 if (A3D_BUILD_DEMOS)
 	add_subdirectory(demos)

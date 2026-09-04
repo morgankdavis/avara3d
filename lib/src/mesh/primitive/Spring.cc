@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 3/6/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Spring.h"
@@ -16,11 +16,12 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Spring::Mesh(float                      minorRadius,
                               float                      majorRadius,
@@ -34,7 +35,7 @@ shared_ptr<Mesh> Spring::Mesh(float                      minorRadius,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Spring::Spring(float minorRadius, float majorRadius, float length, unsigned slices, unsigned segments):
     MeshElement {},
@@ -74,7 +75,7 @@ Spring::Spring(float minorRadius, float majorRadius, float length, unsigned slic
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Spring::minorRadius() const {
     return _minorRadius;
@@ -95,3 +96,5 @@ unsigned Spring::slices() const {
 unsigned Spring::segments() const {
     return _segments;
 }
+
+} // namespace a3d

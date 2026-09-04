@@ -13,12 +13,14 @@ absolute_from_repo() {
         printf '%s/%s\n' "${REPO_ROOT}" "${path}"
     fi
 }
+
 SITE_SOURCE_DIR="${REPO_ROOT}/website"
-DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-001-physics-sandbox}"
+DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-janus}"
 WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${1:-build-web-release}}")"
 OUTPUT_DIR="$(absolute_from_repo "${A3D_WEBSITE_OUTPUT_DIR:-${2:-build-website}}")"
 DEMO_SOURCE_DIR="${REPO_ROOT}/demos/${DEMO_NAME}"
 REQUIRE_DEMO="${A3D_REQUIRE_WEB_DEMO:-0}"
+REQUIRE_DOCUMENTATION="${A3D_REQUIRE_DOCUMENTATION:-0}"
 TEMP_DIR="${OUTPUT_DIR}.tmp.$$"
 
 cleanup() {
@@ -28,8 +30,16 @@ trap cleanup EXIT
 
 find_demo_directory() {
     if [[ -n "${A3D_WEB_DEMO_DIR:-}" ]]; then
-        absolute_from_repo "${A3D_WEB_DEMO_DIR}"
-        return
+        local requested
+        requested="$(absolute_from_repo "${A3D_WEB_DEMO_DIR}")"
+
+        if [[ -f "${requested}/${DEMO_NAME}.js" &&
+              -f "${requested}/${DEMO_NAME}.wasm" ]]; then
+            printf '%s\n' "${requested}"
+            return
+        fi
+
+        return 1
     fi
 
     local candidates=(
@@ -40,7 +50,35 @@ find_demo_directory() {
 
     local candidate
     for candidate in "${candidates[@]}"; do
-        if [[ -f "${candidate}/${DEMO_NAME}.js" && -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
+        if [[ -f "${candidate}/${DEMO_NAME}.js" &&
+              -f "${candidate}/${DEMO_NAME}.wasm" ]]; then
+            printf '%s\n' "${candidate}"
+            return
+        fi
+    done
+
+    return 1
+}
+
+find_documentation_directory() {
+    if [[ -n "${A3D_DOCUMENTATION_DIR:-}" ]]; then
+        local requested
+        requested="$(absolute_from_repo "${A3D_DOCUMENTATION_DIR}")"
+        if [[ -f "${requested}/index.html" ]]; then
+            printf '%s\n' "${requested}"
+            return
+        fi
+        return 1
+    fi
+
+    local candidates=(
+        "${REPO_ROOT}/build-documentation/docs/html"
+        "${REPO_ROOT}/gitlab-build-documentation/docs/html"
+    )
+
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if [[ -f "${candidate}/index.html" ]]; then
             printf '%s\n' "${candidate}"
             return
         fi
@@ -66,12 +104,25 @@ cp -a -- "${SITE_SOURCE_DIR}/." "${TEMP_DIR}/"
 # Local development overlays are symlinks inside website/. They are replaced
 # with copied build/source files in the assembled artifact.
 rm -rf -- "${TEMP_DIR}/demo" "${TEMP_DIR}/source"
-rm -f -- "${TEMP_DIR}/.gitignore" "${TEMP_DIR}/README.md" "${TEMP_DIR}/build-info.json"
+rm -f -- \
+    "${TEMP_DIR}/.gitignore" \
+    "${TEMP_DIR}/README.md" \
+    "${TEMP_DIR}/build-info.json" \
+    "${TEMP_DIR}/source-manifest.json"
 mkdir -p -- "${TEMP_DIR}/demo" "${TEMP_DIR}/source"
 
-for source_file in main.cc App.h App.cc; do
-    cp -- "${DEMO_SOURCE_DIR}/${source_file}" "${TEMP_DIR}/source/${source_file}"
-done
+find "${DEMO_SOURCE_DIR}" -maxdepth 1 -type f \
+    \( -name '*.cc' -o -name '*.h' \) \
+    -exec cp -- {} "${TEMP_DIR}/source/" \;
+
+if [[ -d "${DEMO_SOURCE_DIR}/data" ]]; then
+    cp -a -- "${DEMO_SOURCE_DIR}/data" "${TEMP_DIR}/source/data"
+fi
+
+python3 \
+    "${SCRIPT_DIR}/generate-source-manifest.py" \
+    "${DEMO_SOURCE_DIR}" \
+    "${TEMP_DIR}/source-manifest.json"
 
 if DEMO_DIRECTORY="$(find_demo_directory)"; then
     cp -a -- "${DEMO_DIRECTORY}/." "${TEMP_DIR}/demo/"
@@ -85,8 +136,24 @@ else
     fi
 fi
 
-GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD 2>/dev/null || printf 'unknown')"
-GIT_BRANCH="$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
+DOCUMENTATION_INCLUDED=false
+if DOCUMENTATION_DIRECTORY="$(find_documentation_directory)"; then
+    rm -rf -- "${TEMP_DIR}/api"
+    mkdir -p -- "${TEMP_DIR}/api"
+    cp -a -- "${DOCUMENTATION_DIRECTORY}/." "${TEMP_DIR}/api/"
+    DOCUMENTATION_INCLUDED=true
+    printf 'Included API documentation: %s\n' "${DOCUMENTATION_DIRECTORY}"
+else
+    printf 'warning: generated API documentation was not found\n' >&2
+    printf '         the site will retain its API placeholder page\n' >&2
+
+    if [[ "${REQUIRE_DOCUMENTATION}" == "1" ]]; then
+        exit 1
+    fi
+fi
+
+GIT_COMMIT="${CI_COMMIT_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD 2>/dev/null || printf 'unknown')}"
+GIT_BRANCH="${CI_COMMIT_BRANCH:-$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')}"
 BUILD_TIME="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
 cat > "${TEMP_DIR}/build-info.json" <<JSON
@@ -94,7 +161,8 @@ cat > "${TEMP_DIR}/build-info.json" <<JSON
     "branch": "${GIT_BRANCH}",
     "commit": "${GIT_COMMIT}",
     "assembledAt": "${BUILD_TIME}",
-    "demo": "${DEMO_NAME}"
+    "demo": "${DEMO_NAME}",
+    "apiDocumentation": ${DOCUMENTATION_INCLUDED}
 }
 JSON
 

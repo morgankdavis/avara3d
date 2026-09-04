@@ -11,10 +11,11 @@
 #include <cmath>
 #include <stdexcept>
 
-using namespace a3d::util;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d::util {
+
+// [Public Lifecycle Functions]
 
 PeriodicTrigger::PeriodicTrigger(chrono::duration<double> interval, bool deferFirstFire):
     _interval {interval.count()},
@@ -22,12 +23,12 @@ PeriodicTrigger::PeriodicTrigger(chrono::duration<double> interval, bool deferFi
     _nextFireTime {},
     _lastTime {} {
 
-    if (!isfinite(_interval) || _interval <= 0.0) {
-        throw invalid_argument("PeriodicTrigger interval must be positive and finite.");
+    if (_interval <= 0.0) {
+        throw invalid_argument("PeriodicTrigger interval must be positive.");
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 void PeriodicTrigger::reset() noexcept {
 
@@ -35,13 +36,9 @@ void PeriodicTrigger::reset() noexcept {
     _lastTime.reset();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 size_t PeriodicTrigger::dueCount(double time) {
-
-    if (!isfinite(time)) {
-        throw invalid_argument("PeriodicTrigger time must be finite.");
-    }
 
     if (_lastTime && time < *_lastTime) {
         reset();
@@ -62,3 +59,5 @@ size_t PeriodicTrigger::dueCount(double time) {
 
     return count;
 }
+
+} // namespace a3d::util

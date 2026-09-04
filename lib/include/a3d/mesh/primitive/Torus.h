@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_MESH_PRIMITIVE_TORUS_H
@@ -15,48 +15,62 @@
 
 namespace a3d {
 
-    class Mesh;
-    class Material;
+class Mesh;
+class Material;
 
-    class Torus : public MeshElement {
+/**
+ * @brief Torus mesh element centered at the origin in the XY plane.
+ *
+ * Slices subdivide the minor ring and segments subdivide the major ring.
+ */
+class Torus : public MeshElement {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
-                                          float                     majorRadius,
-                                          unsigned                  slices   = DEFAULT_SLICES,
-                                          unsigned                  segments = DEFAULT_SEGMENTS,
-                                          std::shared_ptr<Material> material = nullptr);
+    /** @brief Creates a Mesh containing a Torus and optional @p material. */
+    static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
+                                      float                     majorRadius,
+                                      unsigned                  slices   = DEFAULT_SLICES,
+                                      unsigned                  segments = DEFAULT_SEGMENTS,
+                                      std::shared_ptr<Material> material = nullptr);
 
-        /// Public Lifecycle Functions ///
+    // [Public Lifecycle Functions]
 
-        Torus(float    minorRadius,
-              float    majorRadius,
-              unsigned slices   = DEFAULT_SLICES,
-              unsigned segments = DEFAULT_SEGMENTS);
+    /** @brief Generates torus geometry with the supplied radii and subdivision counts. */
+    Torus(float    minorRadius,
+          float    majorRadius,
+          unsigned slices   = DEFAULT_SLICES,
+          unsigned segments = DEFAULT_SEGMENTS);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float    minorRadius() const;
-        float    majorRadius() const;
-        unsigned slices() const;
-        unsigned segments() const;
+    /** @brief Returns the configured minor-radius parameter. */
+    float    minorRadius() const;
 
-    private:
-        /// Private Constants ///
+    /** @brief Returns the configured major-radius parameter. */
+    float    majorRadius() const;
 
-        static constexpr unsigned DEFAULT_SLICES   = 16;
-        static constexpr unsigned DEFAULT_SEGMENTS = 32;
+    /** @brief Returns the minor-ring subdivision count. */
+    unsigned slices() const;
 
-        /// Private Member Variables ///
+    /** @brief Returns the major-ring subdivision count. */
+    unsigned segments() const;
 
-        float                     _minorRadius;
-        float                     _majorRadius;
-        unsigned                  _slices;
-        unsigned                  _segments;
-    };
+private:
+    // [Private Constants]
 
-}
+    static constexpr unsigned DEFAULT_SLICES   = 16;
+    static constexpr unsigned DEFAULT_SEGMENTS = 32;
 
-#endif /* AVARA3D_MESH_PRIMITIVE_TORUS_H */
+    // [Private Member Variables]
+
+    float                     _minorRadius;
+    float                     _majorRadius;
+    unsigned                  _slices;
+    unsigned                  _segments;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_MESH_PRIMITIVE_TORUS_H

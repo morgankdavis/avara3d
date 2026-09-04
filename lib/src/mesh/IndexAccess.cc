@@ -10,8 +10,9 @@
 
 #include "a3d/mesh/MeshElement.h"
 
-using namespace a3d;
 using namespace std;
+
+namespace a3d {
 
 optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element) {
     const auto        ib = element.indexBytes();
@@ -154,3 +155,5 @@ void IndexAccess::GetTrianglesU32(const MeshElement& element, std::vector<uint32
         out[i] = i;
     }
 }
+
+} // namespace a3d

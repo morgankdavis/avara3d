@@ -8,18 +8,23 @@
 
 #include "a3d/render/DebugLinesBuilder.h"
 
+#include "a3d/Color.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Non-Member Prototypes ///
+namespace a3d {
+namespace {
 
-static void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color);
+    // [Private Non-Member Prototypes]
 
-/// Internal Static Member Functions ///
+    void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color);
+
+} // namespace
+
+// [Internal Static Member Functions]
 
 void DebugLinesBuilder::AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color) {
 
@@ -56,30 +61,48 @@ void DebugLinesBuilder::AppendOBBFromLocalAABB(std::vector<Line>& out,
     AppendBoxLinesFromCorners(out, wc, color);
 }
 
-/// Internal Static Non-Member Functions ///
+void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, const vec3& size) {
 
-void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color) {
-    // indices:
-    // 	0..3: top ring
-    // 	4..7: bottom ring
+    const vec3 origin = vec3(transform * vec4 {0.0f, 0.0f, 0.0f, 1.0f});
 
-    auto add = [&](int a, int b) {
-        out.push_back(Line {c[a], c[b], color});
-    };
+    const vec3 xEnd = vec3(transform * vec4 {size.x, 0.0f, 0.0f, 1.0f});
+    const vec3 yEnd = vec3(transform * vec4 {0.0f, size.y, 0.0f, 1.0f});
+    const vec3 zEnd = vec3(transform * vec4 {0.0f, 0.0f, size.z, 1.0f});
 
-    // top
-    add(0, 1);
-    add(1, 2);
-    add(2, 3);
-    add(3, 0);
-    // bottom
-    add(4, 5);
-    add(5, 6);
-    add(6, 7);
-    add(7, 4);
-    // verticals
-    add(0, 4);
-    add(1, 5);
-    add(2, 6);
-    add(3, 7);
+    out.emplace_back(origin, xEnd, Color {vec3 {1.0f, 0.3f, 0.3f}});
+    out.emplace_back(origin, yEnd, Color {vec3 {0.3f, 1.0f, 0.3f}});
+    out.emplace_back(origin, zEnd, Color {vec3 {0.3f, 0.3f, 1.0f}});
 }
+
+namespace {
+
+    // [Private Non-Member Functions]
+
+    void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const Color& color) {
+        // indices:
+        // 	0..3: top ring
+        // 	4..7: bottom ring
+
+        auto add = [&](int a, int b) {
+            out.push_back(Line {c[a], c[b], color});
+        };
+
+        // top
+        add(0, 1);
+        add(1, 2);
+        add(2, 3);
+        add(3, 0);
+        // bottom
+        add(4, 5);
+        add(5, 6);
+        add(6, 7);
+        add(7, 4);
+        // verticals
+        add(0, 4);
+        add(1, 5);
+        add(2, 6);
+        add(3, 7);
+    }
+
+} // namespace
+} // namespace a3d

@@ -3,31 +3,30 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 
 #include <algorithm>
-#include <format>
-#include <locale>
+#include <cstdlib>
+#include <cstring>
 #include <utility>
 #include <vector>
 
-#include "a3d/render/backend/opengl/gl.h" // needs to be before imgui_impl_opengl3.h ?
+#include "a3d/render/backend/opengl/gl.h" // must be before imgui_impl_opengl3.h
 
-#include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-#include <magic_enum/magic_enum.hpp>
+#ifdef A3D_GL_WEB
+    #include <emscripten/html5_webgl.h>
+#endif
 
 #include "a3d/Assert.h"
 #include "a3d/Buffer.h"
-#include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
-#include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
@@ -42,10 +41,8 @@
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/Chrono.h"
-#include "a3d/util/Filesystem.h"
+#include "a3d/util/Enum.h"
 #include "a3d/util/Flow.h"
-#include "a3d/util/String.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/light/AmbientLight.h"
 #include "a3d/visual/light/DirectionalLight.h"
@@ -63,299 +60,223 @@
         }                                                                                                      \
     } while (0);
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-///  Private Constants ///
+namespace a3d {
+namespace {
 
-static constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
-static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
-static constexpr std::size_t MAX_POINT_LIGHTS {128};
-static constexpr std::size_t MAX_SPOT_LIGHTS {64};
+    // [Private Constants]
 
-// static const std::string STATS_TITLE_FONT_NAME	{"SourceCodePro-Bold"};
-// static const std::string STATS_TITLE_FONT_TYPE	{"otf"};
-// static const float STATS_TITLE_FONT_SIZE			{23.0};
+    constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
+    constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
+    constexpr std::size_t MAX_POINT_LIGHTS {128};
+    constexpr std::size_t MAX_SPOT_LIGHTS {64};
 
-static const std::string STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
-static const std::string STATS_TITLE_FONT_TYPE {"ttf"};
-static const float       STATS_TITLE_FONT_SIZE {21.0};
+    const GLuint ENV_BINDING_POINT {0};
 
-static const std::string STATS_BODY_FONT_NAME {"SourceCodePro-Semibold"};
-static const std::string STATS_BODY_FONT_TYPE {"otf"};
-static const float       STATS_BODY_FONT_SIZE {15.0};
+    // ring buffer size for GL timing queries
+    const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 
-static const std::string STATS_ALT_FONT_NAME {"SourceCodePro-Regular"};
-static const std::string STATS_ALT_FONT_TYPE {"otf"};
-static const float       STATS_ALT_FONT_SIZE {13.0};
+    constexpr gl::uint_t IMGUI_VERTEX_BUFFER_ALLOCATION_ID {1};
+    constexpr gl::uint_t IMGUI_INDEX_BUFFER_ALLOCATION_ID {2};
+    constexpr gl::uint_t IMGUI_TEXTURE_ALLOCATION_ID {3};
 
-static const GLuint ENV_BINDING_POINT {0};
+    // [Private Types]
 
-// ring buffer size for GL timing queries
-static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
+    enum class MaterialContentsType : unsigned {
+        None = 0,
+        Color = 1,
+        Sampler = 2
+    };
 
-// duration of sample history to average over
-static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGING_DURATION {250};
-// how often to recompute the frame stats
-static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGE_UPDATE_INTERVAL {100};
+    static_assert(sizeof(vec4) == 16);
+    static_assert(sizeof(vec3) == 12);
 
-/// Private Types ///
+    struct AmbientLightGLSLStruct {
+        vec4 color;
+    };
 
-enum class MaterialContentsType : unsigned {
-    None = 0,
-    Color = 1,
-    Sampler = 2
-};
+    static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
-static_assert(sizeof(vec4) == 16);
-static_assert(sizeof(vec3) == 12);
+    struct DirectionalLightGLSLStruct {
+        vec4 color;
+        vec3 direction_world;
+        f32  intensity;
+    };
 
-struct AmbientLightGLSLStruct {
-    vec4 color;
-};
+    static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
-static_assert(sizeof(AmbientLightGLSLStruct) == 16);
+    struct PointLightGLSLStruct {
+        vec4 color;
+        vec3 position_world;
+        f32  intensity;
+        f32  constantAttenuation;
+        f32  linearAttenuation;
+        f32  quadraticAttenuation;
+        f32  _pad_0_;
+    };
 
-struct DirectionalLightGLSLStruct {
-    vec4 color;
-    vec3 direction_world;
-    f32  _pad_0_;
-};
+    static_assert(sizeof(PointLightGLSLStruct) == 48);
 
-static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
+    struct SpotLightGLSLStruct {
+        vec4     color;
+        vec3     position_world;
+        f32      intensity;
+        vec3     direction_world;
+        f32      _pad_0_;
+        f32      innerAngleCos;
+        f32      outerAngleCos;
+        uint32_t featheringMode;
+        f32      constantAttenuation;
+        f32      linearAttenuation;
+        f32      quadraticAttenuation;
+        f32      _pad_1_;
+        f32      _pad_2_;
+    };
 
-struct PointLightGLSLStruct {
-    vec4 color;
-    vec3 position_world;
-    f32  _pad_0_;
-    f32  constantAttenuation;
-    f32  linearAttenuation;
-    f32  quadraticAttenuation;
-    f32  _pad_1_;
-};
+    static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
-static_assert(sizeof(PointLightGLSLStruct) == 48);
+    enum class SurfaceType : uint32_t {
+        None = 0,
+        Plane = 1,
+        Sphere = 2
+    };
 
-struct SpotLightGLSLStruct {
-    vec4     color;
-    vec3     position_world;
-    f32      _pad_0_;
-    vec3     direction_world;
-    f32      _pad_1_;
-    f32      innerAngleCos;
-    f32      outerAngleCos;
-    uint32_t featheringMode;
-    f32      constantAttenuation;
-    f32      linearAttenuation;
-    f32      quadraticAttenuation;
-    f32      _pad_2_;
-    f32      _pad_3_;
-};
+    struct SurfaceGLSLStruct {
+        uint32_t type;
+        f32      planeHeight;
+        f32      _pad_0_;
+        f32      _pad_1_;
+        vec3     sphereCenter;
+        f32      sphereRadius;
+    };
 
-static_assert(sizeof(SpotLightGLSLStruct) == 80);
+    static_assert(sizeof(SurfaceGLSLStruct) == 32);
 
-struct FogGLSLStruct {
-    vec4 color;
-    f32  startDistance;
-    f32  endDistance;
-    f32  densityExponent;
-    f32  _pad_0_;
-};
+    struct FogGLSLStruct {
+        vec4     color;
+        f32      startDistance;
+        f32      endDistance;
+        f32      transitionExponent;
+        uint32_t enabled;
+    };
 
-static_assert(sizeof(FogGLSLStruct) == 32);
+    static_assert(sizeof(FogGLSLStruct) == 32);
 
-struct EnvironmentBlock {
-    uint32_t                   useDefaultLighting;
-    uint32_t                   _pad0_[3];
-    uint32_t                   numAmbientLights;
-    uint32_t                   _pad1_[3];
-    AmbientLightGLSLStruct     ambientLights[MAX_AMBIENT_LIGHTS];
-    uint32_t                   numDirectionalLights;
-    uint32_t                   _pad2_[3];
-    DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
-    uint32_t                   numPointLights;
-    uint32_t                   _pad3_[3];
-    PointLightGLSLStruct       pointLights[MAX_POINT_LIGHTS];
-    uint32_t                   numSpotLights;
-    uint32_t                   _pad4_[3];
-    SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
-    FogGLSLStruct              fog;
-};
+    struct AtmosphereHazeGLSLStruct {
+        vec4     color;
+        f32      density;
+        uint32_t enabled;
+        f32      _pad_0_;
+        f32      _pad_1_;
+    };
 
-static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
-static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
-static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
+    static_assert(sizeof(AtmosphereHazeGLSLStruct) == 32);
 
-struct FBORestore {
-    GLint drawFbo = 0, readFbo = 0;
+    struct AtmosphereLimbGlowGLSLStruct {
+        vec4     color;
+        f32      intensity;
+        uint32_t enabled;
+        f32      _pad_0_;
+        f32      _pad_1_;
+    };
 
-    FBORestore() {
-        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
-        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
-    }
+    static_assert(sizeof(AtmosphereLimbGlowGLSLStruct) == 32);
 
-    FBORestore(const FBORestore&) = delete;
-    FBORestore& operator=(const FBORestore&) = delete;
+    struct AtmosphereGLSLStruct {
+        f32                          scaleHeight;
+        uint32_t                     enabled;
+        f32                          _pad_0_;
+        f32                          _pad_1_;
+        AtmosphereHazeGLSLStruct     haze;
+        AtmosphereLimbGlowGLSLStruct limbGlow;
+    };
 
-    FBORestore(FBORestore&&) = delete;
-    FBORestore& operator=(FBORestore&&) = delete;
+    static_assert(sizeof(AtmosphereGLSLStruct) == 80);
 
-    ~FBORestore() {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
-    }
-};
+    struct EnvironmentBlock {
+        uint32_t                   defaultLightingEnabled;
+        uint32_t                   _pad0_[3];
+        uint32_t                   numAmbientLights;
+        uint32_t                   _pad1_[3];
+        AmbientLightGLSLStruct     ambientLights[MAX_AMBIENT_LIGHTS];
+        uint32_t                   numDirectionalLights;
+        uint32_t                   _pad2_[3];
+        DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
+        uint32_t                   numPointLights;
+        uint32_t                   _pad3_[3];
+        PointLightGLSLStruct       pointLights[MAX_POINT_LIGHTS];
+        uint32_t                   numSpotLights;
+        uint32_t                   _pad4_[3];
+        SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
+        FogGLSLStruct              fog;
+        vec3                       viewPosition_world; // TODO: move this out to a new ViewBlock
+        f32                        _pad5_0_;
+        SurfaceGLSLStruct          surface;
+        AtmosphereGLSLStruct       atmosphere;
+    };
 
-struct ImguiStatsTextLayout {
-    float xLeft;
-    float xRight;
-    float gap; // min gap between label and value
-};
+    static_assert(offsetof(EnvironmentBlock, fog) == 12112);
+    static_assert(offsetof(EnvironmentBlock, viewPosition_world) == 12144);
+    static_assert(offsetof(EnvironmentBlock, surface) == 12160);
+    static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
+    static_assert(sizeof(EnvironmentBlock) == 12272);
 
-/// Private Static Non-Member Prototypes ///
+    struct FBORestore {
+        GLint drawFbo = 0, readFbo = 0;
 
-static void LogGLInfo();
+        FBORestore() {
+            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
+            glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
+        }
 
-static void SendMaterialUniforms(const Material&              material,
-                                 GLSLProgram&                 program,
-                                 const std::array<GLuint, 4>& glTextureHandles,
-                                 OGLRenderer::GLStateCache&   state);
+        FBORestore(const FBORestore&) = delete;
+        FBORestore& operator=(const FBORestore&) = delete;
 
-static void SendMaterialPropertyUniforms(const Material::Property&  property,
-                                         Material::PropertyType     type,
-                                         GLuint                     glTextureHandle,
-                                         GLSLProgram&               program,
-                                         OGLRenderer::GLStateCache& state);
+        FBORestore(FBORestore&&) = delete;
+        FBORestore& operator=(FBORestore&&) = delete;
 
-static void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
-                                    const Scene&         scene,
-                                    const vector<Node*>& lightNodes,
-                                    FrameStats&          stats);
+        ~FBORestore() {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
+        }
+    };
 
-static void ApplyBlendFunction(Material::BlendFunction func);
+    // [Private Non-Member Prototypes]
 
-static GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
+    void LogGLInfo();
 
-static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
+    void SendMaterialUniforms(const Material&              material,
+                              GLSLProgram&                 program,
+                              const std::array<GLuint, 4>& glTextureHandles,
+                              OGLRenderer::GLStateCache&   state);
 
-static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
+    void SendMaterialPropertyUniforms(const Material::Property&  property,
+                                      Material::PropertyType     type,
+                                      GLuint                     glTextureHandle,
+                                      GLSLProgram&               program,
+                                      OGLRenderer::GLStateCache& state);
 
-static void DrawOverlay(const RenderContext&     context,
-                        const Scene&             scene,
-                        FrameStats&              stats,
-                        const FrameStatsHistory& statsHistory,
-                        Scene::DebugOptions      debugOptions,
-                        ImFont&                  titleFont,
-                        ImFont&                  bodyFont,
-                        ImFont&                  altBodyFont);
+    void SendDrawUniforms(const DrawItem& item, GLSLProgram& program);
 
-static void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out);
+    void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
+                                 const Scene&         scene,
+                                 const math::mat4&    view,
+                                 const vector<Node*>& lightNodes,
+                                 FrameStats&          stats);
 
-static void DrawStats(FrameStats&              stats,
-                      const FrameStatsHistory& statsHistory,
-                      const RenderContext&     context,
-                      ImFont&                  bodyFont,
-                      ImFont&                  altBodyFont,
-                      float                    yPos,
-                      int                      id);
+    void ApplyBlendFunction(Material::BlendFunction func);
 
-static void DrawDebugOptions(Scene& scene, ImFont& bodyFont);
+    GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
 
-static void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont);
+    GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
-static void ImguiUpdateScale(const RenderContext& context);
+    GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
-static void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont);
+} // namespace
 
-static void ImguiBeginOverlay(int id, bool allowsInput);
-
-static void ImguiEndOverlay();
-
-static void ImguiDrawText(float       x,
-                          float       y,
-                          const char* text,
-                          ImFont&     font,
-                          float       size,
-                          ImU32       color,
-                          bool        shadow);
-
-static void ImguiDrawSimulationPlot(float        x,
-                                    float&       y,
-                                    float        w,
-                                    float        h,
-                                    const float* stepValues,
-                                    const float* discardMarkers,
-                                    int          valuesCount,
-                                    float        scaleMax,
-                                    int          id,
-                                    float        lineStep);
-
-static void ImguiDrawPlot(float        x,
-                          float        y,
-                          float        w,
-                          float        h,
-                          const float* values,
-                          int          valuesCount,
-                          int          valuesOffset,
-                          const char*  overlayText,
-                          ImFont*      overlayFont,
-                          float        overlayFontSize,
-                          float        scaleMin,
-                          float        scaleMax,
-                          int          stride,
-                          bool         outlined,
-                          int          id,
-                          bool         disabled);
-
-static bool ImguiDrawCheckbox(float       x,
-                              float       y,
-                              const char* text,
-                              bool&       checked,
-                              ImFont&     font,
-                              float       size,
-                              bool        disabled,
-                              int         id);
-
-static void ImguiDrawLabelValue(float&                      y,
-                                const ImguiStatsTextLayout& layout,
-                                const char*                 label,
-                                const std::string&          value,
-                                ImFont&                     font,
-                                float                       fontSize,
-                                float                       lineStep,
-                                ImU32                       color = IM_COL32(255, 255, 255, 255),
-                                std::optional<ImU32>        valueColor = std::nullopt);
-
-static void ImguiDrawLabelValueIndented(float&                      y,
-                                        const ImguiStatsTextLayout& layout,
-                                        const char*                 label,
-                                        const std::string&          value,
-                                        ImFont&                     font,
-                                        float                       fontSize,
-                                        float                       indentPx,
-                                        float                       lineStep,
-                                        ImU32                       color = IM_COL32(255, 255, 255, 255));
-
-static void ImguiDrawPlot(float        x,
-                          float&       y,
-                          float        w,
-                          float        h,
-                          const float* values,
-                          int          valuesCount,
-                          int          valuesOffset,
-                          const char*  overlayText,
-                          ImFont*      overlayFont,
-                          float        overlayFontSize,
-                          float        scaleMin,
-                          float        scaleMax,
-                          int          stride,
-                          bool         outlined,
-                          int          id,
-                          float        lineStep,
-                          bool         disabled);
-
-/// Private Static Members ///
+// [Private Static Members]
 
 bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
     static bool initialized = false;
@@ -389,40 +310,87 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
     return true;
 }
 
-/// Internal Lifecycle Functions ///
+// [Internal Lifecycle Functions]
 
 OGLRenderer::OGLRenderer():
     Renderer {},
     _isInitialized {false},
-    _resourceCache {},
-    _skyboxMesh {},
+    _glCapabilities {},
+    _capabilities {},
     _glEnvironmentUBO {0},
-    _overlayTitleImFont {nullptr},
-    _overlayBodyImFont {nullptr},
-    _overlayAltImFont {nullptr},
+    _skyboxProgram {nullptr},
+    _groundProgram {nullptr},
+    _defaultProgram {nullptr},
+    _wireframeProgram {nullptr},
+    _linesProgram {nullptr},
+    _resourceCache {_memoryTracker},
+    _state {},
+    _boundElement {},
+    _skyboxMesh {},
+    _fullscreenTriangleVao {},
+    _debugLines {_memoryTracker},
+    _imguiContext {},
+    _statsOverlay {},
     _drawTimer {DRAW_TIMER_BUFFER_SIZE} {}
 
 OGLRenderer::~OGLRenderer() {
     log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 
-    glDeleteBuffers(1, &_glEnvironmentUBO);
+    if (_fullscreenTriangleVao != 0) {
+        glDeleteVertexArrays(1, &_fullscreenTriangleVao);
+    }
+
+    if (_glEnvironmentUBO != 0) {
+        _memoryTracker.removeAllocation({
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            _glEnvironmentUBO,
+        });
+
+        glDeleteBuffers(1, &_glEnvironmentUBO);
+    }
 
     _debugLines.destroy();
 
-    ImGui_ImplOpenGL3_Shutdown();
-    //	ImPlot::DestroyContext();
-    ImGui::DestroyContext();
+    _imguiContext.shutdown();
+    _memoryTracker.clearSource(OGLMemoryTracker::Source::ImGui);
 }
 
-/// Renderer Internal Member Functions ///
+// [Renderer Internal Member Functions]
 
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
 
-    _defaultProgram = make_unique<GLSLProgram>("default");
+#ifdef A3D_GL_DESKTOP
+    _glCapabilities.polygonMode = true;
+#elif defined(A3D_GL_WEB)
+    const auto webGLContext = emscripten_webgl_get_current_context();
+    log::i()("WebGL context handle: {}", webGLContext);
+    if (webGLContext) {
+        char*      extensions = emscripten_webgl_get_supported_extensions();
+        const bool advertised = extensions && std::strstr(extensions, "WEBGL_polygon_mode");
+        log::i()("WEBGL_polygon_mode advertised: {}", advertised ? "yes" : "no");
+        _glCapabilities.polygonMode = emscripten_webgl_enable_WEBGL_polygon_mode(webGLContext);
+        log::i()("WEBGL_polygon_mode enabled: {}", _glCapabilities.polygonMode ? "yes" : "no");
+        std::free(extensions);
+    }
+    else {
+        _glCapabilities.polygonMode = false;
+        log::w()("No current Emscripten WebGL context.");
+    }
+#elif defined(A3D_GL_ES)
+    _glCapabilities.polygonMode = false;
+#endif
+    _capabilities.wireframeRendering = _glCapabilities.polygonMode;
+
     _skyboxProgram = make_unique<GLSLProgram>("skybox");
-    _wireframeProgram = make_unique<GLSLProgram>("wireframe");
+    _groundProgram = make_unique<GLSLProgram>("ground");
+    _defaultProgram = make_unique<GLSLProgram>("default");
+    if (_capabilities.wireframeRendering) {
+        _wireframeProgram = make_unique<GLSLProgram>("wireframe");
+    }
     _linesProgram = make_unique<GLSLProgram>("lines");
+
+    glGenVertexArrays(1, &_fullscreenTriangleVao);
 
     GLint maxSize = 0;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
@@ -431,6 +399,14 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     glGenBuffers(1, &_glEnvironmentUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            _glEnvironmentUBO,
+        },
+        OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::UniformBuffer, sizeof(EnvironmentBlock));
+
     glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO);
 
     // just do it here even if not used
@@ -444,13 +420,18 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         }
         glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
     };
+    bindBlock(_skyboxProgram->glID(), "EnvironmentBlock");
     bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
-    bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
+    bindBlock(_groundProgram->glID(), "EnvironmentBlock");
+    if (_wireframeProgram) {
+        bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
+    }
 
-    _drawTimer.initialize();
+    _glCapabilities.drawTimer = _drawTimer.initialize();
+    _capabilities.gpuTiming = _glCapabilities.drawTimer;
 
-    // TODO: make failable?
-    ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont, _overlayAltImFont);
+    _imguiContext.startup(context);
+    _statsOverlay.initialize(_imguiContext);
 
     _isInitialized = true;
 
@@ -461,17 +442,18 @@ bool OGLRenderer::isInitialized() const {
     return _isInitialized;
 }
 
+const Renderer::Capabilities& OGLRenderer::capabilities() const {
+    return _capabilities;
+}
+
 void OGLRenderer::beginFrame(const Scene&               scene,
                              const RenderContext&       context,
                              const Scene::DebugOptions& debugOptions,
                              FrameStats&                stats,
                              Profiler&                  profiler) {
-    if (_drawTimer.isAvailable()) {
-        stats.isRenderGpuTimeAvailable = true;
+
+    if (_glCapabilities.drawTimer) {
         _drawTimer.begin();
-    }
-    else {
-        stats.isRenderGpuTimeAvailable = false;
     }
 
     _state = {};
@@ -481,9 +463,13 @@ void OGLRenderer::beginFrame(const Scene&               scene,
 
     _boundElement = {};
 
-    ImguiUpdateScale(context);
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
+    const auto viewportSize = context.viewportLogicalSize();
+    const auto viewportScale = context.viewportScale();
+
+    glViewport(0, 0, static_cast<GLsizei>(viewportSize.x * viewportScale.x),
+               static_cast<GLsizei>(viewportSize.y * viewportScale.y));
+
+    _imguiContext.beginFrame(context);
 }
 
 void OGLRenderer::endFrame(const Scene&               scene,
@@ -492,12 +478,29 @@ void OGLRenderer::endFrame(const Scene&               scene,
                            FrameStats&                stats,
                            Profiler&                  profiler,
                            const FrameStatsHistory&   statsHistory) {
-    DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_overlayTitleImFont, *_overlayBodyImFont,
-                *_overlayAltImFont);
+
+    // give the overlay the latest completed memory snapshot
+    stats.renderMemory = _memoryTracker.stats();
+
+    _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions, _capabilities.gpuTiming);
+
+    // ImGui's WebGL backend doesn't manage WEBGL_polygon_mode state.
+    // Restore normal polygon rasterization before rendering ImGui.
+#ifdef A3D_GL_WEB
+    if (_glCapabilities.polygonMode) {
+        glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+        glDisable(GL_POLYGON_OFFSET_LINE_WEBGL);
+    }
+#endif
+
+    _imguiContext.endFrame();
+    syncImguiMemoryStats();
+    // publish the final memory state for this completed frame
+    stats.renderMemory = _memoryTracker.stats();
 
     A3D_GL_CHECK();
 
-    if (_drawTimer.isAvailable()) {
+    if (_glCapabilities.drawTimer) {
         profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
     }
 }
@@ -509,10 +512,11 @@ void OGLRenderer::preTraversal(const Scene&               scene,
 
 void OGLRenderer::postTraversal(const Scene&               scene,
                                 const RenderContext&       context,
+                                const math::mat4&          view,
                                 const vector<Node*>&       lightNodes,
                                 const Scene::DebugOptions& debugOptions,
                                 FrameStats&                stats) {
-    SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+    SendEnvironmentUniforms(_glEnvironmentUBO, scene, view, lightNodes, stats);
 }
 
 void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
@@ -540,9 +544,10 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
 
     // apply scissor
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(cmd.scissorRect.x, cmd.scissorRect.y, cmd.scissorRect.w, cmd.scissorRect.h);
+        const auto& scissor = *cmd.scissor;
+        glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
     }
     else if (prevScissorEnabled) {
         // leave as-is
@@ -592,7 +597,7 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
         glStencilMask((GLuint) prevStencilMask);
     }
 
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         if (prevScissorEnabled) {
             glEnable(GL_SCISSOR_TEST);
             glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
@@ -622,44 +627,136 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
     return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-/// Renderer Protected Member Functions ///
+// [Renderer Protected Member Functions]
 
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
                                  const math::mat4&     view,
                                  const math::mat4&     proj) {
+
     if (!backgroundPass.material) {
         return;
     }
 
-    auto bgEmission = backgroundPass.material->emission();
-    if (auto color = std::get_if<std::shared_ptr<Color>>(&bgEmission)) {
-        if (*color) {
-            auto rgba = (*color)->rgba();
-            glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
-            glClear(GL_COLOR_BUFFER_BIT);
-            return;
-        }
+    bindPipeline(backgroundPass.pipelineId);
+
+    const auto& contents = backgroundPass.material->emission();
+
+    if (const auto* color = get_if<Color>(&contents)) {
+
+        _skyboxProgram->setUniform("backgroundUsesCubemap", false);
+        _skyboxProgram->setUniform("backgroundColor", color->rgba());
     }
+    else if (get_if<shared_ptr<Texture>>(&contents)) {
 
-    // TODO: check equality?
-    // TODO: stop using shared_ptr???????
+        _skyboxProgram->setUniform("backgroundUsesCubemap", true);
 
-    if (_skyboxMesh->materials().empty()) {
-        _skyboxMesh->addMaterial(backgroundPass.material);
+        // the Background setter has already validated that this Texture
+        // contains a CubeImage. bindMaterial() resolves and binds cubeSampler.
+        bindMaterial(*backgroundPass.material);
     }
     else {
-        _skyboxMesh->replaceMaterial(0, backgroundPass.material);
+
+        // background validation should make this unreachable.
+        return;
     }
 
-    bindPipeline(backgroundPass.pipelineId, _resourceCache);
-    bindMaterial(*(_skyboxMesh->materials().front()));
+    const mat3 sampleRotation = mat3_cast(inverse(backgroundPass.orientation));
+
+    _skyboxProgram->setUniform("backgroundSampleRotation", sampleRotation);
+
     bindMeshElement(*(_skyboxMesh->elements().front()));
-    applyMVP(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
+
+    // keep the background centered on the viewer.
+    applyMVP(mat4(1.0f), mat4(mat3(view)), proj);
 
     drawElements();
 }
 
-void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) {
+void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, const mat4& proj) {
+
+    if (!groundPass.ground) {
+        return;
+    }
+
+    if (groundPass.pipelineId == INVALID_PIPELINE_ID) {
+        return;
+    }
+
+    const auto& ground = *groundPass.ground;
+
+    bindPipeline(groundPass.pipelineId);
+
+    const mat4 viewProj = proj * view;
+
+    _groundProgram->setUniform("viewMat", view);
+    _groundProgram->setUniform("viewProjMat", viewProj);
+    _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
+
+    if (const auto* procedural = get_if<Ground::Procedural>(&ground.fill)) {
+
+        _groundProgram->setUniform("groundFillType", 0u);
+
+        const auto& grid = get<Ground::Procedural::Grid>(procedural->content);
+
+        _groundProgram->setUniform("groundColor", grid.color.rgb());
+
+        const bool minorGridEnabled = grid.minor.has_value();
+        _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
+        if (minorGridEnabled) {
+            const auto& component = *grid.minor;
+            _groundProgram->setUniform("minorGridColor", component.color.rgba());
+            _groundProgram->setUniform("minorGridSpacing", component.spacing);
+            _groundProgram->setUniform("minorGridLineWidthPixels", component.lineWidthPixels);
+            _groundProgram->setUniform("minorGridReliefStrength", component.reliefStrength);
+        }
+
+        const bool majorGridEnabled = grid.major.has_value();
+        _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
+        if (majorGridEnabled) {
+            const auto& component = *grid.major;
+            _groundProgram->setUniform("majorGridColor", component.color.rgba());
+            _groundProgram->setUniform("majorGridSpacing", component.spacing);
+            _groundProgram->setUniform("majorGridLineWidthPixels", component.lineWidthPixels);
+            _groundProgram->setUniform("majorGridReliefStrength", component.reliefStrength);
+        }
+
+        _groundProgram->setUniform("groundSpecularIntensity", grid.specularIntensity);
+        _groundProgram->setUniform("groundSpecularExponent", grid.specularExponent);
+    }
+    else {
+
+        _groundProgram->setUniform("groundFillType", 1u);
+
+        const auto& configuredMaterial = get<shared_ptr<Material>>(ground.fill);
+        const auto  material = configuredMaterial ? configuredMaterial : Material::DefaultMaterial();
+
+        bindMaterial(*material);
+    }
+
+    const bool radialFadeEnabled = ground.radialFade.has_value();
+    _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
+    if (radialFadeEnabled) {
+        const auto& fade = *ground.radialFade;
+        _groundProgram->setUniform("radialFadeColor", fade.color.rgba());
+        _groundProgram->setUniform("radialFadeCenter", fade.center);
+        _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
+        _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
+    }
+
+    const bool horizonHazeEnabled = ground.horizonHaze.has_value();
+    _groundProgram->setUniform("horizonHazeEnabled", horizonHazeEnabled);
+    if (horizonHazeEnabled) {
+        const auto& haze = *ground.horizonHaze;
+        _groundProgram->setUniform("horizonHazeColor", haze.color.rgba());
+        _groundProgram->setUniform("horizonHazeAngularWidth", haze.angularWidth);
+    }
+
+    glBindVertexArray(_fullscreenTriangleVao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
+
+void OGLRenderer::bindPipeline(PipelineId pipelineId) {
     if (_state.pipelineId == pipelineId) {
         GLint cur = 0;
         glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
@@ -669,7 +766,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
         // else: stale cache, fallthrough and rebind
     }
 
-    const OGLPipeline& pipeline = cache.pipeline(pipelineId);
+    const OGLPipeline& pipeline = _resourceCache.pipeline(pipelineId);
     glUseProgram(pipeline.program);
     _state.program = pipeline.program;
     _state.material = nullptr;
@@ -689,24 +786,30 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
     else {
         glDisable(GL_DEPTH_TEST);
     }
+
     glDepthMask(pipeline.desc.depthWrite ? GL_TRUE : GL_FALSE);
 
     ApplyBlendFunction(pipeline.desc.blendFunction);
 
 #ifdef A3D_GL_DESKTOP
+
     switch (pipeline.desc.fillMode) {
         case Material::FillMode::Fill:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
+
         case Material::FillMode::Lines:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
+
         case Material::FillMode::Points:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             break;
     }
+
     const bool lineSmooth =
         (pipeline.desc.passKind == PassKind::Lines) || (pipeline.desc.passKind == PassKind::Wireframe);
+
     if (lineSmooth) {
         glEnable(GL_LINE_SMOOTH);
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -717,11 +820,41 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
 
     if (pipeline.desc.polygonOffset) {
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(.01, 0); // ! check !
+        glPolygonOffset(.01f, 0.0f); // ! check !
     }
     else {
         glDisable(GL_POLYGON_OFFSET_LINE);
     }
+
+#elif defined(A3D_GL_WEB)
+
+    if (_glCapabilities.polygonMode) {
+        switch (pipeline.desc.fillMode) {
+            case Material::FillMode::Fill:
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+                break;
+
+            case Material::FillMode::Lines:
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_LINE_WEBGL);
+                break;
+
+            case Material::FillMode::Points:
+                // WEBGL_polygon_mode does not support point polygon mode.
+                // Explicitly restore fill mode so a previous Lines pipeline
+                // does not leave polygon mode stuck on GL_LINE_WEBGL.
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+                break;
+        }
+
+        if (pipeline.desc.polygonOffset) {
+            glEnable(GL_POLYGON_OFFSET_LINE_WEBGL);
+            glPolygonOffset(.01f, 0.0f); // ! check !
+        }
+        else {
+            glDisable(GL_POLYGON_OFFSET_LINE_WEBGL);
+        }
+    }
+
 #endif
 
     _state.pipelineId = pipelineId;
@@ -742,13 +875,16 @@ void OGLRenderer::bindMaterial(const Material& material) {
     switch (pipeline.desc.shaderKind) {
         case ShaderKind::Default:
             program = _defaultProgram.get();
-            break; // chill
+            break;
+        case ShaderKind::Ground:
+            program = _groundProgram.get();
+            break;
         case ShaderKind::Skybox:
             program = _skyboxProgram.get();
-            break; // chill
+            break;
         default:
             _state.material = &material;
-            return; // not chill
+            return;
     }
 
     // resolve material once (uploads textures  applies sampler states via cache)
@@ -764,8 +900,15 @@ void OGLRenderer::bindMaterial(const Material& material) {
     // OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
 
     // TODO: !!! THIS IS A DIRTY HACK !!!
-    if (pipeline.desc.shaderKind == ShaderKind::Default) {
+    if (pipeline.desc.shaderKind == ShaderKind::Default || pipeline.desc.shaderKind == ShaderKind::Ground) {
+
         SendMaterialUniforms(material, *program, glTextureHandles, _state);
+    }
+    else if (pipeline.desc.shaderKind == ShaderKind::Skybox) {
+
+        constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
+        program->bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandles[emissionSlot],
+                             0);
     }
 
     _state.material = &material;
@@ -777,11 +920,10 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
     const VertexLayout elemLayout = element.vertexLayout();
     const VertexLayout pipeLayout = pipe.desc.vertexLayoutKey;
 
-    // TODO: change?
-    if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
-        log::e()("VertexLayout mismatch: element={}, pipeline={}", (uint32_t) elemLayout,
-                 (uint32_t) pipeLayout);
-        return; // skip draw
+    if (elemLayout != pipeLayout) {
+        throw logic_error(std::format("VertexLayout mismatch for pipeline {}: element={}, pipeline={}",
+                                      _state.pipelineId, static_cast<uint32_t>(elemLayout),
+                                      static_cast<uint32_t>(pipeLayout)));
     }
 
     auto*       e = const_cast<MeshElement*>(&element);
@@ -835,47 +977,10 @@ void OGLRenderer::drawElements() {
     }
 }
 
-void OGLRenderer::draw(const DrawCommand& cmd) {
-    // wrapper over bindPipeline/bindMaterial/bindMeshElement/applyMVP/drawElements
-    bindPipeline(cmd.pipelineId, *cmd.cache);
-    if (cmd.material) {
-        bindMaterial(*cmd.material);
-    }
-    if (cmd.element) {
-        bindMeshElement(*cmd.element);
-    }
-    applyMVP(cmd.model, cmd.view, cmd.proj);
-    drawElements();
-}
-
-GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
-    switch (kind) {
-        case ShaderKind::Default:
-            return *_defaultProgram;
-        case ShaderKind::Skybox:
-            return *_skyboxProgram;
-        case ShaderKind::Wireframe:
-            return *_wireframeProgram;
-        case ShaderKind::Lines:
-            return *_linesProgram;
-    }
-    throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
-}
-
-void OGLRenderer::drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj) {
-    // helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
-    // and doesn't follow the normal mesh binding pipeline.
-    applyMVP(model, view, proj);
-
-    glBindVertexArray(_debugLines.vao);
-    glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
-    glBindVertexArray(0);
-}
-
-void OGLRenderer::renderLinesPass(const LinesPass&     pass,
-                                  const RenderContext& context,
-                                  const mat4&          view,
-                                  const mat4&          proj) {
+void OGLRenderer::drawLines(const LinesPass&     pass,
+                            const RenderContext& context,
+                            const mat4&          view,
+                            const mat4&          proj) {
     if (pass.pipelineId == INVALID_PIPELINE_ID) {
         return;
     }
@@ -888,13 +993,14 @@ void OGLRenderer::renderLinesPass(const LinesPass&     pass,
     // - they use their own VAO/VBO (_debugLines)
     // - they render GL_LINES topology, not GL_TRIANGLES
     // see drawDebugLines() for why this pattern is separate.
+    // see drawDebugLines() for why this pattern is separate.
 
-    bindPipeline(pass.pipelineId, _resourceCache);
+    bindPipeline(pass.pipelineId);
     _debugLines.upload(pass.lines);
     drawDebugLines(pass.model, view, proj);
 }
 
-/// Protected Member Functions ///
+// [Protected Member Functions]
 
 void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
     // "resolve / prepare / compile / bake"
@@ -911,6 +1017,14 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
     // background
     if (packet.backgroundPass.material) {
         resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
+    }
+
+    // ground
+    if (packet.groundPass.ground) {
+        resolvePipeline(packet.groundPass.pipelineId, packet.groundPass.desc);
+    }
+    else {
+        packet.groundPass.pipelineId = INVALID_PIPELINE_ID;
     }
 
     // main + wireframe items
@@ -940,6 +1054,10 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
         drawBackground(packet.backgroundPass, frame.view, frame.proj);
     }
 
+    if (packet.groundPass.ground) {
+        drawGround(packet.groundPass, frame.view, frame.proj);
+    }
+
     // NOTE: items are already sorted by pass + desc hash, so this will batch nicely
     for (const auto& di : packet.mainPassItems) {
         if (di.pipelineId == INVALID_PIPELINE_ID) {
@@ -949,11 +1067,15 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
             continue;
         }
 
-        bindPipeline(di.pipelineId, _resourceCache);
+        bindPipeline(di.pipelineId);
 
         // only bind material for shaderKinds that use it (bindMaterial() already early-outs)
         if (di.material) {
             bindMaterial(*di.material);
+        }
+
+        if (di.desc.shaderKind == ShaderKind::Default) {
+            SendDrawUniforms(di, *_defaultProgram);
         }
 
         bindMeshElement(*di.element);
@@ -969,1216 +1091,516 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
             continue;
         }
 
-        bindPipeline(di.pipelineId, _resourceCache);
+        bindPipeline(di.pipelineId);
+
+        SendDrawUniforms(di, *_wireframeProgram);
+
         // no bindMaterial (wire shader typically ignores it)
         bindMeshElement(*di.element);
         applyMVP(di.model, frame.view, frame.proj);
         drawElements();
     }
 
-    renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
+    drawLines(packet.linesPass, frame.context, frame.view, frame.proj);
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Member Functions]
 
-void LogGLInfo() {
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version = glGetString(GL_VERSION);
-
-    log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
-    log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
-    log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
-}
-
-void SendMaterialUniforms(const Material&              material,
-                          GLSLProgram&                 program,
-                          const std::array<GLuint, 4>& glTextureHandles,
-                          OGLRenderer::GLStateCache&   state) {
-    // sends uniforms for the Material, and MaterialProperties it has
-
-    program.setUniform("specularExponent", material.specularExponent());
-    program.setUniform("uvScale", material.uvScale());
-    //program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-    program.setUniform("emissionContentsType", (unsigned) 0); // 0 = MaterialType_None -- why is this here?
-    //program.setUniform("defaultLighting", 0);
-
-    for (auto& [property, type] : material.properties()) {
-        if (!holds_alternative<monostate>(*property)) {
-            const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
-
-            const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
-
-            SendMaterialPropertyUniforms(*property, type, h, program, state);
-        }
+GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
+    switch (kind) {
+        case ShaderKind::Skybox:
+            return *_skyboxProgram;
+        case ShaderKind::Ground:
+            return *_groundProgram;
+        case ShaderKind::Default:
+            return *_defaultProgram;
+        case ShaderKind::Wireframe:
+            return *_wireframeProgram;
+        case ShaderKind::Lines:
+            return *_linesProgram;
     }
+    throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
 }
 
-void SendMaterialPropertyUniforms(const Material::Property&  property,
-                                  Material::PropertyType     type,
-                                  GLuint                     glTextureHandle,
-                                  GLSLProgram&               program,
-                                  OGLRenderer::GLStateCache& state) {
-    std::visit(
-        [&type, &program, &glTextureHandle](auto&& property) -> void {
-            using T = std::decay_t<decltype(property)>;
+void OGLRenderer::drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj) {
+    // helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
+    // and doesn't follow the normal mesh binding pipeline.
+    applyMVP(model, view, proj);
 
-            if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
-                std::visit(
-                    [&type, &glTextureHandle, &program](auto&& contents) -> void {
-                        using T = std::decay_t<decltype(contents)>;
+    glBindVertexArray(_debugLines.vao);
+    glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
+    glBindVertexArray(0);
+}
 
-                        if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
-                            string modeUniformName;
-                            string samplerUniformName;
-                            GLenum slot;
-                            GLint  index;
+void OGLRenderer::syncImguiMemoryStats() {
 
-                            switch (type) {
-                                case Material::PropertyType::Ambient:
-                                    modeUniformName = "ambientContentsType";
-                            //samplerUniformName = "samplers.ambient";
-                                    samplerUniformName = "ambientSampler";
-                                    slot = GL_TEXTURE0;
-                                    index = 0;
-                                    break;
-                                case Material::PropertyType::Diffuse:
-                                    modeUniformName = "diffuseContentsType";
-                            //samplerUniformName = "samplers.diffuse";
-                                    samplerUniformName = "diffuseSampler";
-                                    slot = GL_TEXTURE1;
-                                    index = 1;
-                                    break;
-                                case Material::PropertyType::Specular:
-                                    modeUniformName = "specularContentsType";
-                            //samplerUniformName = "samplers.specular";
-                                    samplerUniformName = "specularSampler";
-                                    slot = GL_TEXTURE2;
-                                    index = 2;
-                                    break;
-                                case Material::PropertyType::Emission:
-                                    modeUniformName = "emissionContentsType";
-                            //samplerUniformName = "samplers.emission";
-                                    samplerUniformName = "emissionSampler";
-                                    slot = GL_TEXTURE3;
-                                    index = 3;
-                                    break;
-                                default:
-                                    log::e()("Invalid MaterialPropertyType: {}",
-                                             magic_enum::enum_name<Material::PropertyType>(type));
-                                    return;
-                            }
+    const auto stats = ImGui_ImplOpenGL3_GetMemoryStats();
 
-                            program.setUniform(modeUniformName.c_str(),
-                                               static_cast<underlying_type<
-                                                   MaterialContentsType>::type>(MaterialContentsType::Sampler));
-                            program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot,
-                                                glTextureHandle, index);
-                        }
-                        else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-                            program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0,
-                                                glTextureHandle, 0);
-                        }
-                        else if constexpr (std::is_same_v<T, std::monostate>) {
-                            log::e()("Empty texture variant.");
-                        }
-                    },
-                    property->contents());
-            }
-            else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
-                string modeUniformName;
-                string colorUniformName;
-
-                switch (type) {
-                    case Material::PropertyType::Ambient:
-                        modeUniformName = "ambientContentsType";
-                        colorUniformName = "colors.ambient";
-                        break;
-                    case Material::PropertyType::Diffuse:
-                        modeUniformName = "diffuseContentsType";
-                        colorUniformName = "colors.diffuse";
-                        break;
-                    case Material::PropertyType::Specular:
-                        modeUniformName = "specularContentsType";
-                        colorUniformName = "colors.specular";
-                        break;
-                    case Material::PropertyType::Emission:
-                        modeUniformName = "emissionContentsType";
-                        colorUniformName = "colors.emission";
-                        break;
-                    default:
-                        log::e()("Invalid MaterialPropertyType: {}",
-                                 magic_enum::enum_name<Material::PropertyType>(type));
-                        return;
-                }
-
-                program
-                    .setUniform(modeUniformName.c_str(),
-                                static_cast<
-                                    underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-                program.setUniform(colorUniformName.c_str(), property->r(), property->g(), property->b());
-            }
-            else if constexpr (std::is_same_v<T, std::monostate>) {
-                log::w()("NULL material property contents.");
-            }
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_VERTEX_BUFFER_ALLOCATION_ID,
         },
-        property);
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::VertexBuffer, stats.VertexBufferBytes);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_INDEX_BUFFER_ALLOCATION_ID,
+        },
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::IndexBuffer, stats.IndexBufferBytes);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_TEXTURE_ALLOCATION_ID,
+        },
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
 
-void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
-                             const Scene&         scene,
-                             const vector<Node*>& lightNodes,
-                             FrameStats&          stats) {
-    // block
+namespace {
 
-    EnvironmentBlock environmentStruct {};
+    // [Private Non-Member Functions]
 
-    // lights
+    void LogGLInfo() {
+        const GLubyte* vendor = glGetString(GL_VENDOR);
+        const GLubyte* renderer = glGetString(GL_RENDERER);
+        const GLubyte* version = glGetString(GL_VERSION);
 
-    auto numLights = lightNodes.size();
-
-    if (scene.visualWorld()->usesDefaultLighting()
-        || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-        environmentStruct.useDefaultLighting = 1u;
+        log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
+        log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+        log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
     }
-    else {
-        environmentStruct.useDefaultLighting = 0u;
 
-        stats.lights = numLights;
+    void SendMaterialUniforms(const Material&              material,
+                              GLSLProgram&                 program,
+                              const std::array<GLuint, 4>& glTextureHandles,
+                              OGLRenderer::GLStateCache&   state) {
+        // sends uniforms for the Material, and MaterialProperties it has
 
-        vector<AmbientLightGLSLStruct>     ambientStructs;
-        vector<DirectionalLightGLSLStruct> directionalStructs;
-        vector<PointLightGLSLStruct>       pointStructs;
-        vector<SpotLightGLSLStruct>        spotStructs;
+        program.setUniform("specularExponent", material.specularExponent());
+        program.setUniform("uvScale", material.uvScale());
+        program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 
-        ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
-        directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
-        pointStructs.reserve(MAX_POINT_LIGHTS);
-        spotStructs.reserve(MAX_SPOT_LIGHTS);
+        // material uniforms persist across draws -- clear unused properties to prevent
+        // state leaking between materials.
+        const auto none = static_cast<unsigned>(MaterialContentsType::None);
+        program.setUniform("ambientContentsType", none);
+        program.setUniform("diffuseContentsType", none);
+        program.setUniform("specularContentsType", none);
+        program.setUniform("emissionContentsType", none);
 
-        for (unsigned l = 0; l < numLights; ++l) {
-            auto node = lightNodes[l];
-            auto light = node->light().get();
-            auto color = light->color();
-
-            // light_cutoff:
-            // if an attenuated light, first make sure it's not past its cutoff distance.
-            // this is either a hard-coded distance or calcualted based on a minimum attenuation.
-            //
-            // for min attenuation:
-            // https://gamedev.stackexchange.com/a/56934
-            // cuts light off at distance 'd'
-            // when attenuation drops below 'a'.
-            // d = sqrt(1.0 / (Kq * a))
-            //
-            // UPDATE: distance from what? the camera?  that doesn't make sense.
-            // the fragment?  sure, but probably slow.
-            // the vertex?  sure, but maybe messy?
-
-            if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-                if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
-                    AmbientLightGLSLStruct lightStruct {};
-                    lightStruct.color = ambientLight->color()->rgba();
-                    ambientStructs.push_back(lightStruct);
-                }
+        for (auto& [property, type] : material.properties()) {
+            if (!holds_alternative<monostate>(*property)) {
+                const int    slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
+                const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
+                SendMaterialPropertyUniforms(*property, type, h, program, state);
             }
-            else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-                if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
-                    DirectionalLightGLSLStruct lightStruct {};
-                    lightStruct.color = directionalLight->color()->rgba();
-                    lightStruct.direction_world = node->worldForward();
-                    directionalStructs.push_back(lightStruct);
+        }
+    }
+
+    void SendMaterialPropertyUniforms(const Material::Property&  property,
+                                      Material::PropertyType     type,
+                                      GLuint                     glTextureHandle,
+                                      GLSLProgram&               program,
+                                      OGLRenderer::GLStateCache& state) {
+        std::visit(
+            [&type, &program, &glTextureHandle](auto&& property) -> void {
+                using T = std::decay_t<decltype(property)>;
+
+                if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
+                    std::visit(
+                        [&type, &glTextureHandle, &program](auto&& contents) -> void {
+                            using T = std::decay_t<decltype(contents)>;
+
+                            if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
+                                string modeUniformName;
+                                string samplerUniformName;
+                                GLenum slot;
+                                GLint  index;
+
+                                switch (type) {
+                                    case Material::PropertyType::Ambient:
+                                        modeUniformName = "ambientContentsType";
+                                        //samplerUniformName = "samplers.ambient";
+                                        samplerUniformName = "ambientSampler";
+                                        slot = GL_TEXTURE0;
+                                        index = 0;
+                                        break;
+                                    case Material::PropertyType::Diffuse:
+                                        modeUniformName = "diffuseContentsType";
+                                        //samplerUniformName = "samplers.diffuse";
+                                        samplerUniformName = "diffuseSampler";
+                                        slot = GL_TEXTURE1;
+                                        index = 1;
+                                        break;
+                                    case Material::PropertyType::Specular:
+                                        modeUniformName = "specularContentsType";
+                                        //samplerUniformName = "samplers.specular";
+                                        samplerUniformName = "specularSampler";
+                                        slot = GL_TEXTURE2;
+                                        index = 2;
+                                        break;
+                                    case Material::PropertyType::Emission:
+                                        modeUniformName = "emissionContentsType";
+                                        //samplerUniformName = "samplers.emission";
+                                        samplerUniformName = "emissionSampler";
+                                        slot = GL_TEXTURE3;
+                                        index = 3;
+                                        break;
+                                    default:
+                                        throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                                      util::enums::enum_name<
+                                                                          Material::PropertyType>(type)));
+                                        return;
+                                }
+
+                                program.setUniform(modeUniformName.c_str(),
+                                                   static_cast<underlying_type<MaterialContentsType>::
+                                                                   type>(MaterialContentsType::Sampler));
+                                program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot,
+                                                    glTextureHandle, index);
+                            }
+                            else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                                program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0,
+                                                    glTextureHandle, 0);
+                            }
+                            else if constexpr (std::is_same_v<T, std::monostate>) {
+                                log::e()("Empty texture variant.");
+                            }
+                        },
+                        property->contents());
                 }
+                else if constexpr (std::is_same_v<T, Color>) {
+                    string modeUniformName;
+                    string colorUniformName;
+
+                    switch (type) {
+                        case Material::PropertyType::Ambient:
+                            modeUniformName = "ambientContentsType";
+                            colorUniformName = "colors.ambient";
+                            break;
+                        case Material::PropertyType::Diffuse:
+                            modeUniformName = "diffuseContentsType";
+                            colorUniformName = "colors.diffuse";
+                            break;
+                        case Material::PropertyType::Specular:
+                            modeUniformName = "specularContentsType";
+                            colorUniformName = "colors.specular";
+                            break;
+                        case Material::PropertyType::Emission:
+                            modeUniformName = "emissionContentsType";
+                            colorUniformName = "colors.emission";
+                            break;
+                        default:
+                            throw logic_error(std::format("Invalid MaterialPropertyType: {}",
+                                                          util::enums::enum_name<
+                                                              Material::PropertyType>(type)));
+                            return;
+                    }
+
+                    program.setUniform(modeUniformName.c_str(),
+                                       static_cast<underlying_type<
+                                           MaterialContentsType>::type>(MaterialContentsType::Color));
+                    program.setUniform(colorUniformName.c_str(), property.r(), property.g(), property.b());
+                }
+                else if constexpr (std::is_same_v<T, std::monostate>) {
+                    log::w()("NULL material property contents.");
+                }
+            },
+            property);
+    }
+
+    void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
+
+        program.setUniform("tint", item.tint);
+    }
+
+    void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
+                                 const Scene&         scene,
+                                 const mat4&          view,
+                                 const vector<Node*>& lightNodes,
+                                 FrameStats&          stats) {
+        // block
+
+        EnvironmentBlock environmentStruct {};
+
+        environmentStruct.viewPosition_world = translation(inverse(view));
+
+        // surface
+
+        SurfaceGLSLStruct surfaceStruct {};
+
+        if (const auto& surface = scene.visualWorld()->surface()) {
+
+            if (const auto* plane = get_if<PlaneSurface>(&*surface)) {
+
+                surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Plane);
+                surfaceStruct.planeHeight = plane->height;
             }
-            else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-                if (pointStructs.size() < MAX_POINT_LIGHTS) {
-                    PointLightGLSLStruct lightStruct {};
-                    lightStruct.color = pointLight->color()->rgba();
-                    lightStruct.position_world = node->worldPosition();
-                    lightStruct.constantAttenuation = pointLight->attenuation().constant;
-                    lightStruct.linearAttenuation = pointLight->attenuation().linear;
-                    lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
-                    pointStructs.push_back(lightStruct);
-                }
-            }
-            else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-                if (spotStructs.size() < MAX_SPOT_LIGHTS) {
-                    SpotLightGLSLStruct lightStruct {};
-                    lightStruct.color = spotLight->color()->rgba();
-                    lightStruct.position_world = node->worldPosition();
-                    lightStruct.direction_world = node->worldForward();
-                    lightStruct.innerAngleCos = spotLight->innerAngleCos();
-                    lightStruct.outerAngleCos = spotLight->outerAngleCos();
-                    lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-                    lightStruct.constantAttenuation = spotLight->attenuation().constant;
-                    lightStruct.linearAttenuation = spotLight->attenuation().linear;
-                    lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
-                    spotStructs.push_back(lightStruct);
-                }
+            else if (const auto* sphere = get_if<SphereSurface>(&*surface)) {
+
+                surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Sphere);
+                surfaceStruct.sphereCenter = sphere->center;
+                surfaceStruct.sphereRadius = sphere->radius;
             }
         }
 
-        environmentStruct.numAmbientLights = ambientStructs.size();
-        memcpy(&environmentStruct.ambientLights, ambientStructs.data(),
-               sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+        memcpy(&environmentStruct.surface, &surfaceStruct, sizeof(surfaceStruct));
 
-        environmentStruct.numDirectionalLights = directionalStructs.size();
-        memcpy(&environmentStruct.directionalLights, directionalStructs.data(),
-               sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+        // lights
 
-        environmentStruct.numPointLights = pointStructs.size();
-        memcpy(&environmentStruct.pointLights, pointStructs.data(),
-               sizeof(PointLightGLSLStruct) * pointStructs.size());
+        auto numLights = lightNodes.size();
 
-        environmentStruct.numSpotLights = spotStructs.size();
-        memcpy(&environmentStruct.spotLights, spotStructs.data(),
-               sizeof(SpotLightGLSLStruct) * spotStructs.size());
-    }
+        if (scene.visualWorld()->defaultLightingEnabled()) {
+            environmentStruct.defaultLightingEnabled = 1u;
+        }
+        else {
+            environmentStruct.defaultLightingEnabled = 0u;
 
-    // fog
+            stats.lights = numLights;
 
-    auto          visualWorld = scene.visualWorld();
-    FogGLSLStruct fogStruct {};
-    fogStruct.startDistance = visualWorld->fogStartDistance();
-    fogStruct.endDistance = visualWorld->fogEndDistance();
-    fogStruct.densityExponent = visualWorld->fogDensityExponent();
-    auto fogColor = visualWorld->fogColor();
-    if (visualWorld->fogColor()) {
-        fogStruct.color = fogColor->rgba();
-    }
-    else {
-        fogStruct.color = {0.0, 0.0, 0.0, 0.0};
-    }
+            vector<AmbientLightGLSLStruct>     ambientStructs;
+            vector<DirectionalLightGLSLStruct> directionalStructs;
+            vector<PointLightGLSLStruct>       pointStructs;
+            vector<SpotLightGLSLStruct>        spotStructs;
 
-    memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+            ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
+            directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
+            pointStructs.reserve(MAX_POINT_LIGHTS);
+            spotStructs.reserve(MAX_SPOT_LIGHTS);
 
-    // send 'em
+            for (unsigned l = 0; l < numLights; ++l) {
+                auto node = lightNodes[l];
+                auto light = node->light().get();
+                auto color = light->color();
 
-    //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-    //	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
-    //	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+                // light_cutoff:
+                // if an attenuated light, first make sure it's not past its cutoff distance.
+                // this is either a hard-coded distance or calcualted based on a minimum attenuation.
+                //
+                // for min attenuation:
+                // https://gamedev.stackexchange.com/a/56934
+                // cuts light off at distance 'd'
+                // when attenuation drops below 'a'.
+                // d = sqrt(1.0 / (Kq * a))
+                //
+                // UPDATE: distance from what? the camera?  that doesn't make sense.
+                // the fragment?  sure, but probably slow.
+                // the vertex?  sure, but maybe messy?
 
-    //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-    //	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
-    //								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    //	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
-    //	glUnmapBuffer(GL_UNIFORM_BUFFER);
+                if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+                    if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
+                        AmbientLightGLSLStruct lightStruct {};
+                        lightStruct.color = ambientLight->color().rgba();
+                        ambientStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+                    if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
+                        DirectionalLightGLSLStruct lightStruct {};
+                        lightStruct.color = directionalLight->color().rgba();
+                        lightStruct.intensity = directionalLight->intensity();
+                        lightStruct.direction_world = node->worldForward();
+                        directionalStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+                    if (pointStructs.size() < MAX_POINT_LIGHTS) {
+                        PointLightGLSLStruct lightStruct {};
+                        lightStruct.color = pointLight->color().rgba();
+                        lightStruct.intensity = pointLight->intensity();
+                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.constantAttenuation = pointLight->attenuation().constant;
+                        lightStruct.linearAttenuation = pointLight->attenuation().linear;
+                        lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
+                        pointStructs.push_back(lightStruct);
+                    }
+                }
+                else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+                    if (spotStructs.size() < MAX_SPOT_LIGHTS) {
+                        SpotLightGLSLStruct lightStruct {};
+                        lightStruct.color = spotLight->color().rgba();
+                        lightStruct.intensity = spotLight->intensity();
+                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.innerAngleCos = spotLight->innerAngleCos();
+                        lightStruct.outerAngleCos = spotLight->outerAngleCos();
+                        lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());
+                        lightStruct.constantAttenuation = spotLight->attenuation().constant;
+                        lightStruct.linearAttenuation = spotLight->attenuation().linear;
+                        lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
+                        spotStructs.push_back(lightStruct);
+                    }
+                }
+            }
 
-    glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+            environmentStruct.numAmbientLights = ambientStructs.size();
+            memcpy(&environmentStruct.ambientLights, ambientStructs.data(),
+                   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+
+            environmentStruct.numDirectionalLights = directionalStructs.size();
+            memcpy(&environmentStruct.directionalLights, directionalStructs.data(),
+                   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+
+            environmentStruct.numPointLights = pointStructs.size();
+            memcpy(&environmentStruct.pointLights, pointStructs.data(),
+                   sizeof(PointLightGLSLStruct) * pointStructs.size());
+
+            environmentStruct.numSpotLights = spotStructs.size();
+            memcpy(&environmentStruct.spotLights, spotStructs.data(),
+                   sizeof(SpotLightGLSLStruct) * spotStructs.size());
+        }
+
+        // fog
+
+        FogGLSLStruct fogStruct {};
+
+        if (const auto& fog = scene.visualWorld()->fog()) {
+            fogStruct.color = fog->color.rgba();
+            fogStruct.startDistance = fog->startDistance;
+            fogStruct.endDistance = fog->endDistance;
+            fogStruct.transitionExponent = fog->transitionExponent;
+            fogStruct.enabled = 1u;
+        }
+
+        memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+
+        // atmosphere
+
+        AtmosphereGLSLStruct atmosphereStruct {};
+
+        if (const auto& atmosphere = scene.visualWorld()->atmosphere()) {
+
+            atmosphereStruct.enabled = 1u;
+            atmosphereStruct.scaleHeight = atmosphere->scaleHeight;
+
+            if (atmosphere->haze) {
+
+                atmosphereStruct.haze.color = atmosphere->haze->color.rgba();
+                atmosphereStruct.haze.density = atmosphere->haze->density;
+                atmosphereStruct.haze.enabled = 1u;
+            }
+
+            if (atmosphere->limbGlow) {
+
+                atmosphereStruct.limbGlow.color = atmosphere->limbGlow->color.rgba();
+                atmosphereStruct.limbGlow.intensity = atmosphere->limbGlow->intensity;
+                atmosphereStruct.limbGlow.enabled = 1u;
+            }
+        }
+
+        memcpy(&environmentStruct.atmosphere, &atmosphereStruct, sizeof(atmosphereStruct));
+
+        // send 'em
+
+        //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+        //	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
+        //	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+
+        //	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+        //	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+        //								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        //	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+        //	glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+        glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 
 #ifdef A3D_GL_WEB
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
 #else
-    void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
-                                 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+                                     GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-    if (dst) {
-        memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
-        glUnmapBuffer(GL_UNIFORM_BUFFER);
-    }
+        if (dst) {
+            memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
+        }
 #endif
-}
-
-void ApplyBlendFunction(Material::BlendFunction func) {
-    if (func == Material::BlendFunction::Disabled) {
-        glDisable(GL_BLEND);
-        return;
     }
 
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-
-    switch (func) {
-        case Material::BlendFunction::Alpha:
-            // out = src*a + dst*(1-a)
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-
-        case Material::BlendFunction::PremultipliedAlpha:
-            // src already multiplied by alpha: out = src + dst*(1-a)
-            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-
-        case Material::BlendFunction::Additive:
-            // common additive: out = src*a + dst
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
-            break;
-
-        default:
-            break;
-    }
-}
-
-GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
-    switch (func) {
-        case DepthFunc::Less:
-            return GL_LESS;
-        case DepthFunc::Lequal:
-            return GL_LEQUAL;
-        case DepthFunc::Equal:
-            return GL_EQUAL;
-        case DepthFunc::Greater:
-            return GL_GREATER;
-        case DepthFunc::Gequal:
-            return GL_GEQUAL;
-        case DepthFunc::Notequal:
-            return GL_NOTEQUAL;
-        case DepthFunc::Always:
-            return GL_ALWAYS;
-        case DepthFunc::Never:
-            return GL_NEVER;
-    }
-    return GL_LESS;
-}
-
-GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
-    switch (mode) {
-        case Sampler::FilterMode::Nearest:
-            return GL_NEAREST;
-        case Sampler::FilterMode::Linear:
-            return GL_LINEAR;
-        case Sampler::FilterMode::NearestMipmapNearest:
-            return GL_NEAREST_MIPMAP_NEAREST;
-        case Sampler::FilterMode::LinearMipmapNearest:
-            return GL_LINEAR_MIPMAP_NEAREST;
-        case Sampler::FilterMode::NearestMipmapLinear:
-            return GL_NEAREST_MIPMAP_LINEAR;
-        case Sampler::FilterMode::LinearMipmapLinear:
-            return GL_LINEAR_MIPMAP_LINEAR;
-    }
-}
-
-GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
-    switch (mode) {
-        case Sampler::WrapMode::ClampToEdge:
-            return GL_CLAMP_TO_EDGE;
-        //#ifdef A3D_GL_DESKTOP
-        //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
-        //#endif
-        case Sampler::WrapMode::Repeat:
-            return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */
-            return GL_MIRRORED_REPEAT;
-    }
-}
-
-void DrawOverlay(const RenderContext&     context,
-                 const Scene&             scene,
-                 FrameStats&              stats,
-                 const FrameStatsHistory& statsHistory,
-                 Scene::DebugOptions      debugOptions,
-                 ImFont&                  titleFont,
-                 ImFont&                  bodyFont,
-                 ImFont&                  altBodyFont) {
-    ImguiBeginOverlay(0, true);
-    DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
-
-    float yPos = 0;
-    int   id = 0;
-    bool  showStats = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay);
-    DrawHeader(titleFont, bodyFont, showStats, yPos, id);
-    if (showStats) {
-        DrawStats(stats, statsHistory, context, bodyFont, altBodyFont, yPos, id);
-    }
-
-    ImguiEndOverlay();
-
-    // pass input through Imgui window
-    if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive())) {
-        ImGui::GetIO().WantCaptureMouse = false;
-    }
-
-    ImGui::Render();
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out) {
-    using namespace ImGui;
-
-    //ShowMetricsWindow();
-
-    static const float X_POS = 12.0;
-
-    float yPos = 0;
-    int   id = 0;
-
-    ImGuiIO& io = GetIO();
-    auto     fonts = io.Fonts->Fonts;
-
-    auto color =
-        active ? IM_COL32(255, 255, 255, 255) : IM_COL32(255, 255, 255, (uint8_t) std::lround(.35 * 255));
-
-    yPos += 4;
-    ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE, color, active);
-
-    static const auto& buildInfo = BuildInfo::Info();
-    static auto        version = buildInfo.version();
-    static auto        buildStr = std::format("v{}.{}.{} build {}\n"
-                                              "{}\n"
-                                              "\n",
-                                              version.major, version.minor, version.patch, buildInfo.number(),
-                                              util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
-    yPos += 24;
-    ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE, color, active);
-
-    yPos_out = yPos;
-    id_out = id;
-}
-
-void DrawStats(FrameStats&              stats,
-               const FrameStatsHistory& statsHistory,
-               const RenderContext&     context,
-               ImFont&                  bodyFont,
-               ImFont&                  altBodyFont,
-               float                    yPos,
-               int                      id) {
-    using namespace ImGui;
-
-    //ShowMetricsWindow();
-
-    static const float TOP_PADDING = 36.0f;
-    static const float X_POS = 12.0;
-    static const float COLUMN_WIDTH = 130.0f;
-    static const float FIXED_STEP_TEXT_WIDTH = 300.0f;
-    static const bool  PLOT_OUTLINED = true;
-    static const float PLOT_HEIGHT_1 = 36.0;
-    static const float PLOT_HEIGHT_2 = 24.0;
-    static const float PLOT_X_OFFSET = 0.0;
-    static const float PLOT_STR_Y_PAD = 8.0;
-    static const float PLOT_Y_PAD = 18.0;
-    static const float PLOT_Y_MIN = 0.0;
-    static const float PLOT_Y_MAX = 17.0;
-    static const int   TEXT_PADDING = 15;
-    static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
-    static const float INDENT_WIDTH = 8.0f;
-
-    ImGuiIO& io = GetIO();
-    auto     fonts = io.Fonts->Fonts;
-
-    yPos += 4;
-
-    static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg, physicsNsAvg,
-        appCpuNsAvg;
-    static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg, renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
-    static float fpsAvg = 0;
-
-    bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
-
-    static auto nextAverageUpdate = chrono::steady_clock::time_point {};
-
-    const auto now = chrono::steady_clock::now();
-
-    if (now >= nextAverageUpdate) {
-        FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
-                                       physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
-
-        frameMsFAvg = util::chrono::Milliseconds(frameNsAvg);
-        engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
-        renderCpuMsFAvg = util::chrono::Milliseconds(renderCpuNsAvg);
-
-        if (gpuTimingAvailable) {
-            renderGpuMsFAvg = util::chrono::Milliseconds(renderGpuNsAvg);
+    void ApplyBlendFunction(Material::BlendFunction func) {
+        if (func == Material::BlendFunction::Disabled) {
+            glDisable(GL_BLEND);
+            return;
         }
 
-        physicsMsFAvg = util::chrono::Milliseconds(physicsNsAvg);
-        appCpuMsFAvg = util::chrono::Milliseconds(appCpuNsAvg);
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
 
-        if (frameMsFAvg > 0) {
-            fpsAvg = 1000.0f / frameMsFAvg;
-        }
+        switch (func) {
+            case Material::BlendFunction::Alpha:
+                // out = src*a + dst*(1-a)
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                break;
 
-        nextAverageUpdate = now + FRAME_STATS_AVERAGE_UPDATE_INTERVAL;
-    }
+            case Material::BlendFunction::PremultipliedAlpha:
+                // src already multiplied by alpha: out = src + dst*(1-a)
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                break;
 
-    static vector<float> frameSamples;
-    static vector<float> physSamples;
-    static vector<float> engCpuSamples;
-    static vector<float> renderCpuSamples;
-    static vector<float> renderGpuSamples;
-    static vector<float> appSamples;
-    static vector<float> simulationStepSamples;
-    static vector<float> simulationDiscardMarkers;
+            case Material::BlendFunction::Additive:
+                // common additive: out = src*a + dst
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
+                break;
 
-    static size_t         frame = 0;
-    static const unsigned SKIP_FRAMES = 2;
-    if (!((frame++) % SKIP_FRAMES)) {
-        auto& samples = statsHistory.samples();
-
-        frameSamples.resize(samples.size());
-        physSamples.resize(samples.size());
-        engCpuSamples.resize(samples.size());
-        renderCpuSamples.resize(samples.size());
-        if (gpuTimingAvailable) {
-            renderGpuSamples.resize(samples.size());
-        }
-        appSamples.resize(samples.size());
-        simulationStepSamples.resize(samples.size());
-        simulationDiscardMarkers.resize(samples.size());
-
-        for (size_t i = 0; i < samples.size(); ++i) {
-            auto sample = get<1>(samples[i]);
-            frameSamples[i] = util::chrono::Milliseconds(sample.frameTime);
-            engCpuSamples[i] = util::chrono::Milliseconds(sample.engineCpuTime);
-            physSamples[i] = util::chrono::Milliseconds(sample.physicsTime);
-            renderCpuSamples[i] = util::chrono::Milliseconds(sample.renderCpuTime);
-            if (gpuTimingAvailable) {
-                renderGpuSamples[i] = util::chrono::Milliseconds(sample.renderGpuTime);
-            }
-            appSamples[i] = util::chrono::Milliseconds(sample.applicationTime);
-            simulationStepSamples[i] = static_cast<float>(sample.simulationStepsThisUpdate);
-            simulationDiscardMarkers[i] = sample.discardedSimulationTime > 0.0 ? 1.0f : 0.0f;
+            default:
+                break;
         }
     }
 
-    ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
-
-    yPos += TOP_PADDING;
-    auto rateValue = std::format("{:.0f}fps", fpsAvg);
-    ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
-    auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
-    ImguiDrawLabelValue(yPos, layout, "frame", frameValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1, frameSamples.data(),
-                  static_cast<int>(frameSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
-                  PLOT_OUTLINED, ++id, PLOT_HEIGHT_1 + PLOT_STR_Y_PAD, false);
-
-    const bool discardedSteps = stats.discardedSimulationTime > 0.0;
-    const auto discardedStepCount =
-        discardedSteps && stats.simulationTimeStep > 0.0
-            ? static_cast<std::uint64_t>(std::llround(stats.discardedSimulationTime / stats.simulationTimeStep))
-            : 0;
-    ImguiDrawLabelValue(yPos, layout, "steps/update",
-                        discardedSteps ? std::format("-{}", discardedStepCount)
-                                       : std::format("{}", stats.simulationStepsThisUpdate),
-                        bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD, IM_COL32(255, 255, 255, 255),
-                        discardedSteps ? IM_COL32(255, 48, 48, 255) : IM_COL32(255, 255, 255, 255));
-    ImguiDrawSimulationPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, simulationStepSamples.data(),
-                            simulationDiscardMarkers.data(), static_cast<int>(simulationStepSamples.size()),
-                            std::max(1.0f, static_cast<float>(stats.maxCatchUpSteps)), ++id,
-                            PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
-
-    const auto formatDiscardedTime = [](double seconds) {
-        return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.1f}ms", seconds * 1000.0);
-    };
-    ImguiDrawLabelValue(yPos, layout, "discarded", formatDiscardedTime(stats.totalDiscardedSimulationTime),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP,
-                        IM_COL32(255, 255, 255, 255),
-                        stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255)
-                                                                 : IM_COL32(255, 255, 255, 255));
-
-    static const std::locale numberLocale("en_US.UTF-8");
-    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
-                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
-
-    ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,
-                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
-                  static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
-                  PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
-
-    ImguiDrawLabelValue(yPos, layout, "render sub", std::format("{:.1f}ms", renderCpuMsFAvg), bodyFont,
-                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
-                  static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
-                  0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
-
-    ImguiDrawLabelValue(yPos, layout, "draw",
-                        (gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : ""), bodyFont,
-                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
-                        gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255));
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderGpuSamples.data(),
-                  static_cast<int>(renderGpuSamples.size()), 0, gpuTimingAvailable ? nullptr : "unavailable",
-                  &altBodyFont, STATS_ALT_FONT_SIZE, PLOT_Y_MIN, PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id,
-                  PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, !gpuTimingAvailable);
-
-    ImguiDrawLabelValue(yPos, layout, "physics", std::format("{:.1f}ms", physicsMsFAvg), bodyFont,
-                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, physSamples.data(),
-                  static_cast<int>(physSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
-                  PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
-
-    ImguiDrawLabelValue(yPos, layout, "app", std::format("{:.1f}ms", appCpuMsFAvg), bodyFont,
-                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-    ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, appSamples.data(),
-                  static_cast<int>(appSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
-                  PLOT_OUTLINED, ++id, 0, false);
-
-    yPos += 34;
-
-    ImguiStatsTextLayout bulkLayout = layout;
-
-    ImguiDrawLabelValue(yPos, bulkLayout, "nodes", std::format("{}", stats.nodes), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "meshes", std::format("{}", stats.meshes), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    yPos += STAT_LINE_STEP / 2.0f;
-
-    ImguiDrawLabelValue(yPos, bulkLayout, "phys bodies",
-                        std::format("{}", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "static", std::format("{}", stats.staticBodies), bodyFont,
-                                STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "dynamic", std::format("{}", stats.dynamicBodies), bodyFont,
-                                STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "kinematic", std::format("{}", stats.kinematicBodies),
-                                bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-
-    yPos += STAT_LINE_STEP / 2.0f;
-
-    ImguiDrawLabelValue(yPos, bulkLayout, "phys shapes",
-                        std::format("{}", stats.primitiveShapes + stats.concavePolyhedronShapes
-                                              + stats.boundingBoxShapes + stats.convexHullShapes),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "primitive", std::format("{}", stats.primitiveShapes),
-                                bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "bbox", std::format("{}", stats.boundingBoxShapes), bodyFont,
-                                STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "convex", std::format("{}", stats.convexHullShapes), bodyFont,
-                                STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-    ImguiDrawLabelValueIndented(yPos, bulkLayout, "concave", std::format("{}", stats.concavePolyhedronShapes),
-                                bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-
-    if (context.recordingGIF()) {
-        yPos += STAT_LINE_STEP / 2.0f;
-        ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING", std::format("{:.0f}s", context.recordedGIFTime()),
-                            bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
+        switch (func) {
+            case DepthFunc::Less:
+                return GL_LESS;
+            case DepthFunc::Lequal:
+                return GL_LEQUAL;
+            case DepthFunc::Equal:
+                return GL_EQUAL;
+            case DepthFunc::Greater:
+                return GL_GREATER;
+            case DepthFunc::Gequal:
+                return GL_GEQUAL;
+            case DepthFunc::Notequal:
+                return GL_NOTEQUAL;
+            case DepthFunc::Always:
+                return GL_ALWAYS;
+            case DepthFunc::Never:
+                return GL_NEVER;
+        }
+        return GL_LESS;
     }
 
-    // input test
-
-    //	Begin("Input test", nullptr, 0);
-    //	SetWindowPos({10.0f, 2.0f});
-    //	ImGuiIO& io = GetIO();
-    //	auto fonts = io.Fonts->Fonts;
-    //	PushFont(fonts[1]);
-    //	// --- Button + hover ---
-    //	if (Button("Click me")) {
-    //		log::i()("ImGui button was CLICKED");
-    //	}
-    //	if (IsItemHovered()) {
-    //		SameLine();
-    //		Text("(hovering)");
-    //	}
-    //	static bool toggled = false;
-    //	if (Checkbox("Toggle", &toggled)) {
-    //		log::i()("Toggle is now: {}", toggled ? "ON" : "OFF");
-    //	}
-    //	static char textBuf[128] = "type here";
-    //	if (InputText("Text field", textBuf, sizeof(textBuf))) {
-    //		log::i()("Text changed: '{}'", textBuf);
-    //	}
-    //	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-    //	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
-    //	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-    //	PopFont();
-    //	End();
-}
-
-void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
-    using namespace ImGui;
-
-    ImGuiIO& io = GetIO();
-
-    const float        WIN_WIDTH = 168;
-    const float        xPos = io.DisplaySize.x - WIN_WIDTH;
-    float              yPos = 0;
-    int                id = 0;
-    static const float Y_PAD = 24.0;
-
-    auto debugOptions = scene.debugOptions();
-
-    using DebugOptions = Scene::DebugOptions;
-
-#if defined(A3D_GL_DESKTOP)
-    static constexpr bool kSupportsPolygonModeWireframes = true;
-#else
-    static constexpr bool kSupportsPolygonModeWireframes = false;
-#endif
-
-    yPos = 12.0;
-    static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-    if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-        if (stats) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
+    GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
+        switch (mode) {
+            case Sampler::FilterMode::Nearest:
+                return GL_NEAREST;
+            case Sampler::FilterMode::Linear:
+                return GL_LINEAR;
+            case Sampler::FilterMode::NearestMipmapNearest:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case Sampler::FilterMode::LinearMipmapNearest:
+                return GL_LINEAR_MIPMAP_NEAREST;
+            case Sampler::FilterMode::NearestMipmapLinear:
+                return GL_NEAREST_MIPMAP_LINEAR;
+            case Sampler::FilterMode::LinearMipmapLinear:
+                return GL_LINEAR_MIPMAP_LINEAR;
         }
     }
 
-    yPos += Y_PAD;
-    bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-    if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE,
-                          !kSupportsPolygonModeWireframes, ++id)) {
-        if (meshWF) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
-        }
-    }
-
-    yPos += Y_PAD;
-    bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-    if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-        if (meshAABBs) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+    GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
+        switch (mode) {
+            case Sampler::WrapMode::ClampToEdge:
+                return GL_CLAMP_TO_EDGE;
+            //#ifdef A3D_GL_DESKTOP
+            //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
+            //#endif
+            case Sampler::WrapMode::Repeat:
+                return GL_REPEAT;
+            default: /* MIRRORED_REPEAT */
+                return GL_MIRRORED_REPEAT;
         }
     }
 
-    yPos += Y_PAD;
-    bool physWF = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-    if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, false,
-                          ++id)) {
-        if (physWF) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
-        }
-    }
-
-    yPos += Y_PAD;
-    bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-    if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false,
-                          ++id)) {
-        if (physAABBs) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-        }
-    }
-
-    yPos += Y_PAD;
-    bool physContacts = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-    if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, false,
-                          ++id)) {
-        if (physContacts) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-        }
-    }
-
-    yPos += Y_PAD;
-    bool physNorms = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-    if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, false,
-                          ++id)) {
-        if (physNorms) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsNormals));
-        }
-        else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
-        }
-    }
-}
-
-void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont) {
-    using namespace ImGui;
-
-    IMGUI_CHECKVERSION();
-    CreateContext();
-    ImGuiIO& io = GetIO();
-    io.IniFilename = nullptr;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui_ImplOpenGL3_Init();
-
-    auto overlayTitleFont = util::filesystem::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-    if (overlayTitleFont->buffer()->size()) {
-        auto overlayBodyFont = util::filesystem::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-        if (overlayBodyFont->buffer()->size()) {
-            auto overlayAltFont = util::filesystem::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-            if (overlayAltFont->buffer()->size()) {
-                ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
-
-                auto     fbSize = context.framebufferSize();
-                auto     fbScale = context.viewportScale();
-                ImGuiIO& io = GetIO();
-                io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
-                io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
-
-                GetIO().Fonts->Clear();
-
-                ImguiAddFont(context, *overlayTitleFont, titleFont);
-                ImguiAddFont(context, *overlayBodyFont, bodyFont);
-                ImguiAddFont(context, *overlayAltFont, altFont);
-
-                ImGui_ImplOpenGL3_CreateDeviceObjects(); // was CreateFontsTexture()
-            }
-            else {
-                log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-            }
-        }
-        else {
-            log::e()("Unable to load font: {}.{}", STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-        }
-    }
-    else {
-        log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-    }
-
-    ImguiUpdateScale(context);
-}
-
-void ImguiUpdateScale(const RenderContext& context) {
-    using namespace ImGui;
-
-    auto     vpSize = context.viewportLogicalSize();
-    auto     vpScale = context.viewportScale();
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
-    io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
-
-    glViewport(0, 0, vpSize.x * vpScale.x, vpSize.y * vpScale.y);
-}
-
-void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
-    using namespace ImGui;
-
-    ImFontConfig fontConfig {};
-    fontConfig.FontDataOwnedByAtlas = false;
-
-    // ! leave oversampling automatic (0) in modern ImGui
-    fontConfig.OversampleH = 0;
-    fontConfig.OversampleV = 0;
-
-    // size_pixels = 0.0f => treat as a font source; size picked via PushFont(font, size_px)
-    imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(), (int) font.buffer()->size(), 0.0f,
-                                                 &fontConfig);
-}
-
-void ImguiBeginOverlay(int id, bool allowsInput) {
-    using namespace ImGui;
-
-    ImGuiIO&         io = GetIO();
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
-                             | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav
-                             | ImGuiWindowFlags_NoBackground;
-
-    if (!allowsInput) {
-        flags |= ImGuiWindowFlags_NoInputs;
-    }
-
-    SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-    SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-    Begin(("##overlay" + std::to_string(id)).c_str(), nullptr, flags);
-}
-
-void ImguiEndOverlay() {
-    ImGui::End();
-}
-
-void ImguiDrawText(float x, float y, const char* text, ImFont& font, float size, ImU32 color, bool shadow) {
-    using namespace ImGui;
-
-    PushFont(&font, size); // modern: choose size here :contentReference[oaicite:3]{index=3}
-    ImDrawList* dl = GetForegroundDrawList();
-
-    if (shadow) {
-        dl->AddText(ImVec2(x + 1, y + 1), IM_COL32(0, 0, 0, 255), text);
-    }
-    dl->AddText(ImVec2(x, y), color, text);
-
-    PopFont();
-}
-
-void ImguiDrawSimulationPlot(float        x,
-                             float&       y,
-                             float        w,
-                             float        h,
-                             const float* stepValues,
-                             const float* discardMarkers,
-                             int          valuesCount,
-                             float        scaleMax,
-                             int          id,
-                             float        lineStep) {
-    using namespace ImGui;
-
-    const ImVec4 discardColor(1, 0, 0, 0.75f);
-
-    PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-
-    // Black line shadow.
-    SetCursorScreenPos(ImVec2(x + 1, y + 1));
-    SetNextItemAllowOverlap();
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
-    PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 0, 0, 1));
-    PushStyleColor(ImGuiCol_PlotLinesHovered, ImVec4(0, 0, 0, 1));
-    PlotLines(("##simulation_steps_shadow" + std::to_string(id)).c_str(), stepValues, valuesCount, 0, nullptr,
-              0.0f, scaleMax, ImVec2(w, h), sizeof(float));
-    PopStyleColor(2);
-    PopStyleVar();
-
-    // White step line and plot outline.
-    SetCursorScreenPos(ImVec2(x, y));
-    SetNextItemAllowOverlap();
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-    PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 0.5f));
-    PushStyleColor(ImGuiCol_PlotLines, ImVec4(1, 1, 1, 1));
-    PushStyleColor(ImGuiCol_PlotLinesHovered, ImVec4(1, 1, 1, 1));
-    PlotLines(("##simulation_steps" + std::to_string(id)).c_str(), stepValues, valuesCount, 0, nullptr, 0.0f,
-              scaleMax, ImVec2(w, h), sizeof(float));
-    PopStyleColor(3);
-    PopStyleVar();
-
-    // Red discard markers, drawn last so they appear over the step line.
-    SetCursorScreenPos(ImVec2(x, y));
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
-    PushStyleColor(ImGuiCol_PlotHistogram, discardColor);
-    PushStyleColor(ImGuiCol_PlotHistogramHovered, discardColor);
-    PlotHistogram(("##simulation_discard" + std::to_string(id)).c_str(), discardMarkers, valuesCount, 0,
-                  nullptr, 0.0f, 1.0f, ImVec2(w, h), sizeof(float));
-    PopStyleColor(2);
-    PopStyleVar();
-
-    PopStyleColor();
-
-    y += lineStep;
-}
-
-void ImguiDrawPlot(float        x,
-                   float        y,
-                   float        w,
-                   float        h,
-                   const float* values,
-                   int          valuesCount,
-                   int          valuesOffset,
-                   const char*  overlayText,
-                   ImFont*      overlayFont,
-                   float        overlayFontSize,
-                   float        scaleMin,
-                   float        scaleMax,
-                   int          stride,
-                   bool         outlined,
-                   int          id,
-                   bool         disabled) {
-    using namespace ImGui;
-
-    BeginDisabled(disabled);
-
-    PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-
-    const int plotStride = stride > 0 ? stride : sizeof(float);
-
-    // shadow pass
-    SetCursorScreenPos(ImVec2(x + 1, y + 1));
-    PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 0, 0, 1));
-    PlotLines(("##plot_s" + std::to_string(id)).c_str(), values, valuesCount, valuesOffset, nullptr, scaleMin,
-              scaleMax, ImVec2(w, h), plotStride);
-    PopStyleColor();
-
-    // main pass
-    SetCursorScreenPos(ImVec2(x, y));
-    PushStyleColor(ImGuiCol_PlotLines, ImVec4(1, 1, 1, 1));
-    if (outlined) {
-        PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-        PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 0.5f));
-    }
-    PlotLines(("##plot" + std::to_string(id)).c_str(), values, valuesCount, valuesOffset, nullptr, scaleMin,
-              scaleMax, ImVec2(w, h), plotStride);
-
-    // overlay text
-    if (overlayText != nullptr && overlayText[0] != '\0') {
-        ImFont* font = overlayFont != nullptr ? overlayFont : GetFont();
-
-        ImDrawList* drawList = GetWindowDrawList();
-
-        const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::f32_max(), 0.0f, overlayText);
-
-        const float textX = x + (w - textSize.x) * 0.5f;
-        const float textY = y + (h - textSize.y) * 0.5f - 1.0f;
-
-        drawList->AddText(font, overlayFontSize, ImVec2(math::floor(textX + 0.5f), math::floor(textY + 0.5f)),
-                          IM_COL32(128, 128, 128, 255), overlayText);
-    }
-
-    if (outlined) {
-        PopStyleColor();
-        PopStyleVar();
-    }
-    PopStyleColor();
-
-    PopStyleColor();
-
-    EndDisabled();
-}
-
-bool ImguiDrawCheckbox(float       x,
-                       float       y,
-                       const char* text,
-                       bool&       checked,
-                       ImFont&     font,
-                       float       size,
-                       bool        disabled,
-                       int         id) {
-    using namespace ImGui;
-
-    ImGui::PushFont(&font, size);
-
-    const ImVec4 transparent(0, 0, 0, 0);
-    const float  shadowOff = 1.0f;
-    const float  borderThickness = 1.0f;
-
-    const float boxSize = GetFrameHeight(); // checkbox square size
-    const float labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
-
-    // shadow checkbox (non-interactive, non-blocking)
-    PushID(id);
-    SetCursorScreenPos(ImVec2(x + shadowOff, y + shadowOff));
-    BeginDisabled(true);
-
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderThickness);
-    PushStyleColor(ImGuiCol_FrameBg, transparent);
-    PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-    PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-    PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 1));
-    PushStyleColor(ImGuiCol_BorderShadow, transparent);
-    PushStyleColor(ImGuiCol_CheckMark, ImVec4(0, 0, 0, 1));
-
-    bool dummy = checked;
-    SetNextItemAllowOverlap();
-    Checkbox("##shadow", &dummy);
-
-    PopStyleColor(6);
-    PopStyleVar();
-    EndDisabled();
-    PopID();
-
-    // real checkbox (interactive, NO label)
-    bool ret = false;
-
-    PushID(id);
-    SetCursorScreenPos(ImVec2(x, y));
-    if (disabled) {
-        BeginDisabled(true);
-    }
-
-    auto primaryColor = disabled ? ImVec4(0.65, 0.65, 0.65, 1) : ImVec4(1, 1, 1, 1);
-
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderThickness);
-    PushStyleColor(ImGuiCol_FrameBg, transparent);
-    PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-    PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-    PushStyleColor(ImGuiCol_Border, primaryColor);
-    PushStyleColor(ImGuiCol_BorderShadow, transparent);
-    PushStyleColor(ImGuiCol_CheckMark, primaryColor);
-
-    ret = Checkbox("##real", &checked);
-
-    PopStyleColor(6);
-    PopStyleVar();
-    if (disabled) {
-        EndDisabled();
-    }
-    PopID();
-
-    // raw label ourselves (true solid shadow, like DigDrawText)
-    ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
-
-    // align label vertically with checkbox frame (center-ish)
-    float textY = y + GetStyle().FramePadding.y;
-
-    ImVec2 labelPos(x + boxSize + labelGap, textY);
-
-    dl->AddText(ImVec2(labelPos.x + shadowOff, labelPos.y + shadowOff), IM_COL32(0, 0, 0, 255), text);
-    dl->AddText(labelPos, disabled ? IM_COL32(128, 128, 128, 255) : IM_COL32(255, 255, 255, 255), text);
-
-    PopFont();
-
-    return ret;
-}
-
-void ImguiDrawLabelValue(float&                      y,
-                         const ImguiStatsTextLayout& layout,
-                         const char*                 label,
-                         const std::string&          value,
-                         ImFont&                     font,
-                         float                       fontSize,
-                         float                       lineStep,
-                         ImU32                       color,
-                         std::optional<ImU32>        valueColor) {
-    const auto SnapPx = [](float x) -> float {
-        return math::floor(x + 0.5f);
-    };
-
-    const auto TextSizeA = [](ImFont& f, float size, const char* text) -> ImVec2 {
-        const float wrapWidth = 0.0f;
-        return f.CalcTextSizeA(size, math::f32_max(), wrapWidth, text);
-    };
-
-    // draw label
-    ImguiDrawText(SnapPx(layout.xLeft), y, label, font, fontSize, color, true);
-
-    // measure at SAME font+size you draw with
-    const ImVec2 labelSz = TextSizeA(font, fontSize, label);
-    const ImVec2 valueSz = TextSizeA(font, fontSize, value.c_str());
-
-    float       xValue = layout.xRight - valueSz.x;
-    const float minXValue = layout.xLeft + labelSz.x + layout.gap;
-    if (xValue < minXValue) {
-        xValue = minXValue;
-    }
-
-    // pixel snap
-    xValue = SnapPx(xValue);
-
-    //ImguiDrawText(xValue, y, value.c_str(), font, fontSize, color, true);
-    ImguiDrawText(xValue, y, value.c_str(), font, fontSize, valueColor.value_or(color), true);
-
-    y += lineStep;
-}
-
-void ImguiDrawLabelValueIndented(float&                      y,
-                                 const ImguiStatsTextLayout& layout,
-                                 const char*                 label,
-                                 const std::string&          value,
-                                 ImFont&                     font,
-                                 float                       fontSize,
-                                 float                       indentPx,
-                                 float                       lineStep,
-                                 ImU32                       color) {
-    ImguiStatsTextLayout l = layout;
-    l.xLeft += indentPx;
-    ImguiDrawLabelValue(y, l, label, value, font, fontSize, 0, color);
-    y += lineStep;
-}
-
-void ImguiDrawPlot(float        x,
-                   float&       y,
-                   float        w,
-                   float        h,
-                   const float* values,
-                   int          valuesCount,
-                   int          valuesOffset,
-                   const char*  overlayText,
-                   ImFont*      overlayFont,
-                   float        overlayFontSize,
-                   float        scaleMin,
-                   float        scaleMax,
-                   int          stride,
-                   bool         outlined,
-                   int          id,
-                   float        lineStep,
-                   bool         disabled) {
-    ImguiDrawPlot(x, y, w, h, values, valuesCount, valuesOffset, overlayText, overlayFont, overlayFontSize,
-                  scaleMin, scaleMax, stride, outlined, id, disabled);
-    y += lineStep;
-}
+} // namespace
+} // namespace a3d

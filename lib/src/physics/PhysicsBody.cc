@@ -3,42 +3,80 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicsBody.h"
 
-#include <magic_enum/magic_enum.hpp>
+#include <cmath>
+#include <format>
+#include <stdexcept>
 
 #include "a3d/log/Log.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Capsule.h"
+#include "a3d/mesh/primitive/Cone.h"
+#include "a3d/mesh/primitive/Cylinder.h"
+#include "a3d/mesh/primitive/Plane.h"
+#include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
+#include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape/primitive/ConePhysicsShape.h"
+#include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape/primitive/FinitePlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/Enum.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Public Static Member Functions ///
+namespace a3d {
+
+// [Public Static Member Functions]
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
     return make_unique<PhysicsBody>(Type::Static);
+}
+
+unique_ptr<PhysicsBody> PhysicsBody::StaticBody(const shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Static, shape);
 }
 
 unique_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
     return make_unique<PhysicsBody>(Type::Dynamic);
 }
 
+unique_ptr<PhysicsBody> PhysicsBody::DynamicBody(const shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Dynamic, shape);
+}
+
 unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
 }
 
-/// Public Lifecycle Functions ///
+unique_ptr<PhysicsBody> PhysicsBody::KinematicBody(const shared_ptr<PhysicsShape>& shape) {
+    return make_unique<PhysicsBody>(Type::Kinematic, shape);
+}
+
+namespace {
+
+    // [Private Non-Member Prototypes]
+
+    shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
+
+} // namespace
+
+// [Public Lifecycle Functions]
 
 PhysicsBody::PhysicsBody(Type type):
     _shape {},
+    _shapeAutocreated {false},
     _node {},
     _world {} {
 
@@ -67,15 +105,20 @@ PhysicsBody::~PhysicsBody() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 PhysicsBody::Type PhysicsBody::type() const {
     return _proxy->type();
 }
 
 void PhysicsBody::type(Type type) {
-    log::d()("type: {}", magic_enum::enum_name(type));
-    _proxy->type(type);
+    log::d()("type: {}", util::enums::enum_name(type));
+    //_proxy->type(type);
+
+    // ! TEMPORARY !
+    if (type != this->type()) {
+        throw logic_error("PhysicsBody type cannot be changed after creation.");
+    }
 }
 
 const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
@@ -87,6 +130,10 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 
     if (shape == _shape) {
         return;
+    }
+
+    if (shape && !shape->supportsBodyType(type())) {
+        throw logic_error("PhysicsShape is incompatible with this PhysicsBody type.");
     }
 
     if (_world) {
@@ -103,12 +150,17 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 
     if (_shape) {
         _shape->attachedToBody(*this);
-        _proxy->shapeProxy(_shape->proxy());
+
+        if (_proxy->shapeProxy() != _shape->proxy()) {
+            _proxy->shapeProxy(_shape->proxy());
+        }
 
         if (!_node.expired()) {
             checkAddToWorld();
         }
     }
+
+    _shapeAutocreated = false;
 }
 
 float PhysicsBody::mass() const {
@@ -116,6 +168,15 @@ float PhysicsBody::mass() const {
 }
 
 void PhysicsBody::mass(float mass) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Mass may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (mass <= 0.0f) {
+        throw invalid_argument("PhysicsBody mass must be positive.");
+    }
+
     _proxy->mass(mass);
 }
 
@@ -131,8 +192,22 @@ vec3 PhysicsBody::centerOfMass() const {
     return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const vec3& offset) {
-    _proxy->centerOfMass(offset);
+void PhysicsBody::centerOfMass(const vec3& centerOfMass) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Center of mass may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->autocalculatesCenterOfMass(false);
+    _proxy->centerOfMass(centerOfMass);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
 }
 
 float PhysicsBody::friction() const {
@@ -155,6 +230,14 @@ float PhysicsBody::restitution() const {
     return _proxy->restitution();
 }
 
+float PhysicsBody::spinningFriction() const {
+    return _proxy->spinningFriction();
+}
+
+void PhysicsBody::spinningFriction(float friction) {
+    _proxy->spinningFriction(friction);
+}
+
 void PhysicsBody::restitution(float restitution) {
     _proxy->restitution(restitution);
 }
@@ -163,7 +246,7 @@ vec3 PhysicsBody::linearVelocity() const {
     return _proxy->linearVelocity();
 }
 
-void PhysicsBody::linearVelocity(const vec3 velocity) {
+void PhysicsBody::linearVelocity(const vec3& velocity) {
     _proxy->linearVelocity(velocity);
 }
 
@@ -225,6 +308,10 @@ void PhysicsBody::angularSleepingThreshold(float threshold) {
 
 void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
+
     if (impulse) {
         _proxy->applyCentralImpulse(force);
     }
@@ -233,17 +320,25 @@ void PhysicsBody::applyForce(const vec3& force, bool impulse) {
     }
 }
 
-void PhysicsBody::applyForce(const vec3& force, const vec3& location, bool impulse) {
+void PhysicsBody::applyForce(const vec3& force, const vec3& worldPosition, bool impulse) {
+
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
 
     if (impulse) {
-        _proxy->applyImpulse(force, location);
+        _proxy->applyImpulse(force, worldPosition);
     }
     else {
-        _proxy->applyForce(force, location);
+        _proxy->applyForce(force, worldPosition);
     }
 }
 
 void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
+
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Torque may only be applied to dynamic PhysicsBody objects.");
+    }
 
     if (impulse) {
         _proxy->applyTorqueImpulse(torque);
@@ -313,6 +408,68 @@ void PhysicsBody::resting(bool resting) {
     _proxy->resting(resting);
 }
 
+bool PhysicsBody::autocalculatesCenterOfMass() const {
+    return _proxy->autocalculatesCenterOfMass();
+}
+
+void PhysicsBody::autocalculatesCenterOfMass(bool autocalculate) {
+
+    if (type() != Type::Dynamic && autocalculate) {
+        throw logic_error(
+            "Center of mass may only be automatically calculated for dynamic PhysicsBody objects.");
+    }
+
+    if (_proxy->autocalculatesCenterOfMass() == autocalculate) {
+        return;
+    }
+
+    // Disabling automatic calculation does not change the current COM.
+    if (!autocalculate) {
+        _proxy->autocalculatesCenterOfMass(false);
+        return;
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->autocalculatesCenterOfMass(true);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
+}
+
+PhysicsBody::CenterOfMassCalculation PhysicsBody::centerOfMassCalculation() const {
+    return _proxy->centerOfMassCalculation();
+}
+
+void PhysicsBody::centerOfMassCalculation(CenterOfMassCalculation calculation) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Center-of-mass calculation may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (_proxy->centerOfMassCalculation() == calculation) {
+        return;
+    }
+
+    if (!_proxy->autocalculatesCenterOfMass()) {
+        _proxy->centerOfMassCalculation(calculation);
+        return;
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->centerOfMassCalculation(calculation);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
+}
+
 bool PhysicsBody::autocalculatesMomentOfInertia() const {
     return _proxy->autocalculatesMomentOfInertia();
 }
@@ -321,7 +478,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
     _proxy->autocalculatesMomentOfInertia(autocalculate);
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
     log::t()("node: {:p}", static_cast<void*>(node.get()));
@@ -341,14 +498,30 @@ void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
     _node = {}; // ^^ physicsWorld() relies on old _node
 }
 
-void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
-    log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
+void PhysicsBody::meshDetachedFromNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& mesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(mesh.get()));
+}
+
+void PhysicsBody::meshAttachedToNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& mesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(mesh.get()));
 
     checkAutocreateShape(mesh);
 }
 
-void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
-    log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
+void PhysicsBody::meshWillChangeOnNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& oldMesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(oldMesh.get()));
+
+    if (_shapeAutocreated) {
+        shape(nullptr);
+    }
+}
+
+void PhysicsBody::meshDidChangeOnNode(const shared_ptr<Node>& node, const shared_ptr<Mesh>& newMesh) {
+    log::t()("node: {:p}, mesh: {:p}", static_cast<void*>(node.get()), static_cast<void*>(newMesh.get()));
+
+    if (!newMesh) {
+        checkAutocreateShape(node);
+    }
 }
 
 void PhysicsBody::physicsWorldReachable(PhysicsWorld& world) {
@@ -378,15 +551,6 @@ void PhysicsBody::addedToWorld(PhysicsWorld& world) {
     log::d()("world: {}", static_cast<void*>(&world));
 
     _world = &world;
-
-    if (auto node = _node.lock()) {
-        // set initial transform
-        _proxy->worldTransform(node->worldTransform());
-    }
-    else {
-        log::e()("_node is gone.");
-        // TODO: throw?
-    }
 }
 
 void PhysicsBody::removedFromWorld(PhysicsWorld& world) {
@@ -407,31 +571,34 @@ void PhysicsBody::shapeWillUpdate() {
 }
 
 void PhysicsBody::shapeDidUpdate() {
-    if (!_node.expired()) {
-        checkAddToWorld();
-    }
 
     if (!_proxy) {
-        log::e()("No body proxy.");
-        return;
+        throw logic_error(std::format("No body proxy for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     if (!_shape) {
-        log::e()("No shape.");
-        _proxy->shapeProxy(nullptr);
-        return;
+        throw logic_error(std::format("No shape for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     if (!_shape->proxy()) {
-        log::e()("PhysicsShape has no proxy.");
-        _proxy->shapeProxy(nullptr);
-        return;
+        throw logic_error(std::format("Shape has no proxy for PhysicsBody {:p}", static_cast<void*>(this)));
     }
 
     _proxy->shapeProxy(_shape->proxy());
 
     if (!_node.expired()) {
         checkAddToWorld();
+    }
+}
+
+void PhysicsBody::syncTransformFromNode() {
+
+    if (auto node = _node.lock()) {
+
+        const mat4 worldTransform =
+            translate(mat4(1.0f), node->worldPosition()) * mat4_cast(node->worldOrientation());
+
+        _proxy->worldTransform(worldTransform);
     }
 }
 
@@ -449,8 +616,9 @@ PhysicsWorld* PhysicsBody::physicsWorld() const {
         }
     }
     else {
-        log::e()("_node is gone.");
-        // TODO: throw?
+
+        throw logic_error(std::format("Node has disappeared for PhysicsBody {:p}",
+                                      static_cast<const void*>(this)));
     }
     return nullptr;
 }
@@ -459,61 +627,69 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
     return _proxy.get();
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
     if (!_shape) {
-//		if (auto sNode = node.lock()) {
+
         if (auto mesh = node->mesh()) {
+
                 // make a shape based on the mesh
             checkAutocreateShape(mesh);
         }
         else {
-                // make a shape based on the node
+            // make a shape based on the node
             auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
             if (type() == Type::Static) {
-                log::d()("Autocreating {} PhysicsShape for Node {:p}...", magic_enum::enum_name(shapeType),
+
+                log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
+                _shapeAutocreated = true;
             }
             else {
+
                 auto shapeType = PhysicsShape::Type::ConvexHull;
-                log::d()("Autocreating {} PhysicsShape for Node {:p}...", magic_enum::enum_name(shapeType),
+                log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
+                _shapeAutocreated = true;
             }
         }
-//		}
-//		else {
-//			throw std::bad_weak_ptr();
-//		}
     }
 }
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
 
-    if (!_shape) {
-//		if (auto sMesh = mesh.lock()) {
-        if (type() == Type::Static) {
-            auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
-            log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
-                     static_cast<void*>(mesh.get()));
-            shape(make_shared<PhysicsShape>(shapeType, mesh));
-        }
-        else {
-            auto shapeType = PhysicsShape::Type::ConvexHull;
-            log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
-                     static_cast<void*>(mesh.get()));
-            shape(make_shared<PhysicsShape>(shapeType, mesh));
-        }
-//		}
-//		else {
-//			throw std::bad_weak_ptr();
-//		}
+    if (_shape) {
+
+        log::i()("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
+        return;
+    }
+
+    if (auto primitiveShape = PhysicsShapeFromPrimitiveMesh(mesh)) {
+
+        shape(primitiveShape);
+        _shapeAutocreated = true;
+        return;
+    }
+
+    if (type() == Type::Static) {
+
+        auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
+                 static_cast<void*>(mesh.get()));
+        shape(make_shared<PhysicsShape>(shapeType, mesh));
+        _shapeAutocreated = true;
     }
     else {
-        log::i()("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
+
+        auto shapeType = PhysicsShape::Type::ConvexHull;
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
+                 static_cast<void*>(mesh.get()));
+        shape(make_shared<PhysicsShape>(shapeType, mesh));
+        _shapeAutocreated = true;
     }
 }
 
@@ -525,3 +701,51 @@ void PhysicsBody::checkAddToWorld() {
         }
     }
 }
+
+namespace {
+
+    // [Private Non-Member Functions]
+
+    shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
+
+        if (!mesh || mesh->elements().size() != 1) {
+            return nullptr;
+        }
+
+        auto* element = mesh->elements().front().get();
+
+        if (auto box = dynamic_cast<Box*>(element)) {
+            log::d()("Creating BoxPhysicsShape based on Box MeshElement.");
+            return make_shared<BoxPhysicsShape>(box->width(), box->height(), box->length());
+        }
+
+        if (auto capsule = dynamic_cast<Capsule*>(element)) {
+            log::d()("Creating CapsulePhysicsShape based on Capsule MeshElement.");
+            return make_shared<CapsulePhysicsShape>(capsule->radius(), capsule->height());
+        }
+
+        if (auto cone = dynamic_cast<Cone*>(element)) {
+            log::d()("Creating ConePhysicsShape based on Cone MeshElement.");
+            return make_shared<ConePhysicsShape>(cone->radius(), cone->height());
+        }
+
+        if (auto cylinder = dynamic_cast<Cylinder*>(element)) {
+            log::d()("Creating CylinderPhysicsShape based on Cylinder MeshElement.");
+            return make_shared<CylinderPhysicsShape>(cylinder->radius(), cylinder->height());
+        }
+
+        if (auto plane = dynamic_cast<Plane*>(element)) {
+            log::d()("Creating FinitePlanePhysicsShape based on Plane MeshElement.");
+            return make_shared<FinitePlanePhysicsShape>(plane->width(), plane->height());
+        }
+
+        if (auto sphere = dynamic_cast<Sphere*>(element)) {
+            log::d()("Creating SpherePhysicsShape based on Sphere MeshElement.");
+            return make_shared<SpherePhysicsShape>(sphere->radius());
+        }
+
+        return nullptr;
+    }
+
+} // namespace
+} // namespace a3d

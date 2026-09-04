@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Box.h"
@@ -16,11 +16,12 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Pubic Static Members ///
+namespace a3d {
+
+// [Pubic Static Members]
 
 shared_ptr<Mesh> Box::Mesh(float                      width,
                            float                      height,
@@ -36,7 +37,7 @@ shared_ptr<Mesh> Box::Mesh(float                      width,
                                   material);
 }
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 Box::Box(float    width,
          float    height,
@@ -92,7 +93,7 @@ Box::Box(float    width,
     endBuild(true);
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 float Box::length() const {
     return _length;
@@ -117,3 +118,5 @@ unsigned Box::widthSegments() const {
 unsigned Box::heightSegments() const {
     return _heightSegments;
 }
+
+} // namespace a3d

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CYLINDERPHYSICSSHAPE_H
@@ -13,33 +13,42 @@
 
 namespace a3d {
 
-    class CylinderPhysicsShape : public PhysicsShape {
+/** @brief Cylinder collision shape centered at the local origin and aligned along Y. */
+class CylinderPhysicsShape : public PhysicsShape {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        CylinderPhysicsShape(float radius, float height);
+    /** @brief Creates a cylinder collision shape with the supplied radius and full height. */
+    CylinderPhysicsShape(float radius, float height);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float radius() const;
-        void  radius(float radius);
+    /** @brief Returns the configured cylinder radius. */
+    float radius() const;
 
-        float height() const;
-        void  height(float height);
+    /** @brief Returns the configured full height along Y. */
+    float height() const;
 
-        /// PhysicsShape Public Member Functions ///
+    // [Public PhysicsShape Member Functions]
 
-        Type  type() const override;
-        void  type(Type type) override;
+    /** @brief Returns PhysicsShape::Type::Primitive. */
+    Type  type() const override;
 
-    private:
-        /// Private Member Variables ///
+    /**
+     * @brief Rejects attempts to change the fixed primitive shape type.
+     *
+     * @throws std::logic_error always; CylinderPhysicsShape has a fixed type.
+     */
+    void  type(Type type) override;
 
-        float _radius;
-        float _height;
-    };
+private:
+    // [Private Member Variables]
 
-}
+    float _radius;
+    float _height;
+};
 
-#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CYLINDERPHYSICSSHAPE_H
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CYLINDERPHYSICSSHAPE_H

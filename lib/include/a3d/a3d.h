@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/20/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_A3D_H
@@ -14,6 +14,7 @@
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
+#include "a3d/Environment.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/Math.h"
@@ -24,8 +25,12 @@
 #include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/input/InputContext.h"
 #include "a3d/input/DesktopInputContext.h"
-#include "a3d/extension/ALFImporter.h" // temporary
-#include "a3d/extension/WanderRotator.h" // temporary
+#include "a3d/extension/TransientsTracker.h"
+#include "a3d/extension/Wanderer.h"
+#include "a3d/extension/WanderRotator.h"
+#include "a3d/extension/camera/FlyCameraController.h"
+#include "a3d/extension/camera/TurntableCameraController.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -43,31 +48,38 @@
 #include "a3d/mesh/primitive/TorusKnot.h"
 #include "a3d/mesh/primitive/Tube.h"
 #include "a3d/mesh/primitive/Wedge.h"
-#include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
-#include "a3d/physics/PhysicsInventory.h"
-#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicsWorld.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
-#include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/FinitePlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/InfinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/context/Window.h"
-#include "a3d/render/backend/opengl/OGLRenderer.h"
-#include "a3d/render/Renderer.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/ui/Panel.h"
 #include "a3d/util/Bitmask.h"
 #include "a3d/util/Chrono.h"
+#include "a3d/util/Enum.h"
 #include "a3d/util/Filesystem.h"
 #include "a3d/util/Flow.h"
+#include "a3d/util/Geometry.h"
 #include "a3d/util/PeriodicTrigger.h"
 #include "a3d/util/Snapshot.h"
 #include "a3d/util/String.h"
+#include "a3d/util/Timer.h"
+#include "a3d/visual/Atmosphere.h"
+#include "a3d/visual/Background.h"
+#include "a3d/visual/Fog.h"
+#include "a3d/visual/Ground.h"
+#include "a3d/visual/Surface.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/camera/OrthographicCamera.h"
@@ -82,4 +94,4 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-#endif /* AVARA3D_A3D_H */
+#endif // AVARA3D_A3D_H

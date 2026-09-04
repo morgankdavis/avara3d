@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H
@@ -13,29 +13,42 @@
 
 namespace a3d {
 
-    class SpherePhysicsShape : public PhysicsShape {
+/** @brief Spherical collision shape centered at the local origin. */
+class SpherePhysicsShape : public PhysicsShape {
 
-    public:
-        /// Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        explicit SpherePhysicsShape(float radius);
+    /** @brief Creates a spherical collision shape with @p radius. */
+    explicit SpherePhysicsShape(float radius);
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        float radius() const;
-        void  radius(float radius);
+    /** @brief Returns the configured sphere radius. */
+    float radius() const;
 
-        /// PhysicsShape Public Member Functions ///
+    // [Public PhysicsShape Member Functions]
 
-        Type  type() const override;
-        void  type(Type type) override;
+    /** @brief Returns PhysicsShape::Type::Primitive. */
+    Type  type() const override;
 
-    private:
-        /// Private Member Variables ///
+    /**
+     * @brief Rejects attempts to change the fixed primitive shape type.
+     *
+     * @throws std::logic_error always; SpherePhysicsShape has a fixed type.
+     */
+    void  type(Type type) override;
 
-        float _radius;
-    };
+    // [PhysicsShape Internal Member Functions]
 
-}
+    bool  supportsMargin() const override;
 
-#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H
+private:
+    // [Private Member Variables]
+
+    float _radius;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H

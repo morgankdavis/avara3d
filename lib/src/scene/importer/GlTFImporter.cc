@@ -3,11 +3,12 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 1/30/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/importer/GlTFImporter.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <stdexcept>
@@ -19,7 +20,6 @@
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
 #include <fastgltf/util.hpp>
-#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
@@ -30,10 +30,11 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexFormats.h"
-#include "a3d/profile/Timer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Chrono.h"
+#include "a3d/util/Enum.h"
+#include "a3d/util/Timer.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 #include "a3d/visual/light/DirectionalLight.h"
@@ -44,23 +45,30 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
+namespace a3d {
+namespace {
 
-static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
-static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4                   TransformFromGlTFNode(fastgltf::Node& node);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
-static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
-                                             const fastgltf::Accessor& idxAccessor,
-                                             vector<uint32_t>&         out);
+    // [Private Non-Member Prototypes]
 
-/// Internal Lifecycle Functions ///
+    fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+    std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
+    std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
+    mat4                   TransformFromGlTFNode(fastgltf::Node& node);
+    Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+    Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+    float                  PhongExponentFromGlTFRoughness(float roughness);
+    Color                  PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
+    std::shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image);
+    void                   ReadIndicesU32(const fastgltf::Asset&    asset,
+                                          const fastgltf::Accessor& idxAccessor,
+                                          vector<uint32_t>&         out);
+
+} // namespace
+
+// [Internal Lifecycle Functions]
 
 GlTFImporter::GlTFImporter(const filesystem::path& path, Scene::ImportOptions options):
     _parsed {false},
@@ -82,14 +90,14 @@ GlTFImporter::GlTFImporter(const filesystem::path& path, Scene::ImportOptions op
     }
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
     if (!_scene) {
         if (parse()) {
 
-            Timer timer {true};
+            util::Timer timer {true};
 
             auto a3dScene = make_unique<a3d::Scene>();
 
@@ -101,8 +109,11 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
                 }
 
                 auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
+                auto  name = string(scene.name);
 
-                a3dScene->name(string(scene.name));
+                log::i()("Loading scene: '{}'...", name);
+
+                a3dScene->name(name);
 
                 auto nodeIndicies = scene.nodeIndices;
                 if (!nodeIndicies.empty()) {
@@ -139,7 +150,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
     if (parse()) {
 
-        Timer timer {true};
+        util::Timer timer {true};
 
         auto& meshes = _asset.meshes;
         if (!meshes.empty()) {
@@ -166,7 +177,7 @@ Scene::ImportOptions GlTFImporter::options() const {
     return _options;
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 bool GlTFImporter::parse() {
 
@@ -174,15 +185,15 @@ bool GlTFImporter::parse() {
 
     if (!_parsed) {
 
-        Timer timer {true};
+        util::Timer timer {true};
 
-        //log::i()("Parsing glTF: '{}'...", _path.string());
+        log::i()("Parsing glTF: '{}'...", _path.string());
 
         auto extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
-                          | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform;
+                          | Extensions::KHR_materials_ior | Extensions::KHR_materials_anisotropy
+                          | Extensions::KHR_texture_transform | Extensions::EXT_texture_webp;
         auto parser = Parser(extensions);
 
-//		auto gltfFile = MappedGltfFile::FromPath(_path);
 #ifdef A3D_WEB
         auto gltfFile = GltfDataBuffer::FromPath(_path);
 #else
@@ -198,7 +209,7 @@ bool GlTFImporter::parse() {
         auto options = GlTFOptionsFromImportOptions(_options);
         auto asset = parser.loadGltf(gltfFile.get(), directory, options);
         if (asset.error() != fastgltf::Error::None) {
-            log::e()("Failed to load glTF {}", getErrorMessage(asset.error()));
+            log::e()("Failed to load glTF: {}", getErrorMessage(asset.error()));
             return false;
         }
 
@@ -260,17 +271,21 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
         for (auto& primitive : mesh.primitives) {
 
             auto element = meshElementFromGlTFPrimitive(asset, primitive);
-            if (element) {
-                elements.push_back(std::move(element));
+            if (!element) {
+                continue;
             }
 
             // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
             auto material = ((_options & Scene::ImportOptions::ImportMaterials) != Scene::ImportOptions::None)
                                 ? materialFromGlTFPrimitive(asset, primitive)
                                 : Material::DefaultMaterial();
-            if (material) {
-                materials.push_back(material);
+
+            if (!material) {
+                material = Material::DefaultMaterial();
             }
+
+            elements.push_back(std::move(element));
+            materials.push_back(material);
         }
 
         auto a3dMesh = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
@@ -288,7 +303,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
     using namespace fastgltf;
 
     if (primitive.type != PrimitiveType::Triangles) {
-        log::w()("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
+        log::w()("Unsupported primitive type: {}", util::enums::enum_name(primitive.type));
         return nullptr;
     }
 
@@ -371,7 +386,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
             }
             default: {
                 log::w()("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
-                         magic_enum::enum_name(uvAccessor.type));
+                         util::enums::enum_name(uvAccessor.type));
                 break;
             }
         }
@@ -503,75 +518,42 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
             // specular
 
-            if (auto& specularMaterial = material.specular; specularMaterial) {
-
-                // TODO: this needs work.  and more testing.
-
-                auto  factor = specularMaterial->specularFactor;
-                auto& textureInfo = specularMaterial->specularTexture;
-                auto  colorFactor = specularMaterial->specularColorFactor;
-                auto& colorTextureInfo = specularMaterial->specularColorTexture;
-
-                //				log::d()("*** [SPECULAR] ***");
-                //				log::d()("factor: {}", factor);
-                //				log::d()("textureInfo: {}", textureInfo ? "true" : "false");
-                //				log::d()("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
-                //				log::d()("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
-
-                // if it has a 'texture' map, use it (only contains alpha)
-                // if it has no map, but a 'factor' use solid white, with an intentify of the factor.
-
-                Material::Property a3dProperty = monostate {};
-
-                if (textureInfo) {
-
-                    auto specularTextureIndex = (*textureInfo).textureIndex;
-                    if (auto a3dTexture = textureFromGlTFTextureIndex(asset, specularTextureIndex);
-                        a3dTexture) {
-                        a3dProperty = a3dTexture;
-                    }
-                    else {
-                        a3dProperty = a3d::Material::MissingTextureProperty();
-                    }
-                }
-
-                if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
-                    auto factorColor = make_shared<Color>(factor);
-                    a3dProperty = Material::Property(factorColor);
-                }
-
-                if (!holds_alternative<monostate>(a3dProperty)) {
-                    if (!a3dMaterial) {
-                        a3dMaterial = make_shared<a3d::Material>(monostate {}, monostate {}, a3dProperty);
-                    }
-                    else {
-                        a3dMaterial->specular(a3dProperty);
-                    }
-                }
-            }
-
             if (a3dMaterial) {
 
-                a3dMaterial->locksAmbientWithDiffuse(true);
-
-                a3dMaterial->doubleSided(material.doubleSided);
-
-                if (auto& anisotropy = material.anisotropy; anisotropy) {
-
-                    // log error to draw attention -- at time of initial glTF integration
-                    // we don't have an example file with KHR_materials_anisotropy
-                    auto strength = anisotropy->anisotropyStrength;
-                    log::i()("anisotropyStrength: {}", strength);
-
-                    for (auto [property, type] : a3dMaterial->properties()) {
-                        if (holds_alternative<shared_ptr<Texture>>(*property)) {
-                            auto texture = get<shared_ptr<Texture>>(*property);
-                            texture->sampler()->maxAnisotropy(strength);
-                        }
-                    }
+                if (!material.name.empty() && a3dMaterial != Material::MissingTextureMaterial()) {
+                    a3dMaterial->name(string(material.name));
                 }
 
-                // specularExponent?
+                a3dMaterial->locksAmbientWithDiffuse(true);
+                a3dMaterial->doubleSided(material.doubleSided);
+
+                if (material.specular && material.specular->specularTexture) {
+
+                    const auto textureIndex = material.specular->specularTexture->textureIndex;
+                    auto&      glTFTexture = asset.textures[textureIndex];
+
+                    if (auto image = imageFromGlTFTexture(asset, glTFTexture)) {
+
+                        auto specularImage = PhongSpecularImageFromGlTFSpecularImage(*image);
+
+                        auto sampler = samplerFromGlTFTexture(asset, glTFTexture);
+                        if (!sampler) {
+                            sampler = make_shared<Sampler>();
+                        }
+
+                        auto texture = make_shared<Texture>(specularImage, sampler);
+
+                        a3dMaterial->specular(texture);
+                    }
+                    else {
+                        a3dMaterial->specular(Material::MissingTextureProperty());
+                    }
+                }
+                else {
+                    a3dMaterial->specular(PhongSpecularFromGlTFMaterial(material));
+                }
+
+                a3dMaterial->specularExponent(PhongExponentFromGlTFRoughness(material.pbrData.roughnessFactor));
 
                 // transform -- scale
 
@@ -604,8 +586,11 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
         if (auto a3dImage = imageFromGlTFTexture(asset, texture); a3dImage) {
 
             auto a3dSampler = samplerFromGlTFTexture(asset, texture);
+            if (!a3dSampler) {
+                a3dSampler = make_shared<a3d::Sampler>();
+            }
 
-            auto a3dTexture = make_shared<a3d::Texture>(a3dImage, make_shared<a3d::Sampler>());
+            auto a3dTexture = make_shared<a3d::Texture>(a3dImage, a3dSampler);
             _textures[textureIndex] = a3dTexture;
             return a3dTexture;
         }
@@ -639,6 +624,7 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset&  
             a3dSampler->wrapS(Sampler::WrapMode(sampler.wrapS));
             a3dSampler->wrapT(Sampler::WrapMode(sampler.wrapT));
 
+            _samplers[*samplerIndex] = a3dSampler;
             return a3dSampler;
         }
         else {
@@ -651,7 +637,13 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset&  
 
 shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset, fastgltf::Texture& texture) {
 
-    if (auto imageIndex = texture.imageIndex) {
+    auto imageIndex = texture.webpImageIndex ? texture.webpImageIndex : texture.imageIndex;
+
+    if (!imageIndex) {
+        return nullptr;
+    }
+
+    if (imageIndex) {
 
         if (_images.find(*imageIndex) == _images.end()) {
 
@@ -727,6 +719,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<DirectionalLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 _lights[*lightIndex] = a3dLight;
                 return a3dLight;
             }
@@ -734,6 +727,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<PointLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 _lights[*lightIndex] = a3dLight;
                 return a3dLight;
             }
@@ -741,6 +735,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
 
                 auto a3dLight = make_shared<SpotLight>(string(light.name));
                 a3dLight->color(ColorFromGlTFColorArray(light.color));
+                a3dLight->intensity(static_cast<float>(light.intensity));
                 a3dLight->innerAngle(light.innerConeAngle.value());
                 a3dLight->outerAngle(light.outerConeAngle.value());
                 _lights[*lightIndex] = a3dLight;
@@ -772,8 +767,8 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
                                                    (persCamera->zfar ? *persCamera->zfar : 1000000), // cheating
                                                    persCamera->yfov);
 
-                if (auto ratio = persCamera->aspectRatio) {
-                    a3dCamera->aspectRatio(*ratio);
+                if (persCamera->aspectRatio) {
+                    log::w()("Ignoring glTF camera aspect ratio.");
                 }
 
                 _cameras[*cameraIndex] = a3dCamera;
@@ -791,119 +786,206 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
     return nullptr;
 }
 
-/// Private Static Non-Member Functions ///
+namespace {
 
-fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
+    // [Private Non-Member Functions]
 
-    using namespace fastgltf;
-    using ImportOptions = a3d::Scene::ImportOptions;
+    fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
 
-    auto gltfOptions = Options::None;
+        using namespace fastgltf;
+        using ImportOptions = a3d::Scene::ImportOptions;
 
-    // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
+        auto gltfOptions = Options::None;
 
-    if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
-        gltfOptions |= Options::LoadExternalBuffers | Options::GenerateMeshIndices;
-    }
+        // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-    if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
-        gltfOptions |= Options::LoadExternalBuffers | Options::LoadExternalImages;
-    }
-
-    if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
-    }
-
-    if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
-    }
-
-    return gltfOptions;
-}
-
-static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src) {
-    return std::visit(fastgltf::visitor {[](const fastgltf::sources::Vector& v) -> std::span<const byte> {
-                                             return {v.bytes.data(), v.bytes.size()};
-                                         },
-                                         [](const fastgltf::sources::Array& a) -> std::span<const byte> {
-                                             return {a.bytes.data(), a.bytes.size()};
-                                         },
-                                         [](const fastgltf::sources::ByteView& bv) -> std::span<const byte> {
-                                             return {bv.bytes.data(), bv.bytes.size()};
-                                         },
-                                         [](const auto&) -> std::span<const byte> {
-                                             return {};
-                                         }},
-                      src);
-}
-
-static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
-    const auto& bv = asset.bufferViews[bufferViewIndex];
-    const auto& buf = asset.buffers[bv.bufferIndex];
-
-    auto base = BytesFromDataSource(buf.data);
-    if (base.empty()) {
-        return {};
-    }
-
-    const std::size_t begin = bv.byteOffset;
-    const std::size_t len = bv.byteLength;
-
-    if (begin + len > base.size()) {
-        return {};
-    }
-    return base.subspan(begin, len);
-}
-
-mat4 TransformFromGlTFNode(fastgltf::Node& node) {
-
-    const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
-    return a3d::math::make_mat4(&m[0][0]);
-}
-
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
-    return make_shared<Color>(vec3 {v[0], v[1], v[2]});
-}
-
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
-    return make_shared<Color>(vec3 {v[0], v[1], v[2]});
-}
-
-void ReadIndicesU32(const fastgltf::Asset&    asset,
-                    const fastgltf::Accessor& idxAccessor,
-                    std::vector<uint32_t>&    out) {
-
-    using namespace fastgltf;
-
-    out.assign(idxAccessor.count, 0);
-
-    switch (idxAccessor.componentType) {
-        case ComponentType::UnsignedByte: {
-            iterateAccessorWithIndex<uint8_t>(asset, idxAccessor, [&](uint8_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = (uint32_t) v;
-                }
-            });
-            break;
+        if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
+            gltfOptions |= Options::LoadExternalBuffers | Options::GenerateMeshIndices;
         }
-        case ComponentType::UnsignedShort: {
-            iterateAccessorWithIndex<uint16_t>(asset, idxAccessor, [&](uint16_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = (uint32_t) v;
-                }
-            });
-            break;
+
+        if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
+            gltfOptions |= Options::LoadExternalBuffers | Options::LoadExternalImages;
         }
-        case ComponentType::UnsignedInt: {
-            iterateAccessorWithIndex<uint32_t>(asset, idxAccessor, [&](uint32_t v, size_t i) {
-                if (i < out.size()) {
-                    out[i] = v;
-                }
-            });
-            break;
+
+        if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
         }
-        default:
-            log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
-                     magic_enum::enum_name(idxAccessor.componentType));
-            out.clear();
-            break;
+
+        if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
+        }
+
+        return gltfOptions;
     }
-}
+
+    std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src) {
+        return std::visit(fastgltf::visitor {[](const fastgltf::sources::Vector& v) -> std::span<const byte> {
+                                                 return {v.bytes.data(), v.bytes.size()};
+                                             },
+                                             [](const fastgltf::sources::Array& a) -> std::span<const byte> {
+                                                 return {a.bytes.data(), a.bytes.size()};
+                                             },
+                                             [](const fastgltf::sources::ByteView& bv)
+                                                 -> std::span<const byte> {
+                                                 return {bv.bytes.data(), bv.bytes.size()};
+                                             },
+                                             [](const auto&) -> std::span<const byte> {
+                                                 return {};
+                                             }},
+                          src);
+    }
+
+    std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
+        const auto& bv = asset.bufferViews[bufferViewIndex];
+        const auto& buf = asset.buffers[bv.bufferIndex];
+
+        auto base = BytesFromDataSource(buf.data);
+        if (base.empty()) {
+            return {};
+        }
+
+        const std::size_t begin = bv.byteOffset;
+        const std::size_t len = bv.byteLength;
+
+        if (begin + len > base.size()) {
+            return {};
+        }
+        return base.subspan(begin, len);
+    }
+
+    mat4 TransformFromGlTFNode(fastgltf::Node& node) {
+
+        const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
+        return math::make_mat4(&m[0][0]);
+    }
+
+    Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
+        return {v[0], v[1], v[2]};
+    }
+
+    Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
+        return {v[0], v[1], v[2]};
+    }
+
+    float PhongExponentFromGlTFRoughness(float roughness) {
+
+        // glTF uses a GGX microfacet BRDF with alpha = roughness^2.
+        // A3D uses classic Phong shading, so approximate the GGX lobe width
+        // with a corresponding Phong specular exponent.
+
+        constexpr float MIN_ROUGHNESS = 0.001f;
+        constexpr float MIN_EXPONENT = 1.0f;
+        constexpr float MAX_EXPONENT = 1000.0f;
+
+        roughness = math::clamp(roughness, MIN_ROUGHNESS, 1.0f);
+
+        const float roughnessSquared = roughness * roughness;
+        const float exponent = 2.0f / (roughnessSquared * roughnessSquared) - 2.0f;
+
+        return math::clamp(exponent, MIN_EXPONENT, MAX_EXPONENT);
+    }
+
+    Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
+
+        // approximate glTF's dielectric Fresnel reflectance with A3D's
+        // constant Phong specular coefficient (Ks). this preserves the
+        // normal-incidence reflectance (F0), but not glTF's angle-dependent
+        // Fresnel behavior.
+        const float ior = material.ior;
+        const float ratio = (ior - 1.0f) / (ior + 1.0f);
+        const float baseF0 = ratio * ratio;
+
+        float                 specularFactor = 1.0f;
+        fastgltf::math::nvec3 specularColorFactor(1.0f);
+
+        if (material.specular) {
+
+            specularFactor = material.specular->specularFactor;
+            specularColorFactor = material.specular->specularColorFactor;
+
+            if (material.specular->specularTexture || material.specular->specularColorTexture) {
+                log::w()("Ignoring unsupported glTF specular textures.");
+            }
+        }
+
+        // KHR_materials_specular clamps IOR-derived F0 * specularColor
+        // before applying the scalar specular strength.
+        const vec3 specular {
+            math::clamp_01(baseF0 * specularColorFactor[0]) * specularFactor,
+            math::clamp_01(baseF0 * specularColorFactor[1]) * specularFactor,
+            math::clamp_01(baseF0 * specularColorFactor[2]) * specularFactor,
+        };
+
+        return Color(specular);
+    }
+
+    shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image) {
+
+        // convert a glTF KHR_materials_specular specular-strength texture to A3D's
+        // Phong specular-map representation. glTF stores scalar specular strength
+        // in the alpha channel, while A3D's Phong shader expects an RGB Ks value.
+        // replicate source alpha into RGB and make the resulting texture opaque.
+        // this conversion does not apply specularFactor, specularColorFactor, or IOR.
+
+        A3D_ASSERT(image.bytesPerPixel() == 4);
+
+        const size_t pixelCount = static_cast<size_t>(image.width()) * image.height();
+        auto         buffer = make_unique<Buffer>(pixelCount * 4);
+
+        const auto* src = reinterpret_cast<const uint8_t*>(image.buffer().data());
+        auto*       dst = reinterpret_cast<uint8_t*>(buffer->data());
+
+        for (size_t i = 0; i < pixelCount; ++i) {
+
+            const uint8_t specular = src[i * 4 + 3];
+
+            dst[i * 4 + 0] = specular;
+            dst[i * 4 + 1] = specular;
+            dst[i * 4 + 2] = specular;
+            dst[i * 4 + 3] = 255;
+        }
+
+        return make_shared<Image>(std::move(buffer), image.width(), image.height(), 4, false, false);
+    }
+
+    void ReadIndicesU32(const fastgltf::Asset&    asset,
+                        const fastgltf::Accessor& idxAccessor,
+                        std::vector<uint32_t>&    out) {
+
+        using namespace fastgltf;
+
+        out.assign(idxAccessor.count, 0);
+
+        switch (idxAccessor.componentType) {
+            case ComponentType::UnsignedByte: {
+                iterateAccessorWithIndex<uint8_t>(asset, idxAccessor, [&](uint8_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = (uint32_t) v;
+                    }
+                });
+                break;
+            }
+            case ComponentType::UnsignedShort: {
+                iterateAccessorWithIndex<uint16_t>(asset, idxAccessor, [&](uint16_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = (uint32_t) v;
+                    }
+                });
+                break;
+            }
+            case ComponentType::UnsignedInt: {
+                iterateAccessorWithIndex<uint32_t>(asset, idxAccessor, [&](uint32_t v, size_t i) {
+                    if (i < out.size()) {
+                        out[i] = v;
+                    }
+                });
+                break;
+            }
+            default:
+                log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
+                         util::enums::enum_name(idxAccessor.componentType));
+                out.clear();
+                break;
+        }
+    }
+
+} // namespace
+} // namespace a3d

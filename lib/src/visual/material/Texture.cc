@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 2/7/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/visual/material/Texture.h"
@@ -13,10 +13,11 @@
 #include "a3d/IdGenerator.h"
 #include "a3d/util/Bitmask.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d {
+
+// [Public Lifecycle Functions]
 
 Texture::Texture():
     _id {IdGenerator<TextureId>::next()},
@@ -76,7 +77,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 
 Texture::~Texture() {}
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 shared_ptr<Sampler> Texture::sampler() const {
     return _sampler;
@@ -104,7 +105,7 @@ void Texture::mappingChannel(unsigned channel) {
     _mappingChannel = channel;
 }
 
-/// Internal Member Functions ///
+// [Internal Member Functions]
 
 TextureId Texture::id() const noexcept {
     return _id;
@@ -117,3 +118,5 @@ Texture::DirtyMask Texture::dirtyMask() const {
 void Texture::dirtyMask(DirtyMask mask) {
     _dirtyMask = mask;
 }
+
+} // namespace a3d

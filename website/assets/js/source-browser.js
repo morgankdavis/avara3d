@@ -7,41 +7,293 @@
         return;
     }
 
-    const codeView = browser.querySelector("[data-source-code]");
+    const contentView = browser.querySelector("[data-source-content]");
+    const directoryLabel = browser.querySelector("[data-source-directory]");
+    const directoryList = browser.querySelector("[data-source-directory-list]");
+    const languageLabel = browser.querySelector("[data-source-language]");
     const title = browser.querySelector("[data-source-title]");
     const pathLabel = browser.querySelector("[data-source-path]");
-    const buttons = Array.from(browser.querySelectorAll("[data-source-file]"));
 
-    if (!codeView || !title || !pathLabel || buttons.length === 0) {
+    if (!contentView || !directoryLabel || !directoryList || !languageLabel || !title || !pathLabel) {
         return;
     }
 
-    const files = new Set(buttons.map((button) => button.dataset.sourceFile));
-    const requestedFile = new URLSearchParams(window.location.search).get("file");
-    const initialFile = requestedFile && files.has(requestedFile) ? requestedFile : "main.cc";
+    let currentDirectory = "";
+    let demoName = "janus";
+    let fileLoadSequence = 0;
+    let files = new Map();
+    let selectedFile = "";
 
-    buttons.forEach((button) => {
-        button.addEventListener("click", () => loadFile(button.dataset.sourceFile));
-    });
+    initialize();
 
-    loadFile(initialFile);
+    async function initialize() {
+        try {
+            const manifestUrl = new URL("source-manifest.json", window.location.href);
+            const response = await fetch(manifestUrl, {cache: "no-store"});
 
-    async function loadFile(fileName) {
-        if (!fileName || !files.has(fileName)) {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const manifest = await response.json();
+            demoName = typeof manifest.demo === "string" && manifest.demo ? manifest.demo : demoName;
+            files = parseFiles(manifest.files);
+
+            if (files.size === 0) {
+                throw new Error("The source manifest does not contain any files.");
+            }
+
+            const search = new URLSearchParams(window.location.search);
+            const requestedFile = normalizePath(search.get("file"));
+            const requestedDirectory = normalizePath(search.get("path"));
+            const validRequestedFile = requestedFile && files.has(requestedFile) ? requestedFile : "";
+
+            currentDirectory = directoryExists(requestedDirectory)
+                ? requestedDirectory
+                : validRequestedFile
+                    ? parentDirectory(validRequestedFile)
+                    : "";
+
+            renderDirectory();
+
+            const initialFile = validRequestedFile || (files.has("main.cc") ? "main.cc" : files.keys().next().value);
+            loadFile(initialFile, false);
+        }
+        catch (error) {
+            directoryList.innerHTML = '<div class="source-list-error">File list unavailable.</div>';
+            renderError("Demo files unavailable. Run tools/website/serve.sh from the repository root or assemble the website bundle.");
+            console.error("Unable to initialize the demo source browser:", error);
+        }
+    }
+
+    function parseFiles(entries) {
+        const parsed = new Map();
+
+        if (!Array.isArray(entries)) {
+            return parsed;
+        }
+
+        entries.forEach((entry) => {
+            if (!entry || typeof entry.path !== "string") {
+                return;
+            }
+
+            const path = normalizePath(entry.path);
+
+            if (!path || path !== entry.path || path.split("/").some((part) => part === "..")) {
+                return;
+            }
+
+            parsed.set(path, {
+                path,
+                size: Number.isFinite(entry.size) && entry.size >= 0 ? entry.size : null,
+            });
+        });
+
+        return parsed;
+    }
+
+    function renderDirectory() {
+        const fragment = document.createDocumentFragment();
+        const children = directoryChildren(currentDirectory);
+        const fullDirectoryName = currentDirectory ? `${demoName}/${currentDirectory}` : demoName;
+
+        directoryLabel.textContent = fullDirectoryName;
+        directoryLabel.title = fullDirectoryName;
+
+        if (currentDirectory) {
+            const parent = parentDirectory(currentDirectory);
+            const parentName = parent ? baseName(parent) : demoName;
+            fragment.append(createBackButton(parent, parentName));
+        }
+
+        children.forEach((entry) => {
+            fragment.append(entry.directory ? createDirectoryButton(entry) : createFileButton(entry));
+        });
+
+        if (children.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "source-list-empty";
+            empty.textContent = "This directory is empty.";
+            fragment.append(empty);
+        }
+
+        directoryList.replaceChildren(fragment);
+    }
+
+    function rootFileOrder(name) {
+        return name === "main.cc" ? 0 : 1;
+    }
+
+    function compareSourceFiles(left, right) {
+        const leftStem = left.name.replace(/\.(h|cc)$/, "");
+        const rightStem = right.name.replace(/\.(h|cc)$/, "");
+
+        const stemOrder = leftStem.localeCompare(
+            rightStem,
+            undefined,
+            {numeric: true, sensitivity: "base"},
+        );
+
+        if (stemOrder !== 0) {
+            return stemOrder;
+        }
+
+        if (left.name.endsWith(".h") && right.name.endsWith(".cc")) {
+            return -1;
+        }
+
+        if (left.name.endsWith(".cc") && right.name.endsWith(".h")) {
+            return 1;
+        }
+
+        return compareNames(left, right);
+    }
+
+    function directoryChildren(directory) {
+        const prefix = directory ? `${directory}/` : "";
+        const directories = new Map();
+        const directFiles = [];
+
+        files.forEach((file) => {
+            if (!file.path.startsWith(prefix)) {
+                return;
+            }
+
+            const relativePath = file.path.slice(prefix.length);
+            const slash = relativePath.indexOf("/");
+
+            if (slash === -1) {
+                directFiles.push({
+                    ...file,
+                    directory: false,
+                    name: relativePath,
+                });
+                return;
+            }
+
+            const name = relativePath.slice(0, slash);
+            const path = prefix + name;
+
+            if (!directories.has(path)) {
+                directories.set(path, {
+                    directory: true,
+                    name,
+                    path,
+                });
+            }
+        });
+
+        const directoryEntries = [...directories.values()].sort(compareNames);
+        directFiles.sort((left, right) => {
+            if (!directory) {
+                const leftOrder = rootFileOrder(left.name);
+                const rightOrder = rootFileOrder(right.name);
+
+                if (leftOrder !== rightOrder) {
+                    return leftOrder - rightOrder;
+                }
+            }
+
+            return compareSourceFiles(left, right);
+        });
+
+        return directory ? [...directoryEntries, ...directFiles] : [...directFiles, ...directoryEntries];
+    }
+
+    function createBackButton(parent, parentName) {
+        const button = createRowButton(`Back to ${parentName}`, `‹ ${parentName}`, "folder.svg");
+        button.classList.add("source-directory-back");
+        button.addEventListener("click", () => navigateToDirectory(parent));
+        return button;
+    }
+
+    function createDirectoryButton(entry) {
+        const button = createRowButton(`Open ${entry.name}`, entry.name, "folder.svg", "›");
+        button.classList.add("source-directory-row");
+        button.addEventListener("click", () => navigateToDirectory(entry.path));
+        return button;
+    }
+
+    function createFileButton(entry) {
+        const button = createRowButton(`Preview ${entry.name}`, entry.name, fileIcon(entry.path));
+        button.classList.add("source-file-row");
+        button.toggleAttribute("data-selected", entry.path === selectedFile);
+        button.setAttribute("aria-pressed", String(entry.path === selectedFile));
+        button.addEventListener("click", () => loadFile(entry.path));
+        return button;
+    }
+
+    function createRowButton(label, name, iconName, chevron = "") {
+        const button = document.createElement("button");
+        const icon = document.createElement("img");
+        const strong = document.createElement("strong");
+
+        button.type = "button";
+        button.className = "source-browser-row";
+        button.setAttribute("aria-label", label);
+
+        icon.className = "source-row-icon";
+        icon.src = `assets/images/${iconName}`;
+        icon.alt = "";
+        icon.setAttribute("aria-hidden", "true");
+
+        strong.textContent = name;
+        button.append(icon, strong);
+
+        if (chevron) {
+            const indicator = document.createElement("span");
+            indicator.className = "source-row-chevron";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = chevron;
+            button.append(indicator);
+        }
+
+        return button;
+    }
+
+    function navigateToDirectory(path) {
+        if (!directoryExists(path)) {
             return;
         }
 
-        buttons.forEach((button) => {
-            const selected = button.dataset.sourceFile === fileName;
-            button.toggleAttribute("data-selected", selected);
-            button.setAttribute("aria-pressed", String(selected));
-        });
+        currentDirectory = path;
+        renderDirectory();
+        updateUrl();
+        directoryList.scrollTop = 0;
+    }
 
-        title.textContent = fileName;
-        pathLabel.textContent = `demos/001-physics-sandbox/${fileName}`;
-        codeView.innerHTML = '<div class="source-loading">Loading source…</div>';
+    async function loadFile(path, updateHistory = true) {
+        const file = files.get(path);
 
-        const url = new URL(`source/${fileName}`, window.location.href);
+        if (!file) {
+            return;
+        }
+
+        selectedFile = path;
+        renderDirectory();
+        const preview = previewType(path);
+        const sequence = ++fileLoadSequence;
+        const url = sourceUrl(path);
+
+        languageLabel.textContent = preview.label;
+        title.textContent = baseName(path);
+        pathLabel.textContent = `demos/${demoName}/${path}`;
+        setLoading();
+
+        if (updateHistory) {
+            updateUrl();
+        }
+
+        if (preview.kind === "image") {
+            renderImage(url, path, sequence);
+            return;
+        }
+
+        if (preview.kind === "binary" || preview.kind === "file") {
+            renderBinary(file, preview.label);
+            return;
+        }
 
         try {
             const response = await fetch(url, {cache: "no-store"});
@@ -51,20 +303,25 @@
             }
 
             const source = await response.text();
-            renderSource(source);
 
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set("file", fileName);
-            window.history.replaceState({}, "", currentUrl);
+            if (sequence !== fileLoadSequence) {
+                return;
+            }
+
+            renderSource(source, preview.language);
         }
         catch (error) {
-            codeView.innerHTML = '<div class="source-error">Source file unavailable. Run <code>tools/website/serve.sh</code> from the repository root or assemble the website bundle.</div>';
-            console.error(`Unable to load ${fileName}:`, error);
+            if (sequence === fileLoadSequence) {
+                renderError("This file could not be loaded.");
+            }
+            console.error(`Unable to load ${path}:`, error);
         }
     }
 
-    function renderSource(source) {
-        const highlightedLines = highlightCpp(source.replace(/\r\n/g, "\n"));
+    function renderSource(source, language) {
+        contentView.dataset.previewKind = "source";
+        contentView.setAttribute("aria-label", `${language === "json" ? "JSON" : "C++"} source`);
+        const highlightedLines = highlightSource(source.replace(/\r\n/g, "\n"), language);
         const fragment = document.createDocumentFragment();
 
         highlightedLines.forEach((line, index) => {
@@ -74,124 +331,253 @@
             fragment.append(row);
         });
 
-        codeView.replaceChildren(fragment);
-        codeView.scrollTop = 0;
-        codeView.scrollLeft = 0;
+        contentView.replaceChildren(fragment);
+        resetContentScroll();
     }
 
-    function highlightCpp(source) {
-        const keywords = new Set([
-            "alignas", "alignof", "and", "asm", "auto", "break", "case", "catch", "class", "concept",
-            "const", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield",
-            "decltype", "default", "delete", "do", "else", "enum", "explicit", "export", "extern", "for",
-            "friend", "goto", "if", "inline", "mutable", "namespace", "new", "noexcept", "not", "operator",
-            "override", "private", "protected", "public", "requires", "return", "sizeof", "static", "struct",
-            "switch", "template", "this", "throw", "try", "typedef", "typename", "union", "using", "virtual",
-            "volatile", "while"
-        ]);
-        const types = new Set([
-            "bool", "char", "char8_t", "char16_t", "char32_t", "double", "float", "int", "long", "short",
-            "signed", "unsigned", "void", "wchar_t", "size_t", "nullptr", "true", "false"
-        ]);
+    function renderImage(url, path, sequence) {
+        const preview = document.createElement("div");
+        const image = document.createElement("img");
 
-        let inBlockComment = false;
+        contentView.dataset.previewKind = "image";
+        contentView.setAttribute("aria-label", `Image preview of ${baseName(path)}`);
+        preview.className = "source-image-preview";
+        image.alt = `Preview of ${baseName(path)}`;
+        image.addEventListener("load", () => {
+            if (sequence !== fileLoadSequence) {
+                return;
+            }
+            contentView.replaceChildren(preview);
+            resetContentScroll();
+        });
+        image.addEventListener("error", () => {
+            if (sequence === fileLoadSequence) {
+                renderError("This image could not be loaded.");
+            }
+        });
+        preview.append(image);
+        image.src = url;
+    }
 
-        return source.split("\n").map((line) => {
-            let index = 0;
-            let output = "";
+    function renderBinary(file, label) {
+        const preview = document.createElement("div");
+        const icon = document.createElement("div");
+        const name = document.createElement("strong");
+        const details = document.createElement("span");
 
-            while (index < line.length) {
-                if (inBlockComment) {
-                    const end = line.indexOf("*/", index);
-                    const stop = end === -1 ? line.length : end + 2;
-                    output += token("comment", line.slice(index, stop));
-                    index = stop;
-                    inBlockComment = end === -1;
-                    continue;
-                }
+        contentView.dataset.previewKind = "binary";
+        contentView.setAttribute("aria-label", `${label} file information`);
+        preview.className = "source-binary-preview";
+        icon.className = "source-binary-icon";
+        icon.textContent = label;
+        name.textContent = baseName(file.path);
+        details.textContent = file.size === null ? "Binary file" : formatFileSize(file.size);
+        preview.append(icon, name, details);
+        contentView.replaceChildren(preview);
+        resetContentScroll();
+    }
 
-                if (line.startsWith("//", index)) {
-                    output += token("comment", line.slice(index));
-                    break;
-                }
+    function setLoading() {
+        contentView.dataset.previewKind = "loading";
+        contentView.setAttribute("aria-label", "Loading file preview");
+        contentView.innerHTML = '<div class="source-loading">Loading file…</div>';
+        resetContentScroll();
+    }
 
-                if (line.startsWith("/*", index)) {
-                    const end = line.indexOf("*/", index + 2);
-                    const stop = end === -1 ? line.length : end + 2;
-                    output += token("comment", line.slice(index, stop));
-                    index = stop;
-                    inBlockComment = end === -1;
-                    continue;
-                }
+    function renderError(message) {
+        contentView.dataset.previewKind = "error";
+        contentView.setAttribute("aria-label", "File preview error");
+        const error = document.createElement("div");
+        error.className = "source-error";
+        error.textContent = message;
+        contentView.replaceChildren(error);
+        resetContentScroll();
+    }
 
-                const character = line[index];
+    function highlightSource(source, language) {
+        const prism = window.Prism;
+        const grammar = prism && prism.languages ? prism.languages[language] : null;
 
-                if (character === "#" && line.slice(0, index).trim() === "") {
-                    const match = line.slice(index).match(/^#[A-Za-z_]+/);
-                    if (match) {
-                        output += token("preprocessor", match[0]);
-                        index += match[0].length;
-                        continue;
-                    }
-                }
+        if (!prism || !grammar) {
+            return source.split("\n").map(escapeHtml);
+        }
 
-                if (character === '"' || character === "'") {
-                    const quote = character;
-                    let end = index + 1;
-                    let escaped = false;
+        const lines = [""];
+        const highlighted = prism.tokenize(source, grammar);
 
-                    while (end < line.length) {
-                        const current = line[end];
-                        if (!escaped && current === quote) {
-                            end += 1;
-                            break;
-                        }
-                        escaped = !escaped && current === "\\";
-                        if (current !== "\\") {
-                            escaped = false;
-                        }
-                        end += 1;
-                    }
+        appendHighlighted(highlighted, []);
+        return lines;
 
-                    output += token("string", line.slice(index, end));
-                    index = end;
-                    continue;
-                }
-
-                if (/[A-Za-z_]/.test(character)) {
-                    const match = line.slice(index).match(/^[A-Za-z_][A-Za-z0-9_]*/)[0];
-                    if (keywords.has(match)) {
-                        output += token("keyword", match);
-                    }
-                    else if (types.has(match)) {
-                        output += token("type", match);
-                    }
-                    else {
-                        output += escapeHtml(match);
-                    }
-                    index += match.length;
-                    continue;
-                }
-
-                if (/\d/.test(character) || (character === "." && /\d/.test(line[index + 1] || ""))) {
-                    const match = line.slice(index).match(/^(?:0[xX][0-9A-Fa-f']+|0[bB][01']+|(?:\d[\d']*\.?[\d']*|\.\d[\d']*)(?:[eE][+-]?\d+)?)[uUlLfF]*/);
-                    if (match) {
-                        output += token("number", match[0]);
-                        index += match[0].length;
-                        continue;
-                    }
-                }
-
-                output += escapeHtml(character);
-                index += 1;
+        function appendHighlighted(value, classes) {
+            if (typeof value === "string") {
+                appendText(value, classes);
+                return;
             }
 
-            return output;
-        });
+            if (Array.isArray(value)) {
+                value.forEach((part) => appendHighlighted(part, classes));
+                return;
+            }
+
+            if (!value || typeof value !== "object") {
+                return;
+            }
+
+            const aliases = Array.isArray(value.alias)
+                ? value.alias
+                : value.alias
+                    ? [value.alias]
+                    : [];
+
+            appendHighlighted(value.content, [...classes, "token", value.type, ...aliases]);
+        }
+
+        function appendText(value, classes) {
+            value.split("\n").forEach((part, index) => {
+                if (index > 0) {
+                    lines.push("");
+                }
+
+                if (part) {
+                    lines[lines.length - 1] += wrapToken(escapeHtml(part), classes);
+                }
+            });
+        }
+
+        function wrapToken(value, classes) {
+            const className = [...new Set(classes)]
+                .filter((name) => /^[A-Za-z0-9_-]+$/.test(name))
+                .join(" ");
+
+            return className
+                ? `<span class="${className}">${value}</span>`
+                : value;
+        }
     }
 
-    function token(type, value) {
-        return `<span class="syntax-${type}">${escapeHtml(value)}</span>`;
+    function previewType(path) {
+        const extension = fileExtension(path);
+
+        switch (extension) {
+            case "cc":
+            case "h":
+                return {kind: "source", label: "C++", language: "cpp"};
+            case "gltf":
+                return {kind: "source", label: "GLTF", language: "json"};
+            case "webp":
+                return {kind: "image", label: "WEBP"};
+            case "bin":
+                return {kind: "binary", label: "BIN"};
+            default:
+                return {kind: "file", label: extension ? extension.toUpperCase() : "FILE"};
+        }
+    }
+
+    function fileIcon(path) {
+        switch (fileExtension(path)) {
+            case "webp":
+                return "image_file.svg";
+            case "bin":
+                return "binary_file.svg";
+            case "cc":
+            case "h":
+            case "gltf":
+            default:
+                return "text_file.svg";
+        }
+    }
+
+    function updateUrl() {
+        const url = new URL(window.location.href);
+
+        if (selectedFile) {
+            url.searchParams.set("file", selectedFile);
+        }
+        else {
+            url.searchParams.delete("file");
+        }
+
+        if (currentDirectory) {
+            url.searchParams.set("path", currentDirectory);
+        }
+        else {
+            url.searchParams.delete("path");
+        }
+
+        window.history.replaceState({}, "", url);
+    }
+
+    function directoryExists(path) {
+        if (!path) {
+            return true;
+        }
+
+        const prefix = `${path}/`;
+        return [...files.keys()].some((filePath) => filePath.startsWith(prefix));
+    }
+
+    function sourceUrl(path) {
+        const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+        return new URL(`source/${encodedPath}`, window.location.href);
+    }
+
+    function normalizePath(value) {
+        if (typeof value !== "string") {
+            return "";
+        }
+
+        return value
+            .replaceAll("\\", "/")
+            .split("/")
+            .filter((part) => part && part !== ".")
+            .join("/");
+    }
+
+    function parentDirectory(path) {
+        const slash = path.lastIndexOf("/");
+        return slash === -1 ? "" : path.slice(0, slash);
+    }
+
+    function baseName(path) {
+        const slash = path.lastIndexOf("/");
+        return slash === -1 ? path : path.slice(slash + 1);
+    }
+
+    function fileExtension(path) {
+        const name = baseName(path);
+        const dot = name.lastIndexOf(".");
+        return dot === -1 ? "" : name.slice(dot + 1).toLowerCase();
+    }
+
+    function compareNames(left, right) {
+        return left.name.localeCompare(right.name, undefined, {numeric: true, sensitivity: "base"});
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) {
+            return `${bytes} B`;
+        }
+
+        const units = ["KB", "MB", "GB"];
+        let value = bytes;
+        let unit = "B";
+
+        for (const candidate of units) {
+            value /= 1024;
+            unit = candidate;
+
+            if (value < 1024) {
+                break;
+            }
+        }
+
+        const precision = value >= 100 || Number.isInteger(value) ? 0 : 1;
+        return `${value.toFixed(precision)} ${unit}`;
+    }
+
+    function resetContentScroll() {
+        contentView.scrollTop = 0;
+        contentView.scrollLeft = 0;
     }
 
     function escapeHtml(value) {

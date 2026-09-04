@@ -16,11 +16,13 @@
 #include "a3d/util/Filesystem.h"
 #include "a3d/util/String.h"
 
-void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
+namespace a3d::util::snapshot {
 
-    auto execDir = a3d::util::filesystem::ExecutableDirectory();
+void SaveSnapshot(RenderContext& context) {
+
+    auto execDir = fs::ExecutableDirectory();
     if (execDir) {
-        auto filename = std::format("Snapshot_{}.png", a3d::util::string::DateTimeString());
+        auto filename = std::format("Snapshot_{}.png", string::Timestamp());
         log::i()("Saving snapshot to '{}'", (*execDir / std::filesystem::path(filename)).string());
         auto image = context.snapshot();
         auto fullPath = *execDir / filename;
@@ -31,23 +33,4 @@ void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
     }
 }
 
-void a3d::util::snapshot::StartGIFRecording(RenderContext&   context,
-                                            a3d::math::uvec2 fitInside,
-                                            unsigned         maxFramerate) {
-
-    auto execDir = a3d::util::filesystem::ExecutableDirectory();
-    if (execDir) {
-        auto filename = std::format("Recording_{}.gif", a3d::util::string::DateTimeString());
-        log::i()("Starting GIF recording at '{}'", (*execDir / std::filesystem::path(filename)).string());
-        auto fullPath = *execDir / filename;
-        context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);
-    }
-    else {
-        log::w()("Couldn't locate executable directory.");
-    }
-}
-
-void a3d::util::snapshot::StopGIFRecording(RenderContext& context) {
-
-    context.stopGIFRecording();
-}
+} // namespace a3d::util::snapshot

@@ -1,13 +1,13 @@
 //
-//  GLFWWindow.h
+//  Window.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
-//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
-#define AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
+#ifndef AVARA3D_RENDER_CONTEXT_WINDOW_H
+#define AVARA3D_RENDER_CONTEXT_WINDOW_H
 
 #include <memory>
 #include <string>
@@ -18,126 +18,187 @@ struct GLFWwindow;
 
 namespace a3d {
 
-    class Camera;
-    class Color;
-    class DesktopInputContext;
-    class Image;
-    class Node;
-    class Renderer;
-    class Scene;
+class Camera;
+class Color;
+class DesktopInputContext;
+class Image;
+class Node;
+class Renderer;
+class Scene;
 
-    class Window : public RenderContext {
+/**
+ * @brief RenderContext for interactive desktop and web rendering.
+ *
+ * On desktop, Window represents a native application window. On web builds,
+ * it represents an HTML canvas backed by WebGL. A3D uses the page's "#canvas"
+ * element for browser-specific rendering and input integration.
+ */
+class Window : public RenderContext {
 
-    public:
-        /// Public Static Member Functions ///
+public:
+    // [Public Static Member Functions]
 
-        static std::unique_ptr<DesktopInputContext> InputContext();
+    /** @brief Creates the DesktopInputContext implementation used by Window. */
+    static std::unique_ptr<DesktopInputContext> InputContext();
 
-        /// Public Lifecycle Functions ///
+    // [Public Lifecycle Functions]
 
-        Window(RenderingApi       renderingAPI,
-               const std::string& title,
-               const math::uvec2& size,
-               bool               fullScreen,
-               bool               enableHighDPI    = true,
-               AntialiasingMode   antialiasingMode = AntialiasingMode::None);
+    /**
+     * @brief Creates a rendering window and its rendering resources.
+     *
+     * For a windowed context, @p size specifies the initial window size. Full-screen
+     * windows use the primary monitor's current video mode. High-DPI and antialiasing
+     * requests are applied when supported by the platform.
+     *
+     * @throws std::runtime_error if the window/context initialization fails.
+     */
+    Window(const math::uvec2& size,
+           bool               fullScreen,
+           bool               enableHighDPI = true,
+           Antialiasing       antialiasing  = Antialiasing::None);
 
-        Window(const Window& other)            = delete;
-        Window& operator=(const Window& other) = delete;
+    Window(const Window& other)            = delete;
+    Window& operator=(const Window& other) = delete;
 
-        Window(Window&&)            = delete;
-        Window& operator=(Window&&) = delete;
+    Window(Window&&)            = delete;
+    Window& operator=(Window&&) = delete;
 
-        ~Window() override;
+    ~Window() override;
 
-        /// Public Member Functions ///
+    // [Public Member Functions]
 
-        void        open();
-        void        close();
+    /**
+     * @brief Shows the window and begins accepting normal window callbacks.
+     *
+     * @throws std::runtime_error if the Window has no VisualWorld attached to a Scene.
+     */
+    void        open();
 
-        bool        isOpen() const;
+    /** @brief Closes the window and releases pointer capture. */
+    void        close();
 
-        std::string title() const;
-        void        title(const std::string& title);
+    /** @brief Returns whether the Window has been opened and not subsequently closed. */
+    bool        isOpen() const;
 
-        math::uvec2 size() const;
-        void        size(const math::uvec2& size);
+    /** @brief Returns the window title; web builds currently return an empty string. */
+    std::string title() const;
 
-        math::uvec2 position() const;
-        void        position(const math::uvec2& pos);
+    /** @brief Sets the window title. */
+    void        title(const std::string& title);
 
-        void        center();
+    /** @brief Returns the window size in platform window coordinates. */
+    math::uvec2 size() const;
 
-        bool        hidden() const;
-        void        hidden(bool hidden);
+    /** @brief Sets the window size in platform window coordinates. */
+    void        size(const math::uvec2& size);
 
-        bool        cursorCaptured() const;
-        void        cursorCaptured(bool captured);
+    /** @brief Returns the window position in screen coordinates. */
+    math::uvec2 position() const;
 
-        bool        highDPIEnabled() const;
+    /** @brief Sets the window position in screen coordinates. */
+    void        position(const math::uvec2& pos);
 
-        /// RenderContext Public Member Functions ///
+    /** @brief Centers the window on its current monitor when supported by the platform. */
+    void        center();
 
-        bool        vSyncEnabled() const override;
-        void        vSyncEnabled(bool enabled) override;
+    /** @brief Returns whether the window is explicitly hidden. */
+    bool        hidden() const;
 
-        /// RenderContext Internal Member Functions ///
+    /** @brief Shows or hides the window. */
+    void        hidden(bool hidden);
 
-        void        pollEvents() override;
+    /** @brief Returns whether pointer input is captured by the window. */
+    bool        cursorCaptured() const;
 
-        void        beginFrame(const Scene& scene) override;
-        void        endFrame(const Scene& scene) override;
+    /**
+     * @brief Captures or releases pointer input.
+     *
+     * Capturing locks pointer motion to the window and hides the pointer. Releasing
+     * capture restores the state requested by cursorHidden().
+     */
+    void        cursorCaptured(bool captured);
 
-        void        swapBuffers() override;
+    /** @brief Returns whether the pointer is requested to be hidden when not captured. */
+    bool        cursorHidden() const;
 
-        math::uvec2 viewportLogicalSize() const override;
-        math::uvec2 framebufferSize() const override;
+    /** @brief Shows or hides the pointer when pointer capture is disabled. */
+    void        cursorHidden(bool hidden);
 
-        unsigned    defaultFramebuffer() const override;
+    /** @brief Returns whether high-DPI rendering was requested when the Window was created. */
+    bool        highDPIEnabled() const;
 
-        /// Internal Member Functions ///
+    // [Public RenderContext Member Functions]
 
-        void        inputContext(DesktopInputContext* inputContext);
-        GLFWwindow* glfwWindow() const; // remove?
+    /** @brief Returns whether vertical synchronization is enabled. */
+    bool        vSyncEnabled() const override;
 
-        /// Internal Static Member Functions ///
+    /**
+     * @brief Enables or disables vertical synchronization when supported.
+     *
+     * Browser presentation timing is controlled by the browser main loop; web
+     * builds report VSync enabled and do not support disabling it.
+     */
+    void        vSyncEnabled(bool enabled) override;
 
-        static void Destroy(GLFWwindow* window);
+    // [RenderContext Internal Member Functions]
 
-    private:
-        /// Private Static Member Functions ///
+    void        pollEvents() override;
 
-        static void    GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
-        static void    GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
-        static void    GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
-        static void    GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods);
-        static Window* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
-        static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
+    void        beginFrame(const Scene& scene) override;
+    void        endFrame(const Scene& scene) override;
 
-        /// Private Member Functions ///
+    void        swapBuffers() override;
 
-        void                        registerGLFWCallbacks();
-        void                        unregisterGLFWCallbacks();
+    math::uvec2 viewportLogicalSize() const override;
+    math::uvec2 framebufferSize() const override;
 
-        /// Private Types ///
+    unsigned    defaultFramebuffer() const override;
 
-        struct DestroyGLFWWindow {
-            void operator()(GLFWwindow* window) {
-                Destroy(window);
-            }
-        };
+    // [Internal Member Functions]
 
-        /// Private Member Variables ///
+    void        inputContext(DesktopInputContext* inputContext);
+    GLFWwindow* glfwWindow() const; // remove?
 
-        std::unique_ptr<GLFWwindow, DestroyGLFWWindow> _glfwWindow;
-        bool                                           _vSyncEnabled;
-        bool                                           _cursorCaptured;
-        bool                                           _open;
-        bool                                           _hidden;
-        bool                                           _highDPIEnabled;
-        DesktopInputContext*                           _inputContext;
+    // [Internal Static Member Functions]
+
+    static void Destroy(GLFWwindow* window);
+
+private:
+    // [Private Static Member Functions]
+
+    static void    GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
+    static void    GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
+    static void    GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
+    static void    GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods);
+    static void    GLFWWindowFocusCallback(GLFWwindow* glfwWindow, int focused);
+    static Window* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+    static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
+
+    // [Private Member Functions]
+
+    void                        registerGLFWCallbacks();
+    void                        unregisterGLFWCallbacks();
+
+    // [Private Types]
+
+    struct DestroyGLFWWindow {
+        void operator()(GLFWwindow* window) {
+            Destroy(window);
+        }
     };
 
-}
+    // [Private Member Variables]
 
-#endif //AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
+    std::unique_ptr<GLFWwindow, DestroyGLFWWindow> _glfwWindow;
+    bool                                           _vSyncEnabled;
+    bool                                           _cursorCaptured;
+    bool                                           _cursorHidden;
+    bool                                           _open;
+    bool                                           _hidden;
+    bool                                           _highDPIEnabled;
+    DesktopInputContext*                           _inputContext;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_RENDER_CONTEXT_WINDOW_H

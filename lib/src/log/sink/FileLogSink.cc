@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 11/9/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/log/sink/FileLogSink.h"
@@ -13,25 +13,35 @@
 
 #include "a3d/log/Log.h"
 
-using namespace a3d;
 using namespace std;
 
-/// Public Lifecycle Functions ///
+namespace a3d::log {
+
+// [Public Lifecycle Functions]
 
 FileLogSink::FileLogSink(const filesystem::path& relPath, int maxFiles, int maxFilesize):
     _filepath {relPath},
     _maxFiles {maxFiles},
     _maxFilesize {maxFilesize} {
 
-    error_code errorCode;
-    filesystem::create_directories(_filepath.parent_path(), errorCode);
-    // this bugs me.
-    // errc::success or anything evaluating to 0 does not exist, apparently.
-    auto code = errorCode.value();
-    if (code != 0) {
-        // TODO: esception sublass
-        throw std::runtime_error(std::format("Error creating intermediate directories for log: '{}', code: {}.",
-                                             _filepath.string(), to_string(code)));
+    if (_maxFiles <= 0) {
+        throw invalid_argument("FileLogSink maxFiles must be greater than zero.");
+    }
+
+    if (_maxFilesize <= 0) {
+        throw invalid_argument("FileLogSink maxFilesize must be greater than zero.");
+    }
+
+    const auto parentPath = _filepath.parent_path();
+    if (!parentPath.empty()) {
+
+        error_code errorCode;
+        filesystem::create_directories(parentPath, errorCode);
+
+        if (errorCode) {
+            throw runtime_error(format("Error creating intermediate directories for log '{}': {}.",
+                                       _filepath.string(), errorCode.message()));
+        }
     }
 
     openStream();
@@ -46,7 +56,7 @@ FileLogSink::~FileLogSink() {
     }
 }
 
-/// Public Member Functions ///
+// [Public Member Functions]
 
 const filesystem::path& FileLogSink::filepath() const {
     return _filepath;
@@ -60,9 +70,9 @@ int FileLogSink::maxFilesize() const {
     return _maxFilesize;
 }
 
-/// Public LogSink Member Functions ///
+// [Public LogSink Member Functions]
 
-void FileLogSink::write(const string& output, Log::Level level) {
+void FileLogSink::write(const string& output, Level level) {
 
     *_fileStream << output;
 
@@ -76,7 +86,7 @@ void FileLogSink::flush() {
     }
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 void FileLogSink::openStream() {
 
@@ -84,7 +94,11 @@ void FileLogSink::openStream() {
         _fileStream->close();
     }
 
-    _fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
+    _fileStream = make_shared<ofstream>(_filepath, ios::out | ios::app);
+
+    if (!_fileStream->is_open()) {
+        throw runtime_error(format("Unable to open log file '{}'.", _filepath.string()));
+    }
 }
 
 void FileLogSink::checkRotate() {
@@ -175,3 +189,5 @@ void FileLogSink::rotate() {
 
     openStream();
 }
+
+} // namespace a3d::log

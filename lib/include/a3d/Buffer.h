@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BUFFER_H
@@ -15,39 +15,65 @@
 
 namespace a3d {
 
-    class Buffer {
+/**
+ * @brief Container for a contiguous byte buffer.
+ *
+ * Copying a Buffer deep-copies its bytes; moving transfers the owned storage.
+ */
+class Buffer {
 
-    public:
-        ///  Public Lifecycle Functions ///
+public:
+    // [Public Lifecycle Functions]
 
-        explicit Buffer(const std::filesystem::path& path);
-        explicit Buffer(const std::vector<std::byte>& buf);
-        Buffer(const std::byte* buf, std::size_t size);
-        explicit Buffer(std::size_t size);
+    /**
+     * @brief Reads the complete contents of @p path into a Buffer.
+     *
+     * @throws std::runtime_error if the file cannot be opened, sized, or read.
+     */
+    explicit Buffer(const std::filesystem::path& path);
 
-        Buffer(const Buffer& other);
-        Buffer& operator=(const Buffer& other);
+    /** @brief Creates a Buffer by copying the bytes in @p buf. */
+    explicit Buffer(const std::vector<std::byte>& buf);
 
-        Buffer(Buffer&& other) noexcept;
-        Buffer& operator=(Buffer&& other) noexcept;
+    /** @brief Creates a Buffer containing @p size bytes copied from @p buf. */
+    Buffer(const std::byte* buf, std::size_t size);
 
-        ~Buffer();
+    /** @brief Creates a Buffer with storage for @p size bytes. */
+    explicit Buffer(std::size_t size);
 
-        /// Public Member Functions ///
+    Buffer(const Buffer& other);
+    Buffer& operator=(const Buffer& other);
 
-        std::byte*  data() const;
-        std::size_t size() const;
+    Buffer(Buffer&& other) noexcept;
+    Buffer& operator=(Buffer&& other) noexcept;
 
-        std::byte*  operator*() const;
-        std::byte   operator[](std::size_t idx) const;
+    ~Buffer();
 
-    private:
-        /// Private Member Variables ///
+    // [Public Member Functions]
 
-        std::unique_ptr<std::byte[]> _data;
-        std::size_t                  _size;
-    };
+    /** @brief Returns a mutable pointer to the owned bytes, or nullptr when the Buffer is empty. */
+    std::byte*  data() const;
 
-}
+    /** @brief Returns the buffer size in bytes. */
+    std::size_t size() const;
 
-#endif /* AVARA3D_BUFFER_H */
+    /** @brief Returns a mutable pointer to the owned bytes, equivalent to data(). */
+    std::byte*  operator*() const;
+
+    /**
+     * @brief Returns the byte at @p idx without bounds checking.
+     *
+     * @param idx valid zero-based byte index.
+     */
+    std::byte   operator[](std::size_t idx) const;
+
+private:
+    // [Private Member Variables]
+
+    std::unique_ptr<std::byte[]> _data;
+    std::size_t                  _size;
+};
+
+} // namespace a3d
+
+#endif // AVARA3D_BUFFER_H

@@ -1,0 +1,34 @@
+### pugixml ###
+
+set(PUGIXML_BUILD_SHARED_AND_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(pugixml-1.15)
+
+a3d_external_virtual_include_dir(
+		pugixml
+		"${A3D_EXTERNAL_ROOT}/pugixml-1.15/src")
+
+add_library(a3d_external_pugixml INTERFACE)
+add_library(a3d::pugixml ALIAS a3d_external_pugixml)
+
+target_link_libraries(a3d_external_pugixml INTERFACE
+		pugixml::static)
+
+target_include_directories(a3d_external_pugixml SYSTEM INTERFACE
+		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
+		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/pugixml>")
+
+
+
+
+
+
+
+
+
+
+
+         auto mapPath = util::fs::AuxiliaryFilePath("Icebox", "alf");
+         auto alfImporter = ext::ALFImporter(*mapPath);
+         auto scene = alfImporter.scene(*visualWorld);
+
