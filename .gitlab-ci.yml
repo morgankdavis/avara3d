@@ -792,6 +792,12 @@ website-publish-localstaging:
             fi
 
             echo
+            echo "Configuring Node.js environment..."
+            source "${EMSDK_ROOT}/emsdk_env.sh"
+            node --version
+            npx --version
+
+            echo
             echo "Publishing website to Cloudflare Pages..."
             npx --yes wrangler@4.125.0 pages deploy \
                 build-pages \
