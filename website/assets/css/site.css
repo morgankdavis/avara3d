@@ -1421,7 +1421,7 @@ kbd,
 #live-demo .demo-controls {
     display: block;
     min-width: 0;
-    padding: 18px 23px 25px;
+    padding: 32px 23px 25px;
 }
 
 #live-demo .demo-controls > .demo-sidebar-section,
@@ -1467,8 +1467,8 @@ kbd,
 #live-demo .demo-selection-copy,
 #live-demo .demo-control-section .demo-instructions > p {
     margin: 14px 0 0;
-    color: var(--muted);
-    font-size: 0.76rem;
+    color: var(--text-soft);
+    font-size: 0.8rem;
     line-height: 1.5;
 }
 
@@ -1498,11 +1498,63 @@ kbd,
 }
 
 #live-demo .demo-control-table dt {
-    color: var(--text);
+    color: var(--text-soft);
     font-weight: 600;
 }
 
 #live-demo .demo-control-table dd {
     color: var(--text-soft);
     white-space: nowrap;
+}
+
+
+/* Quick Start heading and simplified sidebar separators */
+#live-demo .demo-quick-start-title {
+    margin: 0 0 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.3;
+    text-transform: none;
+}
+
+#live-demo .demo-controls > .demo-sidebar-section + .demo-sidebar-section,
+#live-demo .demo-controls > .demo-control-section + .demo-control-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+#live-demo .demo-selection-copy {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+#live-demo .demo-control-table dd {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+}
+
+
+#live-demo .demo-sidebar-title,
+#live-demo .demo-control-section > .panel-label {
+    color: var(--text);
+}
+
+#live-demo .demo-quick-start-title {
+    margin: 0 0 20px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--line-strong);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    text-transform: none;
 }
