@@ -1577,23 +1577,44 @@
     gap: 5px;
 }
 
+.ownership-backend > .arch-api-link {
+    display: inline-flex;
+    align-items: center;
+}
+
+/*.ownership-backend-label {*/
+/*    display: inline-flex;*/
+/*    align-items: center;*/
+/*    margin-right: 3px;*/
+/*    color: var(--muted);*/
+/*    font-family: var(--mono);*/
+/*    font-size: 0.625rem;*/
+/*    font-weight: 600;*/
+/*    letter-spacing: 0.05em;*/
+/*    line-height: 1;*/
+/*    text-transform: uppercase;*/
+/*    white-space: nowrap;*/
+/*}*/
+
 .ownership-backend-label {
     display: inline-flex;
     align-items: center;
     margin-right: 3px;
     color: var(--muted);
-    font-family: var(--mono);
+    font-family: var(--sans);
+    /*font-family: var(--mono);*/
     font-size: 0.6rem;
     font-weight: 600;
     letter-spacing: 0.06em;
-    line-height: 1.35;
+    line-height: 1;
+    text-transform: none;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
 .ownership-backend code {
     position: relative;
-    top: -1px;
+    top: 0px;
     padding: 2px 5px;
     border: 1px solid var(--line);
     border-radius: 5px;
@@ -1604,15 +1625,13 @@
     white-space: nowrap;
 }
 
-/* Keep the chip boxes aligned with BACKEND while nudging only their text. */
-.ownership-system-item:first-child .ownership-backend code {
-    padding-top: 2.5px;
-    padding-bottom: 1.5px;
+.ownership-backend-glfw {
+    top: -1px;
 }
 
-.ownership-system-item:not(:first-child) .ownership-backend code {
-    padding-top: 3px;
-    padding-bottom: 1px;
+.ownership-backend-glfw > span {
+    position: relative;
+    top: 1px;
 }
 
 .ownership-backend-arrow {
@@ -1622,11 +1641,6 @@
     font-family: var(--mono);
     font-size: 0.62rem;
 }
-
-.ownership-system-item:first-child .ownership-backend-arrow {
-    top: -1px;
-}
-
 
 /* Node graph -------------------------------------------------------------- */
 

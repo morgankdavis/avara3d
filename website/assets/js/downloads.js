@@ -63,7 +63,7 @@
                 throw new Error("Invalid downloads manifest");
             }
 
-            summary.textContent = formatSummary(manifest);
+            renderSummary(summary, manifest);
 
             panel
                 .querySelectorAll("[data-download-platform]")
@@ -124,7 +124,7 @@
         link.textContent = "Not available";
     }
 
-    function formatSummary(manifest) {
+    function renderSummary(summary, manifest) {
         const parts = [];
 
         if (
@@ -144,16 +144,61 @@
             parts.push(`build ${buildNumber}`);
         }
 
-        if (
-            typeof manifest.shortCommit === "string" &&
-            manifest.shortCommit
-        ) {
-            parts.push(manifest.shortCommit);
+        summary.replaceChildren();
+
+        if (parts.length > 0) {
+            summary.append(
+                document.createTextNode(parts.join(" · "))
+            );
         }
 
-        return parts.length > 0
-            ? parts.join(" · ")
-            : manifest.publicLabel || manifest.channel;
+        const shortCommit =
+            typeof manifest.shortCommit === "string"
+                ? manifest.shortCommit
+                : "";
+
+        const commit =
+            typeof manifest.commit === "string"
+                ? manifest.commit
+                : "";
+
+        if (shortCommit) {
+            if (parts.length > 0) {
+                summary.append(
+                    document.createTextNode(" · ")
+                );
+            }
+
+            if (/^[0-9a-f]{40}$/i.test(commit)) {
+                const branch =
+                    typeof manifest.branch === "string" && manifest.branch
+                        ? manifest.branch
+                        : manifest.channel;
+
+                const link = document.createElement("a");
+
+                link.className = "download-commit-link";
+                link.href =
+                    `https://gitlab.mkd.net/a3d/avara3d/-/tree/${encodeURIComponent(commit)}`;
+                link.textContent = shortCommit;
+                link.title =
+                    `View ${branch} @ ${commit.slice(0, 12)} in GitLab`;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+
+                summary.append(link);
+            }
+            else {
+                summary.append(
+                    document.createTextNode(shortCommit)
+                );
+            }
+        }
+
+        if (!summary.hasChildNodes()) {
+            summary.textContent =
+                manifest.publicLabel || manifest.channel;
+        }
     }
 
     function formatBytes(byteCount) {

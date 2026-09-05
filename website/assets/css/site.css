@@ -894,6 +894,18 @@ kbd,
     font-size: 0.72rem;
 }
 
+.download-panel-heading .download-commit-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 120ms ease;
+}
+
+.download-panel-heading .download-commit-link:hover,
+.download-panel-heading .download-commit-link:focus-visible {
+    color: var(--violet);
+    outline: none;
+}
+
 .download-list article {
     display: grid;
     grid-template-columns: 46px 1fr auto;
