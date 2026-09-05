@@ -463,6 +463,9 @@ documentation:
     needs:
         -   job: documentation
             artifacts: true
+        -   job: web-release
+            artifacts: true
+            optional: true
     # never allow two website deployments to run simultaneously.
     resource_group: avara3d-website-deployment
     script:
@@ -479,31 +482,45 @@ documentation:
             test -f "${SSH_KNOWN_HOSTS}"
             chmod 600 "${SSH_PRIVATE_KEY}"
             chmod 644 "${SSH_KNOWN_HOSTS}"
-            echo
-            echo "Building fresh WebAssembly release..."
-            source "${EMSDK_ROOT}/emsdk_env.sh"
-            export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-            emcc --version
-            rm -rf gitlab-build-website build-website
-            emcmake /usr/bin/cmake \
-                -S . \
-                -B gitlab-build-website \
-                -G Ninja \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DA3D_BUILD_EDITOR=OFF \
-                -DA3D_BUILD_AUTOMATED_TESTS=OFF \
-                -DA3D_BUILD_SANDBOX_TESTS=OFF \
-                -DA3D_BUILD_DEMOS=ON \
-                -DA3D_BUILD_DOCUMENTATION=OFF \
-                -DA3D_WEB_GENERATE_HTML=OFF \
-                -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
-                -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-            /usr/bin/cmake \
-                --build gitlab-build-website \
-                --target install \
-                -j4
+
+            rm -rf build-website
+            web_demo_dir=""
+
+            if [[ -f avara3d/web/release/demos/janus/janus.js &&
+                  -f avara3d/web/release/demos/janus/janus.wasm &&
+                  -f avara3d/web/release/demos/janus/janus.data ]]; then
+                echo
+                echo "Using WebAssembly release artifact from web-release..."
+                web_demo_dir="avara3d/web/release/demos/janus"
+            else
+                echo
+                echo "No web-release artifact available; building fresh WebAssembly release..."
+                source "${EMSDK_ROOT}/emsdk_env.sh"
+                export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+                emcc --version
+                rm -rf gitlab-build-website
+                emcmake /usr/bin/cmake \
+                    -S . \
+                    -B gitlab-build-website \
+                    -G Ninja \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DA3D_BUILD_EDITOR=OFF \
+                    -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+                    -DA3D_BUILD_SANDBOX_TESTS=OFF \
+                    -DA3D_BUILD_DEMOS=ON \
+                    -DA3D_BUILD_DOCUMENTATION=OFF \
+                    -DA3D_WEB_GENERATE_HTML=OFF \
+                    -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+                    -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+                /usr/bin/cmake \
+                    --build gitlab-build-website \
+                    --target install \
+                    -j4
+            fi
+
             echo
             echo "Assembling website bundle..."
+            A3D_WEB_DEMO_DIR="${web_demo_dir}" \
             A3D_WEB_BUILD_DIR=gitlab-build-website \
             A3D_REQUIRE_WEB_DEMO=1 \
             A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
@@ -602,6 +619,9 @@ website-publish-localstaging:
     needs:
         -   job: documentation
             artifacts: true
+        -   job: web-release
+            artifacts: true
+            optional: true
     resource_group: avara3d-website-deployment
     script:
         - |
@@ -619,35 +639,44 @@ website-publish-localstaging:
             : "${A3D_CLOUDFLARE_PAGES_PROJECT:?A3D_CLOUDFLARE_PAGES_PROJECT is not set}"
             : "${A3D_R2_PREFIX:?A3D_R2_PREFIX is not set}"
 
-            echo
-            echo "Building fresh WebAssembly release..."
-            source "${EMSDK_ROOT}/emsdk_env.sh"
-            export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
-            emcc --version
+            rm -rf build-website build-pages
+            web_demo_dir=""
 
-            rm -rf gitlab-build-website build-website build-pages
-
-            emcmake /usr/bin/cmake \
-                -S . \
-                -B gitlab-build-website \
-                -G Ninja \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DA3D_BUILD_EDITOR=OFF \
-                -DA3D_BUILD_AUTOMATED_TESTS=OFF \
-                -DA3D_BUILD_SANDBOX_TESTS=OFF \
-                -DA3D_BUILD_DEMOS=ON \
-                -DA3D_BUILD_DOCUMENTATION=OFF \
-                -DA3D_WEB_GENERATE_HTML=OFF \
-                -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
-                -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-
-            /usr/bin/cmake \
-                --build gitlab-build-website \
-                --target install \
-                -j4
+            if [[ -f avara3d/web/release/demos/janus/janus.js &&
+                  -f avara3d/web/release/demos/janus/janus.wasm &&
+                  -f avara3d/web/release/demos/janus/janus.data ]]; then
+                echo
+                echo "Using WebAssembly release artifact from web-release..."
+                web_demo_dir="avara3d/web/release/demos/janus"
+            else
+                echo
+                echo "No web-release artifact available; building fresh WebAssembly release..."
+                source "${EMSDK_ROOT}/emsdk_env.sh"
+                export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
+                emcc --version
+                rm -rf gitlab-build-website
+                emcmake /usr/bin/cmake \
+                    -S . \
+                    -B gitlab-build-website \
+                    -G Ninja \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DA3D_BUILD_EDITOR=OFF \
+                    -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+                    -DA3D_BUILD_SANDBOX_TESTS=OFF \
+                    -DA3D_BUILD_DEMOS=ON \
+                    -DA3D_BUILD_DOCUMENTATION=OFF \
+                    -DA3D_WEB_GENERATE_HTML=OFF \
+                    -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+                    -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+                /usr/bin/cmake \
+                    --build gitlab-build-website \
+                    --target install \
+                    -j4
+            fi
 
             echo
             echo "Assembling website bundle..."
+            A3D_WEB_DEMO_DIR="${web_demo_dir}" \
             A3D_WEB_BUILD_DIR=gitlab-build-website \
             A3D_REQUIRE_WEB_DEMO=1 \
             A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
