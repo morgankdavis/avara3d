@@ -2,8 +2,7 @@
 
 This reference documents Avara3D's public C++ API.
 
-For broader context, the [Architecture Overview](https://avara3d.net/architecture.html) explains high-level ownership, update and simulation flow, rendering, physics integration,
-and selected implementation details.
+For broader context, the [Architecture](https://avara3d.net/architecture.html) page gives a high-level overview of ownership, simulation scheduling, rigid-body physics, and rendering.
 
 ## Key Classes {#key-classes}
 

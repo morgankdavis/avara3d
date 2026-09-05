@@ -235,17 +235,11 @@ void App::inputDidUpdate(Runner&       runner,
     _window->cursorCaptured(result.pointerDragging);
 
     if (result.orbitButtonClick) {
-
-        if (input.keyDown(Key::LeftControl)) {
-            queueAction(result.orbitButtonClick->position);
-        }
-        else {
-            select(*scene.visualWorld(), result.orbitButtonClick->position);
-        }
+        queueAction(result.orbitButtonClick->position);
     }
 
     if (result.panButtonClick) {
-        queueAction(result.panButtonClick->position);
+        select(*scene.visualWorld(), result.panButtonClick->position);
     }
 }
 

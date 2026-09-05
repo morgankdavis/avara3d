@@ -41,63 +41,9 @@ bool App::drawDemoPanel() {
 
     ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
-    panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
+    // -- action --
 
-    const bool paused = runner.simulationPaused();
-
-    panel.value("state", paused ? "paused" : "running");
-
-    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
-    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
-        runner.timeStep(1.0 / stepRate);
-    }
-
-    int maxCatchUpSteps = runner.maxCatchUpSteps();
-    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
-        runner.maxCatchUpSteps(maxCatchUpSteps);
-    }
-
-    float timeScale = runner.timeScale();
-    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.1fx")) {
-        runner.timeScale(timeScale);
-    }
-
-    panel.row(paused ? 2 : 1);
-
-    if (panel.button(paused ? "Resume" : "Pause")) {
-        runner.simulationPaused(!paused);
-    }
-    if (paused) {
-        if (panel.button("Step")) {
-            runner.requestSimulationStep();
-        }
-    }
-
-    if (panel.button("Reset")) {
-        _pendingReset = true;
-    }
-
-    panel.section("environment");
-
-    const auto gravity = physicsWorld.gravity();
-    panel.text("gravity");
-
-    const auto isGravity = [&gravity](const vec3& value) {
-        return length(gravity - value) < 0.001f;
-    };
-
-    panel.segmentedRow(3);
-    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
-        physicsWorld.gravity(GRAVITY_EARTH);
-    }
-    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
-        physicsWorld.gravity(GRAVITY_MOON);
-    }
-    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
-        physicsWorld.gravity(GRAVITY_ZERO);
-    }
-
-    panel.section("action");
+    panel.section("action", {.line = true}, {.top = 0.0f, .bottom = 6.0f});
 
     panel.segmentedRow(3);
     if (panel.option("Drop", _action == Action::Drop)) {
@@ -149,10 +95,12 @@ bool App::drawDemoPanel() {
             break;
     }
 
-    panel.section("selected node");
+    // -- selection --
+
+    panel.section("selection");
 
     if (!_selection) {
-        panel.text("click to select");
+        panel.text("< right-click to select >");
     }
     else if (auto node = _selection->node.lock()) {
 
@@ -222,8 +170,70 @@ bool App::drawDemoPanel() {
     else {
         // the selected node was removed from the scene
         select({});
-        panel.text("click an object to inspect");
+        panel.text("< right-click to select >");
     }
+
+    // -- environment --
+
+    panel.section("environment");
+
+    const auto gravity = physicsWorld.gravity();
+    panel.text("gravity");
+
+    const auto isGravity = [&gravity](const vec3& value) {
+        return length(gravity - value) < 0.001f;
+    };
+
+    panel.segmentedRow(3);
+    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
+        physicsWorld.gravity(GRAVITY_EARTH);
+    }
+    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
+        physicsWorld.gravity(GRAVITY_MOON);
+    }
+    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
+        physicsWorld.gravity(GRAVITY_ZERO);
+    }
+
+    // -- simulation --
+
+    panel.section("simulation");
+
+    const bool paused = runner.simulationPaused();
+
+    panel.value("state", paused ? "paused" : "running");
+
+    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
+    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
+        runner.timeStep(1.0 / stepRate);
+    }
+
+    int maxCatchUpSteps = runner.maxCatchUpSteps();
+    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
+        runner.maxCatchUpSteps(maxCatchUpSteps);
+    }
+
+    float timeScale = runner.timeScale();
+    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.1fx")) {
+        runner.timeScale(timeScale);
+    }
+
+    panel.row(paused ? 2 : 1);
+
+    if (panel.button(paused ? "Resume" : "Pause")) {
+        runner.simulationPaused(!paused);
+    }
+    if (paused) {
+        if (panel.button("Step")) {
+            runner.requestSimulationStep();
+        }
+    }
+
+    if (panel.button("Reset")) {
+        _pendingReset = true;
+    }
+
+    // -- debug --
 
     panel.section("debug");
 

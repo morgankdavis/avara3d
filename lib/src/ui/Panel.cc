@@ -344,7 +344,7 @@ bool Panel::subOption(string_view label, bool selected, Padding padding) {
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.34f, 0.34f, 0.34f, 0.98f));
     }
 
-    const bool pressed = drawButton(label, selected, padding);
+    const bool pressed = drawButton(label, selected, padding, -1.0f, -1.0f);
 
     if (!selected) {
         ImGui::PopStyleColor(2);
@@ -769,7 +769,11 @@ void Panel::endItem() {
     _segmentedRow = false;
 }
 
-bool Panel::drawButton(string_view label, bool selected, Padding padding) {
+bool Panel::drawButton(string_view label,
+                       bool        selected,
+                       Padding     padding,
+                       float       heightAdjustment,
+                       float       textYOffset) {
 
     if (label.empty()) {
         throw invalid_argument("Panel button label cannot be empty.");
@@ -789,7 +793,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
         position.x + padding.left,
         position.y + padding.top,
     };
-    const float    contentHeight = ImGui::GetFrameHeight();
+    const float    contentHeight = ImGui::GetFrameHeight() + heightAdjustment;
     const float    height = padding.top + contentHeight + padding.bottom;
     const float    rounding = ImGui::GetStyle().FrameRounding;
     const float    borderSize = ImGui::GetStyle().FrameBorderSize;
@@ -862,7 +866,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
                                 cornerFlags);
 
         if (segmentIndex != 0 && borderSize > 0.0f) {
-            drawList->AddLine(ImVec2(contentPosition.x, contentPosition.y + borderSize),
+            drawList->AddLine(ImVec2(contentPosition.x, contentPosition.y + borderSize * 0.5f),
                               ImVec2(contentPosition.x, segmentMaximum.y - borderSize), borderColor,
                               borderSize);
         }
@@ -870,7 +874,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
         const ImVec2 textSize = ImGui::CalcTextSize(buttonLabel.c_str());
         const ImVec2 textPosition {
             SnapPixel(contentPosition.x + (contentWidth - textSize.x) * 0.5f),
-            SnapPixel(contentPosition.y + (contentHeight - textSize.y) * 0.5f),
+            SnapPixel(contentPosition.y + (contentHeight - textSize.y) * 0.5f + textYOffset),
         };
 
         drawList->PushClipRect(contentPosition, segmentMaximum, true);

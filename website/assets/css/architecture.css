@@ -1183,6 +1183,10 @@
     align-items: stretch;
 }
 
+/*.ownership-diagram {*/
+/*    align-self: start;*/
+/*}*/
+
 .placeholder-card {
     align-self: stretch;
     position: relative;
@@ -1206,13 +1210,12 @@
    ========================================================================== */
 
 .ownership-diagram {
-    margin: 0;
+    margin: 30px 0 6px;
     overflow: hidden;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius);
     background: rgba(8, 8, 11, 0.82);
 }
-
 
 /* High-level ownership ----------------------------------------------------- */
 
@@ -1462,6 +1465,8 @@
     border-top: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(166, 140, 255, 0.025), transparent 45%),
     rgba(5, 5, 7, 0.22);
+    /*margin-top: 6px;*/
+    /*margin-left: 10px;*/
 }
 
 .ownership-detail-column {
@@ -1473,6 +1478,8 @@
     padding-right: 0;
     padding-left: 24px;
     border-left: 1px solid var(--line);
+    position: relative;
+    left: 10px;
 }
 
 .ownership-detail-heading {
@@ -1543,6 +1550,11 @@
     background: var(--ownership-detail-line);
 }
 
+.ownership-system-list,
+.ownership-node-tree {
+    transform: translate(10px, 6px);
+}
+
 .ownership-system-item::before {
     position: absolute;
     z-index: 1;
@@ -1577,23 +1589,44 @@
     gap: 5px;
 }
 
+.ownership-backend > .arch-api-link {
+    display: inline-flex;
+    align-items: center;
+}
+
+/*.ownership-backend-label {*/
+/*    display: inline-flex;*/
+/*    align-items: center;*/
+/*    margin-right: 3px;*/
+/*    color: var(--muted);*/
+/*    font-family: var(--mono);*/
+/*    font-size: 0.625rem;*/
+/*    font-weight: 600;*/
+/*    letter-spacing: 0.05em;*/
+/*    line-height: 1;*/
+/*    text-transform: uppercase;*/
+/*    white-space: nowrap;*/
+/*}*/
+
 .ownership-backend-label {
     display: inline-flex;
     align-items: center;
     margin-right: 3px;
     color: var(--muted);
-    font-family: var(--mono);
+    font-family: var(--sans);
+    /*font-family: var(--mono);*/
     font-size: 0.6rem;
     font-weight: 600;
     letter-spacing: 0.06em;
-    line-height: 1.35;
+    line-height: 1;
+    text-transform: none;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
 .ownership-backend code {
     position: relative;
-    top: -1px;
+    top: 0px;
     padding: 2px 5px;
     border: 1px solid var(--line);
     border-radius: 5px;
@@ -1604,15 +1637,13 @@
     white-space: nowrap;
 }
 
-/* Keep the chip boxes aligned with BACKEND while nudging only their text. */
-.ownership-system-item:first-child .ownership-backend code {
-    padding-top: 2.5px;
-    padding-bottom: 1.5px;
+.ownership-backend-glfw {
+    top: -1px;
 }
 
-.ownership-system-item:not(:first-child) .ownership-backend code {
-    padding-top: 3px;
-    padding-bottom: 1px;
+.ownership-backend-glfw > span {
+    position: relative;
+    top: 1px;
 }
 
 .ownership-backend-arrow {
@@ -1622,11 +1653,6 @@
     font-family: var(--mono);
     font-size: 0.62rem;
 }
-
-.ownership-system-item:first-child .ownership-backend-arrow {
-    top: -1px;
-}
-
 
 /* Node graph -------------------------------------------------------------- */
 
