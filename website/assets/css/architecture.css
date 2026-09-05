@@ -1462,6 +1462,8 @@
     border-top: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(166, 140, 255, 0.025), transparent 45%),
     rgba(5, 5, 7, 0.22);
+    /*margin-top: 6px;*/
+    /*margin-left: 10px;*/
 }
 
 .ownership-detail-column {
@@ -1473,6 +1475,8 @@
     padding-right: 0;
     padding-left: 24px;
     border-left: 1px solid var(--line);
+    position: relative;
+    left: 10px;
 }
 
 .ownership-detail-heading {
@@ -1541,6 +1545,11 @@
     width: 1px;
     content: "";
     background: var(--ownership-detail-line);
+}
+
+.ownership-system-list,
+.ownership-node-tree {
+    transform: translate(10px, 6px);
 }
 
 .ownership-system-item::before {
