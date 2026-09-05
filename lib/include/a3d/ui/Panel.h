@@ -195,7 +195,11 @@ private:
 
     float       beginItem() const;
     void        endItem();
-    bool        drawButton(std::string_view label, bool selected, Padding padding);
+    bool        drawButton(std::string_view label,
+                           bool             selected,
+                           Padding          padding,
+                           float            heightAdjustment = 0.0f,
+                           float            textYOffset      = 0.0f);
 
     // [Private Member Variables]
 

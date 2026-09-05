@@ -18,7 +18,11 @@
                 <img class="site-logo" src="assets/images/avara3d.svg" alt="Avara3D">
             </a>
 
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-nav-toggle>
+            <button class="nav-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="site-navigation"
+                    data-nav-toggle>
                 <span class="sr-only">Toggle navigation</span>
                 <span></span><span></span>
             </button>
@@ -39,91 +43,76 @@
     <main>
         <section class="hero site-width">
             <h1>Avara3D is a real-time 3D visualization and physical simulation engine.</h1>
-            <p class="hero-summary">Avara3D combines real-time rendering, rigid-body physics, fixed-step simulation, and
-                cross-platform application support into an elegant C++20 API.</p>
+
+            <p class="hero-summary">
+                Avara3D combines real-time rendering, rigid-body physics, fixed-step simulation, and
+                cross-platform application support into an elegant C++20 API.
+            </p>
+
             <div class="hero-actions">
                 <a class="button button-primary" href="demo_source.html">Read the demo source</a>
                 <a class="button button-secondary" href="architecture.html">View the architecture</a>
             </div>
         </section>
 
-        <section class="site-width demo-section" id="live-demo" aria-labelledby="demo-heading">
+        <section class="site-width demo-section" id="live-demo">
             <div class="demo-frame">
-                <div class="demo-stage" data-demo-stage data-demo-script="demo/janus.js">
-                    <canvas id="canvas" width="1280" height="768" tabindex="0" aria-label="Avara3D Janus demo"></canvas>
-                    <div class="demo-status" id="demo-status" role="status" aria-live="polite">
+                <div class="demo-stage"
+                     data-demo-stage
+                     data-demo-script="demo/janus.js">
+                    <canvas id="canvas"
+                            width="1280"
+                            height="768"
+                            tabindex="0"
+                            aria-label="Avara3D Janus demo"></canvas>
+
+                    <div class="demo-status"
+                         id="demo-status"
+                         role="status"
+                         aria-live="polite">
                         <span class="status-spinner" aria-hidden="true"></span>
-                        <span id="demo-status-text">Loading WebAssembly…</span>
+                        <span id="demo-status-text">Loading…</span>
                     </div>
                 </div>
 
-                <aside class="demo-controls" aria-labelledby="demo-controls-heading">
-                    <p id="demo-controls-heading" class="panel-label">Controls</p>
+                <aside class="demo-controls" aria-label="Demo controls">
+                    <section class="demo-sidebar-section">
+                        <h2 class="demo-sidebar-title">Action</h2>
 
-                    <div class="demo-control-groups">
-                        <section class="demo-control-group">
-                            <h3>Camera</h3>
+                        <ol class="demo-action-list">
+                            <li>Choose <strong>Drop</strong>, <strong>Throw</strong>, or <strong>Poke</strong></li>
+                            <li>Choose an option beneath it</li>
+                            <li>Left-click in the scene to perform the action</li>
+                        </ol>
+                    </section>
 
-                            <dl class="demo-control-table">
-                                <div>
-                                    <dt>Orbit</dt>
-                                    <dd>Left drag</dd>
-                                </div>
-                                <div>
-                                    <dt>Pan</dt>
-                                    <dd>Right drag</dd>
-                                </div>
-                                <div>
-                                    <dt>Zoom</dt>
-                                    <dd>Wheel / scroll</dd>
-                                </div>
-                            </dl>
-                        </section>
+                    <section class="demo-sidebar-section">
+                        <h2 class="demo-sidebar-title">Selection</h2>
 
-                        <section class="demo-control-group">
-                            <h3>Interaction</h3>
-
-                            <dl class="demo-control-table">
-                                <div>
-                                    <dt>Select</dt>
-                                    <dd>Left click</dd>
-                                </div>
-                                <div>
-                                    <dt>Action</dt>
-                                    <dd>Right click</dd>
-                                </div>
-                            </dl>
-                        </section>
-
-                        <p class="demo-control-instructions">
-                            Use <strong>Select</strong> to view an object’s properties, and
-                            <strong>Action</strong> to drop, throw, or poke.
+                        <p class="demo-selection-copy">
+                            Right-click an object to select it and inspect its properties.
                         </p>
+                    </section>
 
-                        <section class="demo-control-group demo-control-group-alternate">
-                            <h3>One-button alternatives</h3>
+                    <section class="demo-sidebar-section">
+                        <h2 class="demo-sidebar-title">Camera</h2>
 
-                            <dl class="demo-control-table">
-                                <div>
-                                    <dt>Pan</dt>
-                                    <dd>Shift + left drag</dd>
-                                </div>
-                                <div>
-                                    <dt>Zoom</dt>
-                                    <dd>Ctrl + left drag</dd>
-                                </div>
-                                <div>
-                                    <dt>Action</dt>
-                                    <dd>Ctrl + left click</dd>
-                                </div>
-                            </dl>
-                        </section>
-                    </div>
+                        <dl class="demo-control-table">
+                            <div>
+                                <dt>Orbit</dt>
+                                <dd>Left drag</dd>
+                            </div>
+                            <div>
+                                <dt>Pan</dt>
+                                <dd>Right drag</dd>
+                            </div>
+                            <div>
+                                <dt>Zoom</dt>
+                                <dd>Wheel / scroll</dd>
+                            </div>
+                        </dl>
+                    </section>
                 </aside>
-
-
-
-
             </div>
 
             <p class="demo-compatibility-note">
@@ -140,6 +129,7 @@
                          alt="">
                     <span>Rigid-body physics</span>
                 </h3>
+
                 <p>
                     Dynamic, static, and kinematic bodies with collision detection,
                     material response, impulses, and HACD-based convex shapes.
@@ -153,6 +143,7 @@
                          alt="">
                     <span>OpenGL-powered visualization</span>
                 </h3>
+
                 <p>
                     Real-time scene rendering with programmable materials, lighting,
                     cameras, and WebGL2 support for browser deployment.
@@ -166,13 +157,13 @@
                          alt="">
                     <span>Scene-oriented API</span>
                 </h3>
+
                 <p>
                     Scene authoring, physics, rendering, simulation control, and input
                     share a lightweight C++20 API.
                 </p>
             </article>
         </section>
-
     </main>
 
     <footer class="site-footer">
@@ -180,6 +171,7 @@
             <p>
                 Avara3D<span class="footer-desktop-only"> · 3D visualization and simulation</span>
             </p>
+
             <p>
                 <span class="footer-desktop-only">Copyright </span>© <span data-current-year></span>
                 <a href="https://mkd.net/"
