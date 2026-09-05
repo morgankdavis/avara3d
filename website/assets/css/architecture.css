@@ -1183,6 +1183,10 @@
     align-items: stretch;
 }
 
+/*.ownership-diagram {*/
+/*    align-self: start;*/
+/*}*/
+
 .placeholder-card {
     align-self: stretch;
     position: relative;
@@ -1206,13 +1210,12 @@
    ========================================================================== */
 
 .ownership-diagram {
-    margin: 0;
+    margin: 30px 0 6px;
     overflow: hidden;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius);
     background: rgba(8, 8, 11, 0.82);
 }
-
 
 /* High-level ownership ----------------------------------------------------- */
 
