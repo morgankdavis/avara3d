@@ -428,9 +428,6 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
     }
 
-    // _glCapabilities.drawTimer = _drawTimer.initialize();
-    // _capabilities.gpuTiming = _glCapabilities.drawTimer;
-
     _glCapabilities.drawTimer = ENABLE_GPU_TIMING && _drawTimer.initialize();
     _capabilities.gpuTiming = _glCapabilities.drawTimer;
 

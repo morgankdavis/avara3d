@@ -436,9 +436,8 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
 //     return location;
 // }
 
-int GLSLProgram::getUniformLocation(const char *name) {
-    if (auto it = _uniformLocationCache.find(name);
-        it != _uniformLocationCache.end()) {
+int GLSLProgram::getUniformLocation(const char* name) {
+    if (auto it = _uniformLocationCache.find(name); it != _uniformLocationCache.end()) {
         return it->second;
     }
 

@@ -641,9 +641,8 @@ bool VisualWorld::draw(const Scene&             scene,
         _renderContext->endFrame(scene);
     });
 
-    // prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-        _renderContext->swapBuffers();
-    // });
+    // TODO: put in a new "presentation" category?
+    _renderContext->swapBuffers();
 
     return true;
 }

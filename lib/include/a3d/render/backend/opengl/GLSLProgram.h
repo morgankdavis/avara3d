@@ -77,22 +77,22 @@ public:
 private:
     // [Private Member Functions]
 
-    std::optional<std::string> shaderSource(const std::string& name, ShaderType type);
-    void                       prepare();
-    bool                       compile(const std::string& source, ShaderType type);
-    int                        getUniformLocation(const char* name);
-    void                       glID(unsigned glID);
-    void                       isLinked(bool isLinked);
+    std::optional<std::string>           shaderSource(const std::string& name, ShaderType type);
+    void                                 prepare();
+    bool                                 compile(const std::string& source, ShaderType type);
+    int                                  getUniformLocation(const char* name);
+    void                                 glID(unsigned glID);
+    void                                 isLinked(bool isLinked);
 
     // [Private Member Variables]
 
-    std::string                _name;
-    unsigned                   _glID;
-    bool                       _isLinked;
-    std::optional<std::string> _logString;
-    std::string                _vertexShaderSource;
-    std::string                _fragmentShaderSource;
-	std::unordered_map<std::string, int> _uniformLocationCache;
+    std::string                          _name;
+    unsigned                             _glID;
+    bool                                 _isLinked;
+    std::optional<std::string>           _logString;
+    std::string                          _vertexShaderSource;
+    std::string                          _fragmentShaderSource;
+    std::unordered_map<std::string, int> _uniformLocationCache;
 };
 
 } // namespace a3d
