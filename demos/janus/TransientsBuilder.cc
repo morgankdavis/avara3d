@@ -75,7 +75,7 @@ vector<shared_ptr<Node>> TransientsBuilder::rocks(const vec3& location, const u8
                 node->position(position + uniform_linear(-positionVariance, positionVariance));
 
                 auto body = PhysicsBody::DynamicBody(rockEntry.physicsShape);
-                body->mass(3.5f);
+                body->mass(5.0f);
                 body->friction(STONE_FRICTION);
                 body->restitution(STONE_RESTITUTION);
                 body->rollingFriction(0.01f);

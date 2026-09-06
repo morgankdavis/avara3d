@@ -75,6 +75,7 @@ namespace {
 
     const GLuint ENV_BINDING_POINT {0};
 
+    constexpr bool ENABLE_GPU_TIMING {true};
     // ring buffer size for GL timing queries
     const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 
@@ -427,7 +428,10 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
     }
 
-    _glCapabilities.drawTimer = _drawTimer.initialize();
+    // _glCapabilities.drawTimer = _drawTimer.initialize();
+    // _capabilities.gpuTiming = _glCapabilities.drawTimer;
+
+    _glCapabilities.drawTimer = ENABLE_GPU_TIMING && _drawTimer.initialize();
     _capabilities.gpuTiming = _glCapabilities.drawTimer;
 
     _imguiContext.startup(context);
@@ -758,12 +762,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
 
 void OGLRenderer::bindPipeline(PipelineId pipelineId) {
     if (_state.pipelineId == pipelineId) {
-        GLint cur = 0;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
-        if ((GLuint) cur == _state.program) {
-            return; // truly already bound
-        }
-        // else: stale cache, fallthrough and rebind
+        return;
     }
 
     const OGLPipeline& pipeline = _resourceCache.pipeline(pipelineId);

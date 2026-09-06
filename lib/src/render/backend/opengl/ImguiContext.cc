@@ -78,13 +78,12 @@ void ImguiContext::startup(const RenderContext& context) {
         throw runtime_error("Unable to initialize Dear ImGui OpenGL backend.");
     }
 
-    /*
-     * The context is new, but explicitly clear the atlas so its contents are
-     * entirely controlled through addFont().
-     *
-     * Invalidate the OpenGL backend's device objects before the atlas is
-     * populated. They will be rebuilt once, immediately before the first frame.
-     */
+    // the context is new, but explicitly clear the atlas so its contents are
+    // entirely controlled through addFont().
+    //
+    // invalidate the opengl backend's device objects before the atlas is
+    // populated. They will be rebuilt once, immediately before the first frame.
+
     ImGui_ImplOpenGL3_DestroyDeviceObjects();
     io.Fonts->Clear();
 
@@ -122,10 +121,9 @@ void ImguiContext::shutdown() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui::DestroyContext(_context);
 
-    /*
-     * ImGui's atlas may refer to these buffers until its context has been
-     * destroyed, so release them afterward.
-     */
+    // imgui's atlas may refer to these buffers until its context has been
+    // destroyed, so release them afterward.
+
     _fontSources.clear();
 
     _context = nullptr;
@@ -156,10 +154,9 @@ ImFont* ImguiContext::addFont(unique_ptr<Font> font) {
 
     makeCurrent();
 
-    /*
-     * Retain the Font before giving ImGui its buffer pointer. Moving the
-     * unique_ptr does not move the Font or its Buffer allocation.
-     */
+    // retain the Font before giving ImGui its buffer pointer. moving the
+    // unique_ptr does not move the Font or its Buffer allocation.
+
     _fontSources.push_back(std::move(font));
 
     Font& storedFont = *_fontSources.back();
@@ -169,10 +166,9 @@ ImFont* ImguiContext::addFont(unique_ptr<Font> font) {
     fontConfig.OversampleH = 0;
     fontConfig.OversampleV = 0;
 
-    /*
-     * A size of zero registers the font as a source. ImGui 1.92 selects the
-     * concrete rendered size through PushFont(font, size).
-     */
+    // a size of zero registers the font as a source. imgui 1.92 selects the
+    // concrete rendered size through PushFont(font, size).
+
     ImFont* imguiFont =
         ImGui::GetIO().Fonts->AddFontFromMemoryTTF(storedFont.buffer()->data(), static_cast<int>(fontDataSize),
                                                    0.0f, &fontConfig);
@@ -230,11 +226,10 @@ void ImguiContext::endFrame() {
 
     makeCurrent();
 
-    /*
-     * The StatsOverlay currently uses a full-viewport ImGui window. Keep its
-     * existing input-pass-through behavior when no actual widget is hovered or
-     * active.
-     */
+    // the StatsOverlay currently uses a full-viewport imgui window. keep its
+    // existing input-pass-through behavior when no actual widget is hovered or
+    // active.
+
     if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive())) {
         ImGui::GetIO().WantCaptureMouse = false;
     }
