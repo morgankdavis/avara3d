@@ -135,6 +135,12 @@ std::unique_ptr<Scene> App::init() {
                         ...
          */
 
+        // for (auto& n : scene->rootNode()->children(true)) {
+        //     if (n->light()) {
+        //         n->removeFromParent();
+        //     }
+        // }
+
         // configure the environment nodes
 
         auto environmentRoot = scene->rootNode()->childNamed("environment");
@@ -179,8 +185,8 @@ std::unique_ptr<Scene> App::init() {
 
         // create the wandering orbs
 
-        auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
-        scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
+        // auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
+        // scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
 
         // open the window
 

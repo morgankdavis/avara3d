@@ -641,9 +641,9 @@ bool VisualWorld::draw(const Scene&             scene,
         _renderContext->endFrame(scene);
     });
 
-    prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+    // prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
         _renderContext->swapBuffers();
-    });
+    // });
 
     return true;
 }

@@ -15,6 +15,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 #include "a3d/Math.h"
 #include "a3d/render/backend/ShaderType.h"
@@ -91,6 +92,7 @@ private:
     std::optional<std::string> _logString;
     std::string                _vertexShaderSource;
     std::string                _fragmentShaderSource;
+	std::unordered_map<std::string, int> _uniformLocationCache;
 };
 
 } // namespace a3d
