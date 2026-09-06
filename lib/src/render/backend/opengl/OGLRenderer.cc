@@ -102,7 +102,7 @@ namespace {
 
     struct DirectionalLightGLSLStruct {
         vec4 color;
-        vec3 direction_world;
+        vec3 direction_eye;
         f32  intensity;
     };
 
@@ -110,7 +110,7 @@ namespace {
 
     struct PointLightGLSLStruct {
         vec4 color;
-        vec3 position_world;
+        vec3 position_eye;
         f32  intensity;
         f32  constantAttenuation;
         f32  linearAttenuation;
@@ -122,9 +122,9 @@ namespace {
 
     struct SpotLightGLSLStruct {
         vec4     color;
-        vec3     position_world;
+        vec3     position_eye;
         f32      intensity;
-        vec3     direction_world;
+        vec3     direction_eye;
         f32      _pad_0_;
         f32      innerAngleCos;
         f32      outerAngleCos;
@@ -1071,7 +1071,11 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
         }
 
         if (di.desc.shaderKind == ShaderKind::Default) {
+
             SendDrawUniforms(di, *_defaultProgram);
+
+            const mat3 normalMat = transpose(inverse(mat3(frame.view * di.model)));
+            _defaultProgram->setUniform("normalMat", normalMat);
         }
 
         bindMeshElement(*di.element);
@@ -1346,6 +1350,8 @@ namespace {
 
         // lights
 
+        const mat3 viewRotation = mat3(view);
+
         auto numLights = lightNodes.size();
 
         if (scene.visualWorld()->defaultLightingEnabled()) {
@@ -1397,7 +1403,7 @@ namespace {
                         DirectionalLightGLSLStruct lightStruct {};
                         lightStruct.color = directionalLight->color().rgba();
                         lightStruct.intensity = directionalLight->intensity();
-                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.direction_eye = normalize(viewRotation * node->worldForward());
                         directionalStructs.push_back(lightStruct);
                     }
                 }
@@ -1406,7 +1412,7 @@ namespace {
                         PointLightGLSLStruct lightStruct {};
                         lightStruct.color = pointLight->color().rgba();
                         lightStruct.intensity = pointLight->intensity();
-                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.position_eye = vec3(view * vec4 {node->worldPosition(), 1.0f});
                         lightStruct.constantAttenuation = pointLight->attenuation().constant;
                         lightStruct.linearAttenuation = pointLight->attenuation().linear;
                         lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
@@ -1418,8 +1424,8 @@ namespace {
                         SpotLightGLSLStruct lightStruct {};
                         lightStruct.color = spotLight->color().rgba();
                         lightStruct.intensity = spotLight->intensity();
-                        lightStruct.position_world = node->worldPosition();
-                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.position_eye = vec3(view * vec4 {node->worldPosition(), 1.0f});
+                        lightStruct.direction_eye = normalize(viewRotation * node->worldForward());
                         lightStruct.innerAngleCos = spotLight->innerAngleCos();
                         lightStruct.outerAngleCos = spotLight->outerAngleCos();
                         lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());

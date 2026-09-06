@@ -68,13 +68,13 @@ void main() {
             fragColor.rgb = CalcAmbientLighting(Ka.rgb);
 
             fragColor.rgb += CalcDirectionalLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
-                    viewMat, specularExponent);
+                specularExponent);
 
-            fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
-                    specularExponent);
+            fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
+                specularExponent);
 
-            fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
-                    specularExponent);
+            fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
+                specularExponent);
 
             fragColor = vec4(fragColor.rgb, Kd.a);
         }
