@@ -77,16 +77,18 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     _open {false},
     _hidden {false},
     _inputContext {} {
+
     log::d();
 
-    _antialiasing = antialiasing; // see above (?)
+    _antialiasing = antialiasing;
 
     if (InitGLFW()) {
+
         const string title = util::fs::ExecutableName().value_or("avara3d");
 
 #if defined(A3D_GL_WEB)
-        // Emscripten GLFW expects the WebGL version, not the GLES version
-        // WebGL 2 corresponds to GLES 3.0 / GLSL ES 300-style shaders
+        // Emscripten GLFW expects the WebGL version, not the GLES version.
+        // WebGL 2 corresponds to GLES 3.0 / GLSL ES 300-style shaders.
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -101,23 +103,25 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // needed for macOS
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#else
+    #error No A3D OpenGL backend selected.
+#endif
+
         glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasing));
-        glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+
+#if defined(A3D_GL_DESKTOP)
+        // GLFW_SCALE_TO_MONITOR controls logical window scaling on Windows/X11.
+        // GLFW_SCALE_FRAMEBUFFER controls framebuffer pixel density on Wayland/macOS.
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, enableHighDPI ? GLFW_TRUE : GLFW_FALSE);
+        glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, enableHighDPI ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     #if defined(A3D_LINUX)
-            // check if X or Wayland...?
-            // TODO: change these
+        // check if X or Wayland...?
+        // TODO: change these
         glfwWindowHintString(GLFW_WAYLAND_APP_ID, title.c_str());
         glfwWindowHintString(GLFW_X11_CLASS_NAME, title.c_str());
         glfwWindowHintString(GLFW_X11_INSTANCE_NAME, title.c_str());
     #endif
-    #if defined(A3D_MACOS)
-        // the documentation says this has the same effect as GLFW_SCALE_TO_MONITOR, but if you don't also
-        // set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
-        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-    #endif
-#else
-    #error No A3D OpenGL backend selected.
 #endif
 
 #if defined(A3D_GL_WEB)
@@ -129,51 +133,59 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
 #endif
 
         if (fullScreen) {
+
             GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+
             _glfwWindow =
                 unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width, vmode->height,
                                                                            titleCStr, monitor, nullptr));
         }
         else {
+
             _glfwWindow =
                 unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow((int) size.x, (int) size.y,
                                                                            titleCStr, nullptr, nullptr));
         }
 
         if (_glfwWindow) {
+
             glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
 
             glfwMakeContextCurrent(_glfwWindow.get());
             Window::vSyncEnabled(false);
 
-            //if (OGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 #ifdef A3D_GL_DESKTOP
+
             if (OGLRenderer::InitGL((GLADloadproc) glfwGetProcAddress)) {
+
 #elif defined(A3D_GL_WEB)
+
             if (OGLRenderer::InitGL(nullptr)) {
+
 #else
     #error "No GL init path defined for this platform."
 #endif
+
                 RenderContext::renderer()->initialize(*this);
                 ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
                 registerGLFWCallbacks();
-
-                log::i()("framebufferSize: ({}, {})", framebufferSize().x, framebufferSize().y);
-                log::i()("viewportLogicalSize: ({}, {})", viewportLogicalSize().x, viewportLogicalSize().y);
-                log::i()("viewportScale: ({}, {})", viewportScale().x, viewportScale().y);
             }
             else {
+
                 // TODO: move
                 glfwTerminate();
                 ImGui_ImplGlfw_Shutdown();
+
                 throw std::runtime_error("Failed to initialize GLAD.");
             }
         }
         else {
+
             // TODO: move
             glfwTerminate();
             ImGui_ImplGlfw_Shutdown();
+
             throw std::runtime_error("Couldn't create GLFW Window.");
         }
 
@@ -184,9 +196,9 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     }
 
     else {
+        
         throw std::runtime_error("Couldn't initialize GLFW.");
     }
-
 }
 
 Window::~Window() {

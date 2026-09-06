@@ -27,7 +27,8 @@ namespace {
 
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
     const uvec2                       WINDOW_SIZE {1280, 768};
-    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::None};
+    const bool                        ENABLE_HIGH_DPI {false};
     const double                      TIME_STEP {1.0 / 120.0};
     const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
@@ -86,7 +87,7 @@ std::unique_ptr<Scene> App::init() {
     try {
         // create and configure the window
 
-        _window = make_unique<Window>(WINDOW_SIZE, false, true, ANTIALIASING);
+        _window = make_unique<Window>(WINDOW_SIZE, false, ENABLE_HIGH_DPI, ANTIALIASING);
 
         // create and configure the visual world
 
@@ -135,6 +136,12 @@ std::unique_ptr<Scene> App::init() {
                         ...
          */
 
+        for (auto& node : scene->rootNode()->children(true)) {
+            if (node->light()) {
+                node->removeFromParent();
+            }
+        }
+
         // configure the environment nodes
 
         auto environmentRoot = scene->rootNode()->childNamed("environment");
@@ -179,8 +186,8 @@ std::unique_ptr<Scene> App::init() {
 
         // create the wandering orbs
 
-        auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
-        scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
+        // auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
+        // scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
 
         // open the window
 
@@ -206,7 +213,7 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
+void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo& info) {
 
     if (_pendingReset) {
         _pendingReset = false;
