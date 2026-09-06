@@ -21,8 +21,12 @@ void main() {
     vec4 vertPosWorld = modelMat * vec4(vert_vertPos, 1.0);
     frag_vertPos_world = vertPosWorld.xyz;
     frag_vertPos_eye = vec3(viewMat * vertPosWorld);
-    mat3 normalMat = transpose(inverse(mat3(viewMat * modelMat))); // for non-uniform scale
+
+    // ! OPTIMIZE !
+    // for non-uniform scale
+    mat3 normalMat = transpose(inverse(mat3(viewMat * modelMat)));
     frag_vertNorm_eye = normalize(normalMat * vert_vertNorm);
+
     frag_texCoord = vert_texCoord;
     gl_Position = projMat * vec4(frag_vertPos_eye, 1.0);
 }
