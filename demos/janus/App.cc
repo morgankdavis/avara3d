@@ -745,9 +745,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(20.0f);
+            body->mass(40.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -756,9 +757,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(40.0f);
+            body->mass(150.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -769,7 +771,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(50.0f);
+            body->mass(100.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -786,7 +788,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(55.0f);
+            body->mass(120.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -803,6 +805,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
+            body->mass(15.0f);
             body->friction(0.5f);
             body->restitution(0.2f);
             body->rollingFriction(0.05f);
@@ -816,10 +819,9 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(30.0f);
+            body->mass(175.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-
             body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
