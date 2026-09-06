@@ -557,7 +557,7 @@ void App::performAction(const PendingAction& action) {
                     const vec3 worldCOM = vec3 {node->worldTransform() * vec4 {body->centerOfMass(), 1.0f}};
 
                     const vec3 lever = action.target.hitPosition - worldCOM;
-                    vec3 flipAxis = cross(lever, worldUp);
+                    vec3       flipAxis = cross(lever, worldUp);
                     if (length(flipAxis) <= F32_COMPARE_EPSILON) {
                         flipAxis = cross(action.rayDirection, worldUp);
                     }
@@ -744,9 +744,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(20.0f);
+            body->mass(40.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -755,9 +756,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(40.0f);
+            body->mass(150.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -768,7 +770,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(50.0f);
+            body->mass(100.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -785,7 +787,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(55.0f);
+            body->mass(120.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -802,7 +804,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(1.0f);
+            body->mass(15.0f);
             body->friction(0.5f);
             body->restitution(0.2f);
             body->rollingFriction(0.05f);
@@ -816,10 +818,9 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(30.0f);
+            body->mass(175.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-
             body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
