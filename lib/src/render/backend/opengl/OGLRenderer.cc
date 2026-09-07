@@ -224,26 +224,6 @@ namespace {
     static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
     static_assert(sizeof(EnvironmentBlock) == 12272);
 
-    struct FBORestore {
-        GLint drawFbo = 0, readFbo = 0;
-
-        FBORestore() {
-            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
-            glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
-        }
-
-        FBORestore(const FBORestore&) = delete;
-        FBORestore& operator=(const FBORestore&) = delete;
-
-        FBORestore(FBORestore&&) = delete;
-        FBORestore& operator=(FBORestore&&) = delete;
-
-        ~FBORestore() {
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
-        }
-    };
-
     // [Private Non-Member Prototypes]
 
     void LogGLInfo();
@@ -521,50 +501,29 @@ void OGLRenderer::postTraversal(const Scene&               scene,
 }
 
 void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
-    // target-specific clear:
-    // if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
-    FBORestore restore;
+    // bind the framebuffer owned by this RenderContext. for a GLFW window this
+    // is framebuffer 0. QOpenGLWidget supplies its own non-zero framebuffer.
+    const auto fb = context.defaultFramebuffer();
+    const auto fbSize = context.framebufferSize();
 
-    auto fb = context.defaultFramebuffer();
-    auto fbSize = context.framebufferSize();
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     glViewport(0, 0, (GLsizei) fbSize.x, (GLsizei) fbSize.y);
 
-    // save state we might stomp
-    GLboolean prevScissorEnabled = GL_FALSE;
-    GLint     prevScissorBox[4] = {0, 0, 0, 0};
-    glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
-    glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
-
-    GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-    GLboolean prevDepthMask = GL_TRUE;
-    GLint     prevStencilMask = ~0;
-    glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
-    glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
-    glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
-
-    // apply scissor
-    if (cmd.scissor) {
-        glEnable(GL_SCISSOR_TEST);
-        const auto& scissor = *cmd.scissor;
-        glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
-    }
-    else if (prevScissorEnabled) {
-        // leave as-is
-    }
-    else {
-        glDisable(GL_SCISSOR_TEST);
-    }
-
-    // ensure clears actually write
+    // glClear obeys write masks. force writes so a state left behind by the
+    // previous frame cannot prevent one of the requested buffers from clearing.
     if (cmd.forceWriteMasks) {
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        glDepthMask(GL_TRUE);
-        glStencilMask(0xFFFFFFFF);
+        if (cmd.clearColor) {
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        }
+        if (cmd.clearDepth) {
+            glDepthMask(GL_TRUE);
+        }
+        if (cmd.clearStencil) {
+            glStencilMask(0xFFFFFFFF);
+        }
     }
 
-    // set clear values
     GLbitfield mask = 0;
 
     if (cmd.clearColor) {
@@ -575,7 +534,6 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     if (cmd.clearDepth) {
 #ifdef A3D_GL_DESKTOP
         glClearDepth(cmd.depth);
-
 #else
         glClearDepthf(cmd.depth);
 #endif
@@ -591,22 +549,11 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
         glClear(mask);
     }
 
-    // restore state
-    if (cmd.forceWriteMasks) {
-        glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
-        glDepthMask(prevDepthMask);
-        glStencilMask((GLuint) prevStencilMask);
-    }
-
-    if (cmd.scissor) {
-        if (prevScissorEnabled) {
-            glEnable(GL_SCISSOR_TEST);
-            glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
-        }
-        else {
-            glDisable(GL_SCISSOR_TEST);
-        }
-    }
+    // clear() may have changed state represented by the cached pipeline,
+    // most notably the depth write mask. force the first draw of the frame
+    // to reapply its complete pipeline state.
+    _state.pipelineId = INVALID_PIPELINE_ID;
+    _state.material = nullptr;
 }
 
 void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
