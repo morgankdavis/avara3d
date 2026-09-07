@@ -23,8 +23,10 @@ public:
     enum class Tag {
         Frame,
         EngineCpu,
-        RenderCpu,
+        RenderPrep,
+        RenderSubmit,
         RenderGpu,
+        Present,
         Physics,
         Application
     };

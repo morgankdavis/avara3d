@@ -9,11 +9,7 @@
 #include "a3d/render/Renderer.h"
 
 #include "a3d/log/Log.h"
-#include "a3d/mesh/MeshElement.h"
-#include "a3d/render/context/RenderContext.h"
-#include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
-#include "a3d/visual/material/Material.h"
 
 using namespace std;
 

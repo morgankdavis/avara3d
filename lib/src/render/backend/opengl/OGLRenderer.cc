@@ -34,6 +34,7 @@
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/FrameStatsHistory.h"
+#include "a3d/profile/Profile.h"
 #include "a3d/profile/Profiler.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
@@ -575,8 +576,16 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
 }
 
 void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
-    resolvePacket(packet, frame);
-    drawPacket(packet, frame);
+
+    A3D_ASSERT(frame.profiler);
+    
+    prof::profile(*frame.profiler, Profiler::Tag::RenderPrep, [&] {
+        resolvePacket(packet, frame);
+    });
+
+    prof::profile(*frame.profiler, Profiler::Tag::RenderSubmit, [&] {
+        drawPacket(packet, frame);
+    });
 }
 
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {

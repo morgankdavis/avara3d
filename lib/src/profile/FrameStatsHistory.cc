@@ -16,42 +16,46 @@ namespace a3d {
 
 void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
                                     chrono::nanoseconds&     frame,
-                                    chrono::nanoseconds&     engineCpu,
-                                    chrono::nanoseconds&     renderCpu,
+                                    chrono::nanoseconds&     renderPrep,
+                                    chrono::nanoseconds&     renderSubmit,
                                     chrono::nanoseconds&     renderGpu,
                                     chrono::nanoseconds&     physics,
                                     chrono::nanoseconds&     appCpu,
                                     chrono::milliseconds     averagingDuration) {
-    frame = chrono::nanoseconds(0);
-    engineCpu = chrono::nanoseconds(0);
-    renderCpu = chrono::nanoseconds(0);
-    renderGpu = chrono::nanoseconds(0);
-    physics = chrono::nanoseconds(0);
-    appCpu = chrono::nanoseconds(0);
 
-    const SteadyTimePoint now = std::chrono::steady_clock::now();
+    frame = chrono::nanoseconds {0};
+    renderPrep = chrono::nanoseconds {0};
+    renderSubmit = chrono::nanoseconds {0};
+    renderGpu = chrono::nanoseconds {0};
+    physics = chrono::nanoseconds {0};
+    appCpu = chrono::nanoseconds {0};
+
+    const SteadyTimePoint now = chrono::steady_clock::now();
 
     unsigned count = 0;
+
     for (auto it = history._samples.rbegin(); it != history._samples.rend(); ++it) {
-        auto sample = get<1>(*it);
-        if ((now - get<0>(*it)) < averagingDuration) {
-            frame += sample.frameTime;
-            engineCpu += sample.engineCpuTime;
-            renderCpu += sample.renderCpuTime;
-            renderGpu += sample.renderGpuTime;
-            physics += sample.physicsTime;
-            appCpu += sample.applicationTime;
-            ++count;
-        }
-        else {
+
+        const auto& [sampleTime, sample] = *it;
+
+        if ((now - sampleTime) >= averagingDuration) {
             break;
         }
+
+        frame += sample.frameTime;
+        renderPrep += sample.renderPrepTime;
+        renderSubmit += sample.renderSubmitTime;
+        renderGpu += sample.renderGpuTime;
+        physics += sample.physicsTime;
+        appCpu += sample.applicationTime;
+
+        ++count;
     }
 
     if (count > 0) {
         frame /= count;
-        engineCpu /= count;
-        renderCpu /= count;
+        renderPrep /= count;
+        renderSubmit /= count;
         renderGpu /= count;
         physics /= count;
         appCpu /= count;

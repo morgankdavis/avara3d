@@ -357,8 +357,10 @@ bool Runner::update(TimePoint now) {
 
     stats.frameTime = _profiler.time(Profiler::Tag::Frame);
     stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);
-    stats.renderCpuTime = _profiler.time(Profiler::Tag::RenderCpu);
+    stats.renderPrepTime = _profiler.time(Profiler::Tag::RenderPrep);
+    stats.renderSubmitTime = _profiler.time(Profiler::Tag::RenderSubmit);
     stats.renderGpuTime = _profiler.time(Profiler::Tag::RenderGpu);
+    stats.presentTime = _profiler.time(Profiler::Tag::Present);
     stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
     stats.applicationTime = _profiler.time(Profiler::Tag::Application);
 

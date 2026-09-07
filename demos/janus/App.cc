@@ -120,7 +120,7 @@ std::unique_ptr<Scene> App::init() {
                     dynamics.phys
                         augustus.phys
                         diana.phys
-                    augustus
+                 simulation may have been reset while this action was waiting for a step boundary    augustus
                     diana
                     janus
                     plinth_janus
@@ -452,7 +452,7 @@ void App::performAction(const PendingAction& action) {
 
     auto simulationRoot = action.dynamicsRoot.lock();
 
-    // simulation may have been reset while this action was waiting for a step boundary
+    // simulation may have been reset while this action was waiting for the next step
     if (!simulationRoot || simulationRoot != _dynamicsRoot) {
         return;
     }

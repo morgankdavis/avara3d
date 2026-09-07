@@ -58,8 +58,10 @@ struct FrameStats {
 
     std::chrono::nanoseconds frameTime {};
     std::chrono::nanoseconds engineCpuTime {};
-    std::chrono::nanoseconds renderCpuTime {};
+    std::chrono::nanoseconds renderPrepTime {};
+    std::chrono::nanoseconds renderSubmitTime {};
     std::chrono::nanoseconds renderGpuTime {};
+    std::chrono::nanoseconds presentTime {};
     std::chrono::nanoseconds physicsTime {};
     std::chrono::nanoseconds applicationTime {};
 

@@ -299,9 +299,9 @@ namespace {
 
         yPos += 4;
 
-        static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg, physicsNsAvg,
+        static chrono::nanoseconds frameNsAvg, renderPrepNsAvg, renderSubmitNsAvg, renderGpuNsAvg, physicsNsAvg,
             appCpuNsAvg;
-        static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg, renderGpuMsFAvg, physicsMsFAvg,
+        static float frameMsFAvg, renderPrepMsFAvg, renderSubmitMsFAvg, renderGpuMsFAvg, physicsMsFAvg,
             appCpuMsFAvg;
         static float fpsAvg = 0;
 
@@ -310,13 +310,13 @@ namespace {
         const auto now = chrono::steady_clock::now();
 
         if (now >= nextAverageUpdate) {
-            FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+            FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, renderPrepNsAvg, renderSubmitNsAvg,
                                            renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
                                            FRAME_STATS_AVERAGING_DURATION);
 
             frameMsFAvg = util::chrono::Milliseconds(frameNsAvg);
-            engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
-            renderCpuMsFAvg = util::chrono::Milliseconds(renderCpuNsAvg);
+            renderPrepMsFAvg = util::chrono::Milliseconds(renderPrepNsAvg);
+            renderSubmitMsFAvg = util::chrono::Milliseconds(renderSubmitNsAvg);
 
             if (gpuTimingAvailable) {
                 renderGpuMsFAvg = util::chrono::Milliseconds(renderGpuNsAvg);
@@ -334,8 +334,8 @@ namespace {
 
         static vector<float> frameSamples;
         static vector<float> physSamples;
-        static vector<float> engCpuSamples;
-        static vector<float> renderCpuSamples;
+        static vector<float> renderPrepSamples;
+        static vector<float> renderSubmitSamples;
         static vector<float> renderGpuSamples;
         static vector<float> appSamples;
         static vector<float> simulationStepSamples;
@@ -348,8 +348,8 @@ namespace {
 
             frameSamples.resize(samples.size());
             physSamples.resize(samples.size());
-            engCpuSamples.resize(samples.size());
-            renderCpuSamples.resize(samples.size());
+            renderPrepSamples.resize(samples.size());
+            renderSubmitSamples.resize(samples.size());
             if (gpuTimingAvailable) {
                 renderGpuSamples.resize(samples.size());
             }
@@ -360,9 +360,9 @@ namespace {
             for (size_t i = 0; i < samples.size(); ++i) {
                 auto sample = get<1>(samples[i]);
                 frameSamples[i] = util::chrono::Milliseconds(sample.frameTime);
-                engCpuSamples[i] = util::chrono::Milliseconds(sample.engineCpuTime);
+                renderPrepSamples[i] = util::chrono::Milliseconds(sample.renderPrepTime);
+                renderSubmitSamples[i] = util::chrono::Milliseconds(sample.renderSubmitTime);
                 physSamples[i] = util::chrono::Milliseconds(sample.physicsTime);
-                renderCpuSamples[i] = util::chrono::Milliseconds(sample.renderCpuTime);
                 if (gpuTimingAvailable) {
                     renderGpuSamples[i] = util::chrono::Milliseconds(sample.renderGpuTime);
                 }
@@ -418,16 +418,28 @@ namespace {
         ImguiDrawLabelValue(yPos, layout, "time step", std::format("1/{:.0f}s", 1.0 / stats.simulationTimeStep),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
-        ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.2f}ms", engineCpuMsFAvg), bodyFont,
-                            STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-        ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
-                      static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
-                      0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
+        // ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.2f}ms", engineCpuMsFAvg), bodyFont,
+        //                     STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+        // ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
+        //               static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
+        //               0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
+        //
+        // ImguiDrawLabelValue(yPos, layout, "render cpu", std::format("{:.2f}ms", renderCpuMsFAvg), bodyFont,
+        //                     STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+        // ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
+        //               static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
+        //               PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-        ImguiDrawLabelValue(yPos, layout, "render cpu", std::format("{:.2f}ms", renderCpuMsFAvg), bodyFont,
+        ImguiDrawLabelValue(yPos, layout, "render prep", std::format("{:.2f}ms", renderPrepMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-        ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
-                      static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
+        ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderPrepSamples.data(),
+                      static_cast<int>(renderPrepSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
+                      PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
+
+        ImguiDrawLabelValue(yPos, layout, "render sub", std::format("{:.2f}ms", renderSubmitMsFAvg),
+                            bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+        ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderSubmitSamples.data(),
+                      static_cast<int>(renderSubmitSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
                       PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
         ImguiDrawLabelValue(yPos, layout, "draw",

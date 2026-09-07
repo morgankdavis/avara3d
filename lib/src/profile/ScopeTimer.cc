@@ -22,7 +22,7 @@ ScopeTimer::ScopeTimer(Profiler& profiler, Profiler::Tag tag):
     _start {chrono::steady_clock::now()} {}
 
 ScopeTimer::~ScopeTimer() {
-    auto duration = chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - _start);
+    auto duration = chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now() - _start);
     _profiler->add(_tag, duration);
 }
 
