@@ -27,8 +27,8 @@ namespace {
 
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
     const uvec2                       WINDOW_SIZE {1280, 768};
-    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::None};
     const bool                        ENABLE_HIGH_DPI {false};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::None};
     const double                      TIME_STEP {1.0 / 120.0};
     const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
