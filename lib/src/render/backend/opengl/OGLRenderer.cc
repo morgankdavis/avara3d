@@ -510,7 +510,19 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     glViewport(0, 0, (GLsizei) fbSize.x, (GLsizei) fbSize.y);
 
-    // glClear obeys write masks. force writes so a state left behind by the
+    // glClear obeys the scissor test. establish the requested clear region
+    // explicitly instead of depending on GL state left by the previous frame.
+    if (cmd.scissor) {
+        glEnable(GL_SCISSOR_TEST);
+
+        const auto& scissor = *cmd.scissor;
+        glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
+    }
+    else {
+        glDisable(GL_SCISSOR_TEST);
+    }
+
+    // glClear obeys write masks. force writes so state left behind by the
     // previous frame cannot prevent one of the requested buffers from clearing.
     if (cmd.forceWriteMasks) {
         if (cmd.clearColor) {
@@ -547,6 +559,12 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
 
     if (mask) {
         glClear(mask);
+    }
+
+    // scissoring is not part of the normal scene pipeline state. leave it
+    // disabled after a partial clear.
+    if (cmd.scissor) {
+        glDisable(GL_SCISSOR_TEST);
     }
 
     // clear() may have changed state represented by the cached pipeline,
