@@ -934,27 +934,17 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 }
 
 void OGLRenderer::applyMVP(const mat4& model, const mat4& view, const mat4& proj) {
-    // TEMP: query locations from currently bound program each call (slow but fine)
-    // Later: cache these per Program.
-    GLint program = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-    if (!program) {
+
+    if (_state.pipelineId == INVALID_PIPELINE_ID) {
         return;
     }
 
-    GLint locM = glGetUniformLocation(program, "modelMat");
-    GLint locV = glGetUniformLocation(program, "viewMat");
-    GLint locP = glGetUniformLocation(program, "projMat");
+    const auto& pipeline = _resourceCache.pipeline(_state.pipelineId);
+    auto&       program = programForShaderKind(pipeline.desc.shaderKind);
 
-    if (locM >= 0) {
-        glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
-    }
-    if (locV >= 0) {
-        glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
-    }
-    if (locP >= 0) {
-        glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
-    }
+    program.setUniform("modelMat", model);
+    program.setUniform("viewMat", view);
+    program.setUniform("projMat", proj);
 }
 
 void OGLRenderer::drawElements() {

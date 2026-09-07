@@ -5,26 +5,12 @@
 
 float   Attenuate(float Kc, float Kl, float Kq, float d);
 vec3    CalcAmbientLighting(vec3 Ka);
-vec3    CalcDirectionalLighting(
-    vec3 Kd,
-    vec3 Ks,
-    vec3 surfacePositionEye,
-    vec3 surfaceNormalEye,
-    float surfaceSpecularExponent);
-vec3    CalcPointLighting(
-    vec3 Kd,
-    vec3 Ks,
-    vec3 surfacePositionEye,
-    vec3 surfaceNormalEye,
-    mat4 viewMatrix,
-    float surfaceSpecularExponent);
-vec3    CalcSpotLighting(
-    vec3 Kd,
-    vec3 Ks,
-    vec3 surfacePositionEye,
-    vec3 surfaceNormalEye,
-    mat4 viewMatrix,
-    float surfaceSpecularExponent);
+vec3    CalcDirectionalLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
+                                float surfaceSpecularExponent);
+vec3    CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
+                          float surfaceSpecularExponent);
+vec3    CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
+                         float surfaceSpecularExponent);
 
 float Attenuate(float Kc, float Kl, float Kq, float d) {
 
