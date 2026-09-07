@@ -189,7 +189,7 @@ vector<shared_ptr<Node>> TransientsBuilder::balls(const vec3& location, const u8
                 body->linearDamping(0.2f);
                 body->angularDamping(0.3f);
 
-                const float ANGULAR_VARIANCE = radians(90.0f);
+                const float ANGULAR_VARIANCE = radians(120.0f);
                 body->angularVelocity(uniform_linear(vec3 {-ANGULAR_VARIANCE}, vec3 {ANGULAR_VARIANCE}));
 
                 node->physicsBody(std::move(body));

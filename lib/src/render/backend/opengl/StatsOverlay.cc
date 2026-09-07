@@ -378,7 +378,7 @@ namespace {
         yPos += TOP_PADDING;
         auto rateValue = std::format(numberLocale, "{:.0Lf}fps", fpsAvg);
         ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
-        auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
+        auto frameValue = std::format("{:.2f}ms", frameMsFAvg);
         ImguiDrawLabelValue(yPos, layout, "frame", frameValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1, frameSamples.data(),
                       static_cast<int>(frameSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
@@ -401,7 +401,7 @@ namespace {
                                 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
         const auto formatDiscardedTime = [](double seconds) {
-            return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.1f}ms", seconds * 1000.0);
+            return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.2f}ms", seconds * 1000.0);
         };
         ImguiDrawLabelValue(yPos, layout, "discarded", formatDiscardedTime(stats.totalDiscardedSimulationTime),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, IM_COL32(255, 255, 255, 255),
@@ -418,20 +418,20 @@ namespace {
         ImguiDrawLabelValue(yPos, layout, "time step", std::format("1/{:.0f}s", 1.0 / stats.simulationTimeStep),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
-        ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,
+        ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.2f}ms", engineCpuMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
                       static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
                       0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-        ImguiDrawLabelValue(yPos, layout, "render sub", std::format("{:.1f}ms", renderCpuMsFAvg), bodyFont,
+        ImguiDrawLabelValue(yPos, layout, "render cpu", std::format("{:.2f}ms", renderCpuMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
                       static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
                       PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
         ImguiDrawLabelValue(yPos, layout, "draw",
-                            (gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : ""), bodyFont,
+                            (gpuTimingAvailable ? std::format("{:.2f}ms", renderGpuMsFAvg) : ""), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
                             gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255));
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderGpuSamples.data(),
@@ -439,13 +439,13 @@ namespace {
                       gpuTimingAvailable ? nullptr : "unavailable", &bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_MIN,
                       PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, !gpuTimingAvailable);
 
-        ImguiDrawLabelValue(yPos, layout, "physics", std::format("{:.1f}ms", physicsMsFAvg), bodyFont,
+        ImguiDrawLabelValue(yPos, layout, "physics", std::format("{:.2f}ms", physicsMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, physSamples.data(),
                       static_cast<int>(physSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
                       0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-        ImguiDrawLabelValue(yPos, layout, "application", std::format("{:.1f}ms", appCpuMsFAvg), bodyFont,
+        ImguiDrawLabelValue(yPos, layout, "application", std::format("{:.2f}ms", appCpuMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, appSamples.data(),
                       static_cast<int>(appSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,

@@ -439,8 +439,8 @@ void App::performAction(const PendingAction& action) {
 
     const float POKE_DELTA_SPEED_SOFT {1.0f};
     const float POKE_DELTA_SPEED_HARD {7.5f};
-    const float FLIP_DELTA_SPEED {2.5f};
-    const float FLIP_DELTA_ANGULAR_SPEED {radians(330.0f)};
+    const float FLIP_DELTA_SPEED {3.0f};
+    const float FLIP_DELTA_ANGULAR_SPEED {radians(280.0f)};
 
     const double PROJECTILE_PICK_IGNORE_DURATION {1.5};
 
