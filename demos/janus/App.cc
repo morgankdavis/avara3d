@@ -120,7 +120,7 @@ std::unique_ptr<Scene> App::init() {
                     dynamics.phys
                         augustus.phys
                         diana.phys
-                 simulation may have been reset while this action was waiting for a step boundary    augustus
+                    augustus
                     diana
                     janus
                     plinth_janus

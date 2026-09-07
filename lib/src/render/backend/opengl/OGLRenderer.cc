@@ -577,8 +577,6 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
 
 void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
 
-    A3D_ASSERT(frame.profiler);
-    
     prof::profile(*frame.profiler, Profiler::Tag::RenderPrep, [&] {
         resolvePacket(packet, frame);
     });

@@ -418,18 +418,6 @@ namespace {
         ImguiDrawLabelValue(yPos, layout, "time step", std::format("1/{:.0f}s", 1.0 / stats.simulationTimeStep),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
-        // ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.2f}ms", engineCpuMsFAvg), bodyFont,
-        //                     STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-        // ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
-        //               static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
-        //               0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
-        //
-        // ImguiDrawLabelValue(yPos, layout, "render cpu", std::format("{:.2f}ms", renderCpuMsFAvg), bodyFont,
-        //                     STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-        // ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
-        //               static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN,
-        //               PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
-
         ImguiDrawLabelValue(yPos, layout, "render prep", std::format("{:.2f}ms", renderPrepMsFAvg), bodyFont,
                             STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
         ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderPrepSamples.data(),

@@ -576,7 +576,6 @@ bool VisualWorld::draw(const Scene&             scene,
     });
 
     prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-        // there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
         _renderContext->beginFrame(scene);
     });
 
@@ -645,7 +644,6 @@ bool VisualWorld::draw(const Scene&             scene,
     });
 
     prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-        // there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
         _renderContext->endFrame(scene);
     });
 
