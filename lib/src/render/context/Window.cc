@@ -196,9 +196,10 @@ Window::Window(const uvec2& size, bool fullScreen, bool enableHighDPI, Antialias
     }
 
     else {
-        
+
         throw std::runtime_error("Couldn't initialize GLFW.");
     }
+
 }
 
 Window::~Window() {

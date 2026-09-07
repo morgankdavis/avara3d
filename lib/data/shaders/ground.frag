@@ -110,12 +110,9 @@ void main() {
             }
 
             color = CalcAmbientLighting(Ka);
-            color += CalcDirectionalLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, specularExponent);
-            color += CalcPointLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, specularExponent);
-            color += CalcSpotLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, specularExponent);
+            color += CalcDirectionalLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, specularExponent);
+            color += CalcPointLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, specularExponent);
+            color += CalcSpotLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, specularExponent);
         }
     }
     else {
@@ -131,12 +128,10 @@ void main() {
             vec3 Ks = vec3(groundSpecularIntensity);
 
             color = CalcAmbientLighting(Ka);
-            color += CalcDirectionalLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
-            color += CalcPointLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
-            color += CalcSpotLighting(
-                    Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
+            color += CalcDirectionalLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye,
+                groundSpecularExponent);
+            color += CalcPointLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, groundSpecularExponent);
+            color += CalcSpotLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, groundSpecularExponent);
         }
     }
 

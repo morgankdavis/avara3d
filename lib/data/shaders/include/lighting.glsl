@@ -10,7 +10,6 @@ vec3    CalcDirectionalLighting(
     vec3 Ks,
     vec3 surfacePositionEye,
     vec3 surfaceNormalEye,
-    mat4 viewMatrix,
     float surfaceSpecularExponent);
 vec3    CalcPointLighting(
     vec3 Kd,
@@ -51,9 +50,13 @@ vec3 CalcAmbientLighting(vec3 Ka) {
 }
 
 vec3 CalcDirectionalLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
-        mat4 viewMatrix, float surfaceSpecularExponent) {
+                             float surfaceSpecularExponent) {
 
     vec3 color = vec3(0.0);
+
+    bool hasSpecular = any(notEqual(Ks, vec3(0.0)));
+    vec3 surfaceToCamDir_eye =
+    hasSpecular ? normalize(-surfacePositionEye) : vec3(0.0);
 
     for (uint l = 0u; l < Environment.numDirectionalLights; ++l) {
 
@@ -63,32 +66,25 @@ vec3 CalcDirectionalLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 sur
         vec3 Id = vec3(0.0);
         vec3 Is = vec3(0.0);
 
-        // diffuse
+        // direction_eye is the direction the light points,
+        // therefore the surface-to-light direction is its inverse.
+        vec3 surfaceToLightDir_eye = -light.direction_eye;
 
-        vec3 lightDir_eye = vec3(viewMatrix * vec4(-light.direction_world, 0.0));
-        vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
-        float dotDiffuse = max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
+        float dotDiffuse =
+        max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
 
         Id = L * Kd * dotDiffuse;
 
-        // specular
+        if (hasSpecular) {
 
-        if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+            vec3 reflection_eye =
+            reflect(-surfaceToLightDir_eye, surfaceNormalEye);
 
-            vec3 surfaceToCamDir = normalize(-surfacePositionEye); // viewer is at 0,0,0
+            float dotSpecular =
+            max(dot(reflection_eye, surfaceToCamDir_eye), 0.0);
 
-            // phong
-
-            vec3 reflection_eye = reflect(-surfaceToLightDir_eye, surfaceNormalEye);
-            float dotSpecular = dot(reflection_eye, surfaceToCamDir);
-            dotSpecular = max(dotSpecular, 0.0);
-            float specularFactor = pow(dotSpecular, surfaceSpecularExponent);
-
-            // blinn
-
-            // vec3 halfWay_eye = normalize(surfaceToCamDir + surfaceToLightDir_eye);
-            // float dotSpecular = max(dot(halfWay_eye, surfaceNormalEye), 0.0);
-            // float specularFactor = pow(dotSpecular, surfaceSpecularExponent);
+            float specularFactor =
+            pow(dotSpecular, surfaceSpecularExponent);
 
             Is = L * Ks * specularFactor;
         }
@@ -99,10 +95,14 @@ vec3 CalcDirectionalLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 sur
     return color;
 }
 
-vec3 CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye, mat4 viewMatrix,
-    float surfaceSpecularExponent) {
+vec3 CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
+                       float surfaceSpecularExponent) {
 
     vec3 color = vec3(0.0);
+
+    bool hasSpecular = any(notEqual(Ks, vec3(0.0)));
+    vec3 surfaceToCamDir_eye =
+    hasSpecular ? normalize(-surfacePositionEye) : vec3(0.0);
 
     for (uint l = 0u; l < Environment.numPointLights; ++l) {
 
@@ -112,27 +112,37 @@ vec3 CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNo
         vec3 Id = vec3(0.0);
         vec3 Is = vec3(0.0);
 
-        // diffuse
+        vec3 surfaceToLight_eye =
+        light.position_eye - surfacePositionEye;
 
-        vec3 lightPos_eye = vec3(viewMatrix * vec4(light.position_world, 1.0));
-        vec3 surfaceToLightDir_eye = normalize(lightPos_eye - surfacePositionEye);
-        float dotDiffuse = max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
-        float surfaceToLightDist = distance(lightPos_eye, surfacePositionEye);
+        float surfaceToLightDist =
+        length(surfaceToLight_eye);
 
-        float attenuation = Attenuate(light.constantAttenuation, light.linearAttenuation,
-                light.quadraticAttenuation, surfaceToLightDist);
+        vec3 surfaceToLightDir_eye =
+        surfaceToLight_eye / max(surfaceToLightDist, 0.000001);
+
+        float dotDiffuse =
+        max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
+
+        float attenuation =
+        Attenuate(
+            light.constantAttenuation,
+            light.linearAttenuation,
+            light.quadraticAttenuation,
+            surfaceToLightDist);
 
         Id = L * Kd * dotDiffuse * attenuation;
 
-        // specular
+        if (hasSpecular) {
 
-        if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+            vec3 reflection_eye =
+            reflect(-surfaceToLightDir_eye, surfaceNormalEye);
 
-            vec3 surfaceToCamDir = normalize(-surfacePositionEye);
-            vec3 reflection_eye = reflect(-surfaceToLightDir_eye, surfaceNormalEye);
-            float dotSpecular = dot(reflection_eye, surfaceToCamDir);
-            dotSpecular = max(dotSpecular, 0.0);
-            float specularFactor = pow(dotSpecular, surfaceSpecularExponent);
+            float dotSpecular =
+            max(dot(reflection_eye, surfaceToCamDir_eye), 0.0);
+
+            float specularFactor =
+            pow(dotSpecular, surfaceSpecularExponent);
 
             Is = L * Ks * specularFactor * attenuation;
         }
@@ -143,10 +153,14 @@ vec3 CalcPointLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNo
     return color;
 }
 
-vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye, mat4 viewMatrix,
-    float surfaceSpecularExponent) {
+vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNormalEye,
+                      float surfaceSpecularExponent) {
 
     vec3 color = vec3(0.0);
+
+    bool hasSpecular = any(notEqual(Ks, vec3(0.0)));
+    vec3 surfaceToCamDir_eye =
+    hasSpecular ? normalize(-surfacePositionEye) : vec3(0.0);
 
     for (uint l = 0u; l < Environment.numSpotLights; ++l) {
 
@@ -156,17 +170,26 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
         vec3 Id = vec3(0.0);
         vec3 Is = vec3(0.0);
 
-        vec3 lightPos_eye = vec3(viewMatrix * vec4(light.position_world, 1.0));
-        vec3 surfaceToLightDir_eye = normalize(lightPos_eye - surfacePositionEye);
-        vec3 lightDir_eye = normalize(vec3(viewMatrix * vec4(-light.direction_world, 0.0)));
-        vec3 surfaceToCamDir_eye = normalize(-surfacePositionEye);
+        vec3 surfaceToLight_eye =
+        light.position_eye - surfacePositionEye;
 
-        // cosine of angle. see DeVries 16.5
+        float surfaceToLightDist =
+        length(surfaceToLight_eye);
 
-        float theta = dot(surfaceToLightDir_eye, lightDir_eye);
-        float epsilon = light.innerAngleCos - light.outerAngleCos;
+        vec3 surfaceToLightDir_eye =
+        surfaceToLight_eye / max(surfaceToLightDist, 0.000001);
 
-        float linearSpotFactor = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
+        float theta =
+        dot(surfaceToLightDir_eye, -light.direction_eye);
+
+        float epsilon =
+        light.innerAngleCos - light.outerAngleCos;
+
+        float linearSpotFactor =
+        clamp(
+            (theta - light.outerAngleCos) / epsilon,
+            0.0,
+            1.0);
 
         if (linearSpotFactor > 0.0) {
 
@@ -175,39 +198,48 @@ vec3 CalcSpotLighting(vec3 Kd, vec3 Ks, vec3 surfacePositionEye, vec3 surfaceNor
             switch (light.featheringMode) {
 
                 case SPOTLIGHT_FEATHERING_MODE_SHARP:
-                    spotFactor = clamp(linearSpotFactor * (2.0 - linearSpotFactor), 0.0, 1.0);
+                    spotFactor =
+                    clamp(
+                        linearSpotFactor * (2.0 - linearSpotFactor),
+                        0.0,
+                        1.0);
                     break;
 
                 case SPOTLIGHT_FEATHERING_MODE_SOFT:
-                    spotFactor = clamp(pow(linearSpotFactor, 2.0), 0.0, 1.0);
+                    spotFactor =
+                    clamp(pow(linearSpotFactor, 2.0), 0.0, 1.0);
                     break;
 
                 default:
                     break;
             }
 
-            // diffuse
+            float dotDiffuse =
+            max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
 
-            float dotDiffuse = max(dot(surfaceToLightDir_eye, surfaceNormalEye), 0.0);
-            float surfaceToLightDist = distance(lightPos_eye, surfacePositionEye);
+            float attenuation =
+            Attenuate(
+                light.constantAttenuation,
+                light.linearAttenuation,
+                light.quadraticAttenuation,
+                surfaceToLightDist);
 
-            float attenuation = Attenuate(light.constantAttenuation, light.linearAttenuation,
-                    light.quadraticAttenuation, surfaceToLightDist);
+            Id =
+            L * Kd * spotFactor * dotDiffuse * attenuation;
 
-            Id = L * Kd * spotFactor * dotDiffuse * attenuation;
+            if (hasSpecular) {
 
-            // specular
+                vec3 reflection_eye =
+                reflect(-surfaceToLightDir_eye, surfaceNormalEye);
 
-            if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+                float dotSpecular =
+                max(dot(reflection_eye, surfaceToCamDir_eye), 0.0);
 
-                vec3 reflection_eye = reflect(-surfaceToLightDir_eye, surfaceNormalEye);
-                float dotSpecular = dot(reflection_eye, surfaceToCamDir_eye);
+                float specularFactor =
+                pow(dotSpecular, surfaceSpecularExponent);
 
-                dotSpecular = max(dotSpecular, 0.0);
-
-                float specularFactor = pow(dotSpecular, surfaceSpecularExponent);
-
-                Is = L * Ks * spotFactor * specularFactor * attenuation;
+                Is =
+                L * Ks * spotFactor * specularFactor * attenuation;
             }
         }
 

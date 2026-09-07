@@ -7,26 +7,19 @@ layout(location = 2) in vec2 vert_texCoord;
 uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
+uniform mat3 normalMat;
 
-// temporary
 out vec3 frag_vertPos_world;
-out vec3 frag_vertNorm_world;
-
 out vec3 frag_vertPos_eye;
 out vec3 frag_vertNorm_eye;
 out vec2 frag_texCoord;
 
 void main() {
 
-    vec4 vertPosWorld = modelMat * vec4(vert_vertPos, 1.0);
-    frag_vertPos_world = vertPosWorld.xyz;
-    frag_vertPos_eye = vec3(viewMat * vertPosWorld);
-
-    // ! OPTIMIZE !
-    // for non-uniform scale
-    mat3 normalMat = transpose(inverse(mat3(viewMat * modelMat)));
-    frag_vertNorm_eye = normalize(normalMat * vert_vertNorm);
-
-    frag_texCoord = vert_texCoord;
-    gl_Position = projMat * vec4(frag_vertPos_eye, 1.0);
+vec4 vertPosWorld = modelMat * vec4(vert_vertPos, 1.0);
+frag_vertPos_world = vertPosWorld.xyz;
+frag_vertPos_eye = vec3(viewMat * vertPosWorld);
+frag_vertNorm_eye = normalMat * vert_vertNorm; // for normals under non-uniform scale
+frag_texCoord = vert_texCoord;
+gl_Position = projMat * vec4(frag_vertPos_eye, 1.0);
 }
