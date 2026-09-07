@@ -15,7 +15,6 @@ in vec3 frag_vertPos_eye;
 in vec3 frag_vertNorm_eye;
 in vec2 frag_texCoord;
 
-uniform mat4   viewMat;
 uniform vec4   tint;
 
 out vec4 fragColor;
