@@ -51,7 +51,6 @@ private:
     // [Private Member Functions]
 
     bool                     resolveQuery(size_t index);
-    void                     resolveIssuedQueries(size_t skipIndex);
 
     // [Private Member Variables]
 

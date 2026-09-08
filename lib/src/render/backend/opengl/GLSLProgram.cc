@@ -126,6 +126,8 @@ bool GLSLProgram::link() {
         return false;
     }
     else {
+        _uniformLocationCache.clear();
+
         isLinked(true);
         log::i()("Done.");
         return true;
@@ -187,9 +189,9 @@ void GLSLProgram::setUniform(const char* name, float x, float y, float z) {
     if (loc >= 0) {
         glUniform3f(loc, x, y, z);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, const vec2& v) {
@@ -198,9 +200,9 @@ void GLSLProgram::setUniform(const char* name, const vec2& v) {
     if (loc >= 0) {
         glUniform2f(loc, v.x, v.y);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, const vec3& v) {
@@ -214,9 +216,9 @@ void GLSLProgram::setUniform(const char* name, const vec4& v) {
     if (loc >= 0) {
         glUniform4f(loc, v.x, v.y, v.z, v.w);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, const mat3& m) {
@@ -225,9 +227,9 @@ void GLSLProgram::setUniform(const char* name, const mat3& m) {
     if (loc >= 0) {
         glUniformMatrix3fv(loc, 1, GL_FALSE, value_ptr(m));
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, const mat4& m) {
@@ -236,9 +238,9 @@ void GLSLProgram::setUniform(const char* name, const mat4& m) {
     if (loc >= 0) {
         glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, bool val) {
@@ -247,9 +249,9 @@ void GLSLProgram::setUniform(const char* name, bool val) {
     if (loc >= 0) {
         glUniform1i(loc, val);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, int val) {
@@ -258,9 +260,9 @@ void GLSLProgram::setUniform(const char* name, int val) {
     if (loc >= 0) {
         glUniform1i(loc, val);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, unsigned val) {
@@ -269,9 +271,9 @@ void GLSLProgram::setUniform(const char* name, unsigned val) {
     if (loc >= 0) {
         glUniform1ui(loc, val);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniform(const char* name, float val) {
@@ -280,9 +282,9 @@ void GLSLProgram::setUniform(const char* name, float val) {
     if (loc >= 0) {
         glUniform1f(loc, val);
     }
-    else {
-        log::e()("Uniform '{}' not found.", name);
-    }
+    // else {
+    //     log::e()("Uniform '{}' not found.", name);
+    // }
 }
 
 void GLSLProgram::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
@@ -421,15 +423,27 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
     }
 }
 
+// int GLSLProgram::getUniformLocation(const char* name) {
+//
+//     GLint location = -1;
+//     // if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
+//     location = glGetUniformLocation(_glID, name);
+//
+//     if (location < 0) {
+//         log::e()("Could not find uniform location: {}", name);
+//     }
+//
+//     return location;
+// }
+
 int GLSLProgram::getUniformLocation(const char* name) {
-
-    GLint location = -1;
-    // if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
-    location = glGetUniformLocation(_glID, name);
-
-    if (location < 0) {
-        log::e()("Could not find uniform location: {}", name);
+    if (auto it = _uniformLocationCache.find(name); it != _uniformLocationCache.end()) {
+        return it->second;
     }
+
+    const int location = glGetUniformLocation(_glID, name);
+
+    _uniformLocationCache.emplace(name, location);
 
     return location;
 }

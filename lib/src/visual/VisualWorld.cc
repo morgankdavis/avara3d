@@ -576,11 +576,10 @@ bool VisualWorld::draw(const Scene&             scene,
     });
 
     prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-        // there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
         _renderContext->beginFrame(scene);
     });
 
-    prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+    prof::profile(profiler, Profiler::Tag::RenderSubmit, [&] {
         renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
     });
 
@@ -609,39 +608,46 @@ bool VisualWorld::draw(const Scene&             scene,
 
     if (povValid) {
 
-        auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+        auto [view, proj] = prof::profile(profiler, Profiler::Tag::RenderPrep, [&] {
             return std::pair {inverse(pov->worldTransform()),
                               pov->camera()->projection(_renderContext->framebufferSize())};
         });
 
-        prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+        prof::profile(profiler, Profiler::Tag::RenderPrep, [&] {
             renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-
-            auto gatherItems = RenderGatherer::Gather(scene, view, physicsWorld, debugOptions, stats);
-
-            renderer->postTraversal(scene, *_renderContext, view, gatherItems.lightNodes, debugOptions, stats);
-
-            auto packet = DrawPacketizer::Packetize(gatherItems);
-
-            Renderer::FrameParams params = {*_renderContext, view, proj, debugOptions, &stats, &profiler};
-
-            renderer->renderPacket(packet, params);
         });
+
+        auto gatherItems = prof::profile(profiler, Profiler::Tag::RenderPrep, [&] {
+            return RenderGatherer::Gather(scene, view, physicsWorld, debugOptions, stats);
+        });
+
+        prof::profile(profiler, Profiler::Tag::RenderSubmit, [&] {
+            renderer->postTraversal(scene, *_renderContext, view, gatherItems.lightNodes, debugOptions, stats);
+        });
+
+        auto packet = prof::profile(profiler, Profiler::Tag::RenderPrep, [&] {
+            return DrawPacketizer::Packetize(gatherItems);
+        });
+
+        Renderer::FrameParams params = {*_renderContext, view, proj, debugOptions, &stats, &profiler};
+
+        renderer->renderPacket(packet, params);
     }
     else {
-        renderer->clear(Renderer::ClearCommand {}, *_renderContext);
+        prof::profile(profiler, Profiler::Tag::RenderSubmit, [&] {
+            renderer->clear(Renderer::ClearCommand {}, *_renderContext);
+        });
     }
 
-    prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+    prof::profile(profiler, Profiler::Tag::RenderSubmit, [&] {
         renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
     });
 
     prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-        // there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
         _renderContext->endFrame(scene);
     });
 
-    prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+    prof::profile(profiler, Profiler::Tag::Present, [&] {
         _renderContext->swapBuffers();
     });
 

@@ -28,12 +28,13 @@ public:
 
     static void GetAverages(const FrameStatsHistory&  history,
                             std::chrono::nanoseconds& frame,
-                            std::chrono::nanoseconds& engineCpu,
-                            std::chrono::nanoseconds& renderCpu,
+                            std::chrono::nanoseconds& renderPrep,
+                            std::chrono::nanoseconds& renderSubmit,
                             std::chrono::nanoseconds& renderGpu,
                             std::chrono::nanoseconds& physics,
                             std::chrono::nanoseconds& appCpu,
                             std::chrono::milliseconds averagingDuration);
+
     // [Internal Lifecycle Functions]
 
     explicit FrameStatsHistory(std::chrono::milliseconds historyTime);

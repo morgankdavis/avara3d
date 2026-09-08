@@ -23,7 +23,7 @@ Sampler::Sampler():
     _id {IdGenerator<SamplerId>::next()},
     _minificationFilter {FilterMode::LinearMipmapLinear},
     _magnificationFilter {FilterMode::Linear},
-    _maxAnisotropy {16},
+    _maxAnisotropy {4},
     _wrapS {WrapMode::Repeat},
     _wrapT {WrapMode::Repeat},
     _wrapR {WrapMode::Repeat},

@@ -129,13 +129,17 @@ void OGLDrawTimer::begin() {
 }
 
 chrono::nanoseconds OGLDrawTimer::end() {
+
     A3D_ASSERT(_initialized);
+
     if (_mode == Mode::Disabled) {
         return _lastTime;
     }
 
     const size_t write = _frame % _bufferSize;
+
     if (_active) {
+
 #if defined(A3D_GL_WEB)
         if (_mode == Mode::WebDisjointTimerQueryExt) {
             glEndQueryEXT(_queryTarget);
@@ -143,15 +147,13 @@ chrono::nanoseconds OGLDrawTimer::end() {
         else
 #endif
             glEndQuery(_queryTarget);
+
         _issued[write] = 1;
         _active = false;
-        resolveIssuedQueries(write);
-    }
-    else {
-        resolveIssuedQueries(_glQueries.size());
     }
 
     ++_frame;
+
     return _lastTime;
 }
 
@@ -211,15 +213,6 @@ bool OGLDrawTimer::resolveQuery(size_t index) {
     _issued[index] = 0;
 
     return true;
-}
-
-void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
-    for (size_t i = 0; i < _issued.size(); ++i) {
-        if (i == skipIndex) {
-            continue;
-        }
-        resolveQuery(i);
-    }
 }
 
 namespace {

@@ -15,7 +15,6 @@ in vec3 frag_vertPos_eye;
 in vec3 frag_vertNorm_eye;
 in vec2 frag_texCoord;
 
-uniform mat4   viewMat;
 uniform vec4   tint;
 
 out vec4 fragColor;
@@ -68,13 +67,13 @@ void main() {
             fragColor.rgb = CalcAmbientLighting(Ka.rgb);
 
             fragColor.rgb += CalcDirectionalLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
-                    viewMat, specularExponent);
+                specularExponent);
 
-            fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
-                    specularExponent);
+            fragColor.rgb += CalcPointLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
+                specularExponent);
 
-            fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye, viewMat,
-                    specularExponent);
+            fragColor.rgb += CalcSpotLighting(Kd.rgb, Ks.rgb, frag_vertPos_eye, surfaceNormalEye,
+                specularExponent);
 
             fragColor = vec4(fragColor.rgb, Kd.a);
         }

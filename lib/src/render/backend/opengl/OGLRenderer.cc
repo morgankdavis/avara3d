@@ -34,6 +34,7 @@
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/FrameStatsHistory.h"
+#include "a3d/profile/Profile.h"
 #include "a3d/profile/Profiler.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
@@ -75,6 +76,7 @@ namespace {
 
     const GLuint ENV_BINDING_POINT {0};
 
+    constexpr bool ENABLE_GPU_TIMING {true};
     // ring buffer size for GL timing queries
     const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 
@@ -101,7 +103,7 @@ namespace {
 
     struct DirectionalLightGLSLStruct {
         vec4 color;
-        vec3 direction_world;
+        vec3 direction_eye;
         f32  intensity;
     };
 
@@ -109,7 +111,7 @@ namespace {
 
     struct PointLightGLSLStruct {
         vec4 color;
-        vec3 position_world;
+        vec3 position_eye;
         f32  intensity;
         f32  constantAttenuation;
         f32  linearAttenuation;
@@ -121,9 +123,9 @@ namespace {
 
     struct SpotLightGLSLStruct {
         vec4     color;
-        vec3     position_world;
+        vec3     position_eye;
         f32      intensity;
-        vec3     direction_world;
+        vec3     direction_eye;
         f32      _pad_0_;
         f32      innerAngleCos;
         f32      outerAngleCos;
@@ -222,26 +224,6 @@ namespace {
     static_assert(offsetof(EnvironmentBlock, surface) == 12160);
     static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
     static_assert(sizeof(EnvironmentBlock) == 12272);
-
-    struct FBORestore {
-        GLint drawFbo = 0, readFbo = 0;
-
-        FBORestore() {
-            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
-            glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
-        }
-
-        FBORestore(const FBORestore&) = delete;
-        FBORestore& operator=(const FBORestore&) = delete;
-
-        FBORestore(FBORestore&&) = delete;
-        FBORestore& operator=(FBORestore&&) = delete;
-
-        ~FBORestore() {
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
-        }
-    };
 
     // [Private Non-Member Prototypes]
 
@@ -427,7 +409,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
     }
 
-    _glCapabilities.drawTimer = _drawTimer.initialize();
+    _glCapabilities.drawTimer = ENABLE_GPU_TIMING && _drawTimer.initialize();
     _capabilities.gpuTiming = _glCapabilities.drawTimer;
 
     _imguiContext.startup(context);
@@ -520,50 +502,41 @@ void OGLRenderer::postTraversal(const Scene&               scene,
 }
 
 void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
-    // target-specific clear:
-    // if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
-    FBORestore restore;
+    // bind the framebuffer owned by this RenderContext. for a GLFW window this
+    // is framebuffer 0. QOpenGLWidget supplies its own non-zero framebuffer.
+    const auto fb = context.defaultFramebuffer();
+    const auto fbSize = context.framebufferSize();
 
-    auto fb = context.defaultFramebuffer();
-    auto fbSize = context.framebufferSize();
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     glViewport(0, 0, (GLsizei) fbSize.x, (GLsizei) fbSize.y);
 
-    // save state we might stomp
-    GLboolean prevScissorEnabled = GL_FALSE;
-    GLint     prevScissorBox[4] = {0, 0, 0, 0};
-    glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
-    glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
-
-    GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-    GLboolean prevDepthMask = GL_TRUE;
-    GLint     prevStencilMask = ~0;
-    glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
-    glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
-    glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
-
-    // apply scissor
+    // glClear obeys the scissor test. establish the requested clear region
+    // explicitly instead of depending on GL state left by the previous frame.
     if (cmd.scissor) {
         glEnable(GL_SCISSOR_TEST);
+
         const auto& scissor = *cmd.scissor;
         glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
-    }
-    else if (prevScissorEnabled) {
-        // leave as-is
     }
     else {
         glDisable(GL_SCISSOR_TEST);
     }
 
-    // ensure clears actually write
+    // glClear obeys write masks. force writes so state left behind by the
+    // previous frame cannot prevent one of the requested buffers from clearing.
     if (cmd.forceWriteMasks) {
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        glDepthMask(GL_TRUE);
-        glStencilMask(0xFFFFFFFF);
+        if (cmd.clearColor) {
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        }
+        if (cmd.clearDepth) {
+            glDepthMask(GL_TRUE);
+        }
+        if (cmd.clearStencil) {
+            glStencilMask(0xFFFFFFFF);
+        }
     }
 
-    // set clear values
     GLbitfield mask = 0;
 
     if (cmd.clearColor) {
@@ -574,7 +547,6 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     if (cmd.clearDepth) {
 #ifdef A3D_GL_DESKTOP
         glClearDepth(cmd.depth);
-
 #else
         glClearDepthf(cmd.depth);
 #endif
@@ -590,27 +562,28 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
         glClear(mask);
     }
 
-    // restore state
-    if (cmd.forceWriteMasks) {
-        glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
-        glDepthMask(prevDepthMask);
-        glStencilMask((GLuint) prevStencilMask);
+    // scissoring is not part of the normal scene pipeline state. leave it
+    // disabled after a partial clear.
+    if (cmd.scissor) {
+        glDisable(GL_SCISSOR_TEST);
     }
 
-    if (cmd.scissor) {
-        if (prevScissorEnabled) {
-            glEnable(GL_SCISSOR_TEST);
-            glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
-        }
-        else {
-            glDisable(GL_SCISSOR_TEST);
-        }
-    }
+    // clear() may have changed state represented by the cached pipeline,
+    // most notably the depth write mask. force the first draw of the frame
+    // to reapply its complete pipeline state.
+    _state.pipelineId = INVALID_PIPELINE_ID;
+    _state.material = nullptr;
 }
 
 void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
-    resolvePacket(packet, frame);
-    drawPacket(packet, frame);
+
+    prof::profile(*frame.profiler, Profiler::Tag::RenderPrep, [&] {
+        resolvePacket(packet, frame);
+    });
+
+    prof::profile(*frame.profiler, Profiler::Tag::RenderSubmit, [&] {
+        drawPacket(packet, frame);
+    });
 }
 
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
@@ -758,12 +731,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
 
 void OGLRenderer::bindPipeline(PipelineId pipelineId) {
     if (_state.pipelineId == pipelineId) {
-        GLint cur = 0;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
-        if ((GLuint) cur == _state.program) {
-            return; // truly already bound
-        }
-        // else: stale cache, fallthrough and rebind
+        return;
     }
 
     const OGLPipeline& pipeline = _resourceCache.pipeline(pipelineId);
@@ -938,27 +906,17 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 }
 
 void OGLRenderer::applyMVP(const mat4& model, const mat4& view, const mat4& proj) {
-    // TEMP: query locations from currently bound program each call (slow but fine)
-    // Later: cache these per Program.
-    GLint program = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-    if (!program) {
+
+    if (_state.pipelineId == INVALID_PIPELINE_ID) {
         return;
     }
 
-    GLint locM = glGetUniformLocation(program, "modelMat");
-    GLint locV = glGetUniformLocation(program, "viewMat");
-    GLint locP = glGetUniformLocation(program, "projMat");
+    const auto& pipeline = _resourceCache.pipeline(_state.pipelineId);
+    auto&       program = programForShaderKind(pipeline.desc.shaderKind);
 
-    if (locM >= 0) {
-        glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
-    }
-    if (locV >= 0) {
-        glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
-    }
-    if (locP >= 0) {
-        glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
-    }
+    program.setUniform("modelMat", model);
+    program.setUniform("viewMat", view);
+    program.setUniform("projMat", proj);
 }
 
 void OGLRenderer::drawElements() {
@@ -1075,7 +1033,11 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
         }
 
         if (di.desc.shaderKind == ShaderKind::Default) {
+
             SendDrawUniforms(di, *_defaultProgram);
+
+            const mat3 normalMat = transpose(inverse(mat3(frame.view * di.model)));
+            _defaultProgram->setUniform("normalMat", normalMat);
         }
 
         bindMeshElement(*di.element);
@@ -1350,6 +1312,8 @@ namespace {
 
         // lights
 
+        const mat3 viewRotation = mat3(view);
+
         auto numLights = lightNodes.size();
 
         if (scene.visualWorld()->defaultLightingEnabled()) {
@@ -1401,7 +1365,7 @@ namespace {
                         DirectionalLightGLSLStruct lightStruct {};
                         lightStruct.color = directionalLight->color().rgba();
                         lightStruct.intensity = directionalLight->intensity();
-                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.direction_eye = normalize(viewRotation * node->worldForward());
                         directionalStructs.push_back(lightStruct);
                     }
                 }
@@ -1410,7 +1374,7 @@ namespace {
                         PointLightGLSLStruct lightStruct {};
                         lightStruct.color = pointLight->color().rgba();
                         lightStruct.intensity = pointLight->intensity();
-                        lightStruct.position_world = node->worldPosition();
+                        lightStruct.position_eye = vec3(view * vec4 {node->worldPosition(), 1.0f});
                         lightStruct.constantAttenuation = pointLight->attenuation().constant;
                         lightStruct.linearAttenuation = pointLight->attenuation().linear;
                         lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
@@ -1422,8 +1386,8 @@ namespace {
                         SpotLightGLSLStruct lightStruct {};
                         lightStruct.color = spotLight->color().rgba();
                         lightStruct.intensity = spotLight->intensity();
-                        lightStruct.position_world = node->worldPosition();
-                        lightStruct.direction_world = node->worldForward();
+                        lightStruct.position_eye = vec3(view * vec4 {node->worldPosition(), 1.0f});
+                        lightStruct.direction_eye = normalize(viewRotation * node->worldForward());
                         lightStruct.innerAngleCos = spotLight->innerAngleCos();
                         lightStruct.outerAngleCos = spotLight->outerAngleCos();
                         lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());

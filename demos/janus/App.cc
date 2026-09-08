@@ -27,7 +27,8 @@ namespace {
 
     const log::Level                  APP_LOG_LEVEL {log::Level::Debug};
     const uvec2                       WINDOW_SIZE {1280, 768};
-    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa2X};
+    const bool                        ENABLE_HIGH_DPI {false};
+    const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::None};
     const double                      TIME_STEP {1.0 / 120.0};
     const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 
@@ -86,7 +87,7 @@ std::unique_ptr<Scene> App::init() {
     try {
         // create and configure the window
 
-        _window = make_unique<Window>(WINDOW_SIZE, false, true, ANTIALIASING);
+        _window = make_unique<Window>(WINDOW_SIZE, false, ENABLE_HIGH_DPI, ANTIALIASING);
 
         // create and configure the visual world
 
@@ -206,7 +207,7 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
+void App::runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {
 
     if (_pendingReset) {
         _pendingReset = false;
@@ -436,8 +437,10 @@ void App::performAction(const PendingAction& action) {
     const float COIN_GAP {0.165f};
     const float BALL_GAP {0.165f};
 
-    const float POKE_IMPULSE_SOFT = 2.5f;
-    const float POKE_IMPULSE_HARD = 10.0f;
+    const float POKE_DELTA_SPEED_SOFT {1.0f};
+    const float POKE_DELTA_SPEED_HARD {7.5f};
+    const float FLIP_DELTA_SPEED {3.0f};
+    const float FLIP_DELTA_ANGULAR_SPEED {radians(280.0f)};
 
     const double PROJECTILE_PICK_IGNORE_DURATION {1.5};
 
@@ -449,7 +452,7 @@ void App::performAction(const PendingAction& action) {
 
     auto simulationRoot = action.dynamicsRoot.lock();
 
-    // simulation may have been reset while this action was waiting for a step boundary
+    // simulation may have been reset while this action was waiting for the next step
     if (!simulationRoot || simulationRoot != _dynamicsRoot) {
         return;
     }
@@ -534,18 +537,41 @@ void App::performAction(const PendingAction& action) {
             }
 
             switch (_pokiness) {
+
                 case Pokiness::Soft: {
-                    body->applyForce(action.rayDirection * POKE_IMPULSE_SOFT, action.target.hitPosition, true);
+                    const float impulse = body->mass() * POKE_DELTA_SPEED_SOFT;
+                    body->applyForce(action.rayDirection * impulse, action.target.hitPosition, true);
                     break;
                 }
+
                 case Pokiness::Hard: {
-                    body->applyForce(action.rayDirection * POKE_IMPULSE_HARD, action.target.hitPosition, true);
+                    const float impulse = body->mass() * POKE_DELTA_SPEED_HARD;
+                    body->applyForce(action.rayDirection * impulse, action.target.hitPosition, true);
                     break;
                 }
 
                 case Pokiness::Flip: {
-                    body->applyForce(vec3 {0.0f, (POKE_IMPULSE_SOFT + POKE_IMPULSE_HARD) / 2.0f, 0.0f},
-                                     action.target.hitPosition, true);
+
+                    body->applyForce(vec3 {0.0f, body->mass() * FLIP_DELTA_SPEED, 0.0f}, true);
+
+                    const vec3 worldUp {0.0f, 1.0f, 0.0f};
+                    const vec3 worldCOM = vec3 {node->worldTransform() * vec4 {body->centerOfMass(), 1.0f}};
+
+                    const vec3 lever = action.target.hitPosition - worldCOM;
+                    vec3       flipAxis = cross(lever, worldUp);
+                    if (length(flipAxis) <= F32_COMPARE_EPSILON) {
+                        flipAxis = cross(action.rayDirection, worldUp);
+                    }
+                    flipAxis = normalize(flipAxis);
+
+                    const quat orientation = node->worldOrientation();
+                    const vec3 deltaOmegaWorld = flipAxis * FLIP_DELTA_ANGULAR_SPEED;
+                    const vec3 deltaOmegaLocal = inverse(orientation) * deltaOmegaWorld;
+                    const vec3 angularImpulseLocal = body->momentOfInertia() * deltaOmegaLocal;
+                    const vec3 angularImpulseWorld = orientation * angularImpulseLocal;
+
+                    body->applyTorque(angularImpulseWorld, true);
+
                     break;
                 }
             }
@@ -719,9 +745,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(20.0f);
+            body->mass(40.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -730,9 +757,10 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(40.0f);
+            body->mass(150.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
+            body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
         }
@@ -743,7 +771,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(50.0f);
+            body->mass(100.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -760,7 +788,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
-            body->mass(55.0f);
+            body->mass(120.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
             body->angularSleepingThreshold(0.25f);
@@ -777,6 +805,7 @@ namespace {
             auto shape = PhysicsShape::ConcavePolyhedronShape(physNode->mesh());
             auto body = PhysicsBody::DynamicBody(shape);
 
+            body->mass(15.0f);
             body->friction(0.5f);
             body->restitution(0.2f);
             body->rollingFriction(0.05f);
@@ -790,10 +819,9 @@ namespace {
 
             auto body = PhysicsBody::DynamicBody();
 
-            body->mass(30.0f);
+            body->mass(175.0f);
             body->friction(STONE_FRICTION);
             body->restitution(STONE_RESTITUTION);
-
             body->angularSleepingThreshold(0.25f);
 
             node->physicsBody(std::move(body));
