@@ -44,7 +44,6 @@ namespace {
     shared_ptr<Node>          CreateGroundNode();
     void                      ConfigureTransientsTracker(ext::TransientsTracker& tracker);
     shared_ptr<Node>          CreateCamera(ext::TurntableCameraController& controller);
-    shared_ptr<Node>          CreateOrbWanderers(vector<ext::Wanderer>& wanderers);
     optional<App::PickResult> Pick(const VisualWorld&         visualWorld,
                                    const vec2&                screenPosition,
                                    const vector<const Node*>& ignoredNodes = {},
@@ -73,7 +72,6 @@ App::App(int argc, char* argv[]):
     _transientsBuilder {},
     _transientsTracker {ext::TransientsTracker::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
-    _orbWanderers {},
     _pickIgnores {},
     _dynamicsTransforms {},
     _simulationGeneration {0},
@@ -178,11 +176,6 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(_cameraNode);
         scene->visualWorld()->pointOfView(_cameraNode);
 
-        // create the wandering orbs
-
-        auto wanderGroupNode = CreateOrbWanderers(_orbWanderers);
-        scene->rootNode()->childNamed("environment")->addChild(wanderGroupNode);
-
         // open the window
 
         _window->center();
@@ -244,12 +237,7 @@ void App::inputDidUpdate(Runner&       runner,
     }
 }
 
-void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
-
-    for (auto& wander : _orbWanderers) {
-        wander.update(info.deltaTime);
-    }
-}
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
 
 void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
@@ -685,15 +673,15 @@ namespace {
                                               .endDistance = 100.0f};
 
         auto horizonHaze =
-            Ground::HorizonHaze {.color = {0.2f, 0.2f, 0.2f, 0.35f}, .angularWidth = math::radians(4.0f)};
+            Ground::HorizonHaze {.color = {0.15f, 0.15f, 0.15f, 0.25f}, .angularWidth = math::radians(4.0f)};
 
         world->ground(Ground {.fill = Ground::Procedural {.content = grid},
                               .radialFade = radialFade,
                               .horizonHaze = horizonHaze});
 
-        auto atmosphericHaze = Atmosphere::Haze {.color = {0.10f, 0.11f, 0.12f, 0.3f}, .density = 0.5f};
+        auto atmosphericHaze = Atmosphere::Haze {.color = {0.20f, 0.21f, 0.22f, 0.05f}, .density = 0.5f};
 
-        auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.5f}, .intensity = 0.25f};
+        auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.25f}, .intensity = 0.25f};
 
         world->atmosphere(Atmosphere {.scaleHeight = 0.9f, .haze = atmosphericHaze, .limbGlow = limbGlow});
 
@@ -884,47 +872,6 @@ namespace {
                          .distance = 17.4275f});
 
         return cameraNode;
-    }
-
-    shared_ptr<Node> CreateOrbWanderers(vector<ext::Wanderer>& wanderers) {
-
-        const vec3 ORB_GROUP_POSITION {-4.5f, 10.0f, -2.5f};
-
-        const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
-        const vec3 ORB_POSITION_MAX {1.0f, 0.5f, 1.0f};
-
-        const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
-        const size_t ORB_COUNT {4};
-
-        auto orbGroup = Node::NamedNode("orbs");
-        orbGroup->position(ORB_GROUP_POSITION);
-
-        auto orbMaterial = Material::EmissionMaterial(Color::White());
-        auto orbMesh = Sphere::Mesh(0.1f, 3, orbMaterial);
-
-        wanderers.reserve(ORB_COUNT);
-
-        for (size_t i = 0; i < ORB_COUNT; ++i) {
-            auto light = make_shared<PointLight>(Color::White());
-            light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
-
-            auto orb = Node::LightNode(light);
-            orb->name(std::format("orb {}", i + 1));
-            orb->mesh(orbMesh);
-
-            orb->position(math::uniform_linear(ORB_POSITION_MIN, ORB_POSITION_MAX));
-
-            orb->physicsBody(PhysicsBody::KinematicBody());
-
-            orbGroup->addChild(orb);
-
-            ext::Wanderer::Config config {.halfExtents = ORB_WANDER_EXTENTS,
-                                          .segmentDuration = math::uniform_linear(5.0f, 7.0f),
-                                          .seed = 1000u + static_cast<uint32_t>(i)};
-            wanderers.push_back(ext::Wanderer(orb, config));
-        }
-
-        return orbGroup;
     }
 
     optional<App::PickResult> Pick(const VisualWorld&         visualWorld,

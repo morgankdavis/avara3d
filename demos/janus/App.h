@@ -17,7 +17,6 @@
 #include "a3d/Application.h"
 #include "a3d/Math.h"
 #include "a3d/extension/TransientsTracker.h"
-#include "a3d/extension/Wanderer.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
 #include "TransientsBuilder.h"
@@ -155,7 +154,6 @@ private:
     TransientsBuilder                   _transientsBuilder;
     a3d::ext::TransientsTracker         _transientsTracker;
     double                              _backgroundRotationTime;
-    std::vector<a3d::ext::Wanderer>     _orbWanderers;
     std::vector<PickIgnore>             _pickIgnores;
     std::vector<NodeTransform>          _dynamicsTransforms;
     unsigned                            _simulationGeneration;
