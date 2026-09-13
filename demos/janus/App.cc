@@ -159,7 +159,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup ambient lighting
 
-        scene->rootNode()->addChild(Node::LightNode(Light::Ambient(Color {0.075f})));
+        scene->rootNode()->addChild(Node::LightNode(Light::Ambient(Color {0.25f})));
 
         // create a transient objects root
 
@@ -259,9 +259,9 @@ void App::frameDidBegin(Runner&                        runner,
                         VisualWorld&                   visualWorld,
                         const VisualWorld::RenderInfo& info) {
 
-    if (!runner.simulationPaused()) {
-        _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
-    }
+    // if (!runner.simulationPaused()) {
+    //     _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
+    // }
 
     const float BACKGROUND_START_ANGLE {radians(210.0f)};
     const float BACKGROUND_ROTATION_SPEED {radians(0.25f)};
@@ -647,43 +647,46 @@ namespace {
 
         auto world = make_unique<VisualWorld>(context);
 
-        world->background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
+        // world->background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
+        //world->background(Background {Color(u8vec3 {109, 136, 164})});
+        world->background(Background {make_shared<Texture>(std::move(util::fs::CubeImageAt("sky2/sky2.png")))});
 
-        world->surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
+        //world->surface(SphereSurface {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
+        world->surface(PlaneSurface {});
 
-        auto gridMinor = Ground::Procedural::GridComponent {.color = {0.5f, 0.5f, 0.5f, 0.25f},
+        auto gridMinor = Ground::Procedural::GridComponent {.color = Color::LightGray(),
                                                             .spacing = 1.0f,
                                                             .lineWidthPixels = 1.0f,
                                                             .reliefStrength = -0.125f};
 
-        auto gridMajor = Ground::Procedural::GridComponent {.color = {0.75f, 0.75f, 0.75f, 0.25f},
+        auto gridMajor = Ground::Procedural::GridComponent {.color = Color::Gray(),
                                                             .spacing = 10.0f,
                                                             .lineWidthPixels = 1.0f,
                                                             .reliefStrength = -0.125f};
 
-        auto grid = Ground::Procedural::Grid {.color = Color::DarkGray(),
+        auto grid = Ground::Procedural::Grid {.color = Color::White(),
                                               .minor = gridMinor,
                                               .major = gridMajor,
                                               .specularIntensity = 0.05f,
                                               .specularExponent = 8.0f};
 
-        auto radialFade = Ground::RadialFade {.color = {0.005f, 0.005f, 0.005f, 1.0f},
+        auto radialFade = Ground::RadialFade {.color = {0.005f, 0.005f, 0.005f, 0.0f},
                                               .center = {0.0f, 0.0f},
                                               .startDistance = 10.0f,
                                               .endDistance = 100.0f};
 
         auto horizonHaze =
-            Ground::HorizonHaze {.color = {0.15f, 0.15f, 0.15f, 0.25f}, .angularWidth = math::radians(4.0f)};
+            Ground::HorizonHaze {.color = {0.9, 0.9f, 0.9f, 0.0}, .angularWidth = math::radians(4.0f)};
 
         world->ground(Ground {.fill = Ground::Procedural {.content = grid},
                               .radialFade = radialFade,
                               .horizonHaze = horizonHaze});
 
-        auto atmosphericHaze = Atmosphere::Haze {.color = {0.20f, 0.21f, 0.22f, 0.05f}, .density = 0.5f};
-
-        auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.25f}, .intensity = 0.25f};
-
-        world->atmosphere(Atmosphere {.scaleHeight = 0.9f, .haze = atmosphericHaze, .limbGlow = limbGlow});
+        // auto atmosphericHaze = Atmosphere::Haze {.color = {0.9, 0.9, 0.9, 0.0}, .density = 0.5f};
+        //
+        // auto limbGlow = Atmosphere::LimbGlow {.color = {0.30f, 0.38f, 0.48f, 0.25f}, .intensity = 0.25f};
+        //
+        // world->atmosphere(Atmosphere {.scaleHeight = 0.9f, .haze = atmosphericHaze, .limbGlow = limbGlow});
 
         return world;
     }
