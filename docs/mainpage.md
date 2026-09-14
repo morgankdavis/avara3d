@@ -1,6 +1,6 @@
 # API Reference {#mainpage}
 
-This reference documents Avara3D's public C++ API.
+This reference documents the public C++ API of the Avara3D SDK.
 
 For broader context, the [Architecture](https://avara3d.net/architecture.html) page gives a high-level overview of ownership, simulation scheduling, rigid-body physics, and rendering.
 

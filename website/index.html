@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Avara3D is a real-time 3D visualization and physical simulation engine.">
-    <title>Avara3D · 3D visualization and simulation</title>
+    <meta name="description" content="Avara3D is a real-time 3D visualization and physical simulation SDK.">
+    <title>Avara3D · 3D visualization and simulation SDK</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
     <script src="assets/js/site.js" defer></script>
@@ -42,7 +42,7 @@
 
     <main>
         <section class="hero site-width">
-            <h1>Avara3D is a real-time 3D visualization and physical simulation engine.</h1>
+            <h1>Avara3D is a real-time 3D visualization and physical simulation SDK.</h1>
 
             <p class="hero-summary">
                 Avara3D combines real-time rendering, rigid-body physics, fixed-step simulation, and
@@ -52,10 +52,16 @@
             <div class="hero-actions">
                 <a class="button button-primary" href="demo_source.html">Read the demo source</a>
                 <a class="button button-secondary" href="architecture.html">View the architecture</a>
+                <a class="button button-secondary" href="api">Explore the docs</a>
             </div>
         </section>
 
         <section class="site-width demo-section" id="live-demo">
+
+            <p class="demo-intro">
+                <strong><a href="demo_source.html">Janus</a></strong>, built with A3D.
+            </p>
+
             <div class="demo-frame">
                 <div class="demo-stage"
                      data-demo-stage
@@ -127,6 +133,20 @@
             <article>
                 <h3>
                     <img class="evidence-icon"
+                         src="assets/images/cpp.svg"
+                         alt="">
+                    <span>Scene-oriented API</span>
+                </h3>
+
+                <p>
+                    Scene authoring, physics, rendering, simulation control, and input
+                    share a lightweight C++20 API.
+                </p>
+            </article>
+
+            <article>
+                <h3>
+                    <img class="evidence-icon"
                          src="assets/images/physics.svg"
                          alt="">
                     <span>Rigid-body physics</span>
@@ -152,26 +172,13 @@
                 </p>
             </article>
 
-            <article>
-                <h3>
-                    <img class="evidence-icon"
-                         src="assets/images/cpp.svg"
-                         alt="">
-                    <span>Scene-oriented API</span>
-                </h3>
-
-                <p>
-                    Scene authoring, physics, rendering, simulation control, and input
-                    share a lightweight C++20 API.
-                </p>
-            </article>
         </section>
     </main>
 
     <footer class="site-footer">
         <div class="site-width footer-inner">
             <p>
-                Avara3D<span class="footer-desktop-only"> · 3D visualization and simulation</span>
+                Avara3D<span class="footer-desktop-only"> · 3D visualization and simulation SDK</span>
             </p>
 
             <p>

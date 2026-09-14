@@ -197,12 +197,13 @@ kbd {
 .hero,
 .page-hero {
     padding-top: clamp(56px, 6vw, 92px);
-    padding-bottom: clamp(48px, 4vw, 72px);
+    padding-bottom: clamp(42px, 4vw, 72px);
 }
 
 .hero {
     max-width: 1040px;
     text-align: center;
+    padding-bottom: 42px;
 }
 
 .page-hero {
@@ -1557,4 +1558,34 @@ kbd,
     letter-spacing: -0.015em;
     line-height: 1.2;
     text-transform: none;
+}
+
+.demo-intro {
+    margin-left: 0px;
+    margin-bottom: 0px;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.demo-intro strong {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-soft);
+}
+
+.demo-intro strong a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    transition: color 120ms ease;
+}
+
+.demo-intro strong a:hover,
+.demo-intro strong a:focus-visible {
+    color: var(--violet);
+    text-decoration: none;
 }
