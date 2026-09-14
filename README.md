@@ -1,6 +1,6 @@
 # Avara3D
 
-Avara3D is a real-time 3D visualization and physical simulation engine.
+Avara3D is a real-time 3D visualization and physical simulation SDK.
 
 Avara3D combines real-time rendering, rigid-body physics, and fixed-step simulation into an elegant C++20 API. Applications run natively on Linux, macOS, and Windows as well as in modern web browsers.
 
@@ -119,7 +119,7 @@ cmake --build --preset debug
 
 ### Web / Emscripten
 
-A3D executables can be compiled to WebAssembly and WebGL 2 using Emscripten.
+Applications built with A3D can be compiled to WebAssembly/WebGL 2 using Emscripten.
 
 #### Install [Emscripten](https://emscripten.org/docs/getting_started/downloads.html)
 
