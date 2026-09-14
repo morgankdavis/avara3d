@@ -1558,3 +1558,16 @@ kbd,
     line-height: 1.2;
     text-transform: none;
 }
+
+.demo-intro {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.demo-intro strong {
+    color: var(--text-soft);
+    font-weight: 600;
+}
