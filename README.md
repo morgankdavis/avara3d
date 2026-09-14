@@ -14,6 +14,10 @@ Avara3D combines real-time rendering, rigid-body physics, and fixed-step simulat
 - Native Linux, macOS, and Windows targets plus WebAssembly browser builds
 - Runtime statistics, CPU/GPU timing, memory usage, and debug visualization
 
+Explore Avara3D’s capabilities with [Janus, the demo application](https://avara3d.net/). Browse
+the [demo source](https://avara3d.net/demo_source.html) to see the SDK in use, or explore
+the [API reference](https://avara3d.net/api/).
+
 ## Building
 
 ### Ubuntu
