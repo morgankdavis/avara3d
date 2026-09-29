@@ -217,7 +217,7 @@ void Application::initLog(log::Level level) {
     auto nativeSink = make_unique<log::StdOutLogSink>();
     sinks.push_back(std::move(nativeSink));
 
-#ifndef A3D_WEB
+#if !defined(A3D_WEB) && !defined(A3D_PYTHON)
     auto fileSink =
         make_unique<log::FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
     sinks.push_back(std::move(fileSink));

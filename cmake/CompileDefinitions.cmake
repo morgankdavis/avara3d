@@ -58,4 +58,8 @@ function(a3d_set_compile_definitions target)
 		target_compile_definitions(${target} PUBLIC A3D_GL_WEB)
 	endif()
 
+	if (A3D_PYTHON)
+		target_compile_definitions(${target} PUBLIC A3D_PYTHON)
+	endif ()
+
 endfunction()

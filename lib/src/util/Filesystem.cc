@@ -233,6 +233,13 @@ namespace {
             execDir = ExecutableDirectory();
             execName = ExecutableName();
 
+            // ! TEMPORARY ! python hack
+            #ifdef A3D_PYTHON
+            if (auto workingDirectory = CurrentWorkingDirectory()) {
+                paths.push_back(*workingDirectory / "lib" / "data");
+            }
+            #endif
+
             if (execDir && execName) {
 
                 const auto ancestor = [&](unsigned depth) {

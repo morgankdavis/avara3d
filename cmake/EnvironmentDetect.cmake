@@ -19,6 +19,7 @@ set(A3D_POSIX   FALSE)
 set(A3D_GL_DESKTOP FALSE)
 set(A3D_GL_ES      FALSE)
 set(A3D_GL_WEB     FALSE)
+set(A3D_PYTHON		FALSE)
 
 # emscripten: defines EMSCRIPTEN and sets CMAKE_SYSTEM_NAME to "Emscripten"
 if (DEFINED EMSCRIPTEN OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -93,6 +94,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT A3D_ANDROID AND NOT A3D_EMSCRIPTE
 	endif()
 endif()
 
+# python bindings
+if (A3D_BUILD_PYTHON_BINDINGS)
+	set(A3D_PYTHON TRUE)
+endif ()
+
 if (A3D_DESKTOP)
 	message("[DESKTOP]")
 endif()
@@ -113,4 +119,7 @@ if (A3D_GL_ES)
 endif()
 if (A3D_GL_WEB)
 	message("[GL_WEB]")
+endif()
+if (A3D_PYTHON)
+	message("[PYTHON]")
 endif()

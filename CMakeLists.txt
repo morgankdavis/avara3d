@@ -4,19 +4,15 @@ project(avara3d
 		VERSION 0.3.0
 		HOMEPAGE_URL https://avara3d.net/)
 
+option(A3D_BUILD_PYTHON_BINDINGS # must be before CompileDefinitions, EnvironmentDetect
+		"Build experimental A3D Python bindings"
+		OFF)
+
 include(cmake/CompileDefinitions.cmake)
 include(cmake/EmscriptenHelpers.cmake)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
-
-option(A3D_BUILD_AUTOMATED_TESTS "Build A3D automated tests" ON)
-option(A3D_BUILD_SANDBOX_TESTS   "Build A3D sandbox tests" ON)
-option(A3D_BUILD_DEMOS "Build A3D demos" ON)
-option(A3D_BUILD_EDITOR "Build A3D editor" ON)
-option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" ON)
-
-option(A3D_BUILD_PYTHON_BINDINGS "Build experimental A3D Python bindings" OFF)
 
 if (A3D_BUILD_PYTHON_BINDINGS)
 	if (A3D_WEB)
@@ -25,6 +21,12 @@ if (A3D_BUILD_PYTHON_BINDINGS)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif ()
+
+option(A3D_BUILD_AUTOMATED_TESTS "Build A3D automated tests" ON)
+option(A3D_BUILD_SANDBOX_TESTS "Build A3D sandbox tests" ON)
+option(A3D_BUILD_DEMOS "Build A3D demos" ON)
+option(A3D_BUILD_EDITOR "Build A3D editor" ON)
+option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" ON)
 
 # set a default build type only for single-config generators (Ninja/Makefiles)
 # (VS/Xcode ignore CMAKE_BUILD_TYPE)
