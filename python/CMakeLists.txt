@@ -1,5 +1,25 @@
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
-find_package(pybind11 3.1 CONFIG REQUIRED)
+
+execute_process(
+		COMMAND "${Python_EXECUTABLE}" -m pybind11 --cmakedir
+		RESULT_VARIABLE _pybind11_result
+		OUTPUT_VARIABLE _pybind11_cmake_dir
+		ERROR_VARIABLE _pybind11_error
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if (NOT "${_pybind11_result}" STREQUAL "0")
+	message(FATAL_ERROR
+			"pybind11 is not installed for ${Python_EXECUTABLE}.\n"
+			"Install python/requirements-build.txt into that environment.\n"
+			"${_pybind11_error}"
+	)
+endif ()
+
+find_package(pybind11 3.1 CONFIG REQUIRED
+		PATHS "${_pybind11_cmake_dir}"
+		NO_DEFAULT_PATH
+)
 
 pybind11_add_module(_avara3d MODULE
 		src/Module.cc)

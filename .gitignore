@@ -255,3 +255,7 @@ _external_virtual_include/
 
 # Cloudflare
 .wrangler/
+
+
+# Python
+.venv/

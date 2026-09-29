@@ -73,6 +73,26 @@
                     "toolchain": "Default"
                 }
             }
+        },
+        {
+            "name": "python-debug",
+            "displayName": "Python Debug",
+            "inherits": "debug",
+            "binaryDir": "${sourceDir}/cmake-build-python-debug",
+            "cacheVariables": {
+                "A3D_BUILD_PYTHON_BINDINGS": "ON",
+                "Python_ROOT_DIR": "${sourceDir}/.venv"
+            }
+        },
+        {
+            "name": "python-release",
+            "displayName": "Python Release",
+            "inherits": "release",
+            "binaryDir": "${sourceDir}/cmake-build-python-release",
+            "cacheVariables": {
+                "A3D_BUILD_PYTHON_BINDINGS": "ON",
+                "Python_ROOT_DIR": "${sourceDir}/.venv"
+            }
         }
     ],
     "buildPresets": [
@@ -91,6 +111,20 @@
         {
             "name": "web-release",
             "configurePreset": "web-release"
+        },
+        {
+            "name": "python-debug",
+            "configurePreset": "python-debug",
+            "targets": [
+                "_avara3d"
+            ]
+        },
+        {
+            "name": "python-release",
+            "configurePreset": "python-release",
+            "targets": [
+                "_avara3d"
+            ]
         }
     ]
 }

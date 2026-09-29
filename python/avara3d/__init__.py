@@ -1,5 +1,5 @@
 """Python interface to Avara3D."""
 
-from ._avara3d import hello
+from ._avara3d import Color
 
-__all__ = ["hello"]
+__all__ = ["Color"]
