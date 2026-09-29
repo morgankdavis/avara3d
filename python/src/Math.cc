@@ -28,7 +28,9 @@ void BindMath(py::module_& module) {
         .def_readwrite("x", &math::vec3::x)
         .def_readwrite("y", &math::vec3::y)
         .def_readwrite("z", &math::vec3::z);
+
+    module.def("radians", &math::radians, py::arg("degrees"));
+    module.def("degrees", &math::degrees, py::arg("radians"));
 }
 
 } // namespace a3d::python
-

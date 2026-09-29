@@ -1,7 +1,5 @@
-import math as pymath
-
 from avara3d import *
-from avara3d.math import uvec2, vec3
+from avara3d.math import radians, uvec2, vec3
 
 
 class App(Application):
@@ -14,8 +12,8 @@ class App(Application):
         )
 
         self.angular_velocity = vec3(
-            pymath.radians(20.0),
-            pymath.radians(45.0),
+            radians(20.0),
+            radians(45.0),
             0.0,
         )
 
@@ -27,8 +25,8 @@ class App(Application):
 
         self.cube = Node.mesh_node(mesh)
         self.cube.euler_angles = vec3(
-            pymath.radians(-20.0),
-            pymath.radians(30.0),
+            radians(-20.0),
+            radians(30.0),
             0.0,
         )
         scene.root_node.add_child(self.cube)
