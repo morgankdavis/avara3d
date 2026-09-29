@@ -19,7 +19,7 @@ void BindMaterial(py::module_& module) {
 
     py::class_<Material, py::smart_holder>(module, "Material")
         .def_static(
-            "diffuseMaterial",
+            "diffuse_material",
             [](const Color& color) {
                 return Material::DiffuseMaterial(color);
             },

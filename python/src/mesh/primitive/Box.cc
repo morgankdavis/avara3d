@@ -20,8 +20,8 @@ void BindBox(py::module_& module) {
 
     py::class_<Box>(module, "Box")
         .def_static("mesh", &Box::Mesh, py::arg("width"), py::arg("height"), py::arg("length"),
-                    py::arg("widthSegments") = 1U, py::arg("heightSegments") = 1U,
-                    py::arg("lengthSegments") = 1U, py::arg("material") = nullptr);
+                    py::arg("width_segments") = 1U, py::arg("height_segments") = 1U,
+                    py::arg("length_segments") = 1U, py::arg("material") = nullptr);
 }
 
 } // namespace a3d::python

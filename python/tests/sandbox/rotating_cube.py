@@ -1,56 +1,60 @@
-import math
-import avara3d as a3d
+import math as pymath
 
-class App(a3d.Application):
+from avara3d import *
+from avara3d.math import uvec2, vec3
+
+
+class App(Application):
     def init(self):
-        self.window = a3d.Window(
-            a3d.math.UVec2(800, 600),
+        self.window = Window(
+            uvec2(800, 600),
             False,
             True,
-            a3d.Antialiasing.Msaa4X,
+            Antialiasing.Msaa4X,
         )
-        self.angular_velocity = a3d.math.Vec3(
-            math.radians(20.0),
-            math.radians(45.0),
+
+        self.angular_velocity = vec3(
+            pymath.radians(20.0),
+            pymath.radians(45.0),
             0.0,
         )
 
-        visual_world = a3d.VisualWorld(self.window)
-        scene = a3d.Scene(visual_world)
+        visual_world = VisualWorld(self.window)
+        scene = Scene(visual_world)
 
-        material = a3d.Material.diffuseMaterial(a3d.Color.blue())
-        mesh = a3d.Box.mesh(1.5, 1.5, 1.5, material=material)
+        material = Material.diffuse_material(Color.blue())
+        mesh = Box.mesh(1.5, 1.5, 1.5, material=material)
 
-        self.cube = a3d.Node.meshNode(mesh)
-        self.cube.eulerAngles = a3d.math.Vec3(
-            math.radians(-20.0),
-            math.radians(30.0),
+        self.cube = Node.mesh_node(mesh)
+        self.cube.euler_angles = vec3(
+            pymath.radians(-20.0),
+            pymath.radians(30.0),
             0.0,
         )
-        scene.rootNode.addChild(self.cube)
+        scene.root_node.add_child(self.cube)
 
-        ambient = a3d.AmbientLight(a3d.Color(0.1, 0.1, 0.1))
-        scene.rootNode.addChild(a3d.Node.lightNode(ambient))
+        ambient = AmbientLight(Color(0.1, 0.1, 0.1))
+        scene.root_node.add_child(Node.light_node(ambient))
 
-        point = a3d.PointLight(a3d.Color(1.0, 1.0, 1.0))
-        point_node = a3d.Node.lightNode(point)
-        point_node.position = a3d.math.Vec3(2.0, 2.0, 4.5)
-        scene.rootNode.addChild(point_node)
+        point = PointLight(Color(1.0, 1.0, 1.0))
+        point_node = Node.light_node(point)
+        point_node.position = vec3(2.0, 2.0, 4.5)
+        scene.root_node.add_child(point_node)
 
         self.window.open()
         return scene
 
-    def shouldContinue(self, scene):
-        return self.window.isOpen()
+    def should_continue(self, scene):
+        return self.window.is_open()
 
-    def frameDidBegin(self, runner, scene, visual_world, info):
-        angles = self.cube.eulerAngles
+    def frame_did_begin(self, runner, scene, visual_world, info):
+        angles = self.cube.euler_angles
 
-        angles.x += self.angular_velocity.x * info.updateDeltaTime
-        angles.y += self.angular_velocity.y * info.updateDeltaTime
-        angles.z += self.angular_velocity.z * info.updateDeltaTime
+        angles.x += self.angular_velocity.x * info.update_delta_time
+        angles.y += self.angular_velocity.y * info.update_delta_time
+        angles.z += self.angular_velocity.z * info.update_delta_time
 
-        self.cube.eulerAngles = angles
+        self.cube.euler_angles = angles
 
 
-raise SystemExit(a3d.run(App()))
+raise SystemExit(run(App()))

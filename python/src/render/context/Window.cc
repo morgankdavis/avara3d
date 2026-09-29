@@ -24,13 +24,13 @@ void BindWindow(py::module_& module) {
                       bool,
                       RenderContext::Antialiasing>(),
              py::arg("size"),
-             py::arg("fullScreen"),
-             py::arg("enableHighDPI") = true,
+             py::arg("full_screen"),
+             py::arg("enable_high_dpi") = true,
              py::arg("antialiasing") =
                      RenderContext::Antialiasing::None)
         .def("open", &Window::open)
         .def("close", &Window::close)
-        .def("isOpen", &Window::isOpen)
+        .def("is_open", &Window::isOpen)
         .def("center", &Window::center);
 }
 

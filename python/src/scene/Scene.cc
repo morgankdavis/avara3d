@@ -29,8 +29,8 @@ void BindScene(py::module_& module) {
                  scene->visualWorld(std::move(visualWorld));
                  return scene;
              }),
-             py::arg("visualWorld"))
-        .def_property_readonly("rootNode", [](const Scene& scene) {
+             py::arg("visual_world"))
+        .def_property_readonly("root_node", [](const Scene& scene) {
             return scene.rootNode();
         });
 }

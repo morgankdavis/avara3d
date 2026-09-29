@@ -36,7 +36,12 @@ protected:
     }
 
     bool shouldContinue(const a3d::Scene& scene) override {
-        PYBIND11_OVERRIDE(bool, a3d::Application, shouldContinue, std::cref(scene));
+        PYBIND11_OVERRIDE_NAME(
+                bool,
+                a3d::Application,
+                "should_continue",
+                shouldContinue,
+                std::cref(scene));
     }
 
     void frameDidBegin(
@@ -44,9 +49,10 @@ protected:
         a3d::Scene&                          scene,
         a3d::VisualWorld&                    visualWorld,
         const a3d::VisualWorld::RenderInfo& info) override {
-        PYBIND11_OVERRIDE(
+        PYBIND11_OVERRIDE_NAME(
                 void,
                 a3d::Application,
+                "frame_did_begin",
                 frameDidBegin,
                 std::ref(runner),
                 std::ref(scene),

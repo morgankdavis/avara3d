@@ -25,20 +25,20 @@ void BindNode(py::module_& module) {
     py::class_<Node, py::smart_holder>(module, "Node")
         .def(py::init<>())
         .def(py::init<const std::string&>(), py::arg("name"))
-        .def_static("meshNode", &Node::MeshNode, py::arg("mesh"))
+        .def_static("mesh_node", &Node::MeshNode, py::arg("mesh"))
         .def_static(
-            "lightNode",
+            "light_node",
             [](const std::shared_ptr<AmbientLight>& light) {
                 return Node::LightNode(light);
             },
             py::arg("light"))
         .def_static(
-            "lightNode",
+            "light_node",
             [](const std::shared_ptr<PointLight>& light) {
                 return Node::LightNode(light);
             },
             py::arg("light"))
-        .def("addChild", &Node::addChild, py::arg("node"), py::arg("reparent") = false)
+        .def("add_child", &Node::addChild, py::arg("node"), py::arg("reparent") = false)
         .def_property(
             "position",
             [](const Node& node) {
@@ -48,7 +48,7 @@ void BindNode(py::module_& module) {
                 node.position(position);
             })
         .def_property(
-            "eulerAngles",
+            "euler_angles",
             [](const Node& node) {
                 return node.eulerAngles();
             },

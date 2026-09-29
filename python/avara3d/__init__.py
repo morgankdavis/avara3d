@@ -1,5 +1,7 @@
 """Python interface to Avara3D."""
 
+import sys as _sys
+
 from ._avara3d import (
     AmbientLight,
     Antialiasing,
@@ -19,6 +21,8 @@ from ._avara3d import (
     run,
 )
 
+_sys.modules[__name__ + ".math"] = math
+
 __all__ = [
     "AmbientLight",
     "Antialiasing",
@@ -34,6 +38,5 @@ __all__ = [
     "Scene",
     "VisualWorld",
     "Window",
-    "math",
     "run",
 ]

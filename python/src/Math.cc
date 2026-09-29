@@ -16,13 +16,13 @@ namespace a3d::python {
 
 void BindMath(py::module_& module) {
 
-    py::class_<math::uvec2>(module, "UVec2")
+    py::class_<math::uvec2>(module, "uvec2")
         .def(py::init<>())
         .def(py::init<math::u32, math::u32>(), py::arg("x"), py::arg("y"))
         .def_readwrite("x", &math::uvec2::x)
         .def_readwrite("y", &math::uvec2::y);
 
-    py::class_<math::vec3>(module, "Vec3")
+    py::class_<math::vec3>(module, "vec3")
         .def(py::init<>())
         .def(py::init<float, float, float>(), py::arg("x"), py::arg("y"), py::arg("z"))
         .def_readwrite("x", &math::vec3::x)
@@ -31,3 +31,4 @@ void BindMath(py::module_& module) {
 }
 
 } // namespace a3d::python
+
