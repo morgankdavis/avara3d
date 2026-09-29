@@ -11,11 +11,11 @@ from ._avara3d import (
     Node,
     PointLight,
     RenderContext,
+    Runner,
     Scene,
-    UVec2,
-    Vec3,
     VisualWorld,
     Window,
+    math,
     run,
 )
 
@@ -30,10 +30,10 @@ __all__ = [
     "Node",
     "PointLight",
     "RenderContext",
+    "Runner",
     "Scene",
-    "UVec2",
-    "Vec3",
     "VisualWorld",
     "Window",
+    "math",
     "run",
 ]

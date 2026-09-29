@@ -22,7 +22,25 @@ find_package(pybind11 3.1 CONFIG REQUIRED
 )
 
 pybind11_add_module(_avara3d MODULE
-		src/Module.cc)
+		src/Bindings.h
+		src/Module.cc
+		src/Application.cc
+		src/Color.cc
+		src/Math.cc
+		src/Runner.cc
+		src/mesh/Mesh.cc
+		src/mesh/primitive/Box.cc
+		src/render/context/RenderContext.cc
+		src/render/context/Window.cc
+		src/scene/Node.cc
+		src/scene/Scene.cc
+		src/visual/VisualWorld.cc
+		src/visual/light/AmbientLight.cc
+		src/visual/light/PointLight.cc
+		src/visual/material/Material.cc)
+
+target_include_directories(_avara3d PRIVATE
+		"${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 target_compile_features(_avara3d PRIVATE cxx_std_20)
 
@@ -47,3 +65,5 @@ configure_file(
 		"${A3D_PYTHON_PACKAGE_DIR}/__init__.py"
 		COPYONLY
 )
+
+add_subdirectory(tests/sandbox)
