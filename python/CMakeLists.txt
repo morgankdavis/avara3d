@@ -1,43 +1,45 @@
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+if (A3D_WEB)
 
-execute_process(
-		COMMAND "${Python_EXECUTABLE}" -m pybind11 --cmakedir
-		RESULT_VARIABLE _pybind11_result
-		OUTPUT_VARIABLE _pybind11_cmake_dir
-		ERROR_VARIABLE _pybind11_error
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+	set(PYBIND11_USE_CROSSCOMPILING ON)
 
-if (NOT "${_pybind11_result}" STREQUAL "0")
-	message(FATAL_ERROR
-			"pybind11 is not installed for ${Python_EXECUTABLE}.\n"
-			"Install python/requirements-build.txt into that environment.\n"
-			"${_pybind11_error}"
+	find_package(pybind11 3.1 CONFIG REQUIRED)
+
+else ()
+
+	find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+
+	execute_process(
+			COMMAND "${Python_EXECUTABLE}" -m pybind11 --cmakedir
+			RESULT_VARIABLE _pybind11_result
+			OUTPUT_VARIABLE _pybind11_cmake_dir
+			ERROR_VARIABLE _pybind11_error
+			OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
+
+	if (NOT "${_pybind11_result}" STREQUAL "0")
+		message(FATAL_ERROR
+				"pybind11 is not installed for ${Python_EXECUTABLE}.\n"
+				"Install python/requirements-build.txt into that environment.\n"
+				"${_pybind11_error}"
+		)
+	endif ()
+
+	find_package(pybind11 3.1 CONFIG REQUIRED
+			PATHS "${_pybind11_cmake_dir}"
+			NO_DEFAULT_PATH
+	)
+
 endif ()
 
-find_package(pybind11 3.1 CONFIG REQUIRED
-		PATHS "${_pybind11_cmake_dir}"
-		NO_DEFAULT_PATH
-)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
 pybind11_add_module(_avara3d MODULE
-		src/Bindings.h
-		src/Module.cc
-		src/Application.cc
-		src/Color.cc
-		src/Math.cc
-		src/Runner.cc
-		src/mesh/Mesh.cc
-		src/mesh/primitive/Box.cc
-		src/render/context/RenderContext.cc
-		src/render/context/Window.cc
-		src/scene/Node.cc
-		src/scene/Scene.cc
-		src/visual/VisualWorld.cc
-		src/visual/light/AmbientLight.cc
-		src/visual/light/PointLight.cc
-		src/visual/material/Material.cc)
+		${HEADERS}
+		${SOURCES})
 
 target_include_directories(_avara3d PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -66,4 +68,10 @@ configure_file(
 		COPYONLY
 )
 
-add_subdirectory(tests/sandbox)
+install(TARGETS _avara3d
+		LIBRARY DESTINATION avara3d
+		RUNTIME DESTINATION avara3d)
+
+if (A3D_BUILD_SANDBOX_TESTS)
+	add_subdirectory(tests/sandbox)
+endif ()

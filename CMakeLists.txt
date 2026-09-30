@@ -15,10 +15,6 @@ include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 if (A3D_BUILD_PYTHON_BINDINGS)
-	if (A3D_WEB)
-		message(FATAL_ERROR "Python bindings currently support native builds only.")
-	endif ()
-
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif ()
 

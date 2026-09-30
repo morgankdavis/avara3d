@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pyodide + GLFW</title>
+
+	<style>
+		body {
+			background: #202020;
+			color: white;
+			font-family: sans-serif;
+		}
+
+		canvas {
+			border: 1px solid #808080;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Pyodide + GLFW POC</h1>
+
+	<canvas id="canvas" width="640" height="480"></canvas>
+	<p id="status">Loading…</p>
+
+	<script type="module">
+		import {loadPyodide} from "../../../external/pyodide-314.0.7/dist/pyodide.mjs";
+
+		const status = document.querySelector("#status");
+
+		try {
+			const pyodideDirectory =
+        new URL("../../../external/pyodide-314.0.7/dist/", import.meta.url).href;
+
+			const wheel =
+				new URL(
+					"../dist/glfw_poc-0.0.1-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+					import.meta.url
+				).href;
+
+			const pyodide = await loadPyodide({
+				indexURL: pyodideDirectory,
+			});
+
+			await pyodide.loadPackage(wheel);
+
+			const version = pyodide.runPython(`
+import _glfw_poc
+
+_glfw_poc.draw_blue_frame()
+_glfw_poc.glfw_version()
+`);
+
+			status.textContent = `GLFW ${version}`;
+		} catch (error) {
+			console.error(error);
+			status.textContent = error.stack ?? String(error);
+		}
+	</script>
+</body>
+</html>

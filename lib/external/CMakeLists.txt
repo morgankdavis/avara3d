@@ -128,6 +128,11 @@ if(EMSCRIPTEN)
 	target_compile_options(imgui PRIVATE
 			-Wno-deprecated-pragma
 	)
+
+	if (A3D_PYTHON)
+		target_compile_options(imgui PRIVATE
+				"--use-port=contrib.glfw3")
+	endif ()
 endif()
 
 ### libwebp ###

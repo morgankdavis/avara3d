@@ -1,0 +1,23 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.11",
+    "pybind11==3.1.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "avara3d"
+version = "0.3.0"
+description = "Python bindings for Avara3D"
+
+[tool.scikit-build]
+cmake.source-dir = ".."
+wheel.packages = ["avara3d"]
+
+[tool.scikit-build.cmake.define]
+A3D_BUILD_PYTHON_BINDINGS = "ON"
+A3D_BUILD_AUTOMATED_TESTS = "OFF"
+A3D_BUILD_SANDBOX_TESTS = "OFF"
+A3D_BUILD_DEMOS = "OFF"
+A3D_BUILD_EDITOR = "OFF"
+A3D_BUILD_DOCUMENTATION = "OFF"

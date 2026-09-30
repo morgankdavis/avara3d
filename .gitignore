@@ -259,3 +259,11 @@ _external_virtual_include/
 
 # Python
 .venv/
+
+
+# Python web build products
+/.docker_home/
+/python/.pyodide_build/
+/python/dist/
+/python/web/tests/glfw/.pyodide_build/
+/python/web/tests/glfw/dist/

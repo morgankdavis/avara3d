@@ -13,7 +13,7 @@
 
 #include "a3d/render/backend/opengl/gl.h" // <- MUST be before GLFW
 #ifdef A3D_WEB
-    #include <emscripten/emscripten.h>
+    #include <emscripten/html5.h>
 #endif
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -709,15 +709,42 @@ namespace {
 
 #ifdef A3D_WEB
     void InstallWebContextMenuHandler() {
-        // suppressed right-click in Emscripten canvas
-        auto result =
-            emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
-                                                [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
-                                                    return EM_TRUE;
-                                                });
+        // Suppress the browser context menu over the rendering canvas.
+        //
+        // Pyodide 314.0.7 uses Emscripten 5.0.3 which does not provide
+        // emscripten_set_contextmenu_callback(). retain the typed implementation
+        // below for a future toolchain that provides it. meanwhile, EM_ASM_INT
+        // installs the equivalent DOM handler from the Python side module.
+        //
+        // auto result =
+        //     emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+        //                                         [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
+        //                                             return EM_TRUE;
+        //                                         });
+        //
+        // if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        //     log::e()("Error setting Emscripten context menu callback: {}", result);
+        // }
 
-        if (result != EMSCRIPTEN_RESULT_SUCCESS) {
-            log::e()("Error setting Emscripten context menu callback: {}", result);
+        const auto installed = EM_ASM_INT(
+            {
+                const canvas = document.querySelector(UTF8ToString($0));
+
+                if (!canvas) {
+                    return 0;
+                }
+
+                canvas.oncontextmenu = event => {
+                    event.preventDefault();
+                    return false;
+                };
+
+                return 1;
+            },
+            WEB_CANVAS_SELECTOR);
+
+        if (!installed) {
+            log::e()("Error setting Emscripten context-menu handler.");
         }
     }
 
