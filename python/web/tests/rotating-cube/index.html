@@ -2,133 +2,152 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
-	<title>A3D Python</title>
+    <meta charset="utf-8">
+    <title>Avara3D Python Editor</title>
 
-	<style>
-		body {
-			background: #202020;
-			color: white;
-			font-family: sans-serif;
-		}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-		canvas {
-			border: 1px solid #808080;
-		}
-	</style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            margin: 0;
+            background: #202020;
+            color: white;
+            font-family: sans-serif;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(0, 1.25fr);
+            gap: 0.75rem;
+            min-height: 0;
+            padding: 0 0.75rem 0.75rem;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            border: 1px solid #808080;
+            padding: 0.75rem;
+            background: #101010;
+            color: #f0f0f0;
+            font: 14px/1.4 monospace;
+            tab-size: 4;
+        }
+
+        #output {
+            min-width: 0;
+            min-height: 0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #808080;
+            background: #202020;
+        }
+    </style>
 </head>
 
 <body>
-	<canvas id="canvas" width="800" height="600" tabindex="-1"></canvas>
-	<p id="status">Loading Pyodide…</p>
+    <header>
+        <button id="run" type="button">Run</button>
+        <span id="status" hidden>Loading source…</span>
+    </header>
 
-	<script type="module">
-		import {loadPyodide} from
-			"../../external/pyodide-314.0.7/dist/pyodide.mjs";
+    <main>
+        <textarea id="source"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  autocomplete="off"></textarea>
 
-		const status = document.querySelector("#status");
+        <div id="output"></div>
+    </main>
 
-		const resourcePaths = [
-			"fonts/Neuropol Nova Xp.ttf",
-			"fonts/SourceCodePro-Semibold.otf",
-			"shaders/default.frag",
-			"shaders/default.vert",
-			"shaders/ground.frag",
-			"shaders/ground.vert",
-			"shaders/include/atmosphere.glsl",
-			"shaders/include/environment.glsl",
-			"shaders/include/fog.glsl",
-			"shaders/include/lighting.glsl",
-			"shaders/include/material.glsl",
-			"shaders/lines.frag",
-			"shaders/lines.vert",
-			"shaders/skybox.frag",
-			"shaders/skybox.vert",
-			"shaders/wireframe.frag",
-			"shaders/wireframe.vert",
-		];
+    <script type="module">
+        const runButton = document.querySelector("#run");
+        const sourceEditor = document.querySelector("#source");
+        const output = document.querySelector("#output");
+        const status = document.querySelector("#status");
 
-		async function fetchRequired(url) {
-			const response = await fetch(url);
+        const script =
+            new URL(
+                "../../../tests/sandbox/rotating_cube.py",
+                import.meta.url
+            );
 
-			if (!response.ok) {
-				throw new Error(`Failed to fetch ${url}: ${response.status}`);
-			}
+        function run() {
+            sessionStorage.setItem(
+                "a3d-python-source",
+                sourceEditor.value
+            );
 
-			return response;
-		}
+            const iframe = document.createElement("iframe");
+            iframe.src = "runner.html";
+            iframe.title = "Avara3D Python output";
 
-		try {
-			const pyodideDirectory =
-				new URL("../../external/pyodide-314.0.7/dist/", import.meta.url).href;
+            output.replaceChildren(iframe);
+            status.textContent = "Running.";
+        }
 
-			const wheel =
-				new URL(
-					"../../../dist/avara3d-0.3.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
-					import.meta.url
-				).href;
+        runButton.addEventListener("click", run);
 
-			const script =
-				new URL(
-					"../../../tests/sandbox/rotating_cube.py",
-					import.meta.url
-				).href;
+        sourceEditor.addEventListener("keydown", event => {
+            if (event.key === "Tab") {
+                event.preventDefault();
 
-			const resourceDirectory =
-				new URL("../../../../lib/data/", import.meta.url);
+                sourceEditor.setRangeText(
+                    "    ",
+                    sourceEditor.selectionStart,
+                    sourceEditor.selectionEnd,
+                    "end"
+                );
+            }
 
-			const pyodide = await loadPyodide({
-				indexURL: pyodideDirectory,
-			});
+            if ((event.ctrlKey || event.metaKey) &&
+                event.key === "Enter") {
+                event.preventDefault();
+                run();
+            }
+        });
 
-			globalThis.pyodide = pyodide;
+        try {
+            const response = await fetch(script);
 
-			pyodide.canvas.setCanvas3D(
-				document.querySelector("#canvas")
-			);
+            if (!response.ok) {
+                throw new Error(
+                    `Couldn't load ${script}: ${response.status}`
+                );
+            }
 
-			status.textContent = "Loading Avara3D…";
-			await pyodide.loadPackage(wheel);
-
-			status.textContent = "Loading resources…";
-
-			for (const resourcePath of resourcePaths) {
-				const response =
-					await fetchRequired(new URL(resourcePath, resourceDirectory));
-
-				const destination = `/data/${resourcePath}`;
-
-				pyodide.FS.mkdirTree(
-					destination.substring(0, destination.lastIndexOf("/"))
-				);
-
-				pyodide.FS.writeFile(
-					destination,
-					new Uint8Array(await response.arrayBuffer())
-				);
-			}
-
-			status.textContent = "Starting rotating cube…";
-
-			const response = await fetchRequired(script);
-			const source = await response.text();
-
-			pyodide.globals.set("_a3d_source", source);
-
-			await pyodide.runPythonAsync(`
-try:
-    exec(_a3d_source, {"__name__": "__main__"})
-except SystemExit as error:
-    if error.code not in (None, 0):
-        raise
-`);
-
-			status.textContent = "Running.";
-		} catch (error) {
-			console.error(error);
-			status.textContent = error.stack ?? String(error);
-		}
-	</script>
+            sourceEditor.value = await response.text();
+            run();
+        } catch (error) {
+            console.error(error);
+            status.textContent = error.stack ?? String(error);
+        }
+    </script>
 </body>
 
 </html>
