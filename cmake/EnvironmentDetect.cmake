@@ -96,7 +96,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT A3D_ANDROID AND NOT A3D_EMSCRIPTE
 endif()
 
 # python bindings
-# Python bindings
 if (A3D_BUILD_PYTHON)
 	set(A3D_PYTHON TRUE)
 

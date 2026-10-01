@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Avara3D Python Editor</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            margin: 0;
+            background: #202020;
+            color: white;
+            font-family: sans-serif;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(0, 1.25fr);
+            gap: 0.75rem;
+            min-height: 0;
+            padding: 0 0.75rem 0.75rem;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            border: 1px solid #808080;
+            padding: 0.75rem;
+            background: #101010;
+            color: #f0f0f0;
+            font: 14px/1.4 monospace;
+            tab-size: 4;
+        }
+
+        #output {
+            min-width: 0;
+            min-height: 0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #808080;
+            background: #202020;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <button id="run" type="button">Run</button>
+        <span id="status" hidden>Loading source…</span>
+    </header>
+
+    <main>
+        <textarea id="source"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  autocomplete="off"></textarea>
+
+        <div id="output"></div>
+    </main>
+
+    <script type="module">
+        const runButton = document.querySelector("#run");
+        const sourceEditor = document.querySelector("#source");
+        const output = document.querySelector("#output");
+        const status = document.querySelector("#status");
+
+        const script =
+            new URL("rotating_cube.py", import.meta.url);
+
+        function run() {
+            sessionStorage.setItem(
+                "a3d-python-source",
+                sourceEditor.value
+            );
+
+            const iframe = document.createElement("iframe");
+            iframe.src = "runner.html";
+            iframe.title = "Avara3D Python output";
+
+            output.replaceChildren(iframe);
+            status.textContent = "Running.";
+        }
+
+        runButton.addEventListener("click", run);
+
+        sourceEditor.addEventListener("keydown", event => {
+            if (event.key === "Tab") {
+                event.preventDefault();
+
+                sourceEditor.setRangeText(
+                    "    ",
+                    sourceEditor.selectionStart,
+                    sourceEditor.selectionEnd,
+                    "end"
+                );
+            }
+
+            if ((event.ctrlKey || event.metaKey) &&
+                event.key === "Enter") {
+                event.preventDefault();
+                run();
+            }
+        });
+
+        try {
+            const response = await fetch(script);
+
+            if (!response.ok) {
+                throw new Error(
+                    `Couldn't load ${script}: ${response.status}`
+                );
+            }
+
+            sourceEditor.value = await response.text();
+            run();
+        } catch (error) {
+            console.error(error);
+            status.textContent = error.stack ?? String(error);
+        }
+    </script>
+</body>
+
+</html>
