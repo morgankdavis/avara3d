@@ -4,7 +4,7 @@ project(avara3d
 		VERSION 0.3.0
 		HOMEPAGE_URL https://avara3d.net/)
 
-option(A3D_BUILD_PYTHON_BINDINGS # must be before CompileDefinitions, EnvironmentDetect
+option(A3D_BUILD_PYTHON # must be before CompileDefinitions, EnvironmentDetect
 		"Build experimental A3D Python bindings"
 		OFF)
 
@@ -14,10 +14,11 @@ include(cmake/EnvironmentDetect.cmake)
 include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-if (A3D_BUILD_PYTHON_BINDINGS)
+if (A3D_BUILD_PYTHON)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif ()
 
+option(A3D_BUILD_PYTHON_WEB "Build A3D Python support for web" OFF)
 option(A3D_BUILD_AUTOMATED_TESTS "Build A3D automated tests" ON)
 option(A3D_BUILD_SANDBOX_TESTS "Build A3D sandbox tests" ON)
 option(A3D_BUILD_DEMOS "Build A3D demos" ON)
@@ -79,8 +80,14 @@ add_subdirectory(lib)
 
 ### add Python bindings ###
 
-if (A3D_BUILD_PYTHON_BINDINGS)
+if (A3D_BUILD_PYTHON)
 	add_subdirectory(python)
+endif ()
+
+### add Python web support ###
+
+if (A3D_BUILD_PYTHON_WEB)
+	add_subdirectory(python/web python-web)
 endif ()
 
 ### add documentation ###

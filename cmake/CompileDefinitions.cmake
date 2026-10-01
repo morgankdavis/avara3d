@@ -62,4 +62,8 @@ function(a3d_set_compile_definitions target)
 		target_compile_definitions(${target} PUBLIC A3D_PYTHON)
 	endif ()
 
+	if (A3D_PYTHON_WEB)
+		target_compile_definitions(${target} PUBLIC A3D_PYTHON_WEB)
+	endif ()
+
 endfunction()

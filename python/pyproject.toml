@@ -15,7 +15,7 @@ cmake.source-dir = ".."
 wheel.packages = ["avara3d"]
 
 [tool.scikit-build.cmake.define]
-A3D_BUILD_PYTHON_BINDINGS = "ON"
+A3D_BUILD_PYTHON = "ON"
 A3D_BUILD_AUTOMATED_TESTS = "OFF"
 A3D_BUILD_SANDBOX_TESTS = "OFF"
 A3D_BUILD_DEMOS = "OFF"

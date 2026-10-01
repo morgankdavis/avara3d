@@ -80,7 +80,7 @@
             "inherits": "debug",
             "binaryDir": "${sourceDir}/cmake-build-python-debug",
             "cacheVariables": {
-                "A3D_BUILD_PYTHON_BINDINGS": "ON",
+                "A3D_BUILD_PYTHON": "ON",
                 "Python_ROOT_DIR": "${sourceDir}/.venv"
             }
         },
@@ -90,8 +90,23 @@
             "inherits": "release",
             "binaryDir": "${sourceDir}/cmake-build-python-release",
             "cacheVariables": {
-                "A3D_BUILD_PYTHON_BINDINGS": "ON",
+                "A3D_BUILD_PYTHON": "ON",
                 "Python_ROOT_DIR": "${sourceDir}/.venv"
+            }
+        },
+        {
+            "name": "python-web",
+            "displayName": "Python Web",
+            "inherits": "release",
+            "binaryDir": "${sourceDir}/cmake-build-python-web",
+            "cacheVariables": {
+                "A3D_BUILD_PYTHON": "OFF",
+                "A3D_BUILD_PYTHON_WEB": "ON",
+                "A3D_BUILD_AUTOMATED_TESTS": "OFF",
+                "A3D_BUILD_SANDBOX_TESTS": "OFF",
+                "A3D_BUILD_DEMOS": "OFF",
+                "A3D_BUILD_EDITOR": "OFF",
+                "A3D_BUILD_DOCUMENTATION": "OFF"
             }
         }
     ],
@@ -124,6 +139,13 @@
             "configurePreset": "python-release",
             "targets": [
                 "_avara3d"
+            ]
+        },
+        {
+            "name": "python-web",
+            "configurePreset": "python-web",
+            "targets": [
+                "a3d-python-web"
             ]
         }
     ]
