@@ -93,5 +93,6 @@
 #include "a3d/visual/material/Material.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
+#include "a3d/visual/material/TextureBinding.h"
 
 #endif // AVARA3D_A3D_H

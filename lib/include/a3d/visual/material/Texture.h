@@ -16,7 +16,6 @@
 
 #include "a3d/Id.h"
 #include "a3d/util/Bitmask.h"
-#include "a3d/visual/material/Sampler.h"
 
 namespace a3d {
 
@@ -47,9 +46,7 @@ public:
      *
      * Omitting @p sampler creates a new default Sampler for the Texture.
      */
-    explicit Texture(const Contents&                 contents,
-                     const std::shared_ptr<Sampler>& sampler        = std::make_shared<Sampler>(),
-                     unsigned                        mappingChannel = 0);
+    explicit Texture(const Contents& contents;
 
     Texture(const Texture& other);
     Texture& operator=(const Texture& other);
@@ -61,31 +58,17 @@ public:
 
     // [Public Member Functions]
 
-    /** @brief Returns the shared Sampler, or nullptr if none is assigned. */
-    std::shared_ptr<Sampler> sampler() const;
-
-    /** @brief Sets the shared Sampler; nullptr removes the explicit Sampler. */
-    void                     sampler(const std::shared_ptr<Sampler>& sampler);
-
     /** @brief Returns the shared image or cubemap contents. */
     const Contents&          contents() const;
 
     /** @brief Sets the shared image or cubemap contents. */
     void                     contents(const Contents& contents);
 
-    // TODO: move to TextureBinding
-    /** @brief Returns the stored texture-coordinate mapping channel. The current renderer does not consume this value. */
-    unsigned                 mappingChannel() const;
-
-    /** @brief Sets the stored texture-coordinate mapping channel. The current renderer does not consume this value. */
-    void                     mappingChannel(unsigned channel);
-
     // [Internal Types]
 
     enum class DirtyMask : uint32_t {
         None     = 0,
         Contents = 1 << 0,
-        Sampler  = 1 << 1, // TODO: move to MaterialBinding dirty mask?
         All      = UINT_MAX
     };
 
@@ -100,9 +83,7 @@ private:
     // [Private Member Variables]
 
     TextureId                _id;
-    std::shared_ptr<Sampler> _sampler;
     Contents                 _contents;
-    unsigned                 _mappingChannel;
     DirtyMask                _dirtyMask;
 };
 

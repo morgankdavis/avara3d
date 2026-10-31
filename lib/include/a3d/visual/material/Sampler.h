@@ -9,10 +9,7 @@
 #ifndef AVARA3D_VISUAL_MATERIAL_SAMPLER_H
 #define AVARA3D_VISUAL_MATERIAL_SAMPLER_H
 
-#include <climits>
-
-#include "a3d/Id.h"
-#include "a3d/util/Bitmask.h"
+#include <cstdint>
 
 namespace a3d {
 
@@ -49,13 +46,15 @@ public:
     /** @brief Creates a Sampler with default filtering, anisotropy, and wrapping state. */
     Sampler();
 
-    Sampler(const Sampler& other);
-    Sampler& operator=(const Sampler& other);
+    Sampler(const Sampler&) = default;
+    Sampler& operator=(const Sampler&) = default;
 
-    Sampler(Sampler&& other);
-    Sampler& operator=(Sampler&& other);
+    Sampler(Sampler&&) noexcept = default;
+    Sampler& operator=(Sampler&&) noexcept = default;
 
-    ~Sampler();
+    ~Sampler() = default;
+
+    bool operator==(const Sampler& other) const = default;
 
     // [Public Member Functions]
 
@@ -99,46 +98,17 @@ public:
     /** @brief Sets the R-coordinate wrap mode used by cubemap sampling. */
     void       wrapR(WrapMode mode);
 
-    // [Internal Types]
-
-    enum class DirtyMask : uint32_t {
-        None                = 0,
-        MinificationFilter  = 1 << 0,
-        MagnificationFilter = 1 << 1,
-        MaxAnisotropy       = 1 << 2,
-        WrapS               = 1 << 3,
-        WrapT               = 1 << 4,
-        WrapR               = 1 << 5,
-        All                 = UINT_MAX
-    };
-
-    // [Internal Member Functions]
-
-    SamplerId id() const noexcept;
-
-    DirtyMask dirtyMask() const;
-    void      dirtyMask(DirtyMask mask);
-
 private:
     // [Private Member Variables]
 
-    SamplerId  _id;
     FilterMode _minificationFilter;
     FilterMode _magnificationFilter;
     float      _maxAnisotropy;
     WrapMode   _wrapS;
     WrapMode   _wrapT;
     WrapMode   _wrapR;
-
-    DirtyMask  _dirtyMask;
 };
 
-namespace util::bitmask {
-
-    template<>
-    struct enable_ops<Sampler::DirtyMask> : std::true_type {};
-
-} // namespace util::bitmask
 } // namespace a3d
 
 #endif // AVARA3D_VISUAL_MATERIAL_SAMPLER_H

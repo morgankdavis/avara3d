@@ -50,7 +50,7 @@ public:
 
     // [Internal Static Members]
 
-    using GLGetProcAddress = void* (*) (const char* name);
+    using GLGetProcAddress = void* (*)(const char* name);
     static bool                    InitGL(GLGetProcAddress getProcAddress);
 
     // [Internal Lifecycle Functions]

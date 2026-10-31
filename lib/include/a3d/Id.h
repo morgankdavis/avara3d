@@ -16,6 +16,5 @@
 using MeshId     = uint32_t;
 using MaterialId = uint32_t;
 using TextureId  = uint32_t;
-using SamplerId  = uint32_t;
 
 #endif // AVARA3D_ID_H

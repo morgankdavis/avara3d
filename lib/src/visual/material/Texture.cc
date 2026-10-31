@@ -21,16 +21,12 @@ namespace a3d {
 
 Texture::Texture():
     _id {IdGenerator<TextureId>::next()},
-    _sampler {nullptr},
     _contents {monostate {}},
-    _mappingChannel {0},
     _dirtyMask {DirtyMask::All} {}
 
-Texture::Texture(const Contents& contents, const shared_ptr<Sampler>& sampler, unsigned mappingChannel):
+Texture::Texture(const Contents& contents):
     Texture() {
-    _sampler = sampler;
     _contents = contents;
-    _mappingChannel = mappingChannel;
 }
 
 Texture::Texture(const Texture& other):
@@ -45,9 +41,7 @@ Texture& Texture::operator=(const Texture& other) {
         return *this;
     }
 
-    _sampler = other._sampler;
     _contents = other._contents;
-    _mappingChannel = other._mappingChannel;
     _dirtyMask = DirtyMask::All;
 
     return *this;
@@ -65,9 +59,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
         return *this;
     }
 
-    _sampler = std::move(other._sampler);
     _contents = std::move(other._contents);
-    _mappingChannel = other._mappingChannel;
     _dirtyMask = DirtyMask::All;
 
     other._dirtyMask = DirtyMask::All;
@@ -79,15 +71,6 @@ Texture::~Texture() {}
 
 // [Public Member Functions]
 
-shared_ptr<Sampler> Texture::sampler() const {
-    return _sampler;
-}
-
-void Texture::sampler(const shared_ptr<Sampler>& sampler) {
-    _sampler = sampler;
-    _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Sampler);
-}
-
 const Texture::Contents& Texture::contents() const {
     return _contents;
 }
@@ -95,14 +78,6 @@ const Texture::Contents& Texture::contents() const {
 void Texture::contents(const Contents& contents) {
     _contents = contents;
     _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Contents);
-}
-
-unsigned Texture::mappingChannel() const {
-    return _mappingChannel;
-}
-
-void Texture::mappingChannel(unsigned channel) {
-    _mappingChannel = channel;
 }
 
 // [Internal Member Functions]

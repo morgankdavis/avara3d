@@ -19,6 +19,7 @@
 #include "a3d/Color.h"
 #include "a3d/Id.h"
 #include "a3d/util/Bitmask.h"
+#include "a3d/visual/material/TextureBinding.h"
 
 namespace a3d {
 
@@ -37,7 +38,7 @@ public:
     // [Public Types]
 
     /** @brief Material property contents: absent, a shared Texture, or a constant Color. */
-    using Property = std::variant<std::monostate, std::shared_ptr<Texture>, Color>;
+    using Property = std::variant<std::monostate, TextureBinding, Color>;
 
     /** @brief Identifies one of the material's lighting properties. */
     enum class PropertyType : uint8_t {
